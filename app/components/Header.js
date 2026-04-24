@@ -4,6 +4,7 @@ const navItems = [
   ['Home', '/'],
   ['Projects', '/projects'],
   ['Simulations', '/simulations'],
+  ['School Leader Simulation', '/simulation'],
   ['VIC', '/vic'],
   ['Speaking', '/speaking'],
   ['Publications', '/publications'],

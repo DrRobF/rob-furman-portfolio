@@ -3,6 +3,12 @@ import VisualPlaceholder from '../components/VisualPlaceholder';
 
 const simCards = [
   {
+    title: 'A Day in the Life of a School Leader',
+    description:
+      "Simulation shell inspired by Dr. Furman's original principal training experience with decision pressure and leadership prioritization.",
+    href: '/simulation',
+  },
+  {
     title: 'Day in the Life of a Principal',
     description:
       'Practice leadership decisions under realistic constraints with immediate feedback across instruction, operations, and school culture.',
