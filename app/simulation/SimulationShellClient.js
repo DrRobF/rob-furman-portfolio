@@ -37,6 +37,7 @@ const arrivalSortItems = [
   'Physical mail stack',
   'Teacher waiting to speak',
 ];
+const arrivalPriorityRanks = ['1st', '2nd', '3rd', '4th'];
 
 const decisionToFolderItem = {
   'Send an email response': {
@@ -225,7 +226,7 @@ export default function SimulationShellClient() {
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
   const [arrivalFirstMove, setArrivalFirstMove] = useState('');
-  const [arrivalFolderAssignments, setArrivalFolderAssignments] = useState({});
+  const [arrivalPriorityAssignments, setArrivalPriorityAssignments] = useState({});
   const [arrivalCompleted, setArrivalCompleted] = useState(false);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
 
@@ -265,7 +266,7 @@ export default function SimulationShellClient() {
     setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
     setArrivalFirstMove('');
-    setArrivalFolderAssignments({});
+    setArrivalPriorityAssignments({});
     setArrivalCompleted(false);
     setModuleTransitionNote('');
     setFolders(initialFolders);
@@ -296,20 +297,6 @@ export default function SimulationShellClient() {
         });
       });
 
-      return next;
-    });
-  };
-
-  const assignItemToFolder = (item, bucket) => {
-    setFolders((prev) => {
-      const next = {
-        red: prev.red.filter((entry) => entry !== item),
-        orange: prev.orange.filter((entry) => entry !== item),
-        green: prev.green.filter((entry) => entry !== item),
-      };
-      if (!next[bucket].includes(item)) {
-        next[bucket].push(item);
-      }
       return next;
     });
   };
@@ -347,13 +334,21 @@ export default function SimulationShellClient() {
     setArrivalFirstMove(move);
   };
 
-  const handleArrivalFolderAssignment = (item, bucket) => {
-    setArrivalFolderAssignments((prev) => ({ ...prev, [item]: bucket }));
-    assignItemToFolder(item, bucket);
+  const handleArrivalPriorityAssignment = (item, rank) => {
+    setArrivalPriorityAssignments((prev) => {
+      const next = { ...prev };
+      Object.entries(next).forEach(([assignedItem, assignedRank]) => {
+        if (assignedItem !== item && assignedRank === rank) {
+          delete next[assignedItem];
+        }
+      });
+      next[item] = rank;
+      return next;
+    });
   };
 
   const handleContinueDay = () => {
-    if (arrivalSortItems.some((item) => !arrivalFolderAssignments[item])) return;
+    if (arrivalSortItems.some((item) => !arrivalPriorityAssignments[item])) return;
 
     setArrivalCompleted(true);
     setTimelineStatuses((prev) => {
@@ -400,7 +395,7 @@ export default function SimulationShellClient() {
 
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
-  const hasFinishedArrivalSorting = arrivalSortItems.every((item) => Boolean(arrivalFolderAssignments[item]));
+  const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
   const selectedArrivalCoaching = hasSelectedArrivalMove ? arrivalFirstMoveCoaching[arrivalFirstMove] : null;
   const isDecisionMade = currentModule === 'arrival' ? hasSelectedArrivalMove : hasSelectedDecision;
   const finalResponseAnalysis = useMemo(
@@ -541,62 +536,58 @@ export default function SimulationShellClient() {
 
                     {hasSelectedArrivalMove ? (
                       <article className="report-card" aria-live="polite">
-                        <h3>Sort the Remaining Priorities</h3>
+                        <h3>Sequence Your Priorities</h3>
                         <p>
-                          Now decide where the remaining items belong. This is part of the leadership work:
-                          not everything is urgent, but nothing can be ignored.
+                          All of these require your attention today. The leadership challenge is deciding what
+                          comes first — and why.
                         </p>
                         <div className="report-path-list">
                           {arrivalSortItems.map((item) => (
                             <div key={item} className="selected-decision-chip">
                               <span className="selected-decision-label">{item}</span>
                               <div className="button-row">
-                                <button
-                                  type="button"
-                                  className={`button secondary ${arrivalFolderAssignments[item] === 'red' ? 'active' : ''}`}
-                                  onClick={() => handleArrivalFolderAssignment(item, 'red')}
-                                >
-                                  Red: Before leaving today
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`button secondary ${arrivalFolderAssignments[item] === 'orange' ? 'active' : ''}`}
-                                  onClick={() => handleArrivalFolderAssignment(item, 'orange')}
-                                >
-                                  Orange: Next two days
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`button secondary ${arrivalFolderAssignments[item] === 'green' ? 'active' : ''}`}
-                                  onClick={() => handleArrivalFolderAssignment(item, 'green')}
-                                >
-                                  Green: This week
-                                </button>
+                                {arrivalPriorityRanks.map((rank) => (
+                                  <button
+                                    key={`${item}-${rank}`}
+                                    type="button"
+                                    className={`button secondary ${arrivalPriorityAssignments[item] === rank ? 'active' : ''}`}
+                                    onClick={() => handleArrivalPriorityAssignment(item, rank)}
+                                  >
+                                    {rank}
+                                  </button>
+                                ))}
                               </div>
                               <p>
                                 Assigned:{' '}
                                 <strong>
-                                  {arrivalFolderAssignments[item]
-                                    ? `${arrivalFolderAssignments[item][0].toUpperCase()}${arrivalFolderAssignments[item].slice(1)}`
+                                  {arrivalPriorityAssignments[item]
+                                    ? arrivalPriorityAssignments[item]
                                     : 'Not assigned'}
                                 </strong>
                               </p>
                             </div>
                           ))}
                         </div>
-                        <p className="analysis-note">
-                          Folder choices reveal how you prioritize pressure. In the full simulation, these
-                          decisions will be reviewed as part of your leadership profile.
-                        </p>
-                        {hasFinishedArrivalSorting ? (
-                          <p>Morning triage complete. Your first leadership decisions are now part of the record.</p>
+                        {hasFinishedArrivalRanking ? (
+                          <article className="decision-consequence-card" aria-live="polite">
+                            <h4>Morning Leadership Insight</h4>
+                            <p>
+                              Strong leaders prioritize people first, then urgency signals, and then
+                              information flow.
+                            </p>
+                            <p>
+                              Human needs (like a waiting teacher) come before tasks. Signals of urgency (like
+                              voicemail) come before controlled inputs like email. Physical mail is usually
+                              last unless something unusual draws attention.
+                            </p>
+                          </article>
                         ) : null}
                         <div className="button-row">
                           <button
                             type="button"
                             className="button primary"
                             onClick={handleContinueDay}
-                            disabled={!hasFinishedArrivalSorting}
+                            disabled={!hasFinishedArrivalRanking}
                           >
                             Continue Day
                           </button>
