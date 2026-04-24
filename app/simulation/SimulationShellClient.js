@@ -62,16 +62,105 @@ const postResponseFolderItems = {
 
 const totalDecisionWindowSeconds = 120;
 
+const lensNames = [
+  'Judgment Under Pressure',
+  'Communication & Tone',
+  'Fairness & Professional Integrity',
+  'Process & Follow-Through',
+  'Emotional Awareness',
+];
+
 function formatTimer(seconds) {
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
   const secs = String(seconds % 60).padStart(2, '0');
   return `${mins}:${secs}`;
 }
 
+function includesAny(text, terms) {
+  return terms.some((term) => text.includes(term));
+}
+
+function analyzeFinalResponse(response) {
+  const lowered = response.toLowerCase();
+  const wordCount = response.trim().split(/\s+/).filter(Boolean).length;
+
+  const empathyTerms = [
+    'concern',
+    'understand',
+    'appreciate',
+    'sorry',
+    'thank you',
+    'support',
+    'hear',
+    'reviewed',
+  ];
+  const emotionalTerms = ['embarrass', 'frustrat', 'concern', 'worry', 'upset', 'ashamed', 'feel'];
+  const processTerms = ['follow up', 'tomorrow', 'today', 'by ', 'will review', 'will speak', 'will call'];
+  const factFindingTerms = ['review', 'gather', 'look into', 'speak with', 'context', 'facts'];
+  const defensiveTerms = ['not our fault', 'your child', 'teacher was wrong', 'you are wrong', 'calm down'];
+  const blameTerms = ['lied', 'lazy', 'teacher is wrong', 'parent is wrong', 'your daughter was wrong'];
+  const overpromiseTerms = ['i promise', 'guarantee', 'will be punished immediately', 'this will never happen again'];
+  const dismissiveTerms = ['nothing happened', 'no issue', 'overreacting'];
+
+  const hasEmpathy = includesAny(lowered, empathyTerms);
+  const hasEmotionAcknowledgment = includesAny(lowered, emotionalTerms);
+  const hasProcess = includesAny(lowered, processTerms);
+  const hasFactFinding = includesAny(lowered, factFindingTerms);
+  const hasDefensive = includesAny(lowered, defensiveTerms);
+  const hasBlame = includesAny(lowered, blameTerms);
+  const hasOverpromise = includesAny(lowered, overpromiseTerms);
+  const hasDismissive = includesAny(lowered, dismissiveTerms);
+
+  const rows = {
+    'Communication & Tone': {
+      status:
+        (wordCount >= 45 && hasEmpathy && !hasDefensive && !hasBlame) ? 'Strong' : 'Needs Attention',
+      note:
+        (wordCount >= 45 && hasEmpathy && !hasDefensive && !hasBlame)
+          ? 'You acknowledged concern in a calm voice that protects trust.'
+          : 'Add clearer empathy language and remove any defensive or blaming tone.',
+    },
+    'Fairness & Professional Integrity': {
+      status: !hasBlame && hasFactFinding ? 'Strong' : 'Needs Attention',
+      note:
+        !hasBlame && hasFactFinding
+          ? 'You stayed neutral and grounded your response in fact-finding.'
+          : 'Avoid assigning fault; focus on review before conclusions.',
+    },
+    'Process & Follow-Through': {
+      status: hasProcess ? 'Strong' : 'Needs Attention',
+      note: hasProcess
+        ? 'You gave a concrete next step and timeline.'
+        : 'Add a specific next step and when the parent will hear from you.',
+    },
+    'Emotional Awareness': {
+      status: hasEmotionAcknowledgment ? 'Strong' : 'Needs Attention',
+      note: hasEmotionAcknowledgment
+        ? 'You recognized the family’s emotional experience, not just the facts.'
+        : 'Explicitly acknowledge student and parent emotions in your response.',
+    },
+    'Judgment Under Pressure': {
+      status: hasDismissive || hasBlame || includesAny(lowered, ['discipline immediately'])
+        ? 'Needs Attention'
+        : hasEmpathy && hasFactFinding && !hasOverpromise
+          ? 'Strong'
+          : 'Developing',
+      note: hasDismissive || hasBlame || includesAny(lowered, ['discipline immediately'])
+        ? 'Avoid dismissal, blame, or immediate punitive guarantees before facts are confirmed.'
+        : hasEmpathy && hasFactFinding && !hasOverpromise
+          ? 'You balanced urgency, empathy, and process without overcommitting outcomes.'
+          : 'Keep acknowledgment, but tighten language to avoid overpromising before full review.',
+    },
+  };
+
+  return lensNames.map((name) => ({ lens: name, ...rows[name] }));
+}
+
 export default function SimulationShellClient() {
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
   const [folders, setFolders] = useState(initialFolders);
+  const [completedTasks, setCompletedTasks] = useState([]);
   const [firstDecision, setFirstDecision] = useState('');
   const [investigationDecision, setInvestigationDecision] = useState('');
   const [initialParentResponse, setInitialParentResponse] = useState('');
@@ -113,6 +202,8 @@ export default function SimulationShellClient() {
     setFinalParentResponse('');
     setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
+    setFolders(initialFolders);
+    setCompletedTasks([]);
   };
 
   const scrollToTop = () => {
@@ -141,6 +232,27 @@ export default function SimulationShellClient() {
     });
   };
 
+  const completeFolderItems = (items) => {
+    if (!items.length) return;
+    setFolders((prev) => {
+      const next = {
+        red: prev.red.filter((item) => !items.includes(item)),
+        orange: prev.orange.filter((item) => !items.includes(item)),
+        green: prev.green.filter((item) => !items.includes(item)),
+      };
+      return next;
+    });
+    setCompletedTasks((prev) => {
+      const next = [...prev];
+      items.forEach((item) => {
+        if (!next.includes(item)) {
+          next.push(item);
+        }
+      });
+      return next;
+    });
+  };
+
   const handleDecision = (decisionLabel) => {
     const mapping = decisionToFolderItem[decisionLabel];
     if (!mapping) return;
@@ -157,13 +269,22 @@ export default function SimulationShellClient() {
 
   const handleInvestigationContinue = () => {
     if (!investigationDecision || !finalParentResponse.trim() || hasCompletedFinalStep) return;
-    addFolderItems(postResponseFolderItems);
+    completeFolderItems([
+      'Respond to parent with care and clear timeline',
+      'Speak with teacher immediately',
+      'Document parent concern',
+      'Follow up with parent within 48 hours',
+    ]);
     setHasCompletedFinalStep(true);
     scrollToTop();
   };
 
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
+  const finalResponseAnalysis = useMemo(
+    () => analyzeFinalResponse(finalParentResponse),
+    [finalParentResponse],
+  );
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -370,6 +491,16 @@ export default function SimulationShellClient() {
                       className={`choice ${investigationDecision === option ? 'active' : ''}`}
                       onClick={() => {
                         setInvestigationDecision(option);
+                        completeFolderItems([investigationFolderItem]);
+                        addFolderItems({
+                          red: [
+                            'Document parent concern',
+                            option === 'Discuss the situation with the teacher'
+                              ? 'Speak with teacher immediately'
+                              : 'Respond to parent with care and clear timeline',
+                          ],
+                          orange: ['Follow up with parent within 48 hours'],
+                        });
                         scrollToTop();
                       }}
                     >
@@ -411,13 +542,51 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 {hasCompletedFinalStep ? (
-                  <article className="decision-next-step-panel" aria-live="polite">
-                    <p className="decision-next-step-kicker">Case Step Complete</p>
-                    <p>
-                      Your final response has been recorded for the leadership record. In the full simulation,
-                      this response will become part of your end-of-day summary and coaching report.
-                    </p>
-                  </article>
+                  <>
+                    <article className="decision-next-step-panel" aria-live="polite">
+                      <p className="decision-next-step-kicker">Leadership Response Analysis</p>
+                      <p>
+                        Your written response is the most important leadership artifact in this case. Here is
+                        how it reads through the simulation&apos;s leadership lenses.
+                      </p>
+                      <p className="analysis-note">
+                        First-pass local simulation analysis only (keyword/heuristic based), not final AI
+                        analysis.
+                      </p>
+                      <div className="analysis-grid">
+                        {finalResponseAnalysis.map((row) => (
+                          <article key={row.lens} className="analysis-row">
+                            <p className="analysis-lens">{row.lens}</p>
+                            <p className={`analysis-status ${row.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {row.status}
+                            </p>
+                            <p>{row.note}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </article>
+                    <article className="decision-next-step-panel">
+                      <p className="decision-next-step-kicker">Strong Response Should Include</p>
+                      <ul className="strong-response-list">
+                        <li>Acknowledge the parent&apos;s concern.</li>
+                        <li>Recognize the child&apos;s emotional experience.</li>
+                        <li>Clarify that the reward was participation-based, not accuracy-based.</li>
+                        <li>Avoid blaming the child or teacher.</li>
+                        <li>
+                          Explain that classroom practices around rewards and exclusion will be reviewed.
+                        </li>
+                        <li>Offer a follow-up conversation or timeline.</li>
+                      </ul>
+                    </article>
+                    <article className="decision-next-step-panel" aria-live="polite">
+                      <p className="decision-next-step-kicker">Case Step Complete</p>
+                      <p>
+                        Your decisions and written response have been added to the leadership record for this
+                        case.
+                      </p>
+                      <p>Next build: this record can become part of a printable end-of-day leadership report.</p>
+                    </article>
+                  </>
                 ) : null}
               </>
             )}
@@ -518,6 +687,18 @@ export default function SimulationShellClient() {
                   ))}
                 </ul>
               </article>
+
+              {completedTasks.length ? (
+                <article className="folder-card">
+                  <h4>Completed</h4>
+                  <p className="folder-subtitle">Closed items from this case step</p>
+                  <ul>
+                    {completedTasks.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </article>
+              ) : null}
             </div>
           </div>
 
