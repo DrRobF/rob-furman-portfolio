@@ -1,28 +1,29 @@
 import Link from 'next/link';
+import VisualPlaceholder from '../components/VisualPlaceholder';
 
 const projects = [
   {
     title: 'Day in the Life of a Principal',
     description:
-      'Interactive leadership simulation that places school administrators in time-sensitive decisions with reflective feedback.',
+      'Interactive leadership simulation that places school administrators in time-sensitive instructional, operational, and culture decisions.',
     href: '/simulations/principal',
   },
   {
     title: 'Day in the Life of an Urban Student',
     description:
-      'Simulation concept designed to build empathy and decision-awareness around student experiences in urban contexts.',
+      'Simulation designed to deepen perspective-taking and strengthen instructional planning around real student conditions.',
     href: '/simulations/urban-student',
   },
   {
     title: 'VIC',
     description:
-      'A virtual co-teacher framework for AI-supported instruction, student support, and differentiated pathways.',
+      'A Virtual Co-Teacher framework for AI-supported instruction, differentiated pathways, and actionable teacher insight.',
     href: '/vic',
   },
   {
     title: 'Virtual Leadership Pathway for School Administrators',
     description:
-      'A modular pathway focused on applied leadership skills through simulation, coaching structures, and scenario analysis.',
+      'A modular development pathway combining simulation, coaching, and reflection for aspiring and current school leaders.',
     href: '/simulations',
   },
 ];
@@ -32,15 +33,32 @@ export default function ProjectsPage() {
     <section className="section">
       <div className="container">
         <h1>Projects</h1>
-        <p className="lead">Selected initiatives in simulation-based learning, AI support systems, and leadership development.</p>
+        <p className="lead">
+          Selected work at the intersection of school leadership, instructional design, professional
+          learning, and AI-enabled learning systems.
+        </p>
         <div className="card-grid">
           {projects.map((project) => (
-            <article key={project.title} className="card">
+            <article key={project.title} className="card project-card">
               <h2>{project.title}</h2>
               <p>{project.description}</p>
               <Link href={project.href} className="text-link">Open project →</Link>
             </article>
           ))}
+        </div>
+        <div className="card-grid top-space two-up">
+          <VisualPlaceholder
+            title="Simulation Product Imagery"
+            subtitle="Replace with simulation interface screenshots"
+            tag="Project Visual"
+            variant="simulation"
+          />
+          <VisualPlaceholder
+            title="VIC Platform Visual"
+            subtitle="Replace with VIC workflow or dashboard image"
+            tag="AI System"
+            variant="vic"
+          />
         </div>
       </div>
     </section>
