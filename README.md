@@ -1,2 +1,3 @@
 # rob-furman-portfolio
-Dr Rob Furman Portfolio
+
+Professional portfolio website for Dr. Rob Furman built with Next.js.
