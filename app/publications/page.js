@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-const publicationCards = [
+const featuredBooks = [
   {
     title: 'The Future Ready Challenge',
     description:
@@ -17,18 +17,33 @@ const publicationCards = [
   },
 ];
 
+const additionalWorks = [
+  {
+    title: 'Technology, Reading & Digital Literacy',
+    description:
+      'Applied guidance for integrating digital tools into literacy instruction while keeping pedagogy at the center.',
+  },
+  {
+    title: 'Engaging Young Readers',
+    description:
+      'Practical approaches that help educators improve reading engagement and student ownership in literacy growth.',
+  },
+];
+
 export default function PublicationsPage() {
   return (
     <section className="section section-light">
       <div className="container">
         <h1>Publications</h1>
         <p className="lead">
-          Dr. Rob Furman is an ISTE published educational technology author whose books and writing
-          connect instructional leadership, literacy, and practical classroom innovation.
+          Dr. Rob Furman is an ISTE published author focused on educational technology, literacy, and
+          practical innovation for teachers, leaders, and learning organizations.
         </p>
 
-        <div className="publication-cards top-space">
-          {publicationCards.map((book) => (
+        <h2 className="top-space">Selected Books and Publications</h2>
+
+        <div className="publication-cards top-space-sm">
+          {featuredBooks.map((book) => (
             <article key={book.title} className="publication-card">
               <div className="publication-image-wrap">
                 <Image
@@ -40,9 +55,18 @@ export default function PublicationsPage() {
                 />
               </div>
               <div className="publication-content">
-                <h2>{book.title}</h2>
+                <h3>{book.title}</h3>
                 <p>{book.description}</p>
               </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="card-grid top-space">
+          {additionalWorks.map((work) => (
+            <article key={work.title} className="card">
+              <h3>{work.title}</h3>
+              <p>{work.description}</p>
             </article>
           ))}
         </div>

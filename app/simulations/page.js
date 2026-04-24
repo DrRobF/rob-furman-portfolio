@@ -1,5 +1,5 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import VisualPlaceholder from '../components/VisualPlaceholder';
 
 const simCards = [
   {
@@ -24,7 +24,7 @@ const simCards = [
 
 export default function SimulationsPage() {
   return (
-    <section className="section">
+    <section className="section section-light">
       <div className="container">
         <h1>Simulations</h1>
         <p className="lead">
@@ -34,25 +34,33 @@ export default function SimulationsPage() {
         <div className="card-grid">
           {simCards.map((sim) => (
             <article className="card project-card" key={sim.title}>
-              <h2>{sim.title}</h2>
+              <h3>{sim.title}</h3>
               <p>{sim.description}</p>
-              <Link href={sim.href} className="text-link">Launch page →</Link>
+              <Link href={sim.href} className="text-link">
+                Launch page →
+              </Link>
             </article>
           ))}
         </div>
         <div className="card-grid two-up top-space">
-          <VisualPlaceholder
-            title="Principal Simulation UI"
-            subtitle="Replace with interactive simulation screenshot"
-            tag="Leadership Simulation"
-            variant="simulation"
-          />
-          <VisualPlaceholder
-            title="Student Journey Simulation UI"
-            subtitle="Replace with empathy simulation screenshot"
-            tag="Instructional Simulation"
-            variant="simulation"
-          />
+          <div className="media-card">
+            <Image
+              src="/images/conference.jpg"
+              alt="Facilitated professional learning session"
+              width={1200}
+              height={900}
+              className="section-image"
+            />
+          </div>
+          <div className="media-card">
+            <Image
+              src="/images/headshot-gray.jpg"
+              alt="Instructional leadership simulation development"
+              width={900}
+              height={1100}
+              className="section-image about-image"
+            />
+          </div>
         </div>
       </div>
     </section>
