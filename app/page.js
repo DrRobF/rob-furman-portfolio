@@ -1,5 +1,5 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import VisualPlaceholder from './components/VisualPlaceholder';
 
 const credibilityCards = [
   {
@@ -48,7 +48,7 @@ const featuredProjects = [
 export default function HomePage() {
   return (
     <>
-      <section className="hero section">
+      <section className="hero section section-light">
         <div className="container hero-layout">
           <div className="hero-content">
             <p className="eyebrow">Dr. Rob Furman · Ed.D. · Leadership + AI + Learning Design</p>
@@ -70,16 +70,21 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <VisualPlaceholder
-            title="Professional Headshot"
-            subtitle="Replace with Dr. Rob Furman portrait"
-            tag="Headshot"
-            variant="headshot"
-          />
+
+          <div className="media-card hero-image-wrap">
+            <Image
+              src="/images/headshot-gray.jpg"
+              alt="Dr. Rob Furman professional headshot"
+              width={760}
+              height={900}
+              className="section-image hero-image"
+              priority
+            />
+          </div>
         </div>
       </section>
 
-      <section className="section credibility-panel">
+      <section className="section section-soft credibility-panel">
         <div className="container">
           <h2>Leadership Credibility + Innovation Focus</h2>
           <div className="card-grid four-up">
@@ -93,30 +98,70 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section muted">
-        <div className="container split-grid">
+      <section className="section section-dark keynote-section">
+        <div className="container keynote-grid">
+          <Image
+            src="/images/tedx-umd.jpg"
+            alt="Dr. Rob Furman speaking on a TEDx stage"
+            width={1600}
+            height={900}
+            className="section-image keynote-image"
+          />
+          <div className="keynote-overlay">
+            <p>TEDx Speaker | Keynote Presenter | Instructional Leader</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-light">
+        <div className="container split-grid about-layout">
+          <div className="media-card">
+            <Image
+              src="/images/headshot-blue.jpg"
+              alt="Dr. Rob Furman leadership portrait"
+              width={900}
+              height={1100}
+              className="section-image about-image"
+            />
+          </div>
           <div>
-            <h2>Educational Leadership Foundation</h2>
+            <h2>Leadership That Balances Vision and Implementation</h2>
             <p>
               As a former principal and instructional leader, Rob has led school operations,
               instructional systems, professional development, and technology adoption efforts that
               improve teacher practice and student outcomes.
             </p>
             <p>
-              His Ed.D. in Instructional Leadership grounds every innovation effort in what schools
-              actually need: coherent systems, practical implementation, and measurable results.
+              His leadership approach is personal, practical, and people-centered: aligning bold
+              instructional vision with coaching, systems thinking, and consistent execution.
             </p>
           </div>
-          <VisualPlaceholder
-            title="TEDx / Keynote Stage"
-            subtitle="Replace with TEDx or keynote speaking image"
-            tag="Speaking"
-            variant="speaking"
-          />
         </div>
       </section>
 
-      <section className="section">
+      <section className="section section-soft">
+        <div className="container split-grid professional-layout">
+          <div>
+            <h2>Professional Presence in Real-World Contexts</h2>
+            <p>
+              From district sessions to conference collaborations, Rob translates research and
+              innovation into concrete next steps teams can use immediately. His work is grounded in
+              authentic leadership and trusted professional partnerships.
+            </p>
+          </div>
+          <div className="media-card">
+            <Image
+              src="/images/conference.jpg"
+              alt="Dr. Rob Furman collaborating with peers at a professional conference"
+              width={1200}
+              height={900}
+              className="section-image"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-light">
         <div className="container">
           <h2>Featured Projects</h2>
           <div className="card-grid">
@@ -133,7 +178,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section accent-panel">
+      <section className="section section-soft accent-panel">
         <div className="container split-grid">
           <div>
             <h2>Publications and Professional Voice</h2>
@@ -145,38 +190,19 @@ export default function HomePage() {
               View Publications →
             </Link>
           </div>
-          <VisualPlaceholder
-            title="Books + Publications"
-            subtitle="Replace with book covers or publication collage"
-            tag="Publications"
-            variant="books"
-          />
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container split-grid">
-          <VisualPlaceholder
-            title="Simulation Experience"
-            subtitle="Replace with simulation dashboard image"
-            tag="Simulations"
-            variant="simulation"
-          />
-          <div>
-            <h2>AI + Instructional Design in Practice</h2>
-            <p>
-              Rob builds practical AI-supported learning systems, including VIC and interactive
-              simulations, to strengthen instructional decision-making, learner engagement, and
-              professional growth across schools and organizations.
-            </p>
-            <Link href="/simulations" className="text-link">
-              Explore Simulations →
-            </Link>
+          <div className="media-card publication-preview">
+            <Image
+              src="/images/book-future-ready.jpg"
+              alt="The Future Ready Challenge book cover"
+              width={600}
+              height={800}
+              className="section-image"
+            />
           </div>
         </div>
       </section>
 
-      <section className="section cta">
+      <section className="section cta section-light">
         <div className="container">
           <h2>Partner with Dr. Rob Furman</h2>
           <p>
