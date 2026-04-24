@@ -8,6 +8,36 @@ const initialFolders = {
   green: ['Review leadership reflection'],
 };
 
+const arrivalFirstMoveCoaching = {
+  'Check voicemail': {
+    title: 'Urgency Check',
+    message:
+      'You chose to check voicemail first. This can be a strong move because phone messages often involve urgent parent or safety concerns. The risk is that voicemail can pull you into someone else’s agenda before you scan the whole field.',
+  },
+  'Open email': {
+    title: 'Information Scan',
+    message:
+      'You chose to open email first. This can help you quickly identify written concerns, deadlines, and parent communication. The risk is that email can become a rabbit hole before the day even starts.',
+  },
+  'Review mailbox': {
+    title: 'Paper Triage',
+    message:
+      'You chose to review the physical mailbox. This can surface forms, meeting notices, and deadlines that may not appear digitally. The risk is that paper tasks may feel productive while more urgent issues wait.',
+  },
+  'Speak with the teacher': {
+    title: 'Relationship First',
+    message:
+      'You chose to speak with the teacher first. This can strengthen trust and visibility, but it may also take over the limited quiet time you have before the day starts.',
+  },
+};
+
+const arrivalSortItems = [
+  'Voicemail light blinking',
+  'Unread inbox messages',
+  'Physical mail stack',
+  'Teacher waiting to speak',
+];
+
 const decisionToFolderItem = {
   'Send an email response': {
     bucket: 'red',
@@ -71,7 +101,7 @@ const lensNames = [
 ];
 
 const dayModules = [
-  { id: 'arrival', label: '7:30 AM — Arrival', enabled: false },
+  { id: 'arrival', label: '7:30 AM — Arrival', enabled: true },
   { id: 'iepMeeting', label: '8:15 AM — IEP Meeting', enabled: false },
   { id: 'announcements', label: '9:00 AM — Announcements', enabled: false },
   { id: 'voicemailMailbox', label: '9:30 AM — Voicemail & Mailbox', enabled: false },
@@ -90,7 +120,7 @@ const moduleStatuses = {
 };
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
-  acc[module.id] = module.id === 'endOfDayEmail' ? moduleStatuses.active : moduleStatuses.upcoming;
+  acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
   return acc;
 }, {});
 
@@ -181,7 +211,7 @@ function analyzeFinalResponse(response) {
 }
 
 export default function SimulationShellClient() {
-  const [currentModule, setCurrentModule] = useState('endOfDayEmail');
+  const [currentModule, setCurrentModule] = useState('arrival');
   const [timelineStatuses, setTimelineStatuses] = useState(initialModuleStatuses);
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
@@ -194,8 +224,13 @@ export default function SimulationShellClient() {
   const [hasCompletedFinalStep, setHasCompletedFinalStep] = useState(false);
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
+  const [arrivalFirstMove, setArrivalFirstMove] = useState('');
+  const [arrivalFolderAssignments, setArrivalFolderAssignments] = useState({});
+  const [arrivalCompleted, setArrivalCompleted] = useState(false);
+  const [moduleTransitionNote, setModuleTransitionNote] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
+  const hasSelectedArrivalMove = Boolean(arrivalFirstMove);
   const [scene, setScene] = useState('initial');
   const isInvestigationScene = scene === 'investigation';
   const isReportScene = scene === 'report';
@@ -229,9 +264,13 @@ export default function SimulationShellClient() {
     setFinalParentResponse('');
     setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
+    setArrivalFirstMove('');
+    setArrivalFolderAssignments({});
+    setArrivalCompleted(false);
+    setModuleTransitionNote('');
     setFolders(initialFolders);
     setCompletedTasks([]);
-    setCurrentModule('endOfDayEmail');
+    setCurrentModule('arrival');
     setTimelineStatuses(initialModuleStatuses);
   };
 
@@ -257,6 +296,20 @@ export default function SimulationShellClient() {
         });
       });
 
+      return next;
+    });
+  };
+
+  const assignItemToFolder = (item, bucket) => {
+    setFolders((prev) => {
+      const next = {
+        red: prev.red.filter((entry) => entry !== item),
+        orange: prev.orange.filter((entry) => entry !== item),
+        green: prev.green.filter((entry) => entry !== item),
+      };
+      if (!next[bucket].includes(item)) {
+        next[bucket].push(item);
+      }
       return next;
     });
   };
@@ -290,6 +343,38 @@ export default function SimulationShellClient() {
     addFolderItems({ [mapping.bucket]: [mapping.item] });
   };
 
+  const handleArrivalFirstMove = (move) => {
+    setArrivalFirstMove(move);
+  };
+
+  const handleArrivalFolderAssignment = (item, bucket) => {
+    setArrivalFolderAssignments((prev) => ({ ...prev, [item]: bucket }));
+    assignItemToFolder(item, bucket);
+  };
+
+  const handleContinueDay = () => {
+    if (arrivalSortItems.some((item) => !arrivalFolderAssignments[item])) return;
+
+    setArrivalCompleted(true);
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, arrival: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'arrival' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setCurrentModule('arrival');
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
+    scrollToTop();
+  };
+
   const handleContinueToInvestigation = () => {
     setScene('investigation');
     addFolderItems({ red: [investigationFolderItem] });
@@ -315,6 +400,9 @@ export default function SimulationShellClient() {
 
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
+  const hasFinishedArrivalSorting = arrivalSortItems.every((item) => Boolean(arrivalFolderAssignments[item]));
+  const selectedArrivalCoaching = hasSelectedArrivalMove ? arrivalFirstMoveCoaching[arrivalFirstMove] : null;
+  const isDecisionMade = currentModule === 'arrival' ? hasSelectedArrivalMove : hasSelectedDecision;
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
     [finalParentResponse],
@@ -362,7 +450,7 @@ export default function SimulationShellClient() {
                 const isCompleted = status === moduleStatuses.completed;
                 const isUpcoming = status === moduleStatuses.upcoming;
                 const moduleLabel = isUpcoming && !module.enabled ? `${module.label} (Coming Soon)` : module.label;
-                const isDisabled = !module.enabled || isCompleted || !isActive;
+                const isDisabled = !module.enabled || isCompleted;
 
                 return (
                   <button
@@ -378,9 +466,20 @@ export default function SimulationShellClient() {
                     aria-current={isActive ? 'step' : undefined}
                     disabled={isDisabled}
                     onClick={() => {
-                      if (module.id === 'endOfDayEmail' && isActive) {
-                        setCurrentModule('endOfDayEmail');
-                      }
+                      if (isDisabled) return;
+                      setTimelineStatuses((prev) => {
+                        const next = { ...prev };
+                        dayModules.forEach((dayModule) => {
+                          if (next[dayModule.id] !== moduleStatuses.completed) {
+                            next[dayModule.id] = dayModule.id === module.id
+                              ? moduleStatuses.active
+                              : moduleStatuses.upcoming;
+                          }
+                        });
+                        return next;
+                      });
+                      setCurrentModule(module.id);
+                      setModuleTransitionNote('');
                     }}
                   >
                     <span>{moduleLabel}</span>
@@ -397,8 +496,117 @@ export default function SimulationShellClient() {
             <p className="decision-note">You are managing time-sensitive leadership priorities.</p>
           </div>
 
-          <div className={`scenario-content ${hasSelectedDecision ? 'decision-made' : 'pre-decision'}`}>
-            {currentModule === 'endOfDayEmail' ? (
+          <div className={`scenario-content ${isDecisionMade ? 'decision-made' : 'pre-decision'}`}>
+            {currentModule === 'arrival' ? (
+              <>
+                {arrivalCompleted ? (
+                  <article className="scenario-preview-card">
+                    <p>Morning triage complete. Your first leadership decisions are now part of the record.</p>
+                    <p>{moduleTransitionNote || 'Next module coming soon.'}</p>
+                  </article>
+                ) : (
+                  <>
+                    <p className="eyebrow">7:30 AM</p>
+                    <h2>The Day Begins</h2>
+                    <article className="scenario-preview-card">
+                      <p>
+                        You arrive before most of the building is moving. For a few minutes, the office is
+                        quiet — but the day is already waiting for you.
+                      </p>
+                      <p>
+                        Your voicemail light is blinking. Your inbox has unread messages. A stack of physical
+                        mail is sitting on your desk. A teacher has also stopped by to ask if you have a
+                        minute.
+                      </p>
+                    </article>
+                    <h3 className="decision-prompt">What do you handle first?</h3>
+                    <div className="choices">
+                      {Object.keys(arrivalFirstMoveCoaching).map((move) => (
+                        <button
+                          key={move}
+                          className={`choice ${arrivalFirstMove === move ? 'active' : ''}`}
+                          onClick={() => handleArrivalFirstMove(move)}
+                        >
+                          {move}
+                        </button>
+                      ))}
+                    </div>
+
+                    {selectedArrivalCoaching ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <h4>{selectedArrivalCoaching.title}</h4>
+                        <p>{selectedArrivalCoaching.message}</p>
+                      </article>
+                    ) : null}
+
+                    {hasSelectedArrivalMove ? (
+                      <article className="report-card" aria-live="polite">
+                        <h3>Sort the Remaining Priorities</h3>
+                        <p>
+                          Now decide where the remaining items belong. This is part of the leadership work:
+                          not everything is urgent, but nothing can be ignored.
+                        </p>
+                        <div className="report-path-list">
+                          {arrivalSortItems.map((item) => (
+                            <div key={item} className="selected-decision-chip">
+                              <span className="selected-decision-label">{item}</span>
+                              <div className="button-row">
+                                <button
+                                  type="button"
+                                  className={`button secondary ${arrivalFolderAssignments[item] === 'red' ? 'active' : ''}`}
+                                  onClick={() => handleArrivalFolderAssignment(item, 'red')}
+                                >
+                                  Red: Before leaving today
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`button secondary ${arrivalFolderAssignments[item] === 'orange' ? 'active' : ''}`}
+                                  onClick={() => handleArrivalFolderAssignment(item, 'orange')}
+                                >
+                                  Orange: Next two days
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`button secondary ${arrivalFolderAssignments[item] === 'green' ? 'active' : ''}`}
+                                  onClick={() => handleArrivalFolderAssignment(item, 'green')}
+                                >
+                                  Green: This week
+                                </button>
+                              </div>
+                              <p>
+                                Assigned:{' '}
+                                <strong>
+                                  {arrivalFolderAssignments[item]
+                                    ? `${arrivalFolderAssignments[item][0].toUpperCase()}${arrivalFolderAssignments[item].slice(1)}`
+                                    : 'Not assigned'}
+                                </strong>
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="analysis-note">
+                          Folder choices reveal how you prioritize pressure. In the full simulation, these
+                          decisions will be reviewed as part of your leadership profile.
+                        </p>
+                        {hasFinishedArrivalSorting ? (
+                          <p>Morning triage complete. Your first leadership decisions are now part of the record.</p>
+                        ) : null}
+                        <div className="button-row">
+                          <button
+                            type="button"
+                            className="button primary"
+                            onClick={handleContinueDay}
+                            disabled={!hasFinishedArrivalSorting}
+                          >
+                            Continue Day
+                          </button>
+                        </div>
+                      </article>
+                    ) : null}
+                  </>
+                )}
+              </>
+            ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
               <>
                 <p className="eyebrow">Leadership Case Record</p>
