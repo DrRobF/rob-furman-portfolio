@@ -75,6 +75,7 @@ export default function SimulationShellClient() {
   const [firstDecision, setFirstDecision] = useState('');
   const [investigationDecision, setInvestigationDecision] = useState('');
   const [responseDraft, setResponseDraft] = useState('');
+  const [hasCompletedFinalStep, setHasCompletedFinalStep] = useState(false);
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
 
@@ -108,7 +109,14 @@ export default function SimulationShellClient() {
     setFirstDecision('');
     setInvestigationDecision('');
     setResponseDraft('');
+    setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
+  };
+
+  const scrollToTop = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const addFolderItems = (itemsByBucket) => {
@@ -142,29 +150,27 @@ export default function SimulationShellClient() {
   const handleContinueToInvestigation = () => {
     setScene('investigation');
     addFolderItems({ red: [investigationFolderItem] });
+    scrollToTop();
   };
 
   const handleInvestigationContinue = () => {
+    if (!investigationDecision || hasCompletedFinalStep) return;
     addFolderItems(postResponseFolderItems);
+    setHasCompletedFinalStep(true);
+    scrollToTop();
   };
 
-  const showParentResponse = investigationDecision === 'Write the parent response';
+  const showInitialParentResponse = firstDecision === 'Send an email response';
+  const showParentResponse = Boolean(investigationDecision);
 
   const investigationGuidanceCopy = {
-    'Meet with the teacher first':
-      'You chose to speak further with the teacher before responding. This may strengthen your understanding but may delay communication with the parent.',
-    'Review the reward practice':
-      'You chose to examine the broader classroom approach. This supports long-term improvement but does not immediately address the parent’s concern.',
-    'Schedule a parent follow-up':
-      'You chose to connect again with the parent. This can build trust, but you should be prepared to clearly explain what you have learned.',
+    'Discuss the situation with the teacher':
+      'You chose to discuss the situation with the teacher before responding. This is appropriate if the goal is to review the classroom practice, support the teacher, and prevent future misunderstandings — not to assign blame.',
+    'Respond to the parent':
+      'You chose to respond after reviewing the available context. Your response should validate the parent’s concern, clarify the facts without blaming the child, and explain the next steps.',
   };
 
-  const investigationOptions = [
-    'Write the parent response',
-    'Meet with the teacher first',
-    'Review the reward practice',
-    'Schedule a parent follow-up',
-  ];
+  const investigationOptions = ['Discuss the situation with the teacher', 'Respond to the parent'];
 
   return (
     <div className="simulation-product-shell">
@@ -242,7 +248,7 @@ export default function SimulationShellClient() {
                 {!hasSelectedDecision ? (
                   <>
                     <h3 className="decision-prompt">
-                      Before reading the full email, what is your first leadership move?
+                      After reviewing the parent&apos;s concern, what is your first leadership move?
                     </h3>
                     <div className="choices">
                       {Object.keys(decisionToFolderItem).map((decision) => (
@@ -292,6 +298,22 @@ export default function SimulationShellClient() {
                         </p>
                       </article>
                     ) : null}
+                  </>
+                ) : null}
+
+                {showInitialParentResponse && !isInvestigationScene ? (
+                  <>
+                    <label htmlFor="leadership-initial-response" className="response-label">
+                      Draft your response to this parent…
+                    </label>
+                    <textarea
+                      id="leadership-initial-response"
+                      rows={6}
+                      className="response-input"
+                      placeholder="Capture your acknowledgment, immediate next steps, and follow-up timeline."
+                      value={responseDraft}
+                      onChange={(event) => setResponseDraft(event.target.value)}
+                    />
                   </>
                 ) : null}
               </>
@@ -344,14 +366,17 @@ export default function SimulationShellClient() {
                     <button
                       key={option}
                       className={`choice ${investigationDecision === option ? 'active' : ''}`}
-                      onClick={() => setInvestigationDecision(option)}
+                      onClick={() => {
+                        setInvestigationDecision(option);
+                        scrollToTop();
+                      }}
                     >
                       {option}
                     </button>
                   ))}
                 </div>
 
-                {investigationDecision && !showParentResponse ? (
+                {investigationDecision ? (
                   <article className="decision-next-step-panel" aria-live="polite">
                     <p className="decision-next-step-kicker">Decision Impact</p>
                     <p>{investigationGuidanceCopy[investigationDecision]}</p>
@@ -373,10 +398,17 @@ export default function SimulationShellClient() {
                     />
                   </>
                 ) : null}
+
+                {hasCompletedFinalStep ? (
+                  <article className="decision-next-step-panel" aria-live="polite">
+                    <p className="decision-next-step-kicker">Next Step</p>
+                    <p>Final review placeholder saved. You can proceed to the next simulation module when ready.</p>
+                  </article>
+                ) : null}
               </>
             )}
 
-            {hasSelectedDecision ? (
+            {!isInvestigationScene ? (
               <button
                 type="button"
                 className="button secondary reveal-email-button"
@@ -386,7 +418,7 @@ export default function SimulationShellClient() {
               </button>
             ) : null}
 
-            {hasSelectedDecision && isEmailVisible ? (
+            {isEmailVisible && !isInvestigationScene ? (
               <article className="full-email-card">
                 <p className="full-email-greeting">Dear Mr. Principal,</p>
                 <p>
