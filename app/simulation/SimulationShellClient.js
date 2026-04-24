@@ -37,6 +37,8 @@ export default function SimulationShellClient() {
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
 
+  const hasSelectedDecision = Boolean(selectedDecision);
+
   useEffect(() => {
     if (!started || timeLeft <= 0) {
       return undefined;
@@ -118,17 +120,30 @@ export default function SimulationShellClient() {
             <p className="decision-note">You are managing time-sensitive leadership priorities.</p>
           </div>
 
-          <div className="scenario-content">
-            <p className="eyebrow">4:12 PM</p>
-            <h2>The Email You Cannot Ignore</h2>
-            <p className="cinematic-opening">
-              The building is quieter now, but your day is not over.
-            </p>
-            <p className="cinematic-opening">You finally sit down at your desk and open your inbox.</p>
-            <p className="cinematic-opening">One message immediately stands out.</p>
-            <p className="cinematic-opening strong">It is emotional.</p>
-            <p className="cinematic-opening strong">It is angry.</p>
-            <p className="cinematic-opening strong">It is about a child who feels humiliated.</p>
+          <div className={`scenario-content ${hasSelectedDecision ? 'decision-made' : 'pre-decision'}`}>
+            {hasSelectedDecision ? (
+              <div className="compact-scene-header">
+                <p className="eyebrow">4:12 PM — The Email You Cannot Ignore</p>
+              </div>
+            ) : (
+              <>
+                <p className="eyebrow">4:12 PM</p>
+                <h2>The Email You Cannot Ignore</h2>
+              </>
+            )}
+
+            <div className={`cinematic-block ${hasSelectedDecision ? 'compact' : ''}`}>
+              <p className="cinematic-opening">The building is quieter now, but your day is not over.</p>
+              {!hasSelectedDecision ? (
+                <>
+                  <p className="cinematic-opening">You finally sit down at your desk and open your inbox.</p>
+                  <p className="cinematic-opening">One message immediately stands out.</p>
+                  <p className="cinematic-opening strong">It is emotional.</p>
+                  <p className="cinematic-opening strong">It is angry.</p>
+                  <p className="cinematic-opening strong">It is about a child who feels humiliated.</p>
+                </>
+              ) : null}
+            </div>
 
             <article className="scenario-alert-card">
               <p><strong>Subject:</strong> Concern Regarding My Daughter</p>
@@ -136,17 +151,19 @@ export default function SimulationShellClient() {
               <p><strong>Leadership Pressure:</strong> Parent trust, student dignity, staff accountability</p>
             </article>
 
-            <article className="scenario-preview-card">
-              <p>
-                A parent believes her daughter was publicly excluded from a class pizza party because
-                of academic performance. The child already receives reading support and now feels
-                embarrassed, ashamed, and less capable than her peers.
-              </p>
-              <p>
-                The parent is angry, questioning the school’s judgment, and threatening to escalate
-                beyond the building level.
-              </p>
-            </article>
+            {!hasSelectedDecision ? (
+              <article className="scenario-preview-card">
+                <p>
+                  A parent believes her daughter was publicly excluded from a class pizza party because
+                  of academic performance. The child already receives reading support and now feels
+                  embarrassed, ashamed, and less capable than her peers.
+                </p>
+                <p>
+                  The parent is angry, questioning the school&apos;s judgment, and threatening to escalate
+                  beyond the building level.
+                </p>
+              </article>
+            ) : null}
 
             <h3 className="decision-prompt">Before reading the full email, what is your first leadership move?</h3>
             <div className="choices">
@@ -161,17 +178,33 @@ export default function SimulationShellClient() {
               ))}
             </div>
 
-            <button
-              type="button"
-              className="button secondary reveal-email-button"
-              onClick={() => setIsEmailVisible((prev) => !prev)}
-            >
-              {isEmailVisible ? 'Hide Full Email' : 'Reveal Full Email'}
-            </button>
+            {!hasSelectedDecision ? (
+              <div className="button-row decision-support-row">
+                <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
+                  Ask VIC for Guidance
+                </button>
+              </div>
+            ) : null}
 
-            {isEmailVisible ? (
+            {hasSelectedDecision ? (
+              <div className="selected-decision-chip" role="status" aria-live="polite">
+                <span className="selected-decision-label">Your first move:</span> {selectedDecision}
+              </div>
+            ) : null}
+
+            {hasSelectedDecision ? (
+              <button
+                type="button"
+                className="button secondary reveal-email-button"
+                onClick={() => setIsEmailVisible((prev) => !prev)}
+              >
+                {isEmailVisible ? 'Hide Full Email' : 'Reveal Full Email'}
+              </button>
+            ) : null}
+
+            {hasSelectedDecision && isEmailVisible ? (
               <article className="full-email-card">
-                <p>Dear Mr. Principal,</p>
+                <p className="full-email-greeting">Dear Mr. Principal,</p>
                 <p>
                   My daughter Sue was excluded from a class pizza party because of her performance on
                   a spelling pre-test. Sue already struggles with reading, attends remediation, and
@@ -179,7 +212,7 @@ export default function SimulationShellClient() {
                 </p>
                 <p>
                   This decision left her feeling embarrassed and ashamed. She cried at breakfast
-                  saying, “Why can’t I be smart like the other kids?” and “I hate being so stupid.”
+                  saying, “Why can&apos;t I be smart like the other kids?” and “I hate being so stupid.”
                 </p>
                 <p>
                   This is unacceptable. It shows poor judgment, lack of compassion, and outdated
@@ -189,32 +222,36 @@ export default function SimulationShellClient() {
                   I expect a response and a plan to ensure this does not happen again. I am prepared
                   to escalate this to the board if necessary.
                 </p>
-                <p>Sincerely,</p>
-                <p>A concerned parent</p>
+                <p className="full-email-signoff">Sincerely,</p>
+                <p className="full-email-signoff">A concerned parent</p>
               </article>
             ) : null}
 
-            <label htmlFor="leadership-response" className="response-label">
-              Draft your response to this parent…
-            </label>
-            <textarea
-              id="leadership-response"
-              rows={6}
-              className="response-input"
-              placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
-            />
+            {hasSelectedDecision ? (
+              <>
+                <label htmlFor="leadership-response" className="response-label">
+                  Draft your response to this parent…
+                </label>
+                <textarea
+                  id="leadership-response"
+                  rows={6}
+                  className="response-input"
+                  placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
+                />
 
-            <div className="button-row">
-              <button type="button" className="button secondary" onClick={handleSaveOrContinue}>
-                Save Response
-              </button>
-              <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
-                Ask VIC for Guidance
-              </button>
-              <button type="button" className="button primary" onClick={handleSaveOrContinue}>
-                Continue
-              </button>
-            </div>
+                <div className="button-row">
+                  <button type="button" className="button secondary" onClick={handleSaveOrContinue}>
+                    Save Response
+                  </button>
+                  <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
+                    Ask VIC for Guidance
+                  </button>
+                  <button type="button" className="button primary" onClick={handleSaveOrContinue}>
+                    Continue
+                  </button>
+                </div>
+              </>
+            ) : null}
           </div>
         </div>
 
