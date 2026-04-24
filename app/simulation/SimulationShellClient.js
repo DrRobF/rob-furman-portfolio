@@ -70,6 +70,19 @@ const lensNames = [
   'Emotional Awareness',
 ];
 
+const dayModules = [
+  { id: 'arrival', label: '7:30 AM — Arrival', enabled: false },
+  { id: 'iepMeeting', label: '8:15 AM — IEP Meeting', enabled: false },
+  { id: 'announcements', label: '9:00 AM — Announcements', enabled: false },
+  { id: 'voicemailMailbox', label: '9:30 AM — Voicemail & Mailbox', enabled: false },
+  { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: false },
+  { id: 'lunchDiscipline', label: '11:30 AM — Lunch & Discipline', enabled: false },
+  { id: 'parentCall', label: '1:00 PM — Parent Call', enabled: false },
+  { id: 'teacherObservation', label: '2:00 PM — Teacher Observation', enabled: false },
+  { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: false },
+  { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
+];
+
 function formatTimer(seconds) {
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
   const secs = String(seconds % 60).padStart(2, '0');
@@ -157,6 +170,7 @@ function analyzeFinalResponse(response) {
 }
 
 export default function SimulationShellClient() {
+  const [currentModule, setCurrentModule] = useState('endOfDayEmail');
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
   const [folders, setFolders] = useState(initialFolders);
@@ -317,6 +331,34 @@ export default function SimulationShellClient() {
 
       <div className="simulation-layout-grid">
         <div className="scenario-column card">
+          <section className="day-timeline-card" aria-label="Simulation day modules">
+            <p className="eyebrow">Simulation Day Timeline</p>
+            <h2>A Day in the Life of a School Leader</h2>
+            <div className="day-timeline-grid">
+              {dayModules.map((module) => {
+                const isActive = currentModule === module.id;
+                const moduleLabel = module.enabled ? module.label : `${module.label} (Coming Soon)`;
+
+                return (
+                  <button
+                    key={module.id}
+                    type="button"
+                    className={`timeline-module ${isActive ? 'active' : ''}`}
+                    aria-current={isActive ? 'step' : undefined}
+                    disabled={!module.enabled}
+                    onClick={() => {
+                      if (module.id === 'endOfDayEmail') {
+                        setCurrentModule('endOfDayEmail');
+                      }
+                    }}
+                  >
+                    {moduleLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
           <div className={`decision-window ${urgencyClass}`}>
             <p className="decision-label">Decision Window</p>
             <p className="decision-time">{formatTimer(timeLeft)}</p>
@@ -324,7 +366,8 @@ export default function SimulationShellClient() {
           </div>
 
           <div className={`scenario-content ${hasSelectedDecision ? 'decision-made' : 'pre-decision'}`}>
-            {isReportScene ? (
+            {currentModule === 'endOfDayEmail' ? (
+              isReportScene ? (
               <>
                 <p className="eyebrow">Leadership Case Record</p>
                 <h2>Leadership Response Report</h2>
@@ -406,7 +449,7 @@ export default function SimulationShellClient() {
                   </div>
                 </article>
               </>
-            ) : !isInvestigationScene ? (
+              ) : !isInvestigationScene ? (
               <>
                 {hasSelectedDecision ? (
                   <div className="compact-scene-header">
@@ -524,7 +567,7 @@ export default function SimulationShellClient() {
                   </>
                 ) : null}
               </>
-            ) : (
+              ) : (
               <>
                 <div className="compact-scene-header">
                   <p className="eyebrow">4:28 PM</p>
@@ -626,9 +669,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
               </>
+            )
+            ) : (
+              <article className="scenario-preview-card">
+                <p>This module is coming soon.</p>
+              </article>
             )}
 
-            {!isInvestigationScene && !isReportScene ? (
+            {currentModule === 'endOfDayEmail' && !isInvestigationScene && !isReportScene ? (
               <button
                 type="button"
                 className="button secondary reveal-email-button"
@@ -638,7 +686,7 @@ export default function SimulationShellClient() {
               </button>
             ) : null}
 
-            {isEmailVisible && !isInvestigationScene && !isReportScene ? (
+            {currentModule === 'endOfDayEmail' && isEmailVisible && !isInvestigationScene && !isReportScene ? (
               <article className="full-email-card">
                 <p className="full-email-greeting">Dear Mr. Principal,</p>
                 <p>
@@ -663,7 +711,7 @@ export default function SimulationShellClient() {
               </article>
             ) : null}
 
-            {hasSelectedDecision ? (
+            {currentModule === 'endOfDayEmail' && hasSelectedDecision ? (
               <>
                 <div className="button-row">
                   <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
