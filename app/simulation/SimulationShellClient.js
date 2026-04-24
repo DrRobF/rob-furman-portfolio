@@ -9,10 +9,47 @@ const initialFolders = {
 };
 
 const decisionToFolderItem = {
-  'Respond immediately': { bucket: 'red', item: 'Draft careful parent response before leaving' },
-  'Gather more information': { bucket: 'red', item: 'Gather facts from teacher and records today' },
-  'Call the parent': { bucket: 'red', item: 'Call parent before leaving school' },
-  'Speak with the teacher first': { bucket: 'red', item: 'Speak with teacher before responding' },
+  'Send an email response': {
+    bucket: 'red',
+    item: 'Respond to parent with care and clear timeline',
+  },
+  'Investigate the situation': { bucket: 'red', item: 'Gather facts from teacher and records today' },
+  'Call the parent': {
+    bucket: 'red',
+    item: 'Prepare for parent contact with facts and boundaries',
+  },
+  'Address the teacher directly': {
+    bucket: 'red',
+    item: 'Speak with teacher after reviewing available context',
+  },
+};
+
+const decisionConsequences = {
+  'Send an email response': {
+    title: 'Communication First',
+    message:
+      'You chose to respond before gathering full context. This can be strong if the message simply acknowledges receipt, shows concern, and sets a follow-up timeline. It becomes risky if you explain, defend, blame, or promise outcomes before investigating.',
+    takeaway: 'A fast acknowledgment can calm escalation. A full response requires facts.',
+  },
+  'Investigate the situation': {
+    title: 'Process First',
+    message:
+      'You chose to gather information before responding. This protects accuracy and keeps you from choosing sides too quickly. If the investigation will take more than a short time, send a quick acknowledgment so the parent knows the concern was received.',
+    takeaway:
+      'Good leaders do not ignore emotion, but they do not let emotion replace process.',
+  },
+  'Call the parent': {
+    title: 'Direct Contact',
+    message:
+      'You chose live communication. A phone call can build trust, but it can also become time-consuming and emotionally difficult before you have the facts. In many cases, a short acknowledgment email followed by investigation creates better boundaries.',
+    takeaway: 'Direct communication is powerful, but timing and preparation matter.',
+  },
+  'Address the teacher directly': {
+    title: 'Internal Action',
+    message:
+      'You chose to act internally first. Speaking with the teacher may be necessary, but moving too quickly can feel accusatory if you have not reviewed the context. The goal is to gather facts, not assign blame.',
+    takeaway: 'Support staff accountability without skipping due process.',
+  },
 };
 
 const postResponseFolderItems = {
@@ -38,6 +75,7 @@ export default function SimulationShellClient() {
   const [isVicOpen, setIsVicOpen] = useState(false);
 
   const hasSelectedDecision = Boolean(selectedDecision);
+  const selectedConsequence = selectedDecision ? decisionConsequences[selectedDecision] : null;
 
   useEffect(() => {
     if (!started || timeLeft <= 0) {
@@ -190,6 +228,17 @@ export default function SimulationShellClient() {
               <div className="selected-decision-chip" role="status" aria-live="polite">
                 <span className="selected-decision-label">Your first move:</span> {selectedDecision}
               </div>
+            ) : null}
+
+            {hasSelectedDecision && selectedConsequence ? (
+              <article className="decision-consequence-card" aria-live="polite">
+                <p className="decision-consequence-kicker">Leadership Coaching Lens</p>
+                <h4>{selectedConsequence.title}</h4>
+                <p>{selectedConsequence.message}</p>
+                <p className="decision-consequence-takeaway">
+                  <strong>Leadership takeaway:</strong> {selectedConsequence.takeaway}
+                </p>
+              </article>
             ) : null}
 
             {hasSelectedDecision ? (
