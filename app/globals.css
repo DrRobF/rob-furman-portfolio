@@ -880,6 +880,25 @@ p {
   font-size: 0.92rem;
 }
 
+.decision-next-step-panel {
+  margin-top: 0.5rem;
+  border: 1px solid #cfd9e7;
+  border-left: 5px solid #7d8da6;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #ffffff, #f4f7fb);
+  padding: 0.9rem 1rem;
+  box-shadow: 0 12px 28px rgba(28, 47, 78, 0.06);
+}
+
+.decision-next-step-kicker {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #4d5f7b;
+  margin-bottom: 0.35rem;
+}
+
 .reveal-email-button {
   margin-top: 0.2rem;
 }

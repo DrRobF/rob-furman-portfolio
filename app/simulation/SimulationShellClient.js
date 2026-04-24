@@ -71,6 +71,7 @@ export default function SimulationShellClient() {
   const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
   const [folders, setFolders] = useState(initialFolders);
   const [selectedDecision, setSelectedDecision] = useState('');
+  const [responseDraft, setResponseDraft] = useState('');
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
 
@@ -128,8 +129,19 @@ export default function SimulationShellClient() {
     addFolderItems({ [mapping.bucket]: [mapping.item] });
   };
 
-  const handleSaveOrContinue = () => {
+  const handleContinue = () => {
     addFolderItems(postResponseFolderItems);
+  };
+
+  const showParentResponse = selectedDecision === 'Send an email response';
+
+  const nextStepPanelCopy = {
+    'Investigate the situation':
+      'You chose to investigate before responding. Continue to gather context before drafting a full parent response.',
+    'Call the parent':
+      'You chose live communication. Before calling, prepare your boundaries, timeline, and what you can honestly say before facts are gathered.',
+    'Address the teacher directly':
+      'You chose to address staff directly. Continue to gather context while avoiding blame or premature conclusions.',
   };
 
   return (
@@ -294,24 +306,34 @@ export default function SimulationShellClient() {
 
             {hasSelectedDecision ? (
               <>
-                <label htmlFor="leadership-response" className="response-label">
-                  Draft your response to this parent…
-                </label>
-                <textarea
-                  id="leadership-response"
-                  rows={6}
-                  className="response-input"
-                  placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
-                />
+                {!showParentResponse && nextStepPanelCopy[selectedDecision] ? (
+                  <article className="decision-next-step-panel" aria-live="polite">
+                    <p className="decision-next-step-kicker">Next Step</p>
+                    <p>{nextStepPanelCopy[selectedDecision]}</p>
+                  </article>
+                ) : null}
+
+                {showParentResponse ? (
+                  <>
+                    <label htmlFor="leadership-response" className="response-label">
+                      Draft your response to this parent…
+                    </label>
+                    <textarea
+                      id="leadership-response"
+                      rows={6}
+                      className="response-input"
+                      placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
+                      value={responseDraft}
+                      onChange={(event) => setResponseDraft(event.target.value)}
+                    />
+                  </>
+                ) : null}
 
                 <div className="button-row">
-                  <button type="button" className="button secondary" onClick={handleSaveOrContinue}>
-                    Save Response
-                  </button>
                   <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
                     Ask VIC for Guidance
                   </button>
-                  <button type="button" className="button primary" onClick={handleSaveOrContinue}>
+                  <button type="button" className="button primary" onClick={handleContinue}>
                     Continue
                   </button>
                 </div>
