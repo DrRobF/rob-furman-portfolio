@@ -50,6 +50,12 @@ const recognitionHighlights = [
 
 const featuredProjects = [
   {
+    title: 'A Day in the Life of a School Leader',
+    description:
+      "Interactive simulation shell modeled after Dr. Furman's leadership training experience for priority-setting, communication, and decision flow.",
+    href: '/simulation',
+  },
+  {
     title: 'Day in the Life of a Principal',
     description:
       'Scenario-based leadership simulation for principals and aspiring administrators focused on instructional judgment, communication, and operations.',
