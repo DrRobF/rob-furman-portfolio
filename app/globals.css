@@ -328,6 +328,18 @@ p {
   color: #32527f;
 }
 
+.two-column-list {
+  columns: 2;
+  column-gap: 1.5rem;
+  margin: 1rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.two-column-list li {
+  break-inside: avoid;
+  margin-bottom: 0.45rem;
+}
+
 .publication-cards {
   display: grid;
   gap: 1.2rem;
@@ -432,12 +444,20 @@ p {
 }
 
 @media (max-width: 960px) {
+  .hero {
+    padding-top: 5.3rem;
+  }
+
   .hero-layout,
   .split-grid,
   .four-up,
   .two-up,
   .publication-cards {
     grid-template-columns: 1fr;
+  }
+
+  .two-column-list {
+    columns: 1;
   }
 
   .hero-image-wrap,
