@@ -40,8 +40,12 @@ a {
 }
 
 .section {
-  padding: 6rem 0;
+  padding: 4.8rem 0;
   position: relative;
+}
+
+.compact-section {
+  padding: 3.8rem 0;
 }
 
 .section-light {
@@ -192,14 +196,23 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 1.8rem;
+  margin-top: 1.3rem;
+  align-items: center;
+}
+
+.button-row.center {
+  justify-content: center;
 }
 
 .button {
   border-radius: 999px;
   border: 1px solid transparent;
-  padding: 0.82rem 1.35rem;
+  padding: 0.78rem 1.25rem;
   font-weight: 600;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
 }
@@ -248,8 +261,19 @@ p {
   background: var(--surface);
   border: 1px solid #d6e0ef;
   border-radius: 16px;
-  padding: 1.35rem;
+  padding: 1.1rem 1.2rem;
   transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.card h2,
+.card h3 {
+  font-size: clamp(1.02rem, 1.8vw, 1.22rem);
+  margin-bottom: 0.55rem;
+  overflow-wrap: anywhere;
+}
+
+.equal-card {
+  height: 100%;
 }
 
 .card:hover {
@@ -356,7 +380,8 @@ p {
 .publication-image {
   width: 100%;
   height: 320px;
-  object-fit: cover;
+  object-fit: contain;
+  background: #eff3fa;
 }
 
 .publication-content {
@@ -370,6 +395,40 @@ p {
 
 .top-space {
   margin-top: 1.6rem;
+}
+
+.top-space-sm {
+  margin-top: 0.9rem;
+}
+
+.inline-link {
+  display: inline-block;
+}
+
+.clean-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.clean-list li {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.award-card {
+  padding: 1rem 1.15rem;
+}
+
+.two-column-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.5rem;
+}
+
+.tedx-image {
+  min-height: 260px;
+  object-position: center top;
 }
 
 .simulation-shell {
@@ -449,7 +508,11 @@ p {
   }
 
   .section {
-    padding: 4.6rem 0;
+    padding: 3.9rem 0;
+  }
+
+  .compact-section {
+    padding: 3.1rem 0;
   }
 
   .keynote-overlay {
@@ -464,5 +527,15 @@ p {
   .nav-wrap {
     flex-direction: column;
     padding: 0.8rem 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .two-column-list {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding-top: 4.8rem;
   }
 }
