@@ -826,6 +826,36 @@ p {
   color: #355a96;
 }
 
+.decision-consequence-card {
+  margin-top: 0.65rem;
+  border: 1px solid #cdddf0;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f8fbff, #f2f7ff);
+  padding: 0.9rem 1rem;
+  box-shadow: inset 0 0 0 1px rgba(64, 105, 170, 0.06);
+}
+
+.decision-consequence-kicker {
+  font-size: 0.77rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #43679d;
+}
+
+.decision-consequence-card h4 {
+  margin: 0.35rem 0 0.42rem;
+  color: #1b3157;
+}
+
+.decision-consequence-card p + p {
+  margin-top: 0.45rem;
+}
+
+.decision-consequence-takeaway {
+  color: #264674;
+}
+
 .reveal-email-button {
   margin-top: 0.2rem;
 }
