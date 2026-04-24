@@ -22,6 +22,7 @@ body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
+  scroll-behavior: smooth;
 }
 
 a {
@@ -150,6 +151,14 @@ p {
 
 .nav-list a:hover {
   color: var(--text);
+}
+
+.nav-list a:focus-visible,
+.button:focus-visible,
+.text-link:focus-visible {
+  outline: 2px solid #5f8ee8;
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .hero {
@@ -431,11 +440,6 @@ p {
 
 .award-card {
   padding: 1rem 1.15rem;
-}
-
-.two-column-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 1.5rem;
 }
 
 .tedx-image {
