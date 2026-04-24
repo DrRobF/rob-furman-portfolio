@@ -557,6 +557,8 @@ p {
 
   .hero {
     padding-top: 4.8rem;
+  }
+}
 .simulation-product-shell {
   display: grid;
   gap: 1.4rem;
