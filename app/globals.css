@@ -802,6 +802,33 @@ p {
   margin-top: 0.5rem;
 }
 
+.investigation-intro-card {
+  border: 1px solid #d2ddf0;
+  border-radius: 14px;
+  background: #f8fbff;
+  padding: 0.95rem 1rem;
+}
+
+.investigation-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.investigation-card {
+  border: 1px solid #d5deec;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0.85rem 0.9rem;
+  box-shadow: 0 8px 18px rgba(28, 47, 78, 0.05);
+}
+
+.investigation-card h3 {
+  margin-bottom: 0.35rem;
+  font-size: 0.97rem;
+  color: #1f365d;
+}
+
 .decision-prompt {
   margin: 1rem 0 0.65rem;
   font-size: 1.04rem;
@@ -949,6 +976,10 @@ p {
 
 @media (max-width: 960px) {
   .simulation-layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .investigation-evidence-grid {
     grid-template-columns: 1fr;
   }
 }

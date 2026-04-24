@@ -52,6 +52,8 @@ const decisionConsequences = {
   },
 };
 
+const investigationFolderItem = 'Complete investigation before final parent response';
+
 const postResponseFolderItems = {
   red: ['Speak with teacher immediately', 'Document parent concern'],
   orange: ['Follow up with parent within 48 hours', 'Review classroom reward practices'],
@@ -70,13 +72,16 @@ export default function SimulationShellClient() {
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
   const [folders, setFolders] = useState(initialFolders);
-  const [selectedDecision, setSelectedDecision] = useState('');
+  const [firstDecision, setFirstDecision] = useState('');
+  const [investigationDecision, setInvestigationDecision] = useState('');
   const [responseDraft, setResponseDraft] = useState('');
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
 
-  const hasSelectedDecision = Boolean(selectedDecision);
-  const selectedConsequence = selectedDecision ? decisionConsequences[selectedDecision] : null;
+  const hasSelectedDecision = Boolean(firstDecision);
+  const [scene, setScene] = useState('initial');
+  const isInvestigationScene = scene === 'investigation';
+  const selectedConsequence = hasSelectedDecision ? decisionConsequences[firstDecision] : null;
 
   useEffect(() => {
     if (!started || timeLeft <= 0) {
@@ -99,6 +104,11 @@ export default function SimulationShellClient() {
   const beginSimulation = () => {
     setStarted(true);
     setTimeLeft(totalDecisionWindowSeconds);
+    setScene('initial');
+    setFirstDecision('');
+    setInvestigationDecision('');
+    setResponseDraft('');
+    setIsEmailVisible(false);
   };
 
   const addFolderItems = (itemsByBucket) => {
@@ -125,24 +135,36 @@ export default function SimulationShellClient() {
     const mapping = decisionToFolderItem[decisionLabel];
     if (!mapping) return;
 
-    setSelectedDecision(decisionLabel);
+    setFirstDecision(decisionLabel);
     addFolderItems({ [mapping.bucket]: [mapping.item] });
   };
 
-  const handleContinue = () => {
+  const handleContinueToInvestigation = () => {
+    setScene('investigation');
+    addFolderItems({ red: [investigationFolderItem] });
+  };
+
+  const handleInvestigationContinue = () => {
     addFolderItems(postResponseFolderItems);
   };
 
-  const showParentResponse = selectedDecision === 'Send an email response';
+  const showParentResponse = investigationDecision === 'Write the parent response';
 
-  const nextStepPanelCopy = {
-    'Investigate the situation':
-      'You chose to investigate before responding. Continue to gather context before drafting a full parent response.',
-    'Call the parent':
-      'You chose live communication. Before calling, prepare your boundaries, timeline, and what you can honestly say before facts are gathered.',
-    'Address the teacher directly':
-      'You chose to address staff directly. Continue to gather context while avoiding blame or premature conclusions.',
+  const investigationGuidanceCopy = {
+    'Meet with the teacher first':
+      'You chose to speak further with the teacher before responding. This may strengthen your understanding but may delay communication with the parent.',
+    'Review the reward practice':
+      'You chose to examine the broader classroom approach. This supports long-term improvement but does not immediately address the parent’s concern.',
+    'Schedule a parent follow-up':
+      'You chose to connect again with the parent. This can build trust, but you should be prepared to clearly explain what you have learned.',
   };
+
+  const investigationOptions = [
+    'Write the parent response',
+    'Meet with the teacher first',
+    'Review the reward practice',
+    'Schedule a parent follow-up',
+  ];
 
   return (
     <div className="simulation-product-shell">
@@ -171,103 +193,188 @@ export default function SimulationShellClient() {
           </div>
 
           <div className={`scenario-content ${hasSelectedDecision ? 'decision-made' : 'pre-decision'}`}>
-            {hasSelectedDecision ? (
-              <div className="compact-scene-header">
-                <p className="eyebrow">4:12 PM — The Email You Cannot Ignore</p>
-              </div>
+            {!isInvestigationScene ? (
+              <>
+                {hasSelectedDecision ? (
+                  <div className="compact-scene-header">
+                    <p className="eyebrow">4:12 PM — The Email You Cannot Ignore</p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="eyebrow">4:12 PM</p>
+                    <h2>The Email You Cannot Ignore</h2>
+                  </>
+                )}
+
+                <div className={`cinematic-block ${hasSelectedDecision ? 'compact' : ''}`}>
+                  <p className="cinematic-opening">The building is quieter now, but your day is not over.</p>
+                  {!hasSelectedDecision ? (
+                    <>
+                      <p className="cinematic-opening">You finally sit down at your desk and open your inbox.</p>
+                      <p className="cinematic-opening">One message immediately stands out.</p>
+                      <p className="cinematic-opening strong">It is emotional.</p>
+                      <p className="cinematic-opening strong">It is angry.</p>
+                      <p className="cinematic-opening strong">It is about a child who feels humiliated.</p>
+                    </>
+                  ) : null}
+                </div>
+
+                <article className="scenario-alert-card">
+                  <p><strong>Subject:</strong> Concern Regarding My Daughter</p>
+                  <p><strong>Tone Detected:</strong> Escalation Risk — High</p>
+                  <p><strong>Leadership Pressure:</strong> Parent trust, student dignity, staff accountability</p>
+                </article>
+
+                {!hasSelectedDecision ? (
+                  <article className="scenario-preview-card">
+                    <p>
+                      A parent believes her daughter was publicly excluded from a class pizza party because
+                      of academic performance. The child already receives reading support and now feels
+                      embarrassed, ashamed, and less capable than her peers.
+                    </p>
+                    <p>
+                      The parent is angry, questioning the school&apos;s judgment, and threatening to escalate
+                      beyond the building level.
+                    </p>
+                  </article>
+                ) : null}
+
+                {!hasSelectedDecision ? (
+                  <>
+                    <h3 className="decision-prompt">
+                      Before reading the full email, what is your first leadership move?
+                    </h3>
+                    <div className="choices">
+                      {Object.keys(decisionToFolderItem).map((decision) => (
+                        <button
+                          key={decision}
+                          className={`choice ${firstDecision === decision ? 'active' : ''}`}
+                          onClick={() => handleDecision(decision)}
+                        >
+                          {decision}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+
+                {!hasSelectedDecision ? (
+                  <div className="button-row decision-support-row">
+                    <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
+                      Ask VIC for Guidance
+                    </button>
+                  </div>
+                ) : null}
+
+                {hasSelectedDecision ? (
+                  <>
+                    <div className="selected-decision-chip" role="status" aria-live="polite">
+                      <span className="selected-decision-label">Your first move:</span> {firstDecision}
+                    </div>
+
+                    {selectedConsequence ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <p className="decision-consequence-kicker">Leadership Coaching Lens</p>
+                        <p className="decision-consequence-subhead">
+                          <span className="decision-consequence-marker" aria-hidden="true">
+                            ●
+                          </span>
+                          Direct coaching based on your first move.
+                        </p>
+                        <h4>{selectedConsequence.title}</h4>
+                        <p>{selectedConsequence.message}</p>
+                        <p className="decision-consequence-takeaway">
+                          <strong>Leadership takeaway:</strong> {selectedConsequence.takeaway}
+                        </p>
+                        <p className="decision-consequence-vic-note">
+                          VIC guidance will build on this coaching layer by analyzing tone, urgency, and next
+                          steps.
+                        </p>
+                      </article>
+                    ) : null}
+                  </>
+                ) : null}
+              </>
             ) : (
               <>
-                <p className="eyebrow">4:12 PM</p>
-                <h2>The Email You Cannot Ignore</h2>
-              </>
-            )}
+                <div className="compact-scene-header">
+                  <p className="eyebrow">4:28 PM</p>
+                </div>
+                <h2>Gathering the Other Side of the Story</h2>
+                <article className="investigation-intro-card">
+                  <p>
+                    Before giving a full response, you gather context from the teacher and review what happened.
+                    The situation is more layered than the parent&apos;s email suggested.
+                  </p>
+                </article>
+                <div className="investigation-evidence-grid">
+                  <article className="investigation-card">
+                    <h3>Reward Structure</h3>
+                    <p>
+                      The activity was participation-based, not accuracy-based. Students who attempted the
+                      challenge were included in the reward.
+                    </p>
+                  </article>
+                  <article className="investigation-card">
+                    <h3>Student Context</h3>
+                    <p>
+                      Sue was given the opportunity to participate but did not attempt the activity. According to
+                      the teacher, she would have been included if she had tried.
+                    </p>
+                  </article>
+                  <article className="investigation-card">
+                    <h3>Parent Perspective</h3>
+                    <p>
+                      The parent&apos;s concern appears to be based on a limited understanding of what occurred
+                      during the activity.
+                    </p>
+                  </article>
+                  <article className="investigation-card">
+                    <h3>Leadership Consideration</h3>
+                    <p>
+                      While the structure was designed around participation, the outcome still felt exclusionary
+                      to the student, which contributed to the parent&apos;s concern.
+                    </p>
+                  </article>
+                </div>
 
-            <div className={`cinematic-block ${hasSelectedDecision ? 'compact' : ''}`}>
-              <p className="cinematic-opening">The building is quieter now, but your day is not over.</p>
-              {!hasSelectedDecision ? (
-                <>
-                  <p className="cinematic-opening">You finally sit down at your desk and open your inbox.</p>
-                  <p className="cinematic-opening">One message immediately stands out.</p>
-                  <p className="cinematic-opening strong">It is emotional.</p>
-                  <p className="cinematic-opening strong">It is angry.</p>
-                  <p className="cinematic-opening strong">It is about a child who feels humiliated.</p>
-                </>
-              ) : null}
-            </div>
-
-            <article className="scenario-alert-card">
-              <p><strong>Subject:</strong> Concern Regarding My Daughter</p>
-              <p><strong>Tone Detected:</strong> Escalation Risk — High</p>
-              <p><strong>Leadership Pressure:</strong> Parent trust, student dignity, staff accountability</p>
-            </article>
-
-            {!hasSelectedDecision ? (
-              <article className="scenario-preview-card">
-                <p>
-                  A parent believes her daughter was publicly excluded from a class pizza party because
-                  of academic performance. The child already receives reading support and now feels
-                  embarrassed, ashamed, and less capable than her peers.
-                </p>
-                <p>
-                  The parent is angry, questioning the school&apos;s judgment, and threatening to escalate
-                  beyond the building level.
-                </p>
-              </article>
-            ) : null}
-
-            {!hasSelectedDecision ? (
-              <>
-                <h3 className="decision-prompt">
-                  Before reading the full email, what is your first leadership move?
-                </h3>
+                <h3 className="decision-prompt">How do you want to proceed?</h3>
                 <div className="choices">
-                  {Object.keys(decisionToFolderItem).map((decision) => (
+                  {investigationOptions.map((option) => (
                     <button
-                      key={decision}
-                      className={`choice ${selectedDecision === decision ? 'active' : ''}`}
-                      onClick={() => handleDecision(decision)}
+                      key={option}
+                      className={`choice ${investigationDecision === option ? 'active' : ''}`}
+                      onClick={() => setInvestigationDecision(option)}
                     >
-                      {decision}
+                      {option}
                     </button>
                   ))}
                 </div>
+
+                {investigationDecision && !showParentResponse ? (
+                  <article className="decision-next-step-panel" aria-live="polite">
+                    <p className="decision-next-step-kicker">Decision Impact</p>
+                    <p>{investigationGuidanceCopy[investigationDecision]}</p>
+                  </article>
+                ) : null}
+
+                {showParentResponse ? (
+                  <>
+                    <label htmlFor="leadership-response" className="response-label">
+                      Draft your full response to the parent…
+                    </label>
+                    <textarea
+                      id="leadership-response"
+                      rows={6}
+                      className="response-input"
+                      placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
+                      value={responseDraft}
+                      onChange={(event) => setResponseDraft(event.target.value)}
+                    />
+                  </>
+                ) : null}
               </>
-            ) : null}
-
-            {!hasSelectedDecision ? (
-              <div className="button-row decision-support-row">
-                <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
-                  Ask VIC for Guidance
-                </button>
-              </div>
-            ) : null}
-
-            {hasSelectedDecision ? (
-              <div className="selected-decision-chip" role="status" aria-live="polite">
-                <span className="selected-decision-label">Your first move:</span> {selectedDecision}
-              </div>
-            ) : null}
-
-            {hasSelectedDecision && selectedConsequence ? (
-              <article className="decision-consequence-card" aria-live="polite">
-                <p className="decision-consequence-kicker">Leadership Coaching Lens</p>
-                <p className="decision-consequence-subhead">
-                  <span className="decision-consequence-marker" aria-hidden="true">
-                    ●
-                  </span>
-                  Direct coaching based on your first move.
-                </p>
-                <h4>{selectedConsequence.title}</h4>
-                <p>{selectedConsequence.message}</p>
-                <p className="decision-consequence-takeaway">
-                  <strong>Leadership takeaway:</strong> {selectedConsequence.takeaway}
-                </p>
-                <p className="decision-consequence-vic-note">
-                  VIC guidance will build on this coaching layer by analyzing tone, urgency, and next
-                  steps.
-                </p>
-              </article>
-            ) : null}
+            )}
 
             {hasSelectedDecision ? (
               <button
@@ -306,34 +413,15 @@ export default function SimulationShellClient() {
 
             {hasSelectedDecision ? (
               <>
-                {!showParentResponse && nextStepPanelCopy[selectedDecision] ? (
-                  <article className="decision-next-step-panel" aria-live="polite">
-                    <p className="decision-next-step-kicker">Next Step</p>
-                    <p>{nextStepPanelCopy[selectedDecision]}</p>
-                  </article>
-                ) : null}
-
-                {showParentResponse ? (
-                  <>
-                    <label htmlFor="leadership-response" className="response-label">
-                      Draft your response to this parent…
-                    </label>
-                    <textarea
-                      id="leadership-response"
-                      rows={6}
-                      className="response-input"
-                      placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
-                      value={responseDraft}
-                      onChange={(event) => setResponseDraft(event.target.value)}
-                    />
-                  </>
-                ) : null}
-
                 <div className="button-row">
                   <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
                     Ask VIC for Guidance
                   </button>
-                  <button type="button" className="button primary" onClick={handleContinue}>
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={isInvestigationScene ? handleInvestigationContinue : handleContinueToInvestigation}
+                  >
                     Continue
                   </button>
                 </div>
