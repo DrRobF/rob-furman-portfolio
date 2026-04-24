@@ -83,6 +83,17 @@ const dayModules = [
   { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
 ];
 
+const moduleStatuses = {
+  upcoming: 'upcoming',
+  active: 'active',
+  completed: 'completed',
+};
+
+const initialModuleStatuses = dayModules.reduce((acc, module) => {
+  acc[module.id] = module.id === 'endOfDayEmail' ? moduleStatuses.active : moduleStatuses.upcoming;
+  return acc;
+}, {});
+
 function formatTimer(seconds) {
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
   const secs = String(seconds % 60).padStart(2, '0');
@@ -171,6 +182,7 @@ function analyzeFinalResponse(response) {
 
 export default function SimulationShellClient() {
   const [currentModule, setCurrentModule] = useState('endOfDayEmail');
+  const [timelineStatuses, setTimelineStatuses] = useState(initialModuleStatuses);
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
   const [folders, setFolders] = useState(initialFolders);
@@ -219,6 +231,8 @@ export default function SimulationShellClient() {
     setIsEmailVisible(false);
     setFolders(initialFolders);
     setCompletedTasks([]);
+    setCurrentModule('endOfDayEmail');
+    setTimelineStatuses(initialModuleStatuses);
   };
 
   const scrollToTop = () => {
@@ -291,6 +305,10 @@ export default function SimulationShellClient() {
       'Follow up with parent within 48 hours',
     ]);
     setHasCompletedFinalStep(true);
+    setTimelineStatuses((prev) => ({
+      ...prev,
+      endOfDayEmail: moduleStatuses.completed,
+    }));
     setScene('report');
     scrollToTop();
   };
@@ -334,25 +352,39 @@ export default function SimulationShellClient() {
           <section className="day-timeline-card" aria-label="Simulation day modules">
             <p className="eyebrow">Simulation Day Timeline</p>
             <h2>A Day in the Life of a School Leader</h2>
+            <p className="timeline-note">
+              Time moves forward. Once a leadership moment passes, it becomes part of your record.
+            </p>
             <div className="day-timeline-grid">
               {dayModules.map((module) => {
-                const isActive = currentModule === module.id;
-                const moduleLabel = module.enabled ? module.label : `${module.label} (Coming Soon)`;
+                const status = timelineStatuses[module.id];
+                const isActive = status === moduleStatuses.active && currentModule === module.id;
+                const isCompleted = status === moduleStatuses.completed;
+                const isUpcoming = status === moduleStatuses.upcoming;
+                const moduleLabel = isUpcoming && !module.enabled ? `${module.label} (Coming Soon)` : module.label;
+                const isDisabled = !module.enabled || isCompleted || !isActive;
 
                 return (
                   <button
                     key={module.id}
                     type="button"
-                    className={`timeline-module ${isActive ? 'active' : ''}`}
+                    className={`timeline-module ${
+                      isCompleted
+                        ? 'completed'
+                        : isActive
+                          ? 'active'
+                          : 'upcoming'
+                    }`}
                     aria-current={isActive ? 'step' : undefined}
-                    disabled={!module.enabled}
+                    disabled={isDisabled}
                     onClick={() => {
-                      if (module.id === 'endOfDayEmail') {
+                      if (module.id === 'endOfDayEmail' && isActive) {
                         setCurrentModule('endOfDayEmail');
                       }
                     }}
                   >
-                    {moduleLabel}
+                    <span>{moduleLabel}</span>
+                    {isCompleted ? <span className="timeline-module-badge">Locked</span> : null}
                   </button>
                 );
               })}
