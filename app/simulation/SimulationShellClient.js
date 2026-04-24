@@ -74,7 +74,8 @@ export default function SimulationShellClient() {
   const [folders, setFolders] = useState(initialFolders);
   const [firstDecision, setFirstDecision] = useState('');
   const [investigationDecision, setInvestigationDecision] = useState('');
-  const [responseDraft, setResponseDraft] = useState('');
+  const [initialParentResponse, setInitialParentResponse] = useState('');
+  const [finalParentResponse, setFinalParentResponse] = useState('');
   const [hasCompletedFinalStep, setHasCompletedFinalStep] = useState(false);
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
@@ -108,7 +109,8 @@ export default function SimulationShellClient() {
     setScene('initial');
     setFirstDecision('');
     setInvestigationDecision('');
-    setResponseDraft('');
+    setInitialParentResponse('');
+    setFinalParentResponse('');
     setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
   };
@@ -154,14 +156,14 @@ export default function SimulationShellClient() {
   };
 
   const handleInvestigationContinue = () => {
-    if (!investigationDecision || hasCompletedFinalStep) return;
+    if (!investigationDecision || !finalParentResponse.trim() || hasCompletedFinalStep) return;
     addFolderItems(postResponseFolderItems);
     setHasCompletedFinalStep(true);
     scrollToTop();
   };
 
   const showInitialParentResponse = firstDecision === 'Send an email response';
-  const showParentResponse = Boolean(investigationDecision);
+  const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -311,8 +313,8 @@ export default function SimulationShellClient() {
                       rows={6}
                       className="response-input"
                       placeholder="Capture your acknowledgment, immediate next steps, and follow-up timeline."
-                      value={responseDraft}
-                      onChange={(event) => setResponseDraft(event.target.value)}
+                      value={initialParentResponse}
+                      onChange={(event) => setInitialParentResponse(event.target.value)}
                     />
                   </>
                 ) : null}
@@ -377,14 +379,23 @@ export default function SimulationShellClient() {
                 </div>
 
                 {investigationDecision ? (
-                  <article className="decision-next-step-panel" aria-live="polite">
-                    <p className="decision-next-step-kicker">Decision Impact</p>
-                    <p>{investigationGuidanceCopy[investigationDecision]}</p>
-                  </article>
+                  <>
+                    <div className="selected-decision-chip" role="status" aria-live="polite">
+                      <span className="selected-decision-label">Selected path:</span> {investigationDecision}
+                    </div>
+                    <article className="decision-next-step-panel" aria-live="polite">
+                      <p className="decision-next-step-kicker">Decision Impact</p>
+                      <p>{investigationGuidanceCopy[investigationDecision]}</p>
+                    </article>
+                  </>
                 ) : null}
 
-                {showParentResponse ? (
+                {showFinalParentResponse ? (
                   <>
+                    <p className="response-label">
+                      Regardless of the path you chose, the parent still needs a clear response. Use what you
+                      learned to acknowledge the concern, clarify the facts, and explain the next step.
+                    </p>
                     <label htmlFor="leadership-response" className="response-label">
                       Draft your full response to the parent…
                     </label>
@@ -393,16 +404,19 @@ export default function SimulationShellClient() {
                       rows={6}
                       className="response-input"
                       placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
-                      value={responseDraft}
-                      onChange={(event) => setResponseDraft(event.target.value)}
+                      value={finalParentResponse}
+                      onChange={(event) => setFinalParentResponse(event.target.value)}
                     />
                   </>
                 ) : null}
 
                 {hasCompletedFinalStep ? (
                   <article className="decision-next-step-panel" aria-live="polite">
-                    <p className="decision-next-step-kicker">Next Step</p>
-                    <p>Final review placeholder saved. You can proceed to the next simulation module when ready.</p>
+                    <p className="decision-next-step-kicker">Case Step Complete</p>
+                    <p>
+                      Your final response has been recorded for the leadership record. In the full simulation,
+                      this response will become part of your end-of-day summary and coaching report.
+                    </p>
                   </article>
                 ) : null}
               </>
@@ -453,8 +467,13 @@ export default function SimulationShellClient() {
                     type="button"
                     className="button primary"
                     onClick={isInvestigationScene ? handleInvestigationContinue : handleContinueToInvestigation}
+                    disabled={
+                      isInvestigationScene &&
+                      !hasCompletedFinalStep &&
+                      (!investigationDecision || !finalParentResponse.trim())
+                    }
                   >
-                    Continue
+                    {isInvestigationScene && hasCompletedFinalStep ? 'Continue Simulation' : 'Continue'}
                   </button>
                 </div>
               </>
