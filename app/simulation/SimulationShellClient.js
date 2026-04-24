@@ -172,6 +172,7 @@ export default function SimulationShellClient() {
   const hasSelectedDecision = Boolean(firstDecision);
   const [scene, setScene] = useState('initial');
   const isInvestigationScene = scene === 'investigation';
+  const isReportScene = scene === 'report';
   const selectedConsequence = hasSelectedDecision ? decisionConsequences[firstDecision] : null;
 
   useEffect(() => {
@@ -276,6 +277,7 @@ export default function SimulationShellClient() {
       'Follow up with parent within 48 hours',
     ]);
     setHasCompletedFinalStep(true);
+    setScene('report');
     scrollToTop();
   };
 
@@ -322,7 +324,89 @@ export default function SimulationShellClient() {
           </div>
 
           <div className={`scenario-content ${hasSelectedDecision ? 'decision-made' : 'pre-decision'}`}>
-            {!isInvestigationScene ? (
+            {isReportScene ? (
+              <>
+                <p className="eyebrow">Leadership Case Record</p>
+                <h2>Leadership Response Report</h2>
+                <p className="report-subtitle">Case: Parent concern about classroom reward practice</p>
+
+                <article className="report-card report-intro">
+                  <p>
+                    Your decisions and written response have been added to the leadership record for this
+                    case.
+                  </p>
+                </article>
+
+                <article className="report-card">
+                  <h3>Your Path</h3>
+                  <ul className="report-path-list">
+                    <li>
+                      <span className="report-path-label">First move selected:</span>{' '}
+                      {firstDecision || 'Not selected'}
+                    </li>
+                    <li>
+                      <span className="report-path-label">Investigation choice selected:</span>{' '}
+                      {investigationDecision || 'Not selected'}
+                    </li>
+                    <li>
+                      <span className="report-path-label">Initial parent response drafted:</span>{' '}
+                      {initialParentResponse.trim() ? 'Yes' : 'No'}
+                    </li>
+                    <li>
+                      <span className="report-path-label">Final parent response recorded:</span>{' '}
+                      {finalParentResponse.trim() ? 'Yes' : 'No'}
+                    </li>
+                  </ul>
+                </article>
+
+                <article className="report-card" aria-live="polite">
+                  <h3>Leadership Response Analysis</h3>
+                  <p className="analysis-note">
+                    First-pass local simulation analysis only (keyword/heuristic based), not final AI
+                    analysis.
+                  </p>
+                  <div className="analysis-grid report-analysis-grid">
+                    {finalResponseAnalysis.map((row) => (
+                      <article key={row.lens} className="analysis-row report-analysis-row">
+                        <div className="report-analysis-header">
+                          <p className="analysis-lens">{row.lens}</p>
+                          <p className={`analysis-status ${row.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                            {row.status}
+                          </p>
+                        </div>
+                        <p>{row.note}</p>
+                      </article>
+                    ))}
+                  </div>
+                </article>
+
+                <article className="report-card">
+                  <h3>Strong Response Should Include</h3>
+                  <ul className="strong-response-list">
+                    <li>Acknowledge the parent&apos;s concern.</li>
+                    <li>Recognize the child&apos;s emotional experience.</li>
+                    <li>Clarify that the reward was participation-based, not accuracy-based.</li>
+                    <li>Avoid blaming the child or teacher.</li>
+                    <li>Explain that classroom practices around rewards and exclusion will be reviewed.</li>
+                    <li>Offer a follow-up conversation or timeline.</li>
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>Recorded Response</h3>
+                  {initialParentResponse.trim() ? (
+                    <div className="recorded-response-block">
+                      <p className="recorded-response-title">Initial acknowledgment / first response</p>
+                      <p>{initialParentResponse}</p>
+                    </div>
+                  ) : null}
+                  <div className="recorded-response-block">
+                    <p className="recorded-response-title">Final parent response</p>
+                    <p>{finalParentResponse}</p>
+                  </div>
+                </article>
+              </>
+            ) : !isInvestigationScene ? (
               <>
                 {hasSelectedDecision ? (
                   <div className="compact-scene-header">
@@ -541,57 +625,10 @@ export default function SimulationShellClient() {
                   </>
                 ) : null}
 
-                {hasCompletedFinalStep ? (
-                  <>
-                    <article className="decision-next-step-panel" aria-live="polite">
-                      <p className="decision-next-step-kicker">Leadership Response Analysis</p>
-                      <p>
-                        Your written response is the most important leadership artifact in this case. Here is
-                        how it reads through the simulation&apos;s leadership lenses.
-                      </p>
-                      <p className="analysis-note">
-                        First-pass local simulation analysis only (keyword/heuristic based), not final AI
-                        analysis.
-                      </p>
-                      <div className="analysis-grid">
-                        {finalResponseAnalysis.map((row) => (
-                          <article key={row.lens} className="analysis-row">
-                            <p className="analysis-lens">{row.lens}</p>
-                            <p className={`analysis-status ${row.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {row.status}
-                            </p>
-                            <p>{row.note}</p>
-                          </article>
-                        ))}
-                      </div>
-                    </article>
-                    <article className="decision-next-step-panel">
-                      <p className="decision-next-step-kicker">Strong Response Should Include</p>
-                      <ul className="strong-response-list">
-                        <li>Acknowledge the parent&apos;s concern.</li>
-                        <li>Recognize the child&apos;s emotional experience.</li>
-                        <li>Clarify that the reward was participation-based, not accuracy-based.</li>
-                        <li>Avoid blaming the child or teacher.</li>
-                        <li>
-                          Explain that classroom practices around rewards and exclusion will be reviewed.
-                        </li>
-                        <li>Offer a follow-up conversation or timeline.</li>
-                      </ul>
-                    </article>
-                    <article className="decision-next-step-panel" aria-live="polite">
-                      <p className="decision-next-step-kicker">Case Step Complete</p>
-                      <p>
-                        Your decisions and written response have been added to the leadership record for this
-                        case.
-                      </p>
-                      <p>Next build: this record can become part of a printable end-of-day leadership report.</p>
-                    </article>
-                  </>
-                ) : null}
               </>
             )}
 
-            {!isInvestigationScene ? (
+            {!isInvestigationScene && !isReportScene ? (
               <button
                 type="button"
                 className="button secondary reveal-email-button"
@@ -601,7 +638,7 @@ export default function SimulationShellClient() {
               </button>
             ) : null}
 
-            {isEmailVisible && !isInvestigationScene ? (
+            {isEmailVisible && !isInvestigationScene && !isReportScene ? (
               <article className="full-email-card">
                 <p className="full-email-greeting">Dear Mr. Principal,</p>
                 <p>
@@ -635,16 +672,24 @@ export default function SimulationShellClient() {
                   <button
                     type="button"
                     className="button primary"
-                    onClick={isInvestigationScene ? handleInvestigationContinue : handleContinueToInvestigation}
+                    onClick={
+                      isReportScene
+                        ? undefined
+                        : (isInvestigationScene
+                          ? handleInvestigationContinue
+                          : handleContinueToInvestigation)
+                    }
                     disabled={
-                      isInvestigationScene &&
-                      !hasCompletedFinalStep &&
-                      (!investigationDecision || !finalParentResponse.trim())
+                      isReportScene ||
+                      (isInvestigationScene &&
+                        !hasCompletedFinalStep &&
+                        (!investigationDecision || !finalParentResponse.trim()))
                     }
                   >
-                    {isInvestigationScene && hasCompletedFinalStep ? 'Continue Simulation' : 'Continue'}
+                    {isReportScene ? 'Continue to Next Scenario' : 'Continue'}
                   </button>
                 </div>
+                {isReportScene ? <p className="next-scenario-note">Next scenario coming soon.</p> : null}
               </>
             ) : null}
           </div>
