@@ -203,18 +203,24 @@ export default function SimulationShellClient() {
               </article>
             ) : null}
 
-            <h3 className="decision-prompt">Before reading the full email, what is your first leadership move?</h3>
-            <div className="choices">
-              {Object.keys(decisionToFolderItem).map((decision) => (
-                <button
-                  key={decision}
-                  className={`choice ${selectedDecision === decision ? 'active' : ''}`}
-                  onClick={() => handleDecision(decision)}
-                >
-                  {decision}
-                </button>
-              ))}
-            </div>
+            {!hasSelectedDecision ? (
+              <>
+                <h3 className="decision-prompt">
+                  Before reading the full email, what is your first leadership move?
+                </h3>
+                <div className="choices">
+                  {Object.keys(decisionToFolderItem).map((decision) => (
+                    <button
+                      key={decision}
+                      className={`choice ${selectedDecision === decision ? 'active' : ''}`}
+                      onClick={() => handleDecision(decision)}
+                    >
+                      {decision}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : null}
 
             {!hasSelectedDecision ? (
               <div className="button-row decision-support-row">
@@ -233,10 +239,20 @@ export default function SimulationShellClient() {
             {hasSelectedDecision && selectedConsequence ? (
               <article className="decision-consequence-card" aria-live="polite">
                 <p className="decision-consequence-kicker">Leadership Coaching Lens</p>
+                <p className="decision-consequence-subhead">
+                  <span className="decision-consequence-marker" aria-hidden="true">
+                    ●
+                  </span>
+                  Direct coaching based on your first move.
+                </p>
                 <h4>{selectedConsequence.title}</h4>
                 <p>{selectedConsequence.message}</p>
                 <p className="decision-consequence-takeaway">
                   <strong>Leadership takeaway:</strong> {selectedConsequence.takeaway}
+                </p>
+                <p className="decision-consequence-vic-note">
+                  VIC guidance will build on this coaching layer by analyzing tone, urgency, and next
+                  steps.
                 </p>
               </article>
             ) : null}
