@@ -637,6 +637,75 @@ p {
   font-weight: 600;
 }
 
+.cinematic-opening {
+  margin-bottom: 0.35rem;
+  color: #23395f;
+}
+
+.cinematic-opening.strong {
+  font-weight: 700;
+  color: #1b3157;
+}
+
+.scenario-alert-card {
+  margin-top: 1rem;
+  border-radius: 14px;
+  border: 1px solid #efc2c2;
+  background: linear-gradient(160deg, #fff6f6, #ffeaea);
+  padding: 0.95rem;
+  box-shadow: 0 12px 28px rgba(131, 37, 37, 0.07);
+}
+
+.scenario-alert-card p + p {
+  margin-top: 0.35rem;
+}
+
+.scenario-preview-card {
+  margin-top: 0.8rem;
+  border-radius: 14px;
+  border: 1px solid #d4e0f2;
+  background: #f7faff;
+  padding: 0.95rem;
+}
+
+.scenario-preview-card p + p {
+  margin-top: 0.5rem;
+}
+
+.decision-prompt {
+  margin: 1rem 0 0.65rem;
+  font-size: 1.04rem;
+}
+
+.reveal-email-button {
+  margin-top: 0.6rem;
+}
+
+.full-email-card {
+  margin-top: 0.75rem;
+  border: 1px solid #d3def2;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 1rem;
+  box-shadow: inset 0 0 0 1px rgba(65, 102, 167, 0.07);
+}
+
+.full-email-card p + p {
+  margin-top: 0.62rem;
+}
+
+.vic-structure-title {
+  margin-top: 0.75rem;
+  font-weight: 700;
+}
+
+.vic-structure-list {
+  margin: 0.55rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
 @media (max-width: 960px) {
   .simulation-layout-grid {
     grid-template-columns: 1fr;

@@ -9,9 +9,16 @@ const initialFolders = {
 };
 
 const decisionToFolderItem = {
-  'Check Voicemail': { bucket: 'red', item: 'Review urgent voicemail' },
-  'Open Email': { bucket: 'orange', item: 'Triage unread parent/teacher emails' },
-  'Review Mailbox': { bucket: 'green', item: 'Sort physical correspondence' },
+  'Respond immediately': { bucket: 'red', item: 'Draft careful parent response before leaving' },
+  'Gather more information': { bucket: 'red', item: 'Gather facts from teacher and records today' },
+  'Call the parent': { bucket: 'red', item: 'Call parent before leaving school' },
+  'Speak with the teacher first': { bucket: 'red', item: 'Speak with teacher before responding' },
+};
+
+const postResponseFolderItems = {
+  red: ['Speak with teacher immediately', 'Document parent concern'],
+  orange: ['Follow up with parent within 48 hours', 'Review classroom reward practices'],
+  green: ['Reflect on equity in recognition systems'],
 };
 
 const totalDecisionWindowSeconds = 120;
@@ -27,6 +34,8 @@ export default function SimulationShellClient() {
   const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
   const [folders, setFolders] = useState(initialFolders);
   const [selectedDecision, setSelectedDecision] = useState('');
+  const [isEmailVisible, setIsEmailVisible] = useState(false);
+  const [isVicOpen, setIsVicOpen] = useState(false);
 
   useEffect(() => {
     if (!started || timeLeft <= 0) {
@@ -51,22 +60,36 @@ export default function SimulationShellClient() {
     setTimeLeft(totalDecisionWindowSeconds);
   };
 
+  const addFolderItems = (itemsByBucket) => {
+    setFolders((prev) => {
+      const next = {
+        red: [...prev.red],
+        orange: [...prev.orange],
+        green: [...prev.green],
+      };
+
+      Object.entries(itemsByBucket).forEach(([bucket, items]) => {
+        items.forEach((item) => {
+          if (!next[bucket].includes(item)) {
+            next[bucket].push(item);
+          }
+        });
+      });
+
+      return next;
+    });
+  };
+
   const handleDecision = (decisionLabel) => {
     const mapping = decisionToFolderItem[decisionLabel];
     if (!mapping) return;
 
     setSelectedDecision(decisionLabel);
-    setFolders((prev) => {
-      const existing = prev[mapping.bucket];
-      if (existing.includes(mapping.item)) {
-        return prev;
-      }
+    addFolderItems({ [mapping.bucket]: [mapping.item] });
+  };
 
-      return {
-        ...prev,
-        [mapping.bucket]: [...existing, mapping.item],
-      };
-    });
+  const handleSaveOrContinue = () => {
+    addFolderItems(postResponseFolderItems);
   };
 
   return (
@@ -96,14 +119,36 @@ export default function SimulationShellClient() {
           </div>
 
           <div className="scenario-content">
-            <p className="eyebrow">7:30 AM</p>
-            <h2>The Day Begins</h2>
-            <p>
-              The building is quiet for now. Your phone is blinking, your inbox is waiting, and a
-              stack of papers is already on your desk. You have a few minutes before the day starts
-              moving.
+            <p className="eyebrow">4:12 PM</p>
+            <h2>The Email You Cannot Ignore</h2>
+            <p className="cinematic-opening">
+              The building is quieter now, but your day is not over.
             </p>
+            <p className="cinematic-opening">You finally sit down at your desk and open your inbox.</p>
+            <p className="cinematic-opening">One message immediately stands out.</p>
+            <p className="cinematic-opening strong">It is emotional.</p>
+            <p className="cinematic-opening strong">It is angry.</p>
+            <p className="cinematic-opening strong">It is about a child who feels humiliated.</p>
 
+            <article className="scenario-alert-card">
+              <p><strong>Subject:</strong> Concern Regarding My Daughter</p>
+              <p><strong>Tone Detected:</strong> Escalation Risk — High</p>
+              <p><strong>Leadership Pressure:</strong> Parent trust, student dignity, staff accountability</p>
+            </article>
+
+            <article className="scenario-preview-card">
+              <p>
+                A parent believes her daughter was publicly excluded from a class pizza party because
+                of academic performance. The child already receives reading support and now feels
+                embarrassed, ashamed, and less capable than her peers.
+              </p>
+              <p>
+                The parent is angry, questioning the school’s judgment, and threatening to escalate
+                beyond the building level.
+              </p>
+            </article>
+
+            <h3 className="decision-prompt">Before reading the full email, what is your first leadership move?</h3>
             <div className="choices">
               {Object.keys(decisionToFolderItem).map((decision) => (
                 <button
@@ -116,24 +161,57 @@ export default function SimulationShellClient() {
               ))}
             </div>
 
+            <button
+              type="button"
+              className="button secondary reveal-email-button"
+              onClick={() => setIsEmailVisible((prev) => !prev)}
+            >
+              {isEmailVisible ? 'Hide Full Email' : 'Reveal Full Email'}
+            </button>
+
+            {isEmailVisible ? (
+              <article className="full-email-card">
+                <p>Dear Mr. Principal,</p>
+                <p>
+                  My daughter Sue was excluded from a class pizza party because of her performance on
+                  a spelling pre-test. Sue already struggles with reading, attends remediation, and
+                  has been working hard to improve.
+                </p>
+                <p>
+                  This decision left her feeling embarrassed and ashamed. She cried at breakfast
+                  saying, “Why can’t I be smart like the other kids?” and “I hate being so stupid.”
+                </p>
+                <p>
+                  This is unacceptable. It shows poor judgment, lack of compassion, and outdated
+                  teaching practices.
+                </p>
+                <p>
+                  I expect a response and a plan to ensure this does not happen again. I am prepared
+                  to escalate this to the board if necessary.
+                </p>
+                <p>Sincerely,</p>
+                <p>A concerned parent</p>
+              </article>
+            ) : null}
+
             <label htmlFor="leadership-response" className="response-label">
-              Draft your leadership response or action plan…
+              Draft your response to this parent…
             </label>
             <textarea
               id="leadership-response"
               rows={6}
               className="response-input"
-              placeholder="Capture your communication strategy, next steps, and who owns each follow-up."
+              placeholder="Capture your communication strategy, immediate next steps, and your follow-up timeline."
             />
 
             <div className="button-row">
-              <button type="button" className="button secondary">
+              <button type="button" className="button secondary" onClick={handleSaveOrContinue}>
                 Save Response
               </button>
-              <button type="button" className="button secondary">
+              <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
                 Ask VIC for Guidance
               </button>
-              <button type="button" className="button primary">
+              <button type="button" className="button primary" onClick={handleSaveOrContinue}>
                 Continue
               </button>
             </div>
@@ -180,13 +258,24 @@ export default function SimulationShellClient() {
             </div>
           </div>
 
-          <details className="card vic-panel" open>
+          <details className="card vic-panel" open={isVicOpen} onToggle={(event) => setIsVicOpen(event.currentTarget.open)}>
             <summary>VIC Leadership Guidance</summary>
             <p>
-              VIC will eventually analyze your decisions, communication tone, urgency awareness, and
-              next steps.
+              This is a high-emotion, high-risk parent communication. Do not begin by defending the
+              school.
             </p>
-            <p className="vic-note">AI coaching layer coming next.</p>
+            <p className="vic-structure-title">Strong leadership response structure:</p>
+            <ol className="vic-structure-list">
+              <li>Acknowledge the parent&apos;s concern and the child&apos;s emotional experience.</li>
+              <li>Avoid making promises or assigning blame before gathering facts.</li>
+              <li>Explain that you will review what happened with the teacher and relevant staff.</li>
+              <li>Commit to a clear follow-up timeline.</li>
+              <li>Keep the tone calm, respectful, and student-centered.</li>
+            </ol>
+            <p className="vic-note">
+              Leadership Insight: In moments like this, you are not only answering an email. You are
+              protecting trust between the school and the family.
+            </p>
           </details>
         </aside>
       </div>
