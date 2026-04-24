@@ -242,6 +242,13 @@ p {
   color: var(--text);
 }
 
+.button.secondary.active {
+  border-color: #2f65b1;
+  background: #2f65b1;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(47, 101, 177, 0.28);
+}
+
 .credibility-panel {
   border-block: 1px solid #e0e7f2;
 }
@@ -1087,6 +1094,45 @@ p {
   padding-left: 1.1rem;
   display: grid;
   gap: 0.35rem;
+}
+
+.arrival-priority-list {
+  margin-top: 0.65rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.arrival-priority-card {
+  border: 1px solid #bed1f2;
+  border-radius: 14px;
+  background: #edf3ff;
+  color: #1a355f;
+  padding: 0.9rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.arrival-rank-row {
+  margin-top: 0.75rem;
+  gap: 0.5rem;
+}
+
+.arrival-rank-row .button {
+  min-width: 58px;
+  padding: 0.62rem 0.85rem;
+  white-space: nowrap;
+}
+
+.arrival-assigned-rank {
+  margin-top: 0.55rem;
+  margin-bottom: 0;
+}
+
+.arrival-coaching-list {
+  margin: 0.35rem 0 0.5rem;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.25rem;
 }
 
 .report-path-label {

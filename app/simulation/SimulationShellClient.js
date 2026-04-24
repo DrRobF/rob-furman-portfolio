@@ -8,29 +8,6 @@ const initialFolders = {
   green: ['Review leadership reflection'],
 };
 
-const arrivalFirstMoveCoaching = {
-  'Check voicemail': {
-    title: 'Urgency Check',
-    message:
-      'You chose to check voicemail first. This can be a strong move because phone messages often involve urgent parent or safety concerns. The risk is that voicemail can pull you into someone else’s agenda before you scan the whole field.',
-  },
-  'Open email': {
-    title: 'Information Scan',
-    message:
-      'You chose to open email first. This can help you quickly identify written concerns, deadlines, and parent communication. The risk is that email can become a rabbit hole before the day even starts.',
-  },
-  'Review mailbox': {
-    title: 'Paper Triage',
-    message:
-      'You chose to review the physical mailbox. This can surface forms, meeting notices, and deadlines that may not appear digitally. The risk is that paper tasks may feel productive while more urgent issues wait.',
-  },
-  'Speak with the teacher': {
-    title: 'Relationship First',
-    message:
-      'You chose to speak with the teacher first. This can strengthen trust and visibility, but it may also take over the limited quiet time you have before the day starts.',
-  },
-};
-
 const arrivalSortItems = [
   'Voicemail light blinking',
   'Unread inbox messages',
@@ -38,6 +15,14 @@ const arrivalSortItems = [
   'Teacher waiting to speak',
 ];
 const arrivalPriorityRanks = ['1st', '2nd', '3rd', '4th'];
+const suggestedArrivalSequence = [
+  'Teacher waiting to speak',
+  'Voicemail light blinking',
+  'Unread inbox messages',
+  'Physical mail stack',
+];
+const suggestedArrivalCoachingNote =
+  'Human needs come first because a waiting teacher may be unable to move into the day effectively. Voicemail is usually next because someone who calls may have a more urgent or emotional concern than someone who emails. Email matters, but it can usually be scanned once the immediate human and phone concerns are handled. Physical mail is generally last unless something unusual stands out, such as a hand-delivered envelope with only your name on it.';
 
 const decisionToFolderItem = {
   'Send an email response': {
@@ -225,13 +210,13 @@ export default function SimulationShellClient() {
   const [hasCompletedFinalStep, setHasCompletedFinalStep] = useState(false);
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
-  const [arrivalFirstMove, setArrivalFirstMove] = useState('');
   const [arrivalPriorityAssignments, setArrivalPriorityAssignments] = useState({});
+  const [arrivalRankingRecord, setArrivalRankingRecord] = useState(null);
+  const [arrivalCoachingRecord, setArrivalCoachingRecord] = useState(null);
   const [arrivalCompleted, setArrivalCompleted] = useState(false);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
-  const hasSelectedArrivalMove = Boolean(arrivalFirstMove);
   const [scene, setScene] = useState('initial');
   const isInvestigationScene = scene === 'investigation';
   const isReportScene = scene === 'report';
@@ -265,8 +250,9 @@ export default function SimulationShellClient() {
     setFinalParentResponse('');
     setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
-    setArrivalFirstMove('');
     setArrivalPriorityAssignments({});
+    setArrivalRankingRecord(null);
+    setArrivalCoachingRecord(null);
     setArrivalCompleted(false);
     setModuleTransitionNote('');
     setFolders(initialFolders);
@@ -330,11 +316,8 @@ export default function SimulationShellClient() {
     addFolderItems({ [mapping.bucket]: [mapping.item] });
   };
 
-  const handleArrivalFirstMove = (move) => {
-    setArrivalFirstMove(move);
-  };
-
   const handleArrivalPriorityAssignment = (item, rank) => {
+    if (arrivalCompleted) return;
     setArrivalPriorityAssignments((prev) => {
       const next = { ...prev };
       Object.entries(next).forEach(([assignedItem, assignedRank]) => {
@@ -350,6 +333,16 @@ export default function SimulationShellClient() {
   const handleContinueDay = () => {
     if (arrivalSortItems.some((item) => !arrivalPriorityAssignments[item])) return;
 
+    const rankedSelections = arrivalSortItems
+      .map((item) => ({ item, rank: arrivalPriorityAssignments[item] }))
+      .sort((a, b) => arrivalPriorityRanks.indexOf(a.rank) - arrivalPriorityRanks.indexOf(b.rank));
+
+    setArrivalRankingRecord(rankedSelections);
+    setArrivalCoachingRecord({
+      title: 'Suggested Leadership Sequence',
+      recommendedSequence: suggestedArrivalSequence,
+      leadershipThinking: suggestedArrivalCoachingNote,
+    });
     setArrivalCompleted(true);
     setTimelineStatuses((prev) => {
       const next = { ...prev, arrival: moduleStatuses.completed };
@@ -396,8 +389,7 @@ export default function SimulationShellClient() {
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
   const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
-  const selectedArrivalCoaching = hasSelectedArrivalMove ? arrivalFirstMoveCoaching[arrivalFirstMove] : null;
-  const isDecisionMade = currentModule === 'arrival' ? hasSelectedArrivalMove : hasSelectedDecision;
+  const isDecisionMade = currentModule === 'arrival' ? hasFinishedArrivalRanking : hasSelectedDecision;
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
     [finalParentResponse],
@@ -497,6 +489,15 @@ export default function SimulationShellClient() {
                 {arrivalCompleted ? (
                   <article className="scenario-preview-card">
                     <p>Morning triage complete. Your first leadership decisions are now part of the record.</p>
+                    {arrivalRankingRecord ? (
+                      <p>
+                        Saved ranking:{' '}
+                        {arrivalRankingRecord.map(({ item, rank }) => `${rank} ${item}`).join(' • ')}
+                      </p>
+                    ) : null}
+                    {arrivalCoachingRecord ? (
+                      <p>{arrivalCoachingRecord.title} saved to leadership record.</p>
+                    ) : null}
                     <p>{moduleTransitionNote || 'Next module coming soon.'}</p>
                   </article>
                 ) : (
@@ -514,50 +515,30 @@ export default function SimulationShellClient() {
                         minute.
                       </p>
                     </article>
-                    <h3 className="decision-prompt">What do you handle first?</h3>
-                    <div className="choices">
-                      {Object.keys(arrivalFirstMoveCoaching).map((move) => (
-                        <button
-                          key={move}
-                          className={`choice ${arrivalFirstMove === move ? 'active' : ''}`}
-                          onClick={() => handleArrivalFirstMove(move)}
-                        >
-                          {move}
-                        </button>
-                      ))}
-                    </div>
-
-                    {selectedArrivalCoaching ? (
-                      <article className="decision-consequence-card" aria-live="polite">
-                        <h4>{selectedArrivalCoaching.title}</h4>
-                        <p>{selectedArrivalCoaching.message}</p>
-                      </article>
-                    ) : null}
-
-                    {hasSelectedArrivalMove ? (
-                      <article className="report-card" aria-live="polite">
+                    <article className="report-card" aria-live="polite">
                         <h3>Sequence Your Priorities</h3>
                         <p>
                           All of these require your attention today. The leadership challenge is deciding what
                           comes first — and why.
                         </p>
-                        <div className="report-path-list">
+                        <div className="arrival-priority-list">
                           {arrivalSortItems.map((item) => (
-                            <div key={item} className="selected-decision-chip">
+                            <div key={item} className="arrival-priority-card">
                               <span className="selected-decision-label">{item}</span>
-                              <div className="button-row">
+                              <div className="button-row arrival-rank-row">
                                 {arrivalPriorityRanks.map((rank) => (
                                   <button
                                     key={`${item}-${rank}`}
                                     type="button"
                                     className={`button secondary ${arrivalPriorityAssignments[item] === rank ? 'active' : ''}`}
                                     onClick={() => handleArrivalPriorityAssignment(item, rank)}
+                                    aria-pressed={arrivalPriorityAssignments[item] === rank}
                                   >
                                     {rank}
                                   </button>
                                 ))}
                               </div>
-                              <p>
+                              <p className="arrival-assigned-rank">
                                 Assigned:{' '}
                                 <strong>
                                   {arrivalPriorityAssignments[item]
@@ -570,16 +551,17 @@ export default function SimulationShellClient() {
                         </div>
                         {hasFinishedArrivalRanking ? (
                           <article className="decision-consequence-card" aria-live="polite">
-                            <h4>Morning Leadership Insight</h4>
+                            <h4>Suggested Leadership Sequence</h4>
+                            <p>Recommended sequence:</p>
+                            <ol className="arrival-coaching-list">
+                              {suggestedArrivalSequence.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ol>
                             <p>
-                              Strong leaders prioritize people first, then urgency signals, and then
-                              information flow.
+                              Leadership thinking:
                             </p>
-                            <p>
-                              Human needs (like a waiting teacher) come before tasks. Signals of urgency (like
-                              voicemail) come before controlled inputs like email. Physical mail is usually
-                              last unless something unusual draws attention.
-                            </p>
+                            <p>{suggestedArrivalCoachingNote}</p>
                           </article>
                         ) : null}
                         <div className="button-row">
@@ -592,8 +574,7 @@ export default function SimulationShellClient() {
                             Continue Day
                           </button>
                         </div>
-                      </article>
-                    ) : null}
+                    </article>
                   </>
                 )}
               </>
