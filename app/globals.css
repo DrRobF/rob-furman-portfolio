@@ -926,6 +926,56 @@ p {
   margin-bottom: 0.35rem;
 }
 
+.analysis-note {
+  margin-top: 0.45rem;
+  font-size: 0.92rem;
+  color: #40597d;
+}
+
+.analysis-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.analysis-row {
+  border: 1px solid #d2dceb;
+  background: #fbfdff;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+}
+
+.analysis-lens {
+  font-weight: 700;
+  color: #233f69;
+}
+
+.analysis-status {
+  margin-top: 0.2rem;
+  margin-bottom: 0.15rem;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.analysis-status.strong {
+  color: #287342;
+}
+
+.analysis-status.developing {
+  color: #a06414;
+}
+
+.analysis-status.needs-attention {
+  color: #9d2e2e;
+}
+
+.strong-response-list {
+  margin: 0.45rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
 .reveal-email-button {
   margin-top: 0.2rem;
 }
