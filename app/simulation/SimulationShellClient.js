@@ -91,7 +91,7 @@ const dayModules = [
   { id: 'iepMeeting', label: '8:15 AM — IEP Meeting', enabled: true },
   { id: 'announcements', label: '9:00 AM — Announcements', enabled: true },
   { id: 'voicemailMailbox', label: '9:30 AM — Voicemail & Mailbox', enabled: false },
-  { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: false },
+  { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: true },
   { id: 'lunchDiscipline', label: '11:30 AM — Lunch & Discipline', enabled: false },
   { id: 'parentCall', label: '1:00 PM — Parent Call', enabled: false },
   { id: 'teacherObservation', label: '2:00 PM — Teacher Observation', enabled: false },
@@ -166,6 +166,41 @@ const announcementsTasks = [
   {
     id: 'announcementsMaintenance',
     label: 'Notify maintenance that classroom TV is not working',
+  },
+];
+const walkthroughFormFields = [
+  {
+    id: 'studentEngagement',
+    label: 'A. Student Engagement',
+    prompt:
+      'What evidence do you see of student engagement? Focus on what students are doing, saying, writing, asking, or producing.',
+  },
+  {
+    id: 'learningObjective',
+    label: 'B. Learning Objective / Purpose',
+    prompt:
+      'What appears to be the learning objective or instructional purpose of the lesson? What evidence helped you determine that?',
+  },
+  {
+    id: 'instructionalSupport',
+    label: 'C. Instructional Support / Scaffolding',
+    prompt:
+      'What supports does the teacher provide to help students access the learning? Look for modeling, examples, prompts, checks for understanding, or guided practice.',
+  },
+  {
+    id: 'classroomEnvironment',
+    label: 'D. Classroom Environment',
+    prompt: 'What do you notice about the tone, expectations, routines, and structure of the classroom?',
+  },
+  {
+    id: 'evidenceBasedStrength',
+    label: 'E. Evidence-Based Strength',
+    prompt: 'Identify one instructional strength using evidence from the lesson.',
+  },
+  {
+    id: 'followUpQuestion',
+    label: 'F. Follow-Up Conversation',
+    prompt: 'What is one reflective question you would ask the teacher after this walkthrough?',
   },
 ];
 
@@ -284,6 +319,11 @@ export default function SimulationShellClient() {
   const [announcementsDecision, setAnnouncementsDecision] = useState('');
   const [announcementsTaskFolders, setAnnouncementsTaskFolders] = useState({});
   const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
+  const [walkthroughResponses, setWalkthroughResponses] = useState(
+    walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
+  );
+  const [walkthroughLeadershipRecord, setWalkthroughLeadershipRecord] = useState(null);
+  const [walkthroughStage, setWalkthroughStage] = useState('form');
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
@@ -330,6 +370,9 @@ export default function SimulationShellClient() {
     setAnnouncementsDecision('');
     setAnnouncementsTaskFolders({});
     setAnnouncementsLeadershipRecord(null);
+    setWalkthroughResponses(walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}));
+    setWalkthroughLeadershipRecord(null);
+    setWalkthroughStage('form');
     setModuleTransitionNote('');
     setFolders(initialFolders);
     setCompletedTasks([]);
@@ -558,11 +601,57 @@ export default function SimulationShellClient() {
     });
     scrollToTop();
   };
+  const handleWalkthroughResponseChange = (fieldId, value) => {
+    setWalkthroughResponses((prev) => ({ ...prev, [fieldId]: value }));
+  };
+
+  const handleWalkthroughContinue = () => {
+    const hasAllResponses = walkthroughFormFields.every((field) => walkthroughResponses[field.id].trim());
+    if (!hasAllResponses || walkthroughStage !== 'form') return;
+
+    setWalkthroughLeadershipRecord((prev) => ({
+      ...(prev || {}),
+      module: '11:00 AM — Classroom Walkthrough',
+      responses: walkthroughResponses,
+    }));
+    setWalkthroughStage('reflection');
+    scrollToTop();
+  };
+
+  const handleWalkthroughContinueDay = () => {
+    if (walkthroughStage !== 'reflection') return;
+
+    setWalkthroughLeadershipRecord((prev) => ({
+      ...(prev || {}),
+      module: '11:00 AM — Classroom Walkthrough',
+      responses: prev?.responses || walkthroughResponses,
+      reflectionSaved: true,
+    }));
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, classroomWalkthrough: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'classroomWalkthrough' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
+    scrollToTop();
+  };
 
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
   const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
   const isDecisionMade = currentModule === 'arrival' ? hasFinishedArrivalRanking : hasSelectedDecision;
+  const hasCompletedWalkthroughForm = walkthroughFormFields.every(
+    (field) => walkthroughResponses[field.id].trim(),
+  );
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
     [finalParentResponse],
@@ -937,6 +1026,120 @@ export default function SimulationShellClient() {
                     Continue Day
                   </button>
                 </div>
+              </>
+            ) : currentModule === 'classroomWalkthrough' ? (
+              <>
+                <p className="eyebrow">11:00 AM</p>
+                <h2>Classroom Walkthrough</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    You step into a classroom during an 18-minute lesson. This is not a formal evaluation —
+                    it is a chance to gather evidence about instruction, student engagement, and classroom
+                    dynamics.
+                  </p>
+                </article>
+                <article className="decision-next-step-panel">
+                  <p>
+                    Effective walkthroughs are short, non-evaluative, and focused on gathering evidence to
+                    improve instruction. Strong leaders observe student engagement, clarity of learning goals,
+                    instructional support, and classroom environment — then use that evidence to guide
+                    reflective conversations with teachers.
+                  </p>
+                </article>
+
+                {walkthroughStage === 'form' ? (
+                  <>
+                    <article className="report-card walkthrough-video-card">
+                      <h3>Classroom Walkthrough Lesson Video</h3>
+                      <div className="walkthrough-video-embed">
+                        <iframe
+                          src="https://www.youtube.com/embed/7SZnuQqv6bw?si=cs141QKMPsZsbpDK"
+                          title="Classroom walkthrough lesson video"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen
+                        />
+                      </div>
+                    </article>
+
+                    <article className="report-card">
+                      <h3>Walkthrough Evidence Form</h3>
+                      <p>
+                        Capture objective, non-evaluative evidence from the lesson. All sections are required
+                        before continuing.
+                      </p>
+                      <div className="analysis-grid">
+                        {walkthroughFormFields.map((field) => (
+                          <div key={field.id}>
+                            <label htmlFor={`walkthrough-${field.id}`} className="response-label">
+                              {field.label}
+                            </label>
+                            <p className="analysis-note">{field.prompt}</p>
+                            <textarea
+                              id={`walkthrough-${field.id}`}
+                              rows={4}
+                              className="response-input"
+                              value={walkthroughResponses[field.id]}
+                              onChange={(event) => handleWalkthroughResponseChange(field.id, event.target.value)}
+                              required
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </article>
+
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={handleWalkthroughContinue}
+                        disabled={!hasCompletedWalkthroughForm}
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <article className="report-card report-intro">
+                      <h3>Walkthrough Reflection</h3>
+                      <p>
+                        Walkthroughs are not about judging teaching in the moment. They are about collecting
+                        evidence that can support a thoughtful professional conversation.
+                      </p>
+                    </article>
+                    <article className="report-card">
+                      <h3>Coaching Check</h3>
+                      <ul className="strong-response-list">
+                        <li>Did you focus on what students were doing, not only what the teacher was doing?</li>
+                        <li>Did you identify evidence of learning rather than general impressions?</li>
+                        <li>Did you notice whether the lesson purpose was clear?</li>
+                        <li>Did you look for instructional supports or scaffolds?</li>
+                        <li>Did your follow-up question invite reflection rather than defensiveness?</li>
+                      </ul>
+                    </article>
+                    <article className="report-card">
+                      <h3>Strong Walkthrough Notes Usually Include</h3>
+                      <ul className="strong-response-list">
+                        <li>Specific student behaviors</li>
+                        <li>Evidence connected to the learning goal</li>
+                        <li>Teacher moves that support understanding</li>
+                        <li>Classroom routines or environmental factors</li>
+                        <li>One strength grounded in evidence</li>
+                        <li>One reflective, non-accusatory follow-up question</li>
+                      </ul>
+                    </article>
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={handleWalkthroughContinueDay}
+                      >
+                        Continue Day
+                      </button>
+                    </div>
+                  </>
+                )}
               </>
             ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
@@ -1398,6 +1601,25 @@ export default function SimulationShellClient() {
                     ))}
                     <li><strong>Coaching note:</strong> {announcementsLeadershipRecord.coachingNote}</li>
                     <li><strong>Suggested folder:</strong> {announcementsLeadershipRecord.suggestedFolder}</li>
+                  </ul>
+                </article>
+              ) : null}
+
+              {walkthroughLeadershipRecord ? (
+                <article className="folder-card">
+                  <h4>Walkthrough Record</h4>
+                  <p className="folder-subtitle">Captured non-evaluative classroom walkthrough notes</p>
+                  <ul>
+                    <li><strong>Student engagement evidence:</strong> {walkthroughLeadershipRecord.responses?.studentEngagement}</li>
+                    <li><strong>Learning objective evidence:</strong> {walkthroughLeadershipRecord.responses?.learningObjective}</li>
+                    <li><strong>Instructional supports observed:</strong> {walkthroughLeadershipRecord.responses?.instructionalSupport}</li>
+                    <li><strong>Classroom environment notes:</strong> {walkthroughLeadershipRecord.responses?.classroomEnvironment}</li>
+                    <li><strong>Evidence-based strength:</strong> {walkthroughLeadershipRecord.responses?.evidenceBasedStrength}</li>
+                    <li><strong>Follow-up question:</strong> {walkthroughLeadershipRecord.responses?.followUpQuestion}</li>
+                    <li>
+                      <strong>Reflection status:</strong>{' '}
+                      {walkthroughLeadershipRecord.reflectionSaved ? 'Saved' : 'Pending'}
+                    </li>
                   </ul>
                 </article>
               ) : null}
