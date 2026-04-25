@@ -77,6 +77,7 @@ const postResponseFolderItems = {
 };
 
 const totalDecisionWindowSeconds = 120;
+const simulationProgressStorageKey = 'rob-furman-school-leader-simulation-v1';
 
 const lensNames = [
   'Judgment Under Pressure',
@@ -359,6 +360,8 @@ export default function SimulationShellClient() {
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
+  const [saveProgressMessage, setSaveProgressMessage] = useState('');
+  const [lastSavedLabel, setLastSavedLabel] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
   const [scene, setScene] = useState('initial');
@@ -801,6 +804,22 @@ export default function SimulationShellClient() {
         ? 'Snapshot structure looks valid.'
         : 'Snapshot is missing required fields.',
     );
+  };
+
+  const saveSimulationProgress = () => {
+    if (typeof window === 'undefined') return;
+
+    const snapshot = buildSimulationSnapshot();
+
+    try {
+      const serializedSnapshot = JSON.stringify(snapshot);
+      window.localStorage.setItem(simulationProgressStorageKey, serializedSnapshot);
+      setSaveProgressMessage('Progress saved on this device.');
+      setLastSavedLabel(`Last saved: ${new Date(snapshot.savedAt).toLocaleString()}`);
+    } catch (error) {
+      setSaveProgressMessage('Progress could not be saved on this device.');
+      setLastSavedLabel('');
+    }
   };
 
   return (
@@ -1922,6 +1941,12 @@ export default function SimulationShellClient() {
 
           <div className="card">
             <h4>Developer Utilities</h4>
+            <button type="button" className="button secondary" onClick={saveSimulationProgress}>
+              Save Progress
+            </button>
+            <p className="folder-subtitle">Progress is saved only in this browser on this device.</p>
+            {saveProgressMessage ? <p>{saveProgressMessage}</p> : null}
+            {lastSavedLabel ? <p>{lastSavedLabel}</p> : null}
             <button type="button" className="button secondary" onClick={handlePreviewSaveSnapshot}>
               Preview Save Snapshot
             </button>
