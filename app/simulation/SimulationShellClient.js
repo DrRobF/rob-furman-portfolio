@@ -362,6 +362,7 @@ export default function SimulationShellClient() {
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
   const [saveProgressMessage, setSaveProgressMessage] = useState('');
   const [lastSavedLabel, setLastSavedLabel] = useState('');
+  const [savedSnapshot, setSavedSnapshot] = useState(null);
 
   const hasSelectedDecision = Boolean(firstDecision);
   const [scene, setScene] = useState('initial');
@@ -385,6 +386,26 @@ export default function SimulationShellClient() {
     if (currentModule !== 'voicemail') return;
     addFolderItems({ red: [voicemailLoopTaskItem] });
   }, [currentModule]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const serializedSnapshot = window.localStorage.getItem(simulationProgressStorageKey);
+      if (!serializedSnapshot) return;
+      const parsedSnapshot = JSON.parse(serializedSnapshot);
+      if (!isValidSnapshotForRestore(parsedSnapshot)) return;
+
+      setSavedSnapshot(parsedSnapshot);
+      setLastSavedLabel(
+        parsedSnapshot.savedAt
+          ? `Last saved: ${new Date(parsedSnapshot.savedAt).toLocaleString()}`
+          : 'Last saved: unavailable',
+      );
+    } catch (error) {
+      setSavedSnapshot(null);
+    }
+  }, []);
 
   const urgencyClass = useMemo(() => {
     if (timeLeft <= 30) return 'critical';
@@ -425,6 +446,56 @@ export default function SimulationShellClient() {
     setCompletedTasks([]);
     setCurrentModule('arrival');
     setTimelineStatuses(initialModuleStatuses);
+  };
+
+  const isValidSnapshotForRestore = (snapshot) => Boolean(
+    snapshot
+      && snapshot.version === 'simulation-snapshot-v1'
+      && snapshot.timelineStatuses
+      && snapshot.currentModule
+      && snapshot.records,
+  );
+
+  const restoreSimulationProgress = (snapshot) => {
+    const safeDecisions = snapshot.decisions || {};
+    const safeResponses = snapshot.responses || {};
+    const safeRecords = snapshot.records || {};
+    const safeUiProgress = snapshot.uiProgress || {};
+
+    setStarted(typeof safeUiProgress.started === 'boolean' ? safeUiProgress.started : true);
+    setCurrentModule(snapshot.currentModule || 'arrival');
+    setScene(snapshot.scene || 'initial');
+    setTimelineStatuses(snapshot.timelineStatuses || initialModuleStatuses);
+    setFolders(snapshot.folders || initialFolders);
+    setCompletedTasks(Array.isArray(snapshot.completedTasks) ? snapshot.completedTasks : []);
+
+    setFirstDecision(safeDecisions.firstDecision || '');
+    setInvestigationDecision(safeDecisions.investigationDecision || '');
+    setIepDecision(safeDecisions.iepDecision || '');
+    setAnnouncementsDecision(safeDecisions.announcementsDecision || '');
+    setVoicemailDecisions(safeDecisions.voicemailDecisions || { parentHelp: '', teacherCall: '' });
+    setArrivalPriorityAssignments(safeDecisions.arrivalPriorityAssignments || {});
+
+    setInitialParentResponse(safeResponses.initialParentResponse || '');
+    setFinalParentResponse(safeResponses.finalParentResponse || '');
+    setVoicemailResponses(safeResponses.voicemailResponses || { parentHelp: '', teacherCall: '' });
+    setWalkthroughResponses(
+      safeResponses.walkthroughResponses
+      || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
+    );
+
+    setArrivalRankingRecord(safeRecords.arrivalRankingRecord || null);
+    setArrivalCoachingRecord(safeRecords.arrivalCoachingRecord || null);
+    setIepLeadershipRecord(safeRecords.iepLeadershipRecord || null);
+    setAnnouncementsLeadershipRecord(safeRecords.announcementsLeadershipRecord || null);
+    setVoicemailLeadershipRecord(safeRecords.voicemailLeadershipRecord || null);
+    setWalkthroughLeadershipRecord(safeRecords.walkthroughLeadershipRecord || null);
+
+    setIsEmailVisible(Boolean(safeUiProgress.showFullEmail));
+    setIsVicOpen(Boolean(safeUiProgress.showVicGuidance));
+    setHasCompletedFinalStep(Boolean(safeUiProgress.hasCompletedFinalStep));
+    setArrivalCompleted(Boolean(safeUiProgress.arrivalCompleted));
+    setVoicemailTaskClosed(Boolean(safeUiProgress.voicemailTaskClosed));
   };
 
   const scrollToTop = () => {
@@ -816,10 +887,42 @@ export default function SimulationShellClient() {
       window.localStorage.setItem(simulationProgressStorageKey, serializedSnapshot);
       setSaveProgressMessage('Progress saved on this device.');
       setLastSavedLabel(`Last saved: ${new Date(snapshot.savedAt).toLocaleString()}`);
+      setSavedSnapshot(snapshot);
     } catch (error) {
       setSaveProgressMessage('Progress could not be saved on this device.');
       setLastSavedLabel('');
     }
+  };
+
+  const handleResumeSavedSimulation = () => {
+    if (!savedSnapshot || !isValidSnapshotForRestore(savedSnapshot)) {
+      setSaveProgressMessage('Saved progress could not be restored.');
+      return;
+    }
+
+    restoreSimulationProgress(savedSnapshot);
+    setSaveProgressMessage('Saved simulation restored.');
+    scrollToTop();
+  };
+
+  const handleClearSavedProgress = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(simulationProgressStorageKey);
+    }
+    setSavedSnapshot(null);
+    setLastSavedLabel('');
+    setSaveProgressMessage('Saved progress cleared from this device.');
+  };
+
+  const handleStartOver = () => {
+    beginSimulation();
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(simulationProgressStorageKey);
+    }
+    setSavedSnapshot(null);
+    setLastSavedLabel('');
+    setSaveProgressMessage('Simulation restarted.');
+    scrollToTop();
   };
 
   return (
@@ -1947,8 +2050,26 @@ export default function SimulationShellClient() {
             <p className="folder-subtitle">Progress is saved only in this browser on this device.</p>
             {saveProgressMessage ? <p>{saveProgressMessage}</p> : null}
             {lastSavedLabel ? <p>{lastSavedLabel}</p> : null}
+            {savedSnapshot ? (
+              <div>
+                <p><strong>Saved progress found.</strong></p>
+                <p>
+                  Last saved:{' '}
+                  {savedSnapshot.savedAt ? new Date(savedSnapshot.savedAt).toLocaleString() : 'unavailable'}
+                </p>
+                <button type="button" className="button secondary" onClick={handleResumeSavedSimulation}>
+                  Resume Saved Simulation
+                </button>
+                <button type="button" className="button secondary" onClick={handleClearSavedProgress}>
+                  Clear Saved Progress
+                </button>
+              </div>
+            ) : null}
             <button type="button" className="button secondary" onClick={handlePreviewSaveSnapshot}>
               Preview Save Snapshot
+            </button>
+            <button type="button" className="button secondary" onClick={handleStartOver}>
+              Start Over
             </button>
             {snapshotPreviewMessage ? <p>{snapshotPreviewMessage}</p> : null}
             {snapshotValidationMessage ? <p>{snapshotValidationMessage}</p> : null}
