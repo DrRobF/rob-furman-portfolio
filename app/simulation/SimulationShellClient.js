@@ -357,6 +357,8 @@ export default function SimulationShellClient() {
   );
   const [walkthroughLeadershipRecord, setWalkthroughLeadershipRecord] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
+  const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
+  const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
   const [scene, setScene] = useState('initial');
@@ -739,6 +741,67 @@ export default function SimulationShellClient() {
   };
 
   const investigationOptions = ['Discuss the situation with the teacher', 'Respond to the parent'];
+
+  const buildSimulationSnapshot = () => ({
+    version: 'simulation-snapshot-v1',
+    savedAt: new Date().toISOString(),
+    currentModule,
+    scene,
+    timelineStatuses,
+    folders,
+    completedTasks,
+    decisions: {
+      firstDecision,
+      investigationDecision,
+      iepDecision,
+      announcementsDecision,
+      voicemailDecisions,
+      arrivalPriorityAssignments,
+      arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
+    },
+    responses: {
+      initialParentResponse,
+      finalParentResponse,
+      voicemailResponses,
+      walkthroughResponses,
+    },
+    records: {
+      arrivalRankingRecord: arrivalRankingRecord || null,
+      arrivalCoachingRecord: arrivalCoachingRecord || null,
+      iepLeadershipRecord,
+      announcementsLeadershipRecord,
+      voicemailLeadershipRecord,
+      walkthroughLeadershipRecord,
+    },
+    uiProgress: {
+      started,
+      showFullEmail: isEmailVisible,
+      showVicGuidance: isVicOpen,
+      hasCompletedFinalStep,
+      arrivalCompleted,
+      voicemailTaskClosed,
+      hasCompletedWalkthroughForm,
+      isInvestigationScene,
+      isReportScene,
+    },
+  });
+
+  const handlePreviewSaveSnapshot = () => {
+    const snapshot = buildSimulationSnapshot();
+    // eslint-disable-next-line no-console
+    console.log('Simulation snapshot preview', snapshot);
+
+    const hasRequiredFields = Boolean(
+      snapshot.version && snapshot.currentModule && snapshot.timelineStatuses && snapshot.records,
+    );
+
+    setSnapshotPreviewMessage('Snapshot preview generated in console.');
+    setSnapshotValidationMessage(
+      hasRequiredFields
+        ? 'Snapshot structure looks valid.'
+        : 'Snapshot is missing required fields.',
+    );
+  };
 
   return (
     <div className="simulation-product-shell">
@@ -1855,6 +1918,15 @@ export default function SimulationShellClient() {
                 </article>
               ) : null}
             </div>
+          </div>
+
+          <div className="card">
+            <h4>Developer Utilities</h4>
+            <button type="button" className="button secondary" onClick={handlePreviewSaveSnapshot}>
+              Preview Save Snapshot
+            </button>
+            {snapshotPreviewMessage ? <p>{snapshotPreviewMessage}</p> : null}
+            {snapshotValidationMessage ? <p>{snapshotValidationMessage}</p> : null}
           </div>
 
           <details className="card vic-panel" open={isVicOpen} onToggle={(event) => setIsVicOpen(event.currentTarget.open)}>
