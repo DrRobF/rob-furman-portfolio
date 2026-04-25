@@ -350,14 +350,12 @@ export default function SimulationShellClient() {
   const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
   const [voicemailDecisions, setVoicemailDecisions] = useState({ parentHelp: '', teacherCall: '' });
   const [voicemailResponses, setVoicemailResponses] = useState({ parentHelp: '', teacherCall: '' });
-  const [voicemailStage, setVoicemailStage] = useState('triage');
   const [voicemailTaskClosed, setVoicemailTaskClosed] = useState(false);
   const [voicemailLeadershipRecord, setVoicemailLeadershipRecord] = useState(null);
   const [walkthroughResponses, setWalkthroughResponses] = useState(
     walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
   );
   const [walkthroughLeadershipRecord, setWalkthroughLeadershipRecord] = useState(null);
-  const [walkthroughStage, setWalkthroughStage] = useState('form');
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
@@ -656,7 +654,7 @@ export default function SimulationShellClient() {
 
   const handleVoicemailContinue = () => {
     const hasAllResponses = Object.values(voicemailResponses).every((response) => response.trim());
-    if (!hasAllResponses || voicemailStage !== 'triage') return;
+    if (!hasAllResponses) return;
 
     if (!voicemailTaskClosed) {
       completeFolderItems([voicemailLoopTaskItem]);
@@ -670,13 +668,6 @@ export default function SimulationShellClient() {
       coachingNote:
         'Strong leaders do not just listen to messages. They close loops. The quality of the response depends on whether the caller knows the message was received, what will happen next, and when they can expect follow-up.',
     });
-    setVoicemailStage('reflection');
-    scrollToTop();
-  };
-
-  const handleVoicemailContinueDay = () => {
-    if (voicemailStage !== 'reflection') return;
-
     setTimelineStatuses((prev) => {
       const next = { ...prev, voicemail: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -701,26 +692,13 @@ export default function SimulationShellClient() {
 
   const handleWalkthroughContinue = () => {
     const hasAllResponses = walkthroughFormFields.every((field) => walkthroughResponses[field.id].trim());
-    if (!hasAllResponses || walkthroughStage !== 'form') return;
+    if (!hasAllResponses) return;
 
-    setWalkthroughLeadershipRecord((prev) => ({
-      ...(prev || {}),
+    setWalkthroughLeadershipRecord({
       module: '11:00 AM — Classroom Walkthrough',
       responses: walkthroughResponses,
-    }));
-    setWalkthroughStage('reflection');
-    scrollToTop();
-  };
-
-  const handleWalkthroughContinueDay = () => {
-    if (walkthroughStage !== 'reflection') return;
-
-    setWalkthroughLeadershipRecord((prev) => ({
-      ...(prev || {}),
-      module: '11:00 AM — Classroom Walkthrough',
-      responses: prev?.responses || walkthroughResponses,
       reflectionSaved: true,
-    }));
+    });
     setTimelineStatuses((prev) => {
       const next = { ...prev, classroomWalkthrough: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -1141,171 +1119,149 @@ export default function SimulationShellClient() {
                   </p>
                 </article>
 
-                {voicemailStage === 'triage' ? (
-                  <>
-                    <div className="arrival-priority-list voicemail-thread-list">
-                      <article className="arrival-priority-card voicemail-thread-card">
-                        <h3>Voicemail 1</h3>
-                        <audio controls className="voicemail-audio-player">
-                          <source src="/images/parent-help-request.vm.mp3" type="audio/mpeg" />
-                        </audio>
-                        <h4 className="decision-prompt">What is your first move with this message?</h4>
-                        <div className="button-row arrival-rank-row">
-                          {voicemailFirstMoveOptions.map((choice) => (
-                            <button
-                              key={`parent-${choice}`}
-                              type="button"
-                              className={`button secondary ${voicemailDecisions.parentHelp === choice ? 'active' : ''}`}
-                              onClick={() => handleVoicemailDecisionSelect('parentHelp', choice)}
-                            >
-                              {choice}
-                            </button>
-                          ))}
-                        </div>
-                        {voicemailDecisions.parentHelp ? (
-                          <article className="decision-consequence-card" aria-live="polite">
-                            <h4>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].title}</h4>
-                            <p>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].message}</p>
-                          </article>
-                        ) : null}
-                      </article>
-
-                      <article className="arrival-priority-card voicemail-thread-card">
-                        <h3>Voicemail 2</h3>
-                        <audio controls className="voicemail-audio-player">
-                          <source src="/images/teacher-call-vm.mp3" type="audio/mpeg" />
-                        </audio>
-                        <h4 className="decision-prompt">What is your first move with this message?</h4>
-                        <div className="button-row arrival-rank-row">
-                          {voicemailFirstMoveOptions.map((choice) => (
-                            <button
-                              key={`teacher-${choice}`}
-                              type="button"
-                              className={`button secondary ${voicemailDecisions.teacherCall === choice ? 'active' : ''}`}
-                              onClick={() => handleVoicemailDecisionSelect('teacherCall', choice)}
-                            >
-                              {choice}
-                            </button>
-                          ))}
-                        </div>
-                        {voicemailDecisions.teacherCall ? (
-                          <article className="decision-consequence-card" aria-live="polite">
-                            <h4>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].title}</h4>
-                            <p>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].message}</p>
-                          </article>
-                        ) : null}
-                      </article>
+                <div className="arrival-priority-list voicemail-thread-list">
+                  <article className="arrival-priority-card voicemail-thread-card">
+                    <h3>Voicemail 1</h3>
+                    <audio controls className="voicemail-audio-player">
+                      <source src="/images/parent-help-request.vm.mp3" type="audio/mpeg" />
+                    </audio>
+                    <h4 className="decision-prompt">What is your first move with this message?</h4>
+                    <div className="button-row arrival-rank-row">
+                      {voicemailFirstMoveOptions.map((choice) => (
+                        <button
+                          key={`parent-${choice}`}
+                          type="button"
+                          className={`button secondary ${voicemailDecisions.parentHelp === choice ? 'active' : ''}`}
+                          onClick={() => handleVoicemailDecisionSelect('parentHelp', choice)}
+                        >
+                          {choice}
+                        </button>
+                      ))}
                     </div>
-
-                    {hasSelectedBothVoicemailDecisions ? (
-                      <>
-                        <article className="report-card report-intro">
-                          <h3>Open Voicemail Threads</h3>
-                          <p>
-                            Both messages now require follow-through. A voicemail is not complete when it
-                            is heard. It is complete when the concern has been acknowledged, investigated
-                            if needed, and answered with next steps.
-                          </p>
-                        </article>
-                        <article className="report-card">
-                          <h3>Parent Help Request — Context Needed</h3>
-                          <p>
-                            Before giving a full answer, determine what the parent is asking for, whether
-                            the concern involves a student need, a classroom issue, a scheduling issue, or
-                            a support request, and whether anyone else needs to be consulted.
-                          </p>
-                        </article>
-                        <article className="report-card">
-                          <h3>Teacher Call — Context Needed</h3>
-                          <p>
-                            Before closing the loop, determine whether the teacher needs a decision, a
-                            resource, coverage, parent support, student support, or administrative
-                            follow-up.
-                          </p>
-                        </article>
-                        <article className="report-card">
-                          <p className="response-label">
-                            Use the same leadership sequence: acknowledge the message, clarify what you are
-                            doing next, and give a realistic timeline.
-                          </p>
-                          <div className="analysis-grid">
-                            <div className="analysis-row">
-                              <p className="analysis-lens">Thread 1: Parent Help Request</p>
-                              <p><strong>First move:</strong> {voicemailDecisions.parentHelp}</p>
-                              <p><strong>Status:</strong> Open</p>
-                              <label htmlFor="voicemail-parent-response" className="response-label">
-                                Draft the response or next-step message…
-                              </label>
-                              <textarea
-                                id="voicemail-parent-response"
-                                rows={5}
-                                className="response-input"
-                                value={voicemailResponses.parentHelp}
-                                onChange={(event) => handleVoicemailResponseChange('parentHelp', event.target.value)}
-                                required
-                              />
-                            </div>
-                            <div className="analysis-row">
-                              <p className="analysis-lens">Thread 2: Teacher Call</p>
-                              <p><strong>First move:</strong> {voicemailDecisions.teacherCall}</p>
-                              <p><strong>Status:</strong> Open</p>
-                              <label htmlFor="voicemail-teacher-response" className="response-label">
-                                Draft the response or next-step message…
-                              </label>
-                              <textarea
-                                id="voicemail-teacher-response"
-                                rows={5}
-                                className="response-input"
-                                value={voicemailResponses.teacherCall}
-                                onChange={(event) => handleVoicemailResponseChange('teacherCall', event.target.value)}
-                                required
-                              />
-                            </div>
-                          </div>
-                        </article>
-                        <div className="button-row">
-                          <button
-                            type="button"
-                            className="button primary"
-                            onClick={handleVoicemailContinue}
-                            disabled={!hasCompletedBothVoicemailResponses}
-                          >
-                            Continue
-                          </button>
-                        </div>
-                      </>
+                    {voicemailDecisions.parentHelp ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <h4>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].title}</h4>
+                        <p>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].message}</p>
+                      </article>
                     ) : null}
-                  </>
-                ) : (
+                  </article>
+
+                  <article className="arrival-priority-card voicemail-thread-card">
+                    <h3>Voicemail 2</h3>
+                    <audio controls className="voicemail-audio-player">
+                      <source src="/images/teacher-call-vm.mp3" type="audio/mpeg" />
+                    </audio>
+                    <h4 className="decision-prompt">What is your first move with this message?</h4>
+                    <div className="button-row arrival-rank-row">
+                      {voicemailFirstMoveOptions.map((choice) => (
+                        <button
+                          key={`teacher-${choice}`}
+                          type="button"
+                          className={`button secondary ${voicemailDecisions.teacherCall === choice ? 'active' : ''}`}
+                          onClick={() => handleVoicemailDecisionSelect('teacherCall', choice)}
+                        >
+                          {choice}
+                        </button>
+                      ))}
+                    </div>
+                    {voicemailDecisions.teacherCall ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <h4>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].title}</h4>
+                        <p>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].message}</p>
+                      </article>
+                    ) : null}
+                  </article>
+                </div>
+
+                {hasSelectedBothVoicemailDecisions ? (
                   <>
                     <article className="report-card report-intro">
-                      <h3>Voicemail Follow-Through Reflection</h3>
+                      <h3>Open Voicemail Threads</h3>
                       <p>
-                        Strong leaders do not just listen to messages. They close loops. The quality of
-                        the response depends on whether the caller knows the message was received, what will
-                        happen next, and when they can expect follow-up.
+                        Both messages now require follow-through. A voicemail is not complete when it
+                        is heard. It is complete when the concern has been acknowledged, investigated
+                        if needed, and answered with next steps.
                       </p>
                     </article>
                     <article className="report-card">
+                      <h3>Parent Help Request — Context Needed</h3>
+                      <p>
+                        Before giving a full answer, determine what the parent is asking for, whether
+                        the concern involves a student need, a classroom issue, a scheduling issue, or
+                        a support request, and whether anyone else needs to be consulted.
+                      </p>
+                    </article>
+                    <article className="report-card">
+                      <h3>Teacher Call — Context Needed</h3>
+                      <p>
+                        Before closing the loop, determine whether the teacher needs a decision, a
+                        resource, coverage, parent support, student support, or administrative
+                        follow-up.
+                      </p>
+                    </article>
+                    <article className="report-card report-intro">
+                      <h3>Voicemail Response Guidance</h3>
+                      <p>
+                        Strong leaders do not just listen to messages. They close loops. Before you write, make
+                        sure the caller knows the message was received, what will happen next, and when they can
+                        expect follow-up.
+                      </p>
                       <ul className="strong-response-list">
-                        <li>Did you acknowledge the concern?</li>
-                        <li>Did you avoid overpromising?</li>
-                        <li>Did you identify the next step?</li>
-                        <li>Did you give a realistic timeline?</li>
-                        <li>Did you preserve time for the rest of the day?</li>
+                        <li>Acknowledge the concern.</li>
+                        <li>Avoid overpromising.</li>
+                        <li>Identify the next step.</li>
+                        <li>Give a realistic timeline.</li>
+                        <li>Preserve time for the rest of the day.</li>
                       </ul>
+                    </article>
+                    <article className="report-card">
+                      <div className="analysis-grid">
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Thread 1: Parent Help Request</p>
+                          <p><strong>First move:</strong> {voicemailDecisions.parentHelp}</p>
+                          <p><strong>Status:</strong> Open</p>
+                          <label htmlFor="voicemail-parent-response" className="response-label">
+                            Draft the response or next-step message…
+                          </label>
+                          <textarea
+                            id="voicemail-parent-response"
+                            rows={5}
+                            className="response-input"
+                            value={voicemailResponses.parentHelp}
+                            onChange={(event) => handleVoicemailResponseChange('parentHelp', event.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Thread 2: Teacher Call</p>
+                          <p><strong>First move:</strong> {voicemailDecisions.teacherCall}</p>
+                          <p><strong>Status:</strong> Open</p>
+                          <label htmlFor="voicemail-teacher-response" className="response-label">
+                            Draft the response or next-step message…
+                          </label>
+                          <textarea
+                            id="voicemail-teacher-response"
+                            rows={5}
+                            className="response-input"
+                            value={voicemailResponses.teacherCall}
+                            onChange={(event) => handleVoicemailResponseChange('teacherCall', event.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
                     </article>
                     <div className="button-row">
                       <button
                         type="button"
                         className="button primary"
-                        onClick={handleVoicemailContinueDay}
+                        onClick={handleVoicemailContinue}
+                        disabled={!hasCompletedBothVoicemailResponses}
                       >
-                        Continue Day
+                        Continue
                       </button>
                     </div>
                   </>
-                )}
+                ) : null}
               </>
             ) : currentModule === 'classroomWalkthrough' ? (
               <>
@@ -1327,99 +1283,83 @@ export default function SimulationShellClient() {
                   </p>
                 </article>
 
-                {walkthroughStage === 'form' ? (
-                  <>
-                    <article className="report-card walkthrough-video-card">
-                      <h3>Classroom Walkthrough Lesson Video</h3>
-                      <div className="walkthrough-video-embed">
-                        <iframe
-                          src="https://www.youtube.com/embed/7SZnuQqv6bw?si=cs141QKMPsZsbpDK"
-                          title="Classroom walkthrough lesson video"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allowFullScreen
+                <article className="report-card walkthrough-video-card">
+                  <h3>Classroom Walkthrough Lesson Video</h3>
+                  <div className="walkthrough-video-embed">
+                    <iframe
+                      src="https://www.youtube.com/embed/7SZnuQqv6bw?si=cs141QKMPsZsbpDK"
+                      title="Classroom walkthrough lesson video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                </article>
+
+                <article className="report-card report-intro">
+                  <h3>Walkthrough Observation Guide</h3>
+                  <p>
+                    Walkthroughs are not about judging teaching in the moment. They are about collecting evidence
+                    that can support a thoughtful professional conversation.
+                  </p>
+                  <h4>Coaching Check</h4>
+                  <ul className="strong-response-list">
+                    <li>Focus on what students are doing, not only what the teacher is doing.</li>
+                    <li>Identify evidence of learning rather than general impressions.</li>
+                    <li>Notice whether the lesson purpose is clear.</li>
+                    <li>Look for instructional supports or scaffolds.</li>
+                    <li>Write a follow-up question that invites reflection rather than defensiveness.</li>
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>Strong Walkthrough Notes Usually Include</h3>
+                  <ul className="strong-response-list">
+                    <li>Specific student behaviors</li>
+                    <li>Evidence connected to the learning goal</li>
+                    <li>Teacher moves that support understanding</li>
+                    <li>Classroom routines or environmental factors</li>
+                    <li>One strength grounded in evidence</li>
+                    <li>One reflective, non-accusatory follow-up question</li>
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>Walkthrough Evidence Form</h3>
+                  <p>
+                    Capture objective, non-evaluative evidence from the lesson. All sections are required
+                    before continuing.
+                  </p>
+                  <div className="analysis-grid">
+                    {walkthroughFormFields.map((field) => (
+                      <div key={field.id}>
+                        <label htmlFor={`walkthrough-${field.id}`} className="response-label">
+                          {field.label}
+                        </label>
+                        <p className="analysis-note">{field.prompt}</p>
+                        <textarea
+                          id={`walkthrough-${field.id}`}
+                          rows={4}
+                          className="response-input"
+                          value={walkthroughResponses[field.id]}
+                          onChange={(event) => handleWalkthroughResponseChange(field.id, event.target.value)}
+                          required
                         />
                       </div>
-                    </article>
+                    ))}
+                  </div>
+                </article>
 
-                    <article className="report-card">
-                      <h3>Walkthrough Evidence Form</h3>
-                      <p>
-                        Capture objective, non-evaluative evidence from the lesson. All sections are required
-                        before continuing.
-                      </p>
-                      <div className="analysis-grid">
-                        {walkthroughFormFields.map((field) => (
-                          <div key={field.id}>
-                            <label htmlFor={`walkthrough-${field.id}`} className="response-label">
-                              {field.label}
-                            </label>
-                            <p className="analysis-note">{field.prompt}</p>
-                            <textarea
-                              id={`walkthrough-${field.id}`}
-                              rows={4}
-                              className="response-input"
-                              value={walkthroughResponses[field.id]}
-                              onChange={(event) => handleWalkthroughResponseChange(field.id, event.target.value)}
-                              required
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </article>
-
-                    <div className="button-row">
-                      <button
-                        type="button"
-                        className="button primary"
-                        onClick={handleWalkthroughContinue}
-                        disabled={!hasCompletedWalkthroughForm}
-                      >
-                        Continue
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <article className="report-card report-intro">
-                      <h3>Walkthrough Reflection</h3>
-                      <p>
-                        Walkthroughs are not about judging teaching in the moment. They are about collecting
-                        evidence that can support a thoughtful professional conversation.
-                      </p>
-                    </article>
-                    <article className="report-card">
-                      <h3>Coaching Check</h3>
-                      <ul className="strong-response-list">
-                        <li>Did you focus on what students were doing, not only what the teacher was doing?</li>
-                        <li>Did you identify evidence of learning rather than general impressions?</li>
-                        <li>Did you notice whether the lesson purpose was clear?</li>
-                        <li>Did you look for instructional supports or scaffolds?</li>
-                        <li>Did your follow-up question invite reflection rather than defensiveness?</li>
-                      </ul>
-                    </article>
-                    <article className="report-card">
-                      <h3>Strong Walkthrough Notes Usually Include</h3>
-                      <ul className="strong-response-list">
-                        <li>Specific student behaviors</li>
-                        <li>Evidence connected to the learning goal</li>
-                        <li>Teacher moves that support understanding</li>
-                        <li>Classroom routines or environmental factors</li>
-                        <li>One strength grounded in evidence</li>
-                        <li>One reflective, non-accusatory follow-up question</li>
-                      </ul>
-                    </article>
-                    <div className="button-row">
-                      <button
-                        type="button"
-                        className="button primary"
-                        onClick={handleWalkthroughContinueDay}
-                      >
-                        Continue Day
-                      </button>
-                    </div>
-                  </>
-                )}
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleWalkthroughContinue}
+                    disabled={!hasCompletedWalkthroughForm}
+                  >
+                    Continue
+                  </button>
+                </div>
               </>
             ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
@@ -1894,7 +1834,7 @@ export default function SimulationShellClient() {
                     <li><strong>Teacher Call first move:</strong> {voicemailLeadershipRecord.triageDecisions.teacherCall}</li>
                     <li><strong>Parent response draft:</strong> {voicemailLeadershipRecord.responses.parentHelp}</li>
                     <li><strong>Teacher response draft:</strong> {voicemailLeadershipRecord.responses.teacherCall}</li>
-                    <li><strong>Reflection note:</strong> {voicemailLeadershipRecord.coachingNote}</li>
+                    <li><strong>Guidance note:</strong> {voicemailLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
               ) : null}
@@ -1910,10 +1850,7 @@ export default function SimulationShellClient() {
                     <li><strong>Classroom environment notes:</strong> {walkthroughLeadershipRecord.responses?.classroomEnvironment}</li>
                     <li><strong>Evidence-based strength:</strong> {walkthroughLeadershipRecord.responses?.evidenceBasedStrength}</li>
                     <li><strong>Follow-up question:</strong> {walkthroughLeadershipRecord.responses?.followUpQuestion}</li>
-                    <li>
-                      <strong>Reflection status:</strong>{' '}
-                      {walkthroughLeadershipRecord.reflectionSaved ? 'Saved' : 'Pending'}
-                    </li>
+                    <li><strong>Record status:</strong> {walkthroughLeadershipRecord.reflectionSaved ? 'Saved' : 'Pending'}</li>
                   </ul>
                 </article>
               ) : null}
