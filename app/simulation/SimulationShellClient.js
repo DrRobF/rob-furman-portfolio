@@ -249,6 +249,131 @@ function includesAny(text, terms) {
   return terms.some((term) => text.includes(term));
 }
 
+function analyzeLeadershipWriting(responseText, contextType) {
+  const normalizedResponse = responseText.trim();
+  const lowered = normalizedResponse.toLowerCase();
+  const wordCount = normalizedResponse.split(/\s+/).filter(Boolean).length;
+  const hasMeaningfulLength = wordCount >= 35;
+
+  const acknowledgmentTerms = ['concern', 'understand', 'hear', 'appreciate', 'thank you'];
+  const empathyTerms = ['sorry', 'frustrating', 'upsetting', 'difficult', 'understand why'];
+  const nextStepTerms = [
+    'i will',
+    'we will',
+    'follow up',
+    'by tomorrow',
+    'today',
+    'review',
+    'speak with',
+    'investigate',
+  ];
+  const timelineTerms = ['today', 'tomorrow', 'by ', 'within', 'follow up'];
+  const riskTerms = {
+    blame: ['your child', 'the child is', 'the parent is', 'the teacher is', 'blame'],
+    dismissive: ['calm down', 'you are overreacting', 'no issue', 'nothing happened'],
+    overpromise: ['i promise', 'guarantee', 'will never happen again', 'immediately resolved'],
+  };
+
+  const hasAcknowledgment = includesAny(lowered, acknowledgmentTerms);
+  const hasEmpathy = includesAny(lowered, empathyTerms) || includesAny(lowered, ['understand why']);
+  const hasNextStep = includesAny(lowered, nextStepTerms);
+  const hasTimeline = includesAny(lowered, timelineTerms);
+  const hasRiskBlame = includesAny(lowered, riskTerms.blame);
+  const hasRiskDismissive = includesAny(lowered, riskTerms.dismissive);
+  const hasRiskOverpromise = includesAny(lowered, riskTerms.overpromise);
+  const hasAnyRisk = hasRiskBlame || hasRiskDismissive || hasRiskOverpromise;
+
+  const getStatusAndNote = (name) => {
+    if (name === 'Tone & Professionalism') {
+      if (!normalizedResponse) {
+        return { status: 'Needs Attention', note: 'Add a calm, professional response before submitting.' };
+      }
+      if (!hasAnyRisk && hasMeaningfulLength) {
+        return { status: 'Strong', note: 'Tone is steady and professional without blame or escalation.' };
+      }
+      if (hasRiskBlame || hasRiskDismissive) {
+        return { status: 'Needs Attention', note: 'Remove blaming or dismissive language to protect trust.' };
+      }
+      return { status: 'Developing', note: 'Tone is mostly professional, but tighten wording for consistency.' };
+    }
+
+    if (name === 'Empathy / Acknowledgment') {
+      if (hasAcknowledgment && hasEmpathy) {
+        return { status: 'Strong', note: 'You acknowledged concern and named the emotional impact.' };
+      }
+      if (hasAcknowledgment || hasEmpathy) {
+        return { status: 'Developing', note: 'Add one clear line that validates the family or caller experience.' };
+      }
+      return { status: 'Needs Attention', note: 'Include explicit acknowledgment and empathy language.' };
+    }
+
+    if (name === 'Clarity') {
+      if (hasMeaningfulLength && hasNextStep) {
+        return { status: 'Strong', note: 'Response is substantive and points to concrete action.' };
+      }
+      if (wordCount >= 18) {
+        return { status: 'Developing', note: 'Clarify with one or two concrete actions and cleaner structure.' };
+      }
+      return { status: 'Needs Attention', note: 'Response is very brief; add more concrete and complete guidance.' };
+    }
+
+    if (name === 'Next Steps') {
+      if (hasNextStep && hasTimeline) {
+        return { status: 'Strong', note: 'Next steps and timeline are explicit and actionable.' };
+      }
+      if (hasNextStep) {
+        return { status: 'Developing', note: 'Add when follow-up will happen (for example, today or by tomorrow).' };
+      }
+      return { status: 'Needs Attention', note: 'State what you will do next and when the person will hear back.' };
+    }
+
+    if (hasAnyRisk) {
+      const riskNotes = [];
+      if (hasRiskBlame) riskNotes.push('blame wording');
+      if (hasRiskDismissive) riskNotes.push('dismissive wording');
+      if (hasRiskOverpromise) riskNotes.push('overpromising');
+      return {
+        status: 'Needs Attention',
+        note: `Risk detected: ${riskNotes.join(', ')}. Replace with neutral, fact-finding language.`,
+      };
+    }
+    if (!hasTimeline || !hasNextStep) {
+      return {
+        status: 'Developing',
+        note: 'Reduce risk by avoiding vague responses and adding a realistic timeline.',
+      };
+    }
+    return {
+      status: 'Strong',
+      note: 'Language avoids overpromising and keeps accountability grounded in process.',
+    };
+  };
+
+  const categories = [
+    'Tone & Professionalism',
+    'Empathy / Acknowledgment',
+    'Clarity',
+    'Next Steps',
+    'Risk Awareness',
+  ].map((name) => ({ name, ...getStatusAndNote(name) }));
+
+  const contextLabel = {
+    parentFinalResponse: 'final parent response',
+    voicemailParent: 'voicemail response to parent request',
+    voicemailTeacher: 'voicemail response to teacher call',
+  }[contextType] || 'written response';
+
+  const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
+  const strongCount = categories.filter((category) => category.status === 'Strong').length;
+  const summary = needsAttentionCount > 0
+    ? `This ${contextLabel} has strengths, but ${needsAttentionCount} category${needsAttentionCount > 1 ? 'ies need' : ' needs'} attention.`
+    : strongCount >= 4
+      ? `This ${contextLabel} is clear, empathetic, and professionally grounded.`
+      : `This ${contextLabel} is developing and can be strengthened with clearer follow-through language.`;
+
+  return { summary, categories };
+}
+
 function analyzeFinalResponse(response) {
   const lowered = response.toLowerCase();
   const wordCount = response.trim().split(/\s+/).filter(Boolean).length;
@@ -336,6 +461,7 @@ export default function SimulationShellClient() {
   const [investigationDecision, setInvestigationDecision] = useState('');
   const [initialParentResponse, setInitialParentResponse] = useState('');
   const [finalParentResponse, setFinalParentResponse] = useState('');
+  const [parentFinalWritingAssessment, setParentFinalWritingAssessment] = useState(null);
   const [hasCompletedFinalStep, setHasCompletedFinalStep] = useState(false);
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isVicOpen, setIsVicOpen] = useState(false);
@@ -351,6 +477,10 @@ export default function SimulationShellClient() {
   const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
   const [voicemailDecisions, setVoicemailDecisions] = useState({ parentHelp: '', teacherCall: '' });
   const [voicemailResponses, setVoicemailResponses] = useState({ parentHelp: '', teacherCall: '' });
+  const [voicemailWritingAssessments, setVoicemailWritingAssessments] = useState({
+    parentHelp: null,
+    teacherCall: null,
+  });
   const [voicemailTaskClosed, setVoicemailTaskClosed] = useState(false);
   const [voicemailLeadershipRecord, setVoicemailLeadershipRecord] = useState(null);
   const [walkthroughResponses, setWalkthroughResponses] = useState(
@@ -430,6 +560,7 @@ export default function SimulationShellClient() {
     setInvestigationDecision('');
     setInitialParentResponse('');
     setFinalParentResponse('');
+    setParentFinalWritingAssessment(null);
     setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
     setIsVicOpen(false);
@@ -445,12 +576,11 @@ export default function SimulationShellClient() {
     setAnnouncementsLeadershipRecord(null);
     setVoicemailDecisions({ parentHelp: '', teacherCall: '' });
     setVoicemailResponses({ parentHelp: '', teacherCall: '' });
-    setVoicemailStage('triage');
+    setVoicemailWritingAssessments({ parentHelp: null, teacherCall: null });
     setVoicemailTaskClosed(false);
     setVoicemailLeadershipRecord(null);
     setWalkthroughResponses(walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}));
     setWalkthroughLeadershipRecord(null);
-    setWalkthroughStage('form');
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -508,6 +638,10 @@ export default function SimulationShellClient() {
     setAnnouncementsLeadershipRecord(safeRecords.announcementsLeadershipRecord || null);
     setVoicemailLeadershipRecord(safeRecords.voicemailLeadershipRecord || null);
     setWalkthroughLeadershipRecord(safeRecords.walkthroughLeadershipRecord || null);
+    setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
+    setVoicemailWritingAssessments(
+      safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
+    );
 
     setIsEmailVisible(Boolean(safeUiProgress.showFullEmail));
     setIsVicOpen(Boolean(safeUiProgress.showVicGuidance));
@@ -666,6 +800,8 @@ export default function SimulationShellClient() {
 
   const handleInvestigationContinue = () => {
     if (!investigationDecision || !finalParentResponse.trim() || hasCompletedFinalStep) return;
+    const finalAssessment = analyzeLeadershipWriting(finalParentResponse, 'parentFinalResponse');
+    setParentFinalWritingAssessment(finalAssessment);
     completeFolderItems([
       'Respond to parent with care and clear timeline',
       'Speak with teacher immediately',
@@ -749,6 +885,11 @@ export default function SimulationShellClient() {
   const handleVoicemailContinue = () => {
     const hasAllResponses = Object.values(voicemailResponses).every((response) => response.trim());
     if (!hasAllResponses) return;
+    const nextAssessments = {
+      parentHelp: analyzeLeadershipWriting(voicemailResponses.parentHelp, 'voicemailParent'),
+      teacherCall: analyzeLeadershipWriting(voicemailResponses.teacherCall, 'voicemailTeacher'),
+    };
+    setVoicemailWritingAssessments(nextAssessments);
 
     if (!voicemailTaskClosed) {
       completeFolderItems([voicemailLoopTaskItem]);
@@ -759,6 +900,7 @@ export default function SimulationShellClient() {
       module: '9:30 AM — Voicemail & Mailbox',
       triageDecisions: voicemailDecisions,
       responses: voicemailResponses,
+      writingAssessments: nextAssessments,
       coachingNote:
         'Strong leaders do not just listen to messages. They close loops. The quality of the response depends on whether the caller knows the message was received, what will happen next, and when they can expect follow-up.',
     });
@@ -824,6 +966,17 @@ export default function SimulationShellClient() {
     () => analyzeFinalResponse(finalParentResponse),
     [finalParentResponse],
   );
+  const liveParentFinalWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(finalParentResponse, 'parentFinalResponse'),
+    [finalParentResponse],
+  );
+  const liveVoicemailWritingAssessments = useMemo(
+    () => ({
+      parentHelp: analyzeLeadershipWriting(voicemailResponses.parentHelp, 'voicemailParent'),
+      teacherCall: analyzeLeadershipWriting(voicemailResponses.teacherCall, 'voicemailTeacher'),
+    }),
+    [voicemailResponses.parentHelp, voicemailResponses.teacherCall],
+  );
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -864,6 +1017,8 @@ export default function SimulationShellClient() {
       announcementsLeadershipRecord,
       voicemailLeadershipRecord,
       walkthroughLeadershipRecord,
+      parentFinalWritingAssessment,
+      voicemailWritingAssessments,
     },
     uiProgress: {
       started,
@@ -1450,6 +1605,47 @@ export default function SimulationShellClient() {
                         </div>
                       </div>
                     </article>
+                    {hasCompletedBothVoicemailResponses ? (
+                      <article className="report-card" aria-live="polite">
+                        <h3>VIC Writing Assessment</h3>
+                        <p className="analysis-note">
+                          VIC reviewed each voicemail draft for tone, clarity, empathy, risk, and next steps.
+                          This is a first-pass local assessment and will expand with deeper AI coaching.
+                        </p>
+                        <div className="analysis-grid report-analysis-grid">
+                          <article className="analysis-row report-analysis-row">
+                            <p className="analysis-lens">Voicemail 1 Response</p>
+                            <p className="analysis-note">{liveVoicemailWritingAssessments.parentHelp.summary}</p>
+                            <div className="analysis-grid">
+                              {liveVoicemailWritingAssessments.parentHelp.categories.map((category) => (
+                                <div key={`vm1-${category.name}`} className="report-analysis-category-row">
+                                  <p className="analysis-lens">{category.name}</p>
+                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                                    {category.status}
+                                  </p>
+                                  <p>{category.note}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </article>
+                          <article className="analysis-row report-analysis-row">
+                            <p className="analysis-lens">Voicemail 2 Response</p>
+                            <p className="analysis-note">{liveVoicemailWritingAssessments.teacherCall.summary}</p>
+                            <div className="analysis-grid">
+                              {liveVoicemailWritingAssessments.teacherCall.categories.map((category) => (
+                                <div key={`vm2-${category.name}`} className="report-analysis-category-row">
+                                  <p className="analysis-lens">{category.name}</p>
+                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                                    {category.status}
+                                  </p>
+                                  <p>{category.note}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </article>
+                        </div>
+                      </article>
+                    ) : null}
                     <div className="button-row">
                       <button
                         type="button"
@@ -1613,6 +1809,30 @@ export default function SimulationShellClient() {
                           </p>
                         </div>
                         <p>{row.note}</p>
+                      </article>
+                    ))}
+                  </div>
+                </article>
+
+                <article className="report-card" aria-live="polite">
+                  <h3>VIC Writing Assessment</h3>
+                  <p className="analysis-note">
+                    VIC reviewed the written response for tone, clarity, empathy, risk, and next steps.
+                    This is a first-pass local assessment; future versions will use deeper AI coaching.
+                  </p>
+                  <p className="analysis-note">
+                    {(parentFinalWritingAssessment || liveParentFinalWritingAssessment).summary}
+                  </p>
+                  <div className="analysis-grid report-analysis-grid">
+                    {(parentFinalWritingAssessment || liveParentFinalWritingAssessment).categories.map((category) => (
+                      <article key={category.name} className="analysis-row report-analysis-row">
+                        <div className="report-analysis-header">
+                          <p className="analysis-lens">{category.name}</p>
+                          <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                            {category.status}
+                          </p>
+                        </div>
+                        <p>{category.note}</p>
                       </article>
                     ))}
                   </div>
@@ -2034,6 +2254,14 @@ export default function SimulationShellClient() {
                     <li><strong>Teacher Call first move:</strong> {voicemailLeadershipRecord.triageDecisions.teacherCall}</li>
                     <li><strong>Parent response draft:</strong> {voicemailLeadershipRecord.responses.parentHelp}</li>
                     <li><strong>Teacher response draft:</strong> {voicemailLeadershipRecord.responses.teacherCall}</li>
+                    <li>
+                      <strong>Voicemail 1 VIC summary:</strong>{' '}
+                      {voicemailLeadershipRecord.writingAssessments?.parentHelp?.summary || 'Not captured'}
+                    </li>
+                    <li>
+                      <strong>Voicemail 2 VIC summary:</strong>{' '}
+                      {voicemailLeadershipRecord.writingAssessments?.teacherCall?.summary || 'Not captured'}
+                    </li>
                     <li><strong>Guidance note:</strong> {voicemailLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
