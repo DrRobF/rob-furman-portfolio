@@ -442,6 +442,8 @@ export default function SimulationShellClient() {
     setWalkthroughLeadershipRecord(null);
     setWalkthroughStage('form');
     setModuleTransitionNote('');
+    setSnapshotPreviewMessage('');
+    setSnapshotValidationMessage('');
     setFolders(initialFolders);
     setCompletedTasks([]);
     setCurrentModule('arrival');
@@ -909,18 +911,24 @@ export default function SimulationShellClient() {
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(simulationProgressStorageKey);
     }
+
     setSavedSnapshot(null);
     setLastSavedLabel('');
+    setSnapshotPreviewMessage('');
+    setSnapshotValidationMessage('');
     setSaveProgressMessage('Saved progress cleared from this device.');
   };
 
   const handleStartOver = () => {
-    beginSimulation();
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(simulationProgressStorageKey);
     }
+
+    beginSimulation();
     setSavedSnapshot(null);
     setLastSavedLabel('');
+    setSnapshotPreviewMessage('');
+    setSnapshotValidationMessage('');
     setSaveProgressMessage('Simulation restarted.');
     scrollToTop();
   };
