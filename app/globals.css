@@ -1162,6 +1162,13 @@ p {
   padding: 0.8rem 0.85rem;
 }
 
+.report-analysis-category-row {
+  border: 1px solid #d2dceb;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.65rem 0.75rem;
+}
+
 .report-analysis-header {
   display: flex;
   align-items: baseline;
