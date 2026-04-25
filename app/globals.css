@@ -1135,6 +1135,20 @@ p {
   gap: 0.25rem;
 }
 
+.voicemail-thread-list {
+  margin-top: 0.8rem;
+}
+
+.voicemail-thread-card h3 {
+  margin-bottom: 0.55rem;
+}
+
+.voicemail-audio-player {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
 .report-path-label {
   font-weight: 700;
   color: #233f69;

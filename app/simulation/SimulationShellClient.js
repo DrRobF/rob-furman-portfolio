@@ -90,7 +90,7 @@ const dayModules = [
   { id: 'arrival', label: '7:30 AM — Arrival', enabled: true },
   { id: 'iepMeeting', label: '8:15 AM — IEP Meeting', enabled: true },
   { id: 'announcements', label: '9:00 AM — Announcements', enabled: true },
-  { id: 'voicemailMailbox', label: '9:30 AM — Voicemail & Mailbox', enabled: false },
+  { id: 'voicemail', label: '9:30 AM — Voicemail & Mailbox', enabled: true },
   { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: true },
   { id: 'lunchDiscipline', label: '11:30 AM — Lunch & Discipline', enabled: false },
   { id: 'parentCall', label: '1:00 PM — Parent Call', enabled: false },
@@ -168,6 +168,35 @@ const announcementsTasks = [
     label: 'Notify maintenance that classroom TV is not working',
   },
 ];
+const voicemailLoopTaskItem = 'Close open voicemail loops';
+const voicemailFirstMoveOptions = [
+  'Send acknowledgment',
+  'Investigate first',
+  'Call back directly',
+  'Delegate follow-up',
+];
+const voicemailCoachingByDecision = {
+  'Send acknowledgment': {
+    title: 'Acknowledge First',
+    message:
+      'You chose to acknowledge the message. This can reduce anxiety and show responsiveness while buying time to gather accurate information before giving a full answer.',
+  },
+  'Investigate first': {
+    title: 'Process First',
+    message:
+      'You chose to gather information before responding. This protects accuracy, but if the caller is waiting for a response, a short acknowledgment may still be needed.',
+  },
+  'Call back directly': {
+    title: 'Live Contact',
+    message:
+      'You chose direct contact. A call can build trust, but it can also take significant time and become difficult if you do not yet have enough information.',
+  },
+  'Delegate follow-up': {
+    title: 'Delegated Follow-Up',
+    message:
+      'You chose to involve someone else in the follow-up. Delegation can be appropriate, but the principal still needs to ensure the loop is closed.',
+  },
+};
 const walkthroughFormFields = [
   {
     id: 'studentEngagement',
@@ -319,6 +348,11 @@ export default function SimulationShellClient() {
   const [announcementsDecision, setAnnouncementsDecision] = useState('');
   const [announcementsTaskFolders, setAnnouncementsTaskFolders] = useState({});
   const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
+  const [voicemailDecisions, setVoicemailDecisions] = useState({ parentHelp: '', teacherCall: '' });
+  const [voicemailResponses, setVoicemailResponses] = useState({ parentHelp: '', teacherCall: '' });
+  const [voicemailStage, setVoicemailStage] = useState('triage');
+  const [voicemailTaskClosed, setVoicemailTaskClosed] = useState(false);
+  const [voicemailLeadershipRecord, setVoicemailLeadershipRecord] = useState(null);
   const [walkthroughResponses, setWalkthroughResponses] = useState(
     walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
   );
@@ -343,6 +377,11 @@ export default function SimulationShellClient() {
 
     return () => clearInterval(timer);
   }, [started, timeLeft]);
+
+  useEffect(() => {
+    if (currentModule !== 'voicemail') return;
+    addFolderItems({ red: [voicemailLoopTaskItem] });
+  }, [currentModule]);
 
   const urgencyClass = useMemo(() => {
     if (timeLeft <= 30) return 'critical';
@@ -370,6 +409,11 @@ export default function SimulationShellClient() {
     setAnnouncementsDecision('');
     setAnnouncementsTaskFolders({});
     setAnnouncementsLeadershipRecord(null);
+    setVoicemailDecisions({ parentHelp: '', teacherCall: '' });
+    setVoicemailResponses({ parentHelp: '', teacherCall: '' });
+    setVoicemailStage('triage');
+    setVoicemailTaskClosed(false);
+    setVoicemailLeadershipRecord(null);
     setWalkthroughResponses(walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}));
     setWalkthroughLeadershipRecord(null);
     setWalkthroughStage('form');
@@ -601,6 +645,56 @@ export default function SimulationShellClient() {
     });
     scrollToTop();
   };
+
+  const handleVoicemailDecisionSelect = (threadId, decision) => {
+    setVoicemailDecisions((prev) => ({ ...prev, [threadId]: decision }));
+  };
+
+  const handleVoicemailResponseChange = (threadId, value) => {
+    setVoicemailResponses((prev) => ({ ...prev, [threadId]: value }));
+  };
+
+  const handleVoicemailContinue = () => {
+    const hasAllResponses = Object.values(voicemailResponses).every((response) => response.trim());
+    if (!hasAllResponses || voicemailStage !== 'triage') return;
+
+    if (!voicemailTaskClosed) {
+      completeFolderItems([voicemailLoopTaskItem]);
+      setVoicemailTaskClosed(true);
+    }
+
+    setVoicemailLeadershipRecord({
+      module: '9:30 AM — Voicemail & Mailbox',
+      triageDecisions: voicemailDecisions,
+      responses: voicemailResponses,
+      coachingNote:
+        'Strong leaders do not just listen to messages. They close loops. The quality of the response depends on whether the caller knows the message was received, what will happen next, and when they can expect follow-up.',
+    });
+    setVoicemailStage('reflection');
+    scrollToTop();
+  };
+
+  const handleVoicemailContinueDay = () => {
+    if (voicemailStage !== 'reflection') return;
+
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, voicemail: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'voicemail' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
+    scrollToTop();
+  };
+
   const handleWalkthroughResponseChange = (fieldId, value) => {
     setWalkthroughResponses((prev) => ({ ...prev, [fieldId]: value }));
   };
@@ -652,6 +746,8 @@ export default function SimulationShellClient() {
   const hasCompletedWalkthroughForm = walkthroughFormFields.every(
     (field) => walkthroughResponses[field.id].trim(),
   );
+  const hasSelectedBothVoicemailDecisions = Object.values(voicemailDecisions).every(Boolean);
+  const hasCompletedBothVoicemailResponses = Object.values(voicemailResponses).every((response) => response.trim());
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
     [finalParentResponse],
@@ -1026,6 +1122,190 @@ export default function SimulationShellClient() {
                     Continue Day
                   </button>
                 </div>
+              </>
+            ) : currentModule === 'voicemail' ? (
+              <>
+                <p className="eyebrow">9:30 AM</p>
+                <h2>Voicemail Backlog</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    You finally get a few minutes near your desk. The red voicemail light is blinking
+                    again. Some messages came in before you arrived, and now they need to be triaged
+                    before the day moves too far ahead.
+                  </p>
+                </article>
+                <article className="decision-next-step-panel">
+                  <p>
+                    Voicemails often carry a different urgency than email. If someone took the time to
+                    call, there may be emotion, confusion, or a time-sensitive concern behind the message.
+                  </p>
+                </article>
+
+                {voicemailStage === 'triage' ? (
+                  <>
+                    <div className="arrival-priority-list voicemail-thread-list">
+                      <article className="arrival-priority-card voicemail-thread-card">
+                        <h3>Parent Help Request</h3>
+                        <audio controls className="voicemail-audio-player">
+                          <source src="/parent-help-request.vm.mp3" type="audio/mpeg" />
+                        </audio>
+                        <h4 className="decision-prompt">What is your first move with this message?</h4>
+                        <div className="button-row arrival-rank-row">
+                          {voicemailFirstMoveOptions.map((choice) => (
+                            <button
+                              key={`parent-${choice}`}
+                              type="button"
+                              className={`button secondary ${voicemailDecisions.parentHelp === choice ? 'active' : ''}`}
+                              onClick={() => handleVoicemailDecisionSelect('parentHelp', choice)}
+                            >
+                              {choice}
+                            </button>
+                          ))}
+                        </div>
+                        {voicemailDecisions.parentHelp ? (
+                          <article className="decision-consequence-card" aria-live="polite">
+                            <h4>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].title}</h4>
+                            <p>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].message}</p>
+                          </article>
+                        ) : null}
+                      </article>
+
+                      <article className="arrival-priority-card voicemail-thread-card">
+                        <h3>Teacher Call</h3>
+                        <audio controls className="voicemail-audio-player">
+                          <source src="/teacher-call-vm.mp3" type="audio/mpeg" />
+                        </audio>
+                        <h4 className="decision-prompt">What is your first move with this message?</h4>
+                        <div className="button-row arrival-rank-row">
+                          {voicemailFirstMoveOptions.map((choice) => (
+                            <button
+                              key={`teacher-${choice}`}
+                              type="button"
+                              className={`button secondary ${voicemailDecisions.teacherCall === choice ? 'active' : ''}`}
+                              onClick={() => handleVoicemailDecisionSelect('teacherCall', choice)}
+                            >
+                              {choice}
+                            </button>
+                          ))}
+                        </div>
+                        {voicemailDecisions.teacherCall ? (
+                          <article className="decision-consequence-card" aria-live="polite">
+                            <h4>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].title}</h4>
+                            <p>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].message}</p>
+                          </article>
+                        ) : null}
+                      </article>
+                    </div>
+
+                    {hasSelectedBothVoicemailDecisions ? (
+                      <>
+                        <article className="report-card report-intro">
+                          <h3>Open Voicemail Threads</h3>
+                          <p>
+                            Both messages now require follow-through. A voicemail is not complete when it
+                            is heard. It is complete when the concern has been acknowledged, investigated
+                            if needed, and answered with next steps.
+                          </p>
+                        </article>
+                        <article className="report-card">
+                          <h3>Parent Help Request — Context Needed</h3>
+                          <p>
+                            Before giving a full answer, determine what the parent is asking for, whether
+                            the concern involves a student need, a classroom issue, a scheduling issue, or
+                            a support request, and whether anyone else needs to be consulted.
+                          </p>
+                        </article>
+                        <article className="report-card">
+                          <h3>Teacher Call — Context Needed</h3>
+                          <p>
+                            Before closing the loop, determine whether the teacher needs a decision, a
+                            resource, coverage, parent support, student support, or administrative
+                            follow-up.
+                          </p>
+                        </article>
+                        <article className="report-card">
+                          <p className="response-label">
+                            Use the same leadership sequence: acknowledge the message, clarify what you are
+                            doing next, and give a realistic timeline.
+                          </p>
+                          <div className="analysis-grid">
+                            <div className="analysis-row">
+                              <p className="analysis-lens">Thread 1: Parent Help Request</p>
+                              <p><strong>First move:</strong> {voicemailDecisions.parentHelp}</p>
+                              <p><strong>Status:</strong> Open</p>
+                              <label htmlFor="voicemail-parent-response" className="response-label">
+                                Draft the response or next-step message…
+                              </label>
+                              <textarea
+                                id="voicemail-parent-response"
+                                rows={5}
+                                className="response-input"
+                                value={voicemailResponses.parentHelp}
+                                onChange={(event) => handleVoicemailResponseChange('parentHelp', event.target.value)}
+                                required
+                              />
+                            </div>
+                            <div className="analysis-row">
+                              <p className="analysis-lens">Thread 2: Teacher Call</p>
+                              <p><strong>First move:</strong> {voicemailDecisions.teacherCall}</p>
+                              <p><strong>Status:</strong> Open</p>
+                              <label htmlFor="voicemail-teacher-response" className="response-label">
+                                Draft the response or next-step message…
+                              </label>
+                              <textarea
+                                id="voicemail-teacher-response"
+                                rows={5}
+                                className="response-input"
+                                value={voicemailResponses.teacherCall}
+                                onChange={(event) => handleVoicemailResponseChange('teacherCall', event.target.value)}
+                                required
+                              />
+                            </div>
+                          </div>
+                        </article>
+                        <div className="button-row">
+                          <button
+                            type="button"
+                            className="button primary"
+                            onClick={handleVoicemailContinue}
+                            disabled={!hasCompletedBothVoicemailResponses}
+                          >
+                            Continue
+                          </button>
+                        </div>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <article className="report-card report-intro">
+                      <h3>Voicemail Follow-Through Reflection</h3>
+                      <p>
+                        Strong leaders do not just listen to messages. They close loops. The quality of
+                        the response depends on whether the caller knows the message was received, what will
+                        happen next, and when they can expect follow-up.
+                      </p>
+                    </article>
+                    <article className="report-card">
+                      <ul className="strong-response-list">
+                        <li>Did you acknowledge the concern?</li>
+                        <li>Did you avoid overpromising?</li>
+                        <li>Did you identify the next step?</li>
+                        <li>Did you give a realistic timeline?</li>
+                        <li>Did you preserve time for the rest of the day?</li>
+                      </ul>
+                    </article>
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={handleVoicemailContinueDay}
+                      >
+                        Continue Day
+                      </button>
+                    </div>
+                  </>
+                )}
               </>
             ) : currentModule === 'classroomWalkthrough' ? (
               <>
@@ -1601,6 +1881,20 @@ export default function SimulationShellClient() {
                     ))}
                     <li><strong>Coaching note:</strong> {announcementsLeadershipRecord.coachingNote}</li>
                     <li><strong>Suggested folder:</strong> {announcementsLeadershipRecord.suggestedFolder}</li>
+                  </ul>
+                </article>
+              ) : null}
+
+              {voicemailLeadershipRecord ? (
+                <article className="folder-card">
+                  <h4>Voicemail Record</h4>
+                  <p className="folder-subtitle">Captured voicemail triage and follow-through notes</p>
+                  <ul>
+                    <li><strong>Parent Help Request first move:</strong> {voicemailLeadershipRecord.triageDecisions.parentHelp}</li>
+                    <li><strong>Teacher Call first move:</strong> {voicemailLeadershipRecord.triageDecisions.teacherCall}</li>
+                    <li><strong>Parent response draft:</strong> {voicemailLeadershipRecord.responses.parentHelp}</li>
+                    <li><strong>Teacher response draft:</strong> {voicemailLeadershipRecord.responses.teacherCall}</li>
+                    <li><strong>Reflection note:</strong> {voicemailLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
               ) : null}
