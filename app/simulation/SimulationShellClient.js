@@ -93,7 +93,7 @@ const dayModules = [
   { id: 'announcements', label: '9:00 AM — Announcements', enabled: true },
   { id: 'voicemail', label: '9:30 AM — Voicemail & Mailbox', enabled: true },
   { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: true },
-  { id: 'lunchDiscipline', label: '11:30 AM — Lunch & Discipline', enabled: false },
+  { id: 'lunchClimate', label: '11:30 AM — Lunch & Cafeteria Climate', enabled: true },
   { id: 'parentCall', label: '1:00 PM — Parent Call', enabled: false },
   { id: 'teacherObservation', label: '2:00 PM — Teacher Observation', enabled: false },
   { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: false },
@@ -233,6 +233,37 @@ const walkthroughFormFields = [
     prompt: 'What is one reflective question you would ask the teacher after this walkthrough?',
   },
 ];
+const lunchClimateDecisionOptions = [
+  'Step in and reset expectations',
+  'Watch before acting',
+  'Pull the lunch monitors together',
+  'Remove the loudest students',
+];
+const lunchClimateDecisionCoaching = {
+  'Step in and reset expectations': {
+    title: 'Immediate Climate Reset',
+    message:
+      'You chose to reset expectations directly. This can quickly calm the room, but it works best when paired with consistent follow-through from the adults supervising.',
+  },
+  'Watch before acting': {
+    title: 'Observe the Pattern',
+    message:
+      'You chose to observe before acting. This can help you identify the real pattern instead of reacting to noise alone. The risk is waiting too long while behavior escalates.',
+  },
+  'Pull the lunch monitors together': {
+    title: 'Adult Alignment',
+    message:
+      'You chose to align the adults first. This is often a strong move because inconsistent adult responses create inconsistent student behavior.',
+  },
+  'Remove the loudest students': {
+    title: 'Control Move',
+    message:
+      'You chose to remove the most visible behavior. This may calm the room temporarily, but it can miss the system issue if expectations and adult responses remain unclear.',
+  },
+};
+const lunchClimateTaskItem = 'Stabilize cafeteria expectations today';
+const lunchClimateInsightMessage =
+  'Cafeteria behavior improves when adults share the same expectations, use the same language, and respond consistently. Strong leaders do not just correct students — they build systems adults can follow.';
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
@@ -563,6 +594,10 @@ export default function SimulationShellClient() {
     walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
   );
   const [walkthroughLeadershipRecord, setWalkthroughLeadershipRecord] = useState(null);
+  const [lunchClimateDecision, setLunchClimateDecision] = useState('');
+  const [lunchMonitorDirectionNote, setLunchMonitorDirectionNote] = useState('');
+  const [lunchClimateCoachingRecord, setLunchClimateCoachingRecord] = useState(null);
+  const [lunchClimateInsightUnlocked, setLunchClimateInsightUnlocked] = useState(false);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -591,6 +626,11 @@ export default function SimulationShellClient() {
   useEffect(() => {
     if (currentModule !== 'voicemail') return;
     addFolderItems({ red: [voicemailLoopTaskItem] });
+  }, [currentModule]);
+
+  useEffect(() => {
+    if (currentModule !== 'lunchClimate') return;
+    addFolderItems({ red: [lunchClimateTaskItem] });
   }, [currentModule]);
 
   useEffect(() => {
@@ -657,6 +697,10 @@ export default function SimulationShellClient() {
     setVoicemailLeadershipRecord(null);
     setWalkthroughResponses(walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}));
     setWalkthroughLeadershipRecord(null);
+    setLunchClimateDecision('');
+    setLunchMonitorDirectionNote('');
+    setLunchClimateCoachingRecord(null);
+    setLunchClimateInsightUnlocked(false);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -699,10 +743,12 @@ export default function SimulationShellClient() {
     setAnnouncementsDecision(safeDecisions.announcementsDecision || '');
     setVoicemailDecisions(safeDecisions.voicemailDecisions || { parentHelp: '', teacherCall: '' });
     setArrivalPriorityAssignments(safeDecisions.arrivalPriorityAssignments || {});
+    setLunchClimateDecision(safeDecisions.lunchClimateDecision || '');
 
     setInitialParentResponse(safeResponses.initialParentResponse || '');
     setFinalParentResponse(safeResponses.finalParentResponse || '');
     setVoicemailResponses(safeResponses.voicemailResponses || { parentHelp: '', teacherCall: '' });
+    setLunchMonitorDirectionNote(safeResponses.lunchMonitorDirectionNote || '');
     setWalkthroughResponses(
       safeResponses.walkthroughResponses
       || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
@@ -714,6 +760,7 @@ export default function SimulationShellClient() {
     setAnnouncementsLeadershipRecord(safeRecords.announcementsLeadershipRecord || null);
     setVoicemailLeadershipRecord(safeRecords.voicemailLeadershipRecord || null);
     setWalkthroughLeadershipRecord(safeRecords.walkthroughLeadershipRecord || null);
+    setLunchClimateCoachingRecord(safeRecords.lunchClimateCoachingRecord || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
@@ -724,6 +771,7 @@ export default function SimulationShellClient() {
     setHasCompletedFinalStep(Boolean(safeUiProgress.hasCompletedFinalStep));
     setArrivalCompleted(Boolean(safeUiProgress.arrivalCompleted));
     setVoicemailTaskClosed(Boolean(safeUiProgress.voicemailTaskClosed));
+    setLunchClimateInsightUnlocked(Boolean(safeUiProgress.lunchClimateInsightUnlocked));
   };
 
   const scrollToTop = () => {
@@ -1029,6 +1077,44 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleLunchClimateDecisionSelect = (decisionLabel) => {
+    setLunchClimateDecision(decisionLabel);
+  };
+
+  const handleLunchClimateDirectionContinue = () => {
+    if (!lunchClimateDecision || !lunchMonitorDirectionNote.trim()) return;
+    completeFolderItems([lunchClimateTaskItem]);
+    setLunchClimateCoachingRecord({
+      module: '11:30 AM — Lunch & Cafeteria Climate',
+      decision: lunchClimateDecision,
+      monitorDirectionNote: lunchMonitorDirectionNote.trim(),
+      coachingNote: lunchClimateDecisionCoaching[lunchClimateDecision]?.message || '',
+      leadershipInsight: lunchClimateInsightMessage,
+    });
+    setLunchClimateInsightUnlocked(true);
+    scrollToTop();
+  };
+
+  const handleLunchClimateContinueDay = () => {
+    if (!lunchClimateDecision || !lunchMonitorDirectionNote.trim() || !lunchClimateInsightUnlocked) return;
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, lunchClimate: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'lunchClimate' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
+    scrollToTop();
+  };
+
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
   const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
@@ -1077,6 +1163,7 @@ export default function SimulationShellClient() {
       iepDecision,
       announcementsDecision,
       voicemailDecisions,
+      lunchClimateDecision,
       arrivalPriorityAssignments,
       arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
     },
@@ -1084,6 +1171,7 @@ export default function SimulationShellClient() {
       initialParentResponse,
       finalParentResponse,
       voicemailResponses,
+      lunchMonitorDirectionNote,
       walkthroughResponses,
     },
     records: {
@@ -1093,6 +1181,7 @@ export default function SimulationShellClient() {
       announcementsLeadershipRecord,
       voicemailLeadershipRecord,
       walkthroughLeadershipRecord,
+      lunchClimateCoachingRecord,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
     },
@@ -1103,6 +1192,7 @@ export default function SimulationShellClient() {
       hasCompletedFinalStep,
       arrivalCompleted,
       voicemailTaskClosed,
+      lunchClimateInsightUnlocked,
       hasCompletedWalkthroughForm,
       isInvestigationScene,
       isReportScene,
@@ -1833,6 +1923,93 @@ export default function SimulationShellClient() {
                   </button>
                 </div>
               </>
+            ) : currentModule === 'lunchClimate' ? (
+              <>
+                <p className="eyebrow">11:30 AM</p>
+                <h2>Lunch & Cafeteria Climate</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    You head to the cafeteria for two lunch periods because you have been hearing concerns
+                    that these periods are becoming rowdy. Lunch is not just supervision — it is school
+                    culture in motion.
+                  </p>
+                  <p>
+                    The cafeteria is loud, movement is loose, and several students are testing boundaries.
+                    Lunch monitors are trying, but expectations are inconsistent from table to table.
+                  </p>
+                </article>
+
+                <h3 className="decision-prompt">What do you focus on first?</h3>
+                <div className="choices">
+                  {lunchClimateDecisionOptions.map((decision) => (
+                    <button
+                      key={decision}
+                      className={`choice ${lunchClimateDecision === decision ? 'active' : ''}`}
+                      onClick={() => handleLunchClimateDecisionSelect(decision)}
+                    >
+                      {decision}
+                    </button>
+                  ))}
+                </div>
+
+                {lunchClimateDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{lunchClimateDecisionCoaching[lunchClimateDecision].title}</h4>
+                    <p>{lunchClimateDecisionCoaching[lunchClimateDecision].message}</p>
+                  </article>
+                ) : null}
+
+                {lunchClimateDecision ? (
+                  <article className="report-card">
+                    <label htmlFor="lunch-monitor-direction-note" className="response-label">
+                      Draft a short note to the lunch monitors explaining the next steps for improving
+                      cafeteria expectations.
+                    </label>
+                    <textarea
+                      id="lunch-monitor-direction-note"
+                      rows={5}
+                      className="response-input"
+                      placeholder="Write your lunch monitor direction note…"
+                      value={lunchMonitorDirectionNote}
+                      onChange={(event) => setLunchMonitorDirectionNote(event.target.value)}
+                    />
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={handleLunchClimateDirectionContinue}
+                        disabled={!lunchMonitorDirectionNote.trim()}
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </article>
+                ) : null}
+
+                {lunchClimateInsightUnlocked ? (
+                  <>
+                    <article className="decision-consequence-card" aria-live="polite">
+                      <h4>Cafeteria Leadership Insight</h4>
+                      <p>{lunchClimateInsightMessage}</p>
+                      <ul className="strong-response-list">
+                        <li>Did you clarify expectations?</li>
+                        <li>Did you support the monitors rather than blame them?</li>
+                        <li>Did you identify consistent adult actions?</li>
+                        <li>Did you keep the tone calm and practical?</li>
+                      </ul>
+                    </article>
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={handleLunchClimateContinueDay}
+                      >
+                        Continue Day
+                      </button>
+                    </div>
+                  </>
+                ) : null}
+              </>
             ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
               <>
@@ -2355,6 +2532,19 @@ export default function SimulationShellClient() {
                     <li><strong>Evidence-based strength:</strong> {walkthroughLeadershipRecord.responses?.evidenceBasedStrength}</li>
                     <li><strong>Follow-up question:</strong> {walkthroughLeadershipRecord.responses?.followUpQuestion}</li>
                     <li><strong>Record status:</strong> {walkthroughLeadershipRecord.reflectionSaved ? 'Saved' : 'Pending'}</li>
+                  </ul>
+                </article>
+              ) : null}
+
+              {lunchClimateCoachingRecord ? (
+                <article className="folder-card">
+                  <h4>Lunch Climate Record</h4>
+                  <p className="folder-subtitle">Captured cafeteria leadership decisions and staff direction</p>
+                  <ul>
+                    <li><strong>Decision:</strong> {lunchClimateCoachingRecord.decision}</li>
+                    <li><strong>Direction note:</strong> {lunchClimateCoachingRecord.monitorDirectionNote}</li>
+                    <li><strong>Coaching note:</strong> {lunchClimateCoachingRecord.coachingNote}</li>
+                    <li><strong>Leadership insight:</strong> {lunchClimateCoachingRecord.leadershipInsight}</li>
                   </ul>
                 </article>
               ) : null}
