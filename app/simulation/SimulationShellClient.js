@@ -89,7 +89,7 @@ const lensNames = [
 const dayModules = [
   { id: 'arrival', label: '7:30 AM — Arrival', enabled: true },
   { id: 'iepMeeting', label: '8:15 AM — IEP Meeting', enabled: true },
-  { id: 'announcements', label: '9:00 AM — Announcements', enabled: false },
+  { id: 'announcements', label: '9:00 AM — Announcements', enabled: true },
   { id: 'voicemailMailbox', label: '9:30 AM — Voicemail & Mailbox', enabled: false },
   { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: false },
   { id: 'lunchDiscipline', label: '11:30 AM — Lunch & Discipline', enabled: false },
@@ -135,6 +135,39 @@ const iepFolderOptions = [
 ];
 
 const iepTaskItem = 'Send IDEA manual to parents and CC Special Education Director';
+const announcementsDecisionCoaching = {
+  'Handle it yourself right away': {
+    title: 'Helpful but Costly',
+    message:
+      'You chose to personally handle the request. This supports the teacher, but it can also pull you away from other responsibilities if every hallway request becomes your task.',
+  },
+  'Ask the administrative assistant to send the announcements': {
+    title: 'Smart Delegation',
+    message:
+      'You chose to use the office system to help quickly. This is often a strong move: the teacher gets what she needs, students do not miss information, and you preserve time for other leadership work.',
+  },
+  'Tell the teacher to email you': {
+    title: 'Delay Risk',
+    message:
+      'You chose to push the request back to the teacher. This may create a record, but it also adds work for someone who already lost instructional access and may delay a simple fix.',
+  },
+  'Make a quick note and keep moving': {
+    title: 'Capture Before It Disappears',
+    message:
+      'You chose to capture the request before moving on. Principals need a reliable system for hallway tasks because five more people may stop you before you reach your desk.',
+  },
+};
+
+const announcementsTasks = [
+  {
+    id: 'announcementsCopy',
+    label: 'Send teacher a copy of the morning announcements',
+  },
+  {
+    id: 'announcementsMaintenance',
+    label: 'Notify maintenance that classroom TV is not working',
+  },
+];
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
@@ -248,6 +281,9 @@ export default function SimulationShellClient() {
   const [iepDecision, setIepDecision] = useState('');
   const [iepFolderChoice, setIepFolderChoice] = useState('');
   const [iepLeadershipRecord, setIepLeadershipRecord] = useState(null);
+  const [announcementsDecision, setAnnouncementsDecision] = useState('');
+  const [announcementsTaskFolders, setAnnouncementsTaskFolders] = useState({});
+  const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
@@ -291,6 +327,9 @@ export default function SimulationShellClient() {
     setIepDecision('');
     setIepFolderChoice('');
     setIepLeadershipRecord(null);
+    setAnnouncementsDecision('');
+    setAnnouncementsTaskFolders({});
+    setAnnouncementsLeadershipRecord(null);
     setModuleTransitionNote('');
     setFolders(initialFolders);
     setCompletedTasks([]);
@@ -425,7 +464,7 @@ export default function SimulationShellClient() {
       folder: iepFolderChoice,
       coachingNote: coaching?.message || '',
       insight:
-        'IEP-related requests are rarely difficult by themselves. The leadership challenge is making sure small compliance-sensitive tasks do not vanish inside a busy school day.',
+        'IEP-related requests may seem simple, but they sit inside legal expectations and parent trust. Missing small steps here can create larger problems later.',
       suggestedFolder: 'Red — before leaving today.',
     });
     setTimelineStatuses((prev) => {
@@ -460,6 +499,63 @@ export default function SimulationShellClient() {
       endOfDayEmail: moduleStatuses.completed,
     }));
     setScene('report');
+    scrollToTop();
+  };
+
+  const handleAnnouncementsDecisionSelect = (decisionLabel) => {
+    setAnnouncementsDecision(decisionLabel);
+  };
+
+  const handleAnnouncementsTaskFolderSelection = (taskId, folderId) => {
+    const task = announcementsTasks.find((card) => card.id === taskId);
+    if (!task) return;
+
+    setAnnouncementsTaskFolders((prev) => {
+      const previousFolder = prev[taskId];
+      const next = { ...prev, [taskId]: folderId };
+
+      if (previousFolder && previousFolder !== folderId) {
+        setFolders((folderState) => ({
+          red: folderState.red.filter((item) => item !== task.label),
+          orange: folderState.orange.filter((item) => item !== task.label),
+          green: folderState.green.filter((item) => item !== task.label),
+        }));
+      }
+
+      return next;
+    });
+    addFolderItems({ [folderId]: [task.label] });
+  };
+
+  const handleAnnouncementsContinueDay = () => {
+    const hasAllTaskFolders = announcementsTasks.every((task) => Boolean(announcementsTaskFolders[task.id]));
+    if (!announcementsDecision || !hasAllTaskFolders) return;
+
+    setAnnouncementsLeadershipRecord({
+      module: '9:00 AM — Announcements',
+      decision: announcementsDecision,
+      taskFolders: announcementsTaskFolders,
+      coachingNote: announcementsDecisionCoaching[announcementsDecision]?.message || '',
+      insight:
+        'Visibility creates access. The more present you are in the building, the more people will bring needs to you in motion. Strong leaders use a capture system — notebook, phone, assistant, or dashboard — so small requests do not disappear on the walk back to the office.',
+      suggestedFolder: 'Red for both tasks.',
+    });
+
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, announcements: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'announcements' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
     scrollToTop();
   };
 
@@ -718,8 +814,8 @@ export default function SimulationShellClient() {
                     <article className="decision-consequence-card" aria-live="polite">
                       <h4>IEP Follow-Through Insight</h4>
                       <p>
-                        IEP-related requests are rarely difficult by themselves. The leadership challenge is
-                        making sure small compliance-sensitive tasks do not vanish inside a busy school day.
+                        IEP-related requests may seem simple, but they sit inside legal expectations and
+                        parent trust. Missing small steps here can create larger problems later.
                       </p>
                       <p>
                         <strong>Suggested folder: Red — before leaving today.</strong>
@@ -734,6 +830,109 @@ export default function SimulationShellClient() {
                     className="button primary"
                     onClick={handleIepContinueDay}
                     disabled={!iepDecision || !iepFolderChoice}
+                  >
+                    Continue Day
+                  </button>
+                </div>
+              </>
+            ) : currentModule === 'announcements' ? (
+              <>
+                <p className="eyebrow">9:00 AM</p>
+                <h2>Morning Announcements</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    You finish morning announcements with the student TV crew. These moments matter —
+                    students see the principal as present, visible, and part of the life of the school.
+                  </p>
+                  <p>
+                    On your way back to the office, a teacher stops you. Her classroom TV was not
+                    working, so her students could not hear the announcements. She asks if you can get her
+                    a copy and also let maintenance know her TV needs attention.
+                  </p>
+                </article>
+                <h3 className="decision-prompt">
+                  You are only steps away from the office, but this is how a principal&apos;s day fills up:
+                  one hallway request becomes three things to remember before you even sit down.
+                </h3>
+                <div className="choices">
+                  {Object.keys(announcementsDecisionCoaching).map((decision) => (
+                    <button
+                      key={decision}
+                      className={`choice ${announcementsDecision === decision ? 'active' : ''}`}
+                      onClick={() => handleAnnouncementsDecisionSelect(decision)}
+                    >
+                      {decision}
+                    </button>
+                  ))}
+                </div>
+
+                {announcementsDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{announcementsDecisionCoaching[announcementsDecision].title}</h4>
+                    <p>{announcementsDecisionCoaching[announcementsDecision].message}</p>
+                  </article>
+                ) : null}
+
+                {announcementsDecision ? (
+                  <>
+                    <h3 className="decision-prompt">
+                      What needs to be captured from this hallway request?
+                    </h3>
+                    <div className="arrival-priority-list">
+                      {announcementsTasks.map((task) => (
+                        <article key={task.id} className="arrival-priority-card">
+                          <span className="selected-decision-label">{task.label}</span>
+                          <div className="button-row arrival-rank-row">
+                            {iepFolderOptions.map((option) => (
+                              <button
+                                key={`${task.id}-${option.id}`}
+                                type="button"
+                                className={`button secondary ${announcementsTaskFolders[task.id] === option.id ? 'active' : ''}`}
+                                onClick={() => handleAnnouncementsTaskFolderSelection(task.id, option.id)}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                          {announcementsTaskFolders[task.id] ? (
+                            <p className="arrival-assigned-rank">
+                              Added to{' '}
+                              <strong>
+                                {announcementsTaskFolders[task.id].charAt(0).toUpperCase()
+                                  + announcementsTaskFolders[task.id].slice(1)}
+                              </strong>{' '}
+                              folder.
+                            </p>
+                          ) : null}
+                        </article>
+                      ))}
+                    </div>
+                    {announcementsTasks.every((task) => Boolean(announcementsTaskFolders[task.id])) ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <h4>Hallway Leadership Insight</h4>
+                        <p>
+                          Visibility creates access. The more present you are in the building, the more
+                          people will bring needs to you in motion. Strong leaders use a capture system —
+                          notebook, phone, assistant, or dashboard — so small requests do not disappear on
+                          the walk back to the office.
+                        </p>
+                        <p>
+                          <strong>Suggested folder: Red for both tasks.</strong>
+                        </p>
+                      </article>
+                    ) : null}
+                  </>
+                ) : null}
+
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleAnnouncementsContinueDay}
+                    disabled={
+                      !announcementsDecision
+                      || announcementsTasks.some((task) => !announcementsTaskFolders[task.id])
+                    }
                   >
                     Continue Day
                   </button>
@@ -1178,6 +1377,27 @@ export default function SimulationShellClient() {
                     </li>
                     <li><strong>Coaching note:</strong> {iepLeadershipRecord.coachingNote}</li>
                     <li><strong>Suggested folder:</strong> {iepLeadershipRecord.suggestedFolder}</li>
+                  </ul>
+                </article>
+              ) : null}
+
+              {announcementsLeadershipRecord ? (
+                <article className="folder-card">
+                  <h4>Announcements Record</h4>
+                  <p className="folder-subtitle">Captured hallway request follow-through notes</p>
+                  <ul>
+                    <li><strong>Decision:</strong> {announcementsLeadershipRecord.decision}</li>
+                    {announcementsTasks.map((task) => (
+                      <li key={`record-${task.id}`}>
+                        <strong>{task.label}:</strong>{' '}
+                        {(announcementsLeadershipRecord.taskFolders[task.id] || '')
+                          .charAt(0)
+                          .toUpperCase()
+                          + (announcementsLeadershipRecord.taskFolders[task.id] || '').slice(1)}
+                      </li>
+                    ))}
+                    <li><strong>Coaching note:</strong> {announcementsLeadershipRecord.coachingNote}</li>
+                    <li><strong>Suggested folder:</strong> {announcementsLeadershipRecord.suggestedFolder}</li>
                   </ul>
                 </article>
               ) : null}
