@@ -88,7 +88,7 @@ const lensNames = [
 
 const dayModules = [
   { id: 'arrival', label: '7:30 AM — Arrival', enabled: true },
-  { id: 'iepMeeting', label: '8:15 AM — IEP Meeting', enabled: false },
+  { id: 'iepMeeting', label: '8:15 AM — IEP Meeting', enabled: true },
   { id: 'announcements', label: '9:00 AM — Announcements', enabled: false },
   { id: 'voicemailMailbox', label: '9:30 AM — Voicemail & Mailbox', enabled: false },
   { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: false },
@@ -104,6 +104,37 @@ const moduleStatuses = {
   active: 'active',
   completed: 'completed',
 };
+
+const iepDecisionCoaching = {
+  'Handle it immediately after the meeting': {
+    title: 'Immediate Follow-Through',
+    message:
+      'You chose to handle the compliance-related request right away. This protects trust, documentation, and timelines. The risk is that it may interrupt other urgent start-of-day needs if you do not manage the transition carefully.',
+  },
+  'Add it to today’s priority list': {
+    title: 'Controlled Follow-Through',
+    message:
+      'You chose to capture the task and complete it today. This is usually a strong leadership move if the item is clearly tracked and not allowed to disappear into the day.',
+  },
+  'Delegate it to the office': {
+    title: 'Delegated Task',
+    message:
+      'You chose to delegate the task. Delegation can be appropriate, but compliance-sensitive communication still needs clear ownership and follow-up from the administrator.',
+  },
+  'Wait until email time later': {
+    title: 'Delay Risk',
+    message:
+      'You chose to wait until later. This may feel efficient, but compliance-related parent communication can become risky if it is not tracked carefully.',
+  },
+};
+
+const iepFolderOptions = [
+  { id: 'red', label: 'Red: Before leaving today' },
+  { id: 'orange', label: 'Orange: Next two days' },
+  { id: 'green', label: 'Green: This week' },
+];
+
+const iepTaskItem = 'Send IDEA manual to parents and CC Special Education Director';
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
@@ -214,6 +245,9 @@ export default function SimulationShellClient() {
   const [arrivalRankingRecord, setArrivalRankingRecord] = useState(null);
   const [arrivalCoachingRecord, setArrivalCoachingRecord] = useState(null);
   const [arrivalCompleted, setArrivalCompleted] = useState(false);
+  const [iepDecision, setIepDecision] = useState('');
+  const [iepFolderChoice, setIepFolderChoice] = useState('');
+  const [iepLeadershipRecord, setIepLeadershipRecord] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
 
   const hasSelectedDecision = Boolean(firstDecision);
@@ -254,6 +288,9 @@ export default function SimulationShellClient() {
     setArrivalRankingRecord(null);
     setArrivalCoachingRecord(null);
     setArrivalCompleted(false);
+    setIepDecision('');
+    setIepFolderChoice('');
+    setIepLeadershipRecord(null);
     setModuleTransitionNote('');
     setFolders(initialFolders);
     setCompletedTasks([]);
@@ -366,6 +403,46 @@ export default function SimulationShellClient() {
   const handleContinueToInvestigation = () => {
     setScene('investigation');
     addFolderItems({ red: [investigationFolderItem] });
+    scrollToTop();
+  };
+
+  const handleIepDecisionSelect = (decisionLabel) => {
+    setIepDecision(decisionLabel);
+  };
+
+  const handleIepFolderSelection = (folderId) => {
+    setIepFolderChoice(folderId);
+    addFolderItems({ [folderId]: [iepTaskItem] });
+  };
+
+  const handleIepContinueDay = () => {
+    if (!iepDecision || !iepFolderChoice) return;
+
+    const coaching = iepDecisionCoaching[iepDecision];
+    setIepLeadershipRecord({
+      module: '8:15 AM — IEP Meeting',
+      decision: iepDecision,
+      folder: iepFolderChoice,
+      coachingNote: coaching?.message || '',
+      insight:
+        'IEP-related requests are rarely difficult by themselves. The leadership challenge is making sure small compliance-sensitive tasks do not vanish inside a busy school day.',
+      suggestedFolder: 'Red — before leaving today.',
+    });
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, iepMeeting: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'iepMeeting' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
     scrollToTop();
   };
 
@@ -577,6 +654,90 @@ export default function SimulationShellClient() {
                     </article>
                   </>
                 )}
+              </>
+            ) : currentModule === 'iepMeeting' ? (
+              <>
+                <p className="eyebrow">8:15 AM</p>
+                <h2>IEP Meeting</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    Teachers have arrived, and you are already in an IEP meeting. The earlier messages,
+                    mailbox items, and email stack will have to wait.
+                  </p>
+                  <p>
+                    At the end of the meeting, the Special Education Director asks you to retrieve the IDEA
+                    manual, send a copy to the parents, and CC her.
+                  </p>
+                </article>
+
+                <h3 className="decision-prompt">
+                  This is not complicated, but it is compliance-sensitive. What do you do with this task?
+                </h3>
+                <div className="choices">
+                  {Object.keys(iepDecisionCoaching).map((decision) => (
+                    <button
+                      key={decision}
+                      className={`choice ${iepDecision === decision ? 'active' : ''}`}
+                      onClick={() => handleIepDecisionSelect(decision)}
+                    >
+                      {decision}
+                    </button>
+                  ))}
+                </div>
+
+                {iepDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{iepDecisionCoaching[iepDecision].title}</h4>
+                    <p>{iepDecisionCoaching[iepDecision].message}</p>
+                  </article>
+                ) : null}
+
+                {iepDecision ? (
+                  <>
+                    <h3 className="decision-prompt">Where should this task live?</h3>
+                    <div className="choices">
+                      {iepFolderOptions.map((option) => (
+                        <button
+                          key={option.id}
+                          className={`choice ${iepFolderChoice === option.id ? 'active' : ''}`}
+                          onClick={() => handleIepFolderSelection(option.id)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                    {iepFolderChoice ? (
+                      <article className="decision-next-step-panel" aria-live="polite">
+                        <p>
+                          Added to{' '}
+                          <strong>{iepFolderChoice.charAt(0).toUpperCase() + iepFolderChoice.slice(1)}</strong>{' '}
+                          folder: {iepTaskItem}
+                        </p>
+                      </article>
+                    ) : null}
+                    <article className="decision-consequence-card" aria-live="polite">
+                      <h4>IEP Follow-Through Insight</h4>
+                      <p>
+                        IEP-related requests are rarely difficult by themselves. The leadership challenge is
+                        making sure small compliance-sensitive tasks do not vanish inside a busy school day.
+                      </p>
+                      <p>
+                        <strong>Suggested folder: Red — before leaving today.</strong>
+                      </p>
+                    </article>
+                  </>
+                ) : null}
+
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleIepContinueDay}
+                    disabled={!iepDecision || !iepFolderChoice}
+                  >
+                    Continue Day
+                  </button>
+                </div>
               </>
             ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
@@ -1001,6 +1162,22 @@ export default function SimulationShellClient() {
                     {completedTasks.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
+                  </ul>
+                </article>
+              ) : null}
+
+              {iepLeadershipRecord ? (
+                <article className="folder-card">
+                  <h4>IEP Meeting Record</h4>
+                  <p className="folder-subtitle">Captured leadership follow-through notes</p>
+                  <ul>
+                    <li><strong>Decision:</strong> {iepLeadershipRecord.decision}</li>
+                    <li>
+                      <strong>Folder selected:</strong>{' '}
+                      {iepLeadershipRecord.folder.charAt(0).toUpperCase() + iepLeadershipRecord.folder.slice(1)}
+                    </li>
+                    <li><strong>Coaching note:</strong> {iepLeadershipRecord.coachingNote}</li>
+                    <li><strong>Suggested folder:</strong> {iepLeadershipRecord.suggestedFolder}</li>
                   </ul>
                 </article>
               ) : null}
