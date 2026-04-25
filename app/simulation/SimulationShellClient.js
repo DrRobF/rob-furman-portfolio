@@ -413,16 +413,26 @@ export default function SimulationShellClient() {
     return 'calm';
   }, [timeLeft]);
 
-  const beginSimulation = () => {
+  const resetSimulationState = ({ clearSavedProgress = false, confirmationMessage = '' } = {}) => {
+    if (typeof window !== 'undefined' && clearSavedProgress) {
+      window.localStorage.removeItem(simulationProgressStorageKey);
+    }
+
     setStarted(true);
     setTimeLeft(totalDecisionWindowSeconds);
     setScene('initial');
+    setCurrentModule('arrival');
+    setTimelineStatuses(initialModuleStatuses);
+    setFolders(initialFolders);
+    setCompletedTasks([]);
+
     setFirstDecision('');
     setInvestigationDecision('');
     setInitialParentResponse('');
     setFinalParentResponse('');
     setHasCompletedFinalStep(false);
     setIsEmailVisible(false);
+    setIsVicOpen(false);
     setArrivalPriorityAssignments({});
     setArrivalRankingRecord(null);
     setArrivalCoachingRecord(null);
@@ -444,10 +454,16 @@ export default function SimulationShellClient() {
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
-    setFolders(initialFolders);
-    setCompletedTasks([]);
-    setCurrentModule('arrival');
-    setTimelineStatuses(initialModuleStatuses);
+    setSaveProgressMessage(confirmationMessage);
+
+    if (clearSavedProgress) {
+      setSavedSnapshot(null);
+      setLastSavedLabel('');
+    }
+  };
+
+  const beginSimulation = () => {
+    resetSimulationState();
   };
 
   const isValidSnapshotForRestore = (snapshot) => Boolean(
@@ -920,16 +936,7 @@ export default function SimulationShellClient() {
   };
 
   const handleStartOver = () => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(simulationProgressStorageKey);
-    }
-
-    beginSimulation();
-    setSavedSnapshot(null);
-    setLastSavedLabel('');
-    setSnapshotPreviewMessage('');
-    setSnapshotValidationMessage('');
-    setSaveProgressMessage('Simulation restarted.');
+    resetSimulationState({ clearSavedProgress: true, confirmationMessage: 'Simulation restarted.' });
     scrollToTop();
   };
 
