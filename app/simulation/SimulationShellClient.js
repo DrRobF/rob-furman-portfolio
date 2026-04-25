@@ -1145,9 +1145,9 @@ export default function SimulationShellClient() {
                   <>
                     <div className="arrival-priority-list voicemail-thread-list">
                       <article className="arrival-priority-card voicemail-thread-card">
-                        <h3>Parent Help Request</h3>
+                        <h3>Voicemail 1</h3>
                         <audio controls className="voicemail-audio-player">
-                          <source src="/parent-help-request.vm.mp3" type="audio/mpeg" />
+                          <source src="/images/parent-help-request.vm.mp3" type="audio/mpeg" />
                         </audio>
                         <h4 className="decision-prompt">What is your first move with this message?</h4>
                         <div className="button-row arrival-rank-row">
@@ -1171,9 +1171,9 @@ export default function SimulationShellClient() {
                       </article>
 
                       <article className="arrival-priority-card voicemail-thread-card">
-                        <h3>Teacher Call</h3>
+                        <h3>Voicemail 2</h3>
                         <audio controls className="voicemail-audio-player">
-                          <source src="/teacher-call-vm.mp3" type="audio/mpeg" />
+                          <source src="/images/teacher-call-vm.mp3" type="audio/mpeg" />
                         </audio>
                         <h4 className="decision-prompt">What is your first move with this message?</h4>
                         <div className="button-row arrival-rank-row">
