@@ -283,7 +283,77 @@ function analyzeLeadershipWriting(responseText, contextType) {
   const hasRiskOverpromise = includesAny(lowered, riskTerms.overpromise);
   const hasAnyRisk = hasRiskBlame || hasRiskDismissive || hasRiskOverpromise;
 
+  const contextConceptGroups = {
+    parentFinalResponse: [
+      ['parent', 'family', 'guardian'],
+      ['child', 'student', 'daughter', 'son'],
+      ['classroom reward', 'pizza party', 'participation', 'reward system', 'incentive'],
+      ['review', 'investigate', 'look into', 'gather facts'],
+      ['teacher', 'classroom practice', 'instructional practice'],
+      ['follow up', 'follow-up', 'circle back', 'update you'],
+    ],
+    voicemailParent: [
+      ['parent', 'family', 'guardian'],
+      ['child', 'student'],
+      ['concern', 'issue', 'worry'],
+      ['help', 'support', 'assist'],
+      ['follow up', 'follow-up', 'call back', 'update'],
+      ['school', 'teacher', 'classroom', 'principal'],
+    ],
+    voicemailTeacher: [
+      ['teacher', 'educator', 'staff'],
+      ['class', 'classroom'],
+      ['student', 'students'],
+      ['support', 'help', 'assist', 'coverage'],
+      ['concern', 'issue', 'decision', 'judgment'],
+      ['follow up', 'follow-up', 'check in', 'update'],
+    ],
+  };
+
+  const selectedConceptGroups = contextConceptGroups[contextType] || [];
+  const matchedConceptCount = selectedConceptGroups.reduce((count, group) => (
+    includesAny(lowered, group) ? count + 1 : count
+  ), 0);
+  const contextMatchScore = selectedConceptGroups.length
+    ? matchedConceptCount / selectedConceptGroups.length
+    : 0;
+  const hasVeryLowContextMatch = selectedConceptGroups.length > 0
+    && (matchedConceptCount <= 1 || contextMatchScore < 0.34);
+  const unrelatedScenario = Boolean(normalizedResponse) && hasVeryLowContextMatch;
+
   const getStatusAndNote = (name) => {
+    if (name === 'Situation Fit / Accuracy') {
+      if (!normalizedResponse) {
+        return {
+          status: 'Needs Attention',
+          note: 'Add a response that directly addresses the voicemail or school scenario provided.',
+        };
+      }
+      if (unrelatedScenario) {
+        return {
+          status: 'Needs Attention',
+          note: 'The writing may be clear, but it does not appear connected to this school leadership scenario.',
+        };
+      }
+      if (contextMatchScore >= 0.67 && hasMeaningfulLength) {
+        return {
+          status: 'Strong',
+          note: 'Response is grounded in the actual concern, uses scenario evidence, and avoids unrelated claims.',
+        };
+      }
+      return {
+        status: 'Developing',
+        note: 'Connect more directly to the specific issue, evidence, and follow-up needed in this scenario.',
+      };
+    }
+
+    if (unrelatedScenario) {
+      return {
+        status: 'Developing',
+        note: 'This cannot be fully assessed until the response addresses the actual scenario.',
+      };
+    }
+
     if (name === 'Tone & Professionalism') {
       if (!normalizedResponse) {
         return { status: 'Needs Attention', note: 'Add a calm, professional response before submitting.' };
@@ -350,6 +420,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
   };
 
   const categories = [
+    'Situation Fit / Accuracy',
     'Tone & Professionalism',
     'Empathy / Acknowledgment',
     'Clarity',
@@ -365,9 +436,14 @@ function analyzeLeadershipWriting(responseText, contextType) {
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
   const strongCount = categories.filter((category) => category.status === 'Strong').length;
-  const summary = needsAttentionCount > 0
-    ? `This ${contextLabel} has strengths, but ${needsAttentionCount} category${needsAttentionCount > 1 ? 'ies need' : ' needs'} attention.`
-    : strongCount >= 4
+  const situationFitCategory = categories.find((category) => category.name === 'Situation Fit / Accuracy');
+  const summary = situationFitCategory?.status === 'Needs Attention'
+    ? unrelatedScenario
+      ? 'This response needs attention because it does not clearly address the situation. This response does not appear to address the actual voicemail scenario. Before tone or next steps can be evaluated, the response needs to connect clearly to the concern.'
+      : `This ${contextLabel} needs attention because it does not clearly address the situation.`
+    : needsAttentionCount > 0
+      ? `This ${contextLabel} has strengths, but ${needsAttentionCount} category${needsAttentionCount > 1 ? 'ies need' : ' needs'} attention.`
+      : strongCount >= 5
       ? `This ${contextLabel} is clear, empathetic, and professionally grounded.`
       : `This ${contextLabel} is developing and can be strengthened with clearer follow-through language.`;
 
