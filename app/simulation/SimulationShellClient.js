@@ -131,7 +131,7 @@ const initialDeskStackStatuses = {
   ptoConflict: deskStackItemStatuses.comingSoon,
   academicDecline: deskStackItemStatuses.comingSoon,
   giftedRetesting: deskStackItemStatuses.comingSoon,
-  recessInjury: deskStackItemStatuses.comingSoon,
+  recessInjuryEmail: deskStackItemStatuses.notStarted,
   studentRemovalVoicemail: deskStackItemStatuses.comingSoon,
   followUpVoicemail: deskStackItemStatuses.comingSoon,
 };
@@ -174,11 +174,11 @@ const deskStackItems = [
     isAvailable: false,
   },
   {
-    id: 'recessInjury',
+    id: 'recessInjuryEmail',
     title: 'Email: Recess Injury / Liability Concern',
     type: 'Email',
-    description: 'Family report of recess injury with concern about supervision and school liability.',
-    isAvailable: false,
+    description: 'A parent requests documentation and reimbursement after a recess injury involving another student.',
+    isAvailable: true,
   },
   {
     id: 'studentRemovalVoicemail',
@@ -246,6 +246,64 @@ const studentThreatEvidenceCards = [
     title: 'Documentation and Process',
     content:
       'The school must follow proper procedures for documenting and investigating student incidents.',
+  },
+];
+
+const recessInjuryDecisionOptions = [
+  'Acknowledge the parent and review documentation',
+  'Forward the bill to the other family',
+  'Call the parent immediately',
+  'Refer the matter to district/admin guidance',
+];
+
+const recessInjuryDecisionCoaching = {
+  'Acknowledge the parent and review documentation': {
+    title: 'Careful First Step',
+    message:
+      'You chose to acknowledge the concern and review documentation. This is a strong first move because injury concerns require accuracy, care, and process before commitments are made.',
+  },
+  'Forward the bill to the other family': {
+    title: 'Liability Risk',
+    message:
+      'You chose to forward the reimbursement request. This is risky because the school should not promise payment, assign liability, or share student/family information without following proper procedures.',
+  },
+  'Call the parent immediately': {
+    title: 'Direct Contact',
+    message:
+      'You chose live communication. This can show care, but you need to be prepared to avoid promising reimbursement, assigning blame, or discussing another student improperly.',
+  },
+  'Refer the matter to district/admin guidance': {
+    title: 'Process Protection',
+    message:
+      'You chose to involve district or administrative guidance. This is often appropriate for injury, liability, documentation, and confidentiality concerns, but the parent still needs acknowledgment.',
+  },
+};
+
+const recessInjuryEvidenceCards = [
+  {
+    title: 'Student Safety',
+    content:
+      'A reported head injury must be treated seriously, even if the student appeared stable at the time.',
+  },
+  {
+    title: 'Documentation',
+    content:
+      'The school should review nurse records, incident/accident reports, supervision notes, and staff accounts before responding fully.',
+  },
+  {
+    title: 'Confidentiality',
+    content:
+      'The parent may request the name of another student, but student privacy and district procedures must guide what can be shared.',
+  },
+  {
+    title: 'Liability and Reimbursement',
+    content:
+      'The school should not promise payment, assign fault, or forward bills to another family without district guidance.',
+  },
+  {
+    title: 'Communication',
+    content:
+      'The parent needs a prompt, calm acknowledgment and a clear explanation of what will be reviewed next.',
   },
 ];
 
@@ -609,6 +667,71 @@ function analyzeLeadershipWriting(responseText, contextType) {
   const hasRiskDismissive = includesAny(lowered, riskTerms.dismissive);
   const hasRiskOverpromise = includesAny(lowered, riskTerms.overpromise);
   const hasAnyRisk = hasRiskBlame || hasRiskDismissive || hasRiskOverpromise;
+  const hasInjuryLanguage = includesAny(lowered, ['injury', 'head injury', 'head trauma', 'fell', 'hit his head']);
+  const hasDocumentationLanguage = includesAny(lowered, [
+    'documentation',
+    'incident report',
+    'accident report',
+    'nurse record',
+    'records',
+    'review',
+  ]);
+  const hasConfidentialityLanguage = includesAny(lowered, [
+    'confidential',
+    'privacy',
+    'student privacy',
+    'cannot share',
+    'cannot discuss another student',
+  ]);
+  const hasDistrictGuidanceLanguage = includesAny(lowered, [
+    'district',
+    'admin guidance',
+    'administrative guidance',
+    'district procedures',
+    'policy',
+    'procedures',
+  ]);
+  const hasFollowUpLanguage = includesAny(lowered, ['follow up', 'follow-up', 'by tomorrow', 'within', 'today']);
+  const hasReimbursementPromiseRisk = includesAny(lowered, [
+    'we will reimburse',
+    'we will pay',
+    'the school will pay',
+    'i will reimburse',
+    'we will forward the bill',
+  ]);
+  const hasOtherFamilyPaysRisk = includesAny(lowered, [
+    'henry\'s parents will pay',
+    'the other family will pay',
+    'we will send the bill to',
+    'forward the bill to',
+  ]);
+  const hasNamedStudentBlameRisk = includesAny(lowered, [
+    'henry',
+    'the other student caused',
+    'the other student pushed',
+    'the other student tackled',
+    'their son caused',
+  ]);
+  const hasDisciplineGuaranteeRisk = includesAny(lowered, [
+    'will be disciplined',
+    'guarantee discipline',
+    'will suspend',
+    'will punish',
+    'discipline immediately',
+  ]);
+  const hasConfidentialInfoRisk = includesAny(lowered, [
+    'i can share the other student',
+    'i will share the other student',
+    'here is the other student',
+    'i can provide details about the other student',
+  ]);
+  const hasDismissInjuryRisk = includesAny(lowered, [
+    'minor injury',
+    'not serious',
+    'no real injury',
+    'nothing happened',
+    'not a concern',
+  ]);
 
   const contextConceptGroups = {
     parentFinalResponse: [
@@ -666,6 +789,15 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['serious', 'seriously', 'concern'],
       ['investigate', 'review', 'look into', 'gather facts'],
       ['follow up', 'follow-up', 'update', 'next steps'],
+    ],
+    recessInjuryEmail: [
+      ['parent', 'family', 'guardian'],
+      ['student', 'child', 'son'],
+      ['injury', 'head injury', 'head trauma', 'recess'],
+      ['documentation', 'incident report', 'nurse record', 'records'],
+      ['privacy', 'confidential', 'student privacy'],
+      ['district', 'guidance', 'procedures', 'policy'],
+      ['follow up', 'follow-up', 'timeline', 'update'],
     ],
   };
 
@@ -788,6 +920,36 @@ function analyzeLeadershipWriting(responseText, contextType) {
           note: 'Scenario fit is present; add clearer process language and immediate follow-up commitments.',
         };
       }
+      if (contextType === 'recessInjuryEmail') {
+        if (!hasInjuryLanguage || !hasDocumentationLanguage || !hasDistrictGuidanceLanguage) {
+          return {
+            status: 'Needs Attention',
+            note: 'Address the injury concern directly and explain records review plus district-guided next steps.',
+          };
+        }
+        if (!hasConfidentialityLanguage) {
+          return {
+            status: 'Developing',
+            note: 'Add student privacy/confidentiality language before discussing any other student.',
+          };
+        }
+        if (hasReimbursementPromiseRisk || hasOtherFamilyPaysRisk || hasNamedStudentBlameRisk) {
+          return {
+            status: 'Needs Attention',
+            note: 'Avoid reimbursement promises, assigning fault, or naming/blaming another student.',
+          };
+        }
+        if (hasMeaningfulLength && hasFollowUpLanguage) {
+          return {
+            status: 'Strong',
+            note: 'Response fits the case by acknowledging injury risk, records review, privacy, and district process.',
+          };
+        }
+        return {
+          status: 'Developing',
+          note: 'Case alignment is present; add a clearer follow-up timeline and specific process language.',
+        };
+      }
       if (unrelatedScenario) {
         return {
           status: 'Needs Attention',
@@ -859,6 +1021,31 @@ function analyzeLeadershipWriting(responseText, contextType) {
       return { status: 'Needs Attention', note: 'State what you will do next and when the person will hear back.' };
     }
 
+    if (contextType === 'recessInjuryEmail') {
+      const recessRiskNotes = [];
+      if (hasReimbursementPromiseRisk) recessRiskNotes.push('reimbursement promise');
+      if (hasOtherFamilyPaysRisk) recessRiskNotes.push('claiming the other family will pay');
+      if (hasNamedStudentBlameRisk) recessRiskNotes.push('naming/blaming another student');
+      if (hasDisciplineGuaranteeRisk) recessRiskNotes.push('discipline guarantee');
+      if (hasConfidentialInfoRisk) recessRiskNotes.push('sharing confidential student details');
+      if (hasDismissInjuryRisk) recessRiskNotes.push('dismissing injury concern');
+      if (recessRiskNotes.length) {
+        return {
+          status: 'Needs Attention',
+          note: `Risk detected: ${recessRiskNotes.join(', ')}. Keep language neutral, private, and process-based.`,
+        };
+      }
+      if (!hasDistrictGuidanceLanguage || !hasConfidentialityLanguage) {
+        return {
+          status: 'Developing',
+          note: 'Reduce risk by naming district procedures and student privacy boundaries explicitly.',
+        };
+      }
+      return {
+        status: 'Strong',
+        note: 'Language avoids liability promises, protects confidentiality, and follows district process.',
+      };
+    }
     if (hasAnyRisk) {
       const riskNotes = [];
       if (hasRiskBlame) riskNotes.push('blame wording');
@@ -898,6 +1085,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     staffBoundary: 'staff boundary response',
     teacherConflict: 'teacher conflict opening statement',
     studentThreatEmail: 'student threat parent email response',
+    recessInjuryEmail: 'recess injury parent email response',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -1053,6 +1241,9 @@ export default function SimulationShellClient() {
   const [studentThreatDecision, setStudentThreatDecision] = useState('');
   const [studentThreatResponse, setStudentThreatResponse] = useState('');
   const [studentThreatWritingAssessment, setStudentThreatWritingAssessment] = useState(null);
+  const [recessInjuryDecision, setRecessInjuryDecision] = useState('');
+  const [recessInjuryResponse, setRecessInjuryResponse] = useState('');
+  const [recessInjuryWritingAssessment, setRecessInjuryWritingAssessment] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -1195,6 +1386,9 @@ export default function SimulationShellClient() {
     setStudentThreatDecision('');
     setStudentThreatResponse('');
     setStudentThreatWritingAssessment(null);
+    setRecessInjuryDecision('');
+    setRecessInjuryResponse('');
+    setRecessInjuryWritingAssessment(null);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -1254,6 +1448,7 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryDecision(safeDecisions.cafeteriaBoundaryDecision || '');
     setTeacherConflictDecision(safeDecisions.teacherConflictDecision || '');
     setStudentThreatDecision(safeDecisions.studentThreatDecision || '');
+    setRecessInjuryDecision(safeDecisions.recessInjuryDecision || '');
 
     setInitialParentResponse(safeResponses.initialParentResponse || '');
     setFinalParentResponse(safeResponses.finalParentResponse || '');
@@ -1263,6 +1458,7 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryResponse(safeResponses.cafeteriaBoundaryResponse || '');
     setTeacherConflictResponse(safeResponses.teacherConflictResponse || '');
     setStudentThreatResponse(safeResponses.studentThreatResponse || '');
+    setRecessInjuryResponse(safeResponses.recessInjuryResponse || '');
     setWalkthroughResponses(
       safeResponses.walkthroughResponses
       || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
@@ -1282,6 +1478,7 @@ export default function SimulationShellClient() {
     setTeacherConflictLeadershipRecord(safeRecords.teacherConflictLeadershipRecord || null);
     setTeacherConflictWritingAssessment(safeRecords.teacherConflictWritingAssessment || null);
     setStudentThreatWritingAssessment(safeRecords.studentThreatWritingAssessment || null);
+    setRecessInjuryWritingAssessment(safeRecords.recessInjuryWritingAssessment || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
@@ -1419,7 +1616,7 @@ export default function SimulationShellClient() {
   };
 
   const handleOpenDeskStackItem = (itemId) => {
-    if (itemId !== 'rewardConcern' && itemId !== 'studentThreatEmail') return;
+    if (itemId !== 'rewardConcern' && itemId !== 'studentThreatEmail' && itemId !== 'recessInjuryEmail') return;
     setCurrentDeskStackItem(itemId);
     setDeskStackStatuses((prev) => ({
       ...prev,
@@ -1458,6 +1655,19 @@ export default function SimulationShellClient() {
 
   const handleStudentThreatReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, studentThreatEmail: deskStackItemStatuses.complete }));
+    setCurrentDeskStackItem(null);
+    scrollToTop();
+  };
+
+  const handleRecessInjuryContinue = () => {
+    if (!recessInjuryDecision || !recessInjuryResponse.trim() || recessInjuryWritingAssessment) return;
+    const assessment = analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail');
+    setRecessInjuryWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleRecessInjuryReturnToDeskStack = () => {
+    setDeskStackStatuses((prev) => ({ ...prev, recessInjuryEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
@@ -1814,6 +2024,8 @@ export default function SimulationShellClient() {
   const hasTeacherConflictDecision = Boolean(teacherConflictDecision);
   const hasStudentThreatDecision = Boolean(studentThreatDecision);
   const hasStudentThreatResponse = Boolean(studentThreatResponse.trim());
+  const hasRecessInjuryDecision = Boolean(recessInjuryDecision);
+  const hasRecessInjuryResponse = Boolean(recessInjuryResponse.trim());
   const isDecisionMade = currentModule === 'arrival'
     ? hasFinishedArrivalRanking
     : currentModule === 'parentEscalation'
@@ -1855,6 +2067,10 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail'),
     [studentThreatResponse],
   );
+  const liveRecessInjuryWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail'),
+    [recessInjuryResponse],
+  );
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -1884,6 +2100,7 @@ export default function SimulationShellClient() {
       cafeteriaBoundaryDecision,
       teacherConflictDecision,
       studentThreatDecision,
+      recessInjuryDecision,
       arrivalPriorityAssignments,
       arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
     },
@@ -1896,6 +2113,7 @@ export default function SimulationShellClient() {
       cafeteriaBoundaryResponse,
       teacherConflictResponse,
       studentThreatResponse,
+      recessInjuryResponse,
       walkthroughResponses,
     },
     records: {
@@ -1913,6 +2131,7 @@ export default function SimulationShellClient() {
       teacherConflictLeadershipRecord,
       teacherConflictWritingAssessment,
       studentThreatWritingAssessment,
+      recessInjuryWritingAssessment,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
       deskStackStatuses,
@@ -3278,6 +3497,122 @@ export default function SimulationShellClient() {
                     </button>
                   ) : (
                     <button type="button" className="button primary" onClick={handleStudentThreatReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
+                </div>
+              </>
+              ) : currentDeskStackItem === 'recessInjuryEmail' ? (
+              <>
+                <p className="eyebrow">4:25 PM</p>
+                <h2>Email: Recess Injury / Liability Concern</h2>
+
+                <article className="scenario-alert-card">
+                  <p><strong>Subject:</strong> Recess Injury Documentation Request</p>
+                  <p><strong>Type:</strong> Email</p>
+                </article>
+
+                <article className="full-email-card">
+                  <p>Mr. Principal,</p>
+                  <p>
+                    As you may be aware, my son Fred fell last week during recess and hit his head on the pavement.
+                    I was told he was playing football and following the recess rules, but another student pushed or
+                    tackled him, causing him to fall.
+                  </p>
+                  <p>
+                    When the nurse contacted me, Fred was in the office with ice on his head. Fred told me the other
+                    student involved was Henry.
+                  </p>
+                  <p>
+                    I have been advised to request documentation from the school, including when the incident
+                    occurred, the circumstances of the incident, and the names of the students involved. I am
+                    requesting this as a precaution because the effects of head trauma may not always be immediately
+                    clear.
+                  </p>
+                  <p>
+                    I will also be sending a copy of the medical co-payment related to Fred’s treatment. I am asking
+                    that the school forward the bill to Henry’s parents because this expense would not have occurred
+                    if their son had followed the rules.
+                  </p>
+                  <p>
+                    Please contact me as soon as possible. I would prefer to deal directly with you on this matter.
+                  </p>
+                  <p>Thank you.</p>
+                </article>
+
+                <h3 className="decision-prompt">What is your first move?</h3>
+                <div className="choices">
+                  {recessInjuryDecisionOptions.map((option) => (
+                    <button
+                      key={option}
+                      className={`choice ${recessInjuryDecision === option ? 'active' : ''}`}
+                      onClick={() => setRecessInjuryDecision(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+
+                {hasRecessInjuryDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{recessInjuryDecisionCoaching[recessInjuryDecision].title}</h4>
+                    <p>{recessInjuryDecisionCoaching[recessInjuryDecision].message}</p>
+                  </article>
+                ) : null}
+
+                <div className="investigation-evidence-grid">
+                  {recessInjuryEvidenceCards.map((card) => (
+                    <article key={card.title} className="investigation-card">
+                      <h3>{card.title}</h3>
+                      <p>{card.content}</p>
+                    </article>
+                  ))}
+                </div>
+
+                <label htmlFor="recess-injury-response" className="response-label">
+                  Draft your response to the parent.
+                </label>
+                <textarea
+                  id="recess-injury-response"
+                  rows={7}
+                  className="response-input"
+                  placeholder="Write your response…"
+                  value={recessInjuryResponse}
+                  onChange={(event) => setRecessInjuryResponse(event.target.value)}
+                />
+
+                {recessInjuryWritingAssessment ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">{(recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment).summary}</p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment).categories.map((category) => (
+                        <article key={`recess-injury-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!recessInjuryWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleRecessInjuryContinue}
+                      disabled={!hasRecessInjuryDecision || !hasRecessInjuryResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleRecessInjuryReturnToDeskStack}>
                       Return to Desk Stack
                     </button>
                   )}
