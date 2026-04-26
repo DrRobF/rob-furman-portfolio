@@ -99,6 +99,17 @@ const dayModules = [
   { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: false },
   { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
 ];
+const builderModeModuleIds = new Set([
+  'arrival',
+  'iepMeeting',
+  'announcements',
+  'voicemail',
+  'classroomWalkthrough',
+  'lunchClimate',
+  'parentEscalation',
+  'cafeteriaBoundary',
+  'endOfDayEmail',
+]);
 
 const moduleStatuses = {
   upcoming: 'upcoming',
@@ -706,6 +717,7 @@ function analyzeFinalResponse(response) {
 }
 
 export default function SimulationShellClient() {
+  const [builderMode, setBuilderMode] = useState(false);
   const [currentModule, setCurrentModule] = useState('arrival');
   const [timelineStatuses, setTimelineStatuses] = useState(initialModuleStatuses);
   const [started, setStarted] = useState(false);
@@ -1596,7 +1608,10 @@ export default function SimulationShellClient() {
                 const isCompleted = status === moduleStatuses.completed;
                 const isUpcoming = status === moduleStatuses.upcoming;
                 const moduleLabel = isUpcoming && !module.enabled ? `${module.label} (Coming Soon)` : module.label;
-                const isDisabled = !module.enabled || isCompleted;
+                const isBuilderModeModule = builderModeModuleIds.has(module.id);
+                const isDisabled = builderMode
+                  ? !module.enabled || !isBuilderModeModule
+                  : !module.enabled || isCompleted;
 
                 return (
                   <button
@@ -1634,6 +1649,7 @@ export default function SimulationShellClient() {
                 );
               })}
             </div>
+            {builderMode ? <p className="builder-mode-badge">Builder Mode Active</p> : null}
           </section>
 
           <div className={`decision-window ${urgencyClass}`}>
@@ -3139,6 +3155,13 @@ export default function SimulationShellClient() {
 
           <div className="card">
             <h4>Developer Utilities</h4>
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => setBuilderMode((prev) => !prev)}
+            >
+              Builder Mode: {builderMode ? 'On' : 'Off'}
+            </button>
             <button type="button" className="button secondary" onClick={saveSimulationProgress}>
               Save Progress
             </button>

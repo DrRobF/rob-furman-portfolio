@@ -682,6 +682,18 @@ p {
   background: #f7eef0;
 }
 
+.builder-mode-badge {
+  display: inline-flex;
+  margin-top: 0.55rem;
+  border: 1px solid #c9b4ff;
+  background: #f2edff;
+  color: #4d3690;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+}
+
 .decision-window {
   border-radius: 14px;
   border: 1px solid #c7d7ef;
