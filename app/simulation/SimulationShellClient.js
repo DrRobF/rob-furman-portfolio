@@ -95,6 +95,7 @@ const dayModules = [
   { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: true },
   { id: 'lunchClimate', label: '11:30 AM — Lunch & Cafeteria Climate', enabled: true },
   { id: 'parentEscalation', label: '1:00 PM — Parent Escalation', enabled: true },
+  { id: 'cafeteriaBoundary', label: '1:30 PM — Cafeteria Boundary Incident', enabled: true },
   { id: 'teacherObservation', label: '2:00 PM — Teacher Observation', enabled: false },
   { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: false },
   { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
@@ -315,6 +316,57 @@ const parentEscalationEvidenceCards = [
       'The goal is not to win the narrative. The goal is to acknowledge concern, gather facts, and communicate clearly without blaming or overpromising.',
   },
 ];
+const cafeteriaBoundaryTaskItem = 'Address cafeteria staff boundary issue';
+const cafeteriaBoundaryDecisionOptions = [
+  'Speak with the cafeteria worker immediately',
+  'Gather more information first',
+  'Address the student situation first',
+  'Document the incident and follow up later',
+];
+const cafeteriaBoundaryDecisionCoaching = {
+  'Speak with the cafeteria worker immediately': {
+    title: 'Immediate Boundary Correction',
+    message:
+      'You chose to address the adult behavior right away. This can prevent further issues, but it requires a calm, professional approach to avoid escalation or embarrassment.',
+  },
+  'Gather more information first': {
+    title: 'Full Context Approach',
+    message:
+      'You chose to gather information before acting. This can help you respond accurately, but delays may allow the situation to spread or repeat.',
+  },
+  'Address the student situation first': {
+    title: 'Student-First Focus',
+    message:
+      'You chose to focus on the student concern. While student safety matters, the adult’s behavior still needs to be addressed appropriately.',
+  },
+  'Document the incident and follow up later': {
+    title: 'Delayed Response',
+    message:
+      'You chose to document first. Documentation is important, but delaying response to a public incident may weaken expectations around staff conduct.',
+  },
+};
+const cafeteriaBoundaryEvidenceCards = [
+  {
+    title: 'Role Boundaries',
+    content:
+      'Staff members must not use their position to address personal issues involving their own children during the school day.',
+  },
+  {
+    title: 'Public Setting',
+    content:
+      'This interaction happened in front of other students, which affects school climate and student perception of fairness and safety.',
+  },
+  {
+    title: 'Dual Role',
+    content:
+      'The individual is both a staff member and a parent. These roles must be handled separately.',
+  },
+  {
+    title: 'Leadership Responsibility',
+    content:
+      'The leader must address staff behavior, protect students, and ensure proper processes are followed moving forward.',
+  },
+];
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
@@ -398,12 +450,30 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['facts', 'review', 'investigate', 'gather'],
       ['follow up', 'follow-up', 'timeline', 'update'],
     ],
+    staffBoundary: [
+      ['staff', 'employee', 'cafeteria worker', 'worker', 'adult'],
+      ['boundary', 'professional', 'expectation', 'conduct'],
+      ['student', 'child'],
+      ['parent role', 'staff role', 'separate', 'role'],
+      ['address', 'speak with', 'conversation', 'follow up'],
+      ['today', 'next steps', 'document', 'process'],
+    ],
   };
 
   const selectedConceptGroups = contextConceptGroups[contextType] || [];
   const matchedConceptCount = selectedConceptGroups.reduce((count, group) => (
     includesAny(lowered, group) ? count + 1 : count
   ), 0);
+  const hasStaffBehaviorReference = includesAny(lowered, ['staff', 'employee', 'adult behavior', 'cafeteria worker']);
+  const hasBoundaryLanguage = includesAny(lowered, ['boundary', 'professional', 'professionalism', 'conduct']);
+  const hasRoleSeparationLanguage = includesAny(lowered, [
+    'parent role',
+    'employee role',
+    'staff role',
+    'separate',
+    'separately',
+    'while at work',
+  ]);
   const contextMatchScore = selectedConceptGroups.length
     ? matchedConceptCount / selectedConceptGroups.length
     : 0;
@@ -417,6 +487,24 @@ function analyzeLeadershipWriting(responseText, contextType) {
         return {
           status: 'Needs Attention',
           note: 'Add a response that directly addresses the voicemail or school scenario provided.',
+        };
+      }
+      if (contextType === 'staffBoundary') {
+        if (!hasStaffBehaviorReference || !hasBoundaryLanguage || !hasRoleSeparationLanguage) {
+          return {
+            status: 'Needs Attention',
+            note: 'Name the staff behavior, use boundary/professional language, and separate parent role from employee role.',
+          };
+        }
+        if (hasMeaningfulLength) {
+          return {
+            status: 'Strong',
+            note: 'Response directly addresses staff conduct, professional boundaries, and role separation.',
+          };
+        }
+        return {
+          status: 'Developing',
+          note: 'The response is aligned; add more specific language for follow-up and expectations.',
         };
       }
       if (unrelatedScenario) {
@@ -523,6 +611,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     voicemailParent: 'voicemail response to parent request',
     voicemailTeacher: 'voicemail response to teacher call',
     parentEscalation: 'parent escalation response',
+    staffBoundary: 'staff boundary response',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -663,6 +752,11 @@ export default function SimulationShellClient() {
   const [parentEscalationResponse, setParentEscalationResponse] = useState('');
   const [parentEscalationWritingAssessment, setParentEscalationWritingAssessment] = useState(null);
   const [parentEscalationLeadershipRecord, setParentEscalationLeadershipRecord] = useState(null);
+  const [cafeteriaBoundaryVoicemailPlayed, setCafeteriaBoundaryVoicemailPlayed] = useState(false);
+  const [cafeteriaBoundaryDecision, setCafeteriaBoundaryDecision] = useState('');
+  const [cafeteriaBoundaryResponse, setCafeteriaBoundaryResponse] = useState('');
+  const [cafeteriaBoundaryWritingAssessment, setCafeteriaBoundaryWritingAssessment] = useState(null);
+  const [cafeteriaBoundaryLeadershipRecord, setCafeteriaBoundaryLeadershipRecord] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -701,6 +795,11 @@ export default function SimulationShellClient() {
   useEffect(() => {
     if (currentModule !== 'parentEscalation') return;
     addFolderItems({ red: [parentEscalationTaskItem] });
+  }, [currentModule]);
+
+  useEffect(() => {
+    if (currentModule !== 'cafeteriaBoundary') return;
+    addFolderItems({ red: [cafeteriaBoundaryTaskItem] });
   }, [currentModule]);
 
   useEffect(() => {
@@ -776,6 +875,11 @@ export default function SimulationShellClient() {
     setParentEscalationResponse('');
     setParentEscalationWritingAssessment(null);
     setParentEscalationLeadershipRecord(null);
+    setCafeteriaBoundaryVoicemailPlayed(false);
+    setCafeteriaBoundaryDecision('');
+    setCafeteriaBoundaryResponse('');
+    setCafeteriaBoundaryWritingAssessment(null);
+    setCafeteriaBoundaryLeadershipRecord(null);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -820,12 +924,14 @@ export default function SimulationShellClient() {
     setArrivalPriorityAssignments(safeDecisions.arrivalPriorityAssignments || {});
     setLunchClimateDecision(safeDecisions.lunchClimateDecision || '');
     setParentEscalationDecision(safeDecisions.parentEscalationDecision || '');
+    setCafeteriaBoundaryDecision(safeDecisions.cafeteriaBoundaryDecision || '');
 
     setInitialParentResponse(safeResponses.initialParentResponse || '');
     setFinalParentResponse(safeResponses.finalParentResponse || '');
     setVoicemailResponses(safeResponses.voicemailResponses || { parentHelp: '', teacherCall: '' });
     setLunchMonitorDirectionNote(safeResponses.lunchMonitorDirectionNote || '');
     setParentEscalationResponse(safeResponses.parentEscalationResponse || '');
+    setCafeteriaBoundaryResponse(safeResponses.cafeteriaBoundaryResponse || '');
     setWalkthroughResponses(
       safeResponses.walkthroughResponses
       || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
@@ -840,6 +946,8 @@ export default function SimulationShellClient() {
     setLunchClimateCoachingRecord(safeRecords.lunchClimateCoachingRecord || null);
     setParentEscalationLeadershipRecord(safeRecords.parentEscalationLeadershipRecord || null);
     setParentEscalationWritingAssessment(safeRecords.parentEscalationWritingAssessment || null);
+    setCafeteriaBoundaryLeadershipRecord(safeRecords.cafeteriaBoundaryLeadershipRecord || null);
+    setCafeteriaBoundaryWritingAssessment(safeRecords.cafeteriaBoundaryWritingAssessment || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
@@ -852,6 +960,7 @@ export default function SimulationShellClient() {
     setVoicemailTaskClosed(Boolean(safeUiProgress.voicemailTaskClosed));
     setLunchClimateInsightUnlocked(Boolean(safeUiProgress.lunchClimateInsightUnlocked));
     setParentEscalationVoicemailPlayed(Boolean(safeUiProgress.parentEscalationVoicemailPlayed));
+    setCafeteriaBoundaryVoicemailPlayed(Boolean(safeUiProgress.cafeteriaBoundaryVoicemailPlayed));
   };
 
   const scrollToTop = () => {
@@ -1231,11 +1340,49 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleCafeteriaBoundaryContinue = () => {
+    if (!cafeteriaBoundaryDecision || !cafeteriaBoundaryResponse.trim() || cafeteriaBoundaryWritingAssessment) return;
+    const nextAssessment = analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary');
+    setCafeteriaBoundaryWritingAssessment(nextAssessment);
+    completeFolderItems([cafeteriaBoundaryTaskItem]);
+    setCafeteriaBoundaryLeadershipRecord({
+      module: '1:30 PM — Cafeteria Boundary Incident',
+      voicemailPlayed: cafeteriaBoundaryVoicemailPlayed,
+      decision: cafeteriaBoundaryDecision,
+      response: cafeteriaBoundaryResponse.trim(),
+      writingAssessment: nextAssessment,
+      coachingNote: cafeteriaBoundaryDecisionCoaching[cafeteriaBoundaryDecision]?.message || '',
+    });
+    scrollToTop();
+  };
+
+  const handleCafeteriaBoundaryContinueDay = () => {
+    if (!cafeteriaBoundaryWritingAssessment) return;
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, cafeteriaBoundary: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'cafeteriaBoundary' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
+    scrollToTop();
+  };
+
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
   const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
   const hasParentEscalationResponse = Boolean(parentEscalationResponse.trim());
   const hasParentEscalationDecision = Boolean(parentEscalationDecision);
+  const hasCafeteriaBoundaryResponse = Boolean(cafeteriaBoundaryResponse.trim());
+  const hasCafeteriaBoundaryDecision = Boolean(cafeteriaBoundaryDecision);
   const isDecisionMade = currentModule === 'arrival'
     ? hasFinishedArrivalRanking
     : currentModule === 'parentEscalation'
@@ -1265,6 +1412,10 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation'),
     [parentEscalationResponse],
   );
+  const liveCafeteriaBoundaryWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary'),
+    [cafeteriaBoundaryResponse],
+  );
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -1291,6 +1442,7 @@ export default function SimulationShellClient() {
       voicemailDecisions,
       lunchClimateDecision,
       parentEscalationDecision,
+      cafeteriaBoundaryDecision,
       arrivalPriorityAssignments,
       arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
     },
@@ -1300,6 +1452,7 @@ export default function SimulationShellClient() {
       voicemailResponses,
       lunchMonitorDirectionNote,
       parentEscalationResponse,
+      cafeteriaBoundaryResponse,
       walkthroughResponses,
     },
     records: {
@@ -1312,6 +1465,8 @@ export default function SimulationShellClient() {
       lunchClimateCoachingRecord,
       parentEscalationLeadershipRecord,
       parentEscalationWritingAssessment,
+      cafeteriaBoundaryLeadershipRecord,
+      cafeteriaBoundaryWritingAssessment,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
     },
@@ -1324,6 +1479,7 @@ export default function SimulationShellClient() {
       voicemailTaskClosed,
       lunchClimateInsightUnlocked,
       parentEscalationVoicemailPlayed,
+      cafeteriaBoundaryVoicemailPlayed,
       hasCompletedWalkthroughForm,
       isInvestigationScene,
       isReportScene,
@@ -2265,6 +2421,131 @@ export default function SimulationShellClient() {
                   )}
                 </div>
               </>
+            ) : currentModule === 'cafeteriaBoundary' ? (
+              <>
+                <p className="eyebrow">1:30 PM</p>
+                <h2>Cafeteria Boundary Incident</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    As you are still working through lunch-related issues, you receive another message.
+                    This one is different.
+                  </p>
+                  <p>
+                    A cafeteria worker, who is also a parent in the school, has confronted another student
+                    during lunch about bullying her own child. The interaction happened in front of other
+                    students and staff.
+                  </p>
+                </article>
+
+                <article className="report-card voicemail-thread-card">
+                  <p className="response-label">Listen to the voicemail before deciding your next move.</p>
+                  {!cafeteriaBoundaryVoicemailPlayed ? (
+                    <p className="analysis-note">Listen to the voicemail before choosing your first move.</p>
+                  ) : null}
+                  <h3>Voicemail</h3>
+                  <audio
+                    controls
+                    className="voicemail-audio-player"
+                    onPlay={() => setCafeteriaBoundaryVoicemailPlayed(true)}
+                  >
+                    <source src="/images/cafe-work-vm.mp3" type="audio/mpeg" />
+                  </audio>
+                </article>
+
+                <h3 className="decision-prompt">What is your first move?</h3>
+                <div className="choices">
+                  {cafeteriaBoundaryDecisionOptions.map((decision) => (
+                    <button
+                      key={decision}
+                      className={`choice ${cafeteriaBoundaryDecision === decision ? 'active' : ''}`}
+                      onClick={() => setCafeteriaBoundaryDecision(decision)}
+                      disabled={!cafeteriaBoundaryVoicemailPlayed}
+                    >
+                      {decision}
+                    </button>
+                  ))}
+                </div>
+
+                {cafeteriaBoundaryDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{cafeteriaBoundaryDecisionCoaching[cafeteriaBoundaryDecision].title}</h4>
+                    <p>{cafeteriaBoundaryDecisionCoaching[cafeteriaBoundaryDecision].message}</p>
+                  </article>
+                ) : null}
+
+                {cafeteriaBoundaryDecision ? (
+                  <>
+                    <div className="investigation-evidence-grid">
+                      {cafeteriaBoundaryEvidenceCards.map((card) => (
+                        <article key={card.title} className="investigation-card">
+                          <h3>{card.title}</h3>
+                          <p>{card.content}</p>
+                        </article>
+                      ))}
+                    </div>
+
+                    <article className="report-card">
+                      <p className="response-label">
+                        Draft what you would say to the cafeteria worker in your first conversation.
+                      </p>
+                      <label htmlFor="cafeteria-boundary-response" className="response-label">
+                        Write your staff conversation opener…
+                      </label>
+                      <textarea
+                        id="cafeteria-boundary-response"
+                        rows={6}
+                        className="response-input"
+                        value={cafeteriaBoundaryResponse}
+                        onChange={(event) => setCafeteriaBoundaryResponse(event.target.value)}
+                        required
+                      />
+                    </article>
+                  </>
+                ) : null}
+
+                {hasCafeteriaBoundaryDecision && hasCafeteriaBoundaryResponse ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(cafeteriaBoundaryWritingAssessment || liveCafeteriaBoundaryWritingAssessment).summary}
+                    </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(cafeteriaBoundaryWritingAssessment || liveCafeteriaBoundaryWritingAssessment).categories.map((category) => (
+                        <article key={`cafeteria-boundary-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!cafeteriaBoundaryWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleCafeteriaBoundaryContinue}
+                      disabled={!hasCafeteriaBoundaryDecision || !hasCafeteriaBoundaryResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleCafeteriaBoundaryContinueDay}
+                    >
+                      Continue Day
+                    </button>
+                  )}
+                </div>
+              </>
             ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
               <>
@@ -2817,6 +3098,23 @@ export default function SimulationShellClient() {
                       {parentEscalationLeadershipRecord.writingAssessment?.summary || 'Not captured'}
                     </li>
                     <li><strong>Coaching note:</strong> {parentEscalationLeadershipRecord.coachingNote}</li>
+                  </ul>
+                </article>
+              ) : null}
+
+              {cafeteriaBoundaryLeadershipRecord ? (
+                <article className="folder-card">
+                  <h4>Cafeteria Boundary Record</h4>
+                  <p className="folder-subtitle">Captured staff boundary response notes</p>
+                  <ul>
+                    <li><strong>Voicemail played:</strong> {cafeteriaBoundaryLeadershipRecord.voicemailPlayed ? 'Yes' : 'No'}</li>
+                    <li><strong>Decision:</strong> {cafeteriaBoundaryLeadershipRecord.decision}</li>
+                    <li><strong>Staff conversation opener:</strong> {cafeteriaBoundaryLeadershipRecord.response}</li>
+                    <li>
+                      <strong>VIC summary:</strong>{' '}
+                      {cafeteriaBoundaryLeadershipRecord.writingAssessment?.summary || 'Not captured'}
+                    </li>
+                    <li><strong>Coaching note:</strong> {cafeteriaBoundaryLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
               ) : null}
