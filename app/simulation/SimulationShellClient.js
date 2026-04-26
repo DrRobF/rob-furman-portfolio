@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 
 const initialFolders = {
-  red: ['Return urgent parent call'],
-  orange: ['Prepare follow-up notes'],
-  green: ['Review leadership reflection'],
+  red: [],
+  orange: [],
+  green: [],
 };
 
 const arrivalSortItems = [
@@ -111,6 +111,89 @@ const builderModeModuleIds = new Set([
   'endOfDayEmail',
 ]);
 
+const moduleGuidance = {
+  arrival: {
+    focus: 'Start with people and urgency signals before lower-risk tasks.',
+    actions: [
+      'Choose a sequence you can defend under pressure.',
+      'Prioritize immediate human needs and time-sensitive communication.',
+    ],
+    insight: 'Early triage sets the tone for every leadership decision that follows.',
+  },
+  iepMeeting: {
+    focus: 'Treat compliance tasks as trust and legal obligations, not admin extras.',
+    actions: [
+      'Capture the task before the meeting context is lost.',
+      'Assign it to the right priority folder with a completion standard.',
+    ],
+    insight: 'Small compliance misses can create large relationship and legal risks.',
+  },
+  announcements: {
+    focus: 'Visibility creates spontaneous requests that still need reliable follow-through.',
+    actions: [
+      'Break hallway asks into concrete tasks.',
+      'File each task immediately so nothing is dropped.',
+    ],
+    insight: 'Leader visibility helps culture, but only systems protect execution.',
+  },
+  voicemail: {
+    focus: 'Voicemails often carry urgency and emotion that need fast acknowledgment.',
+    actions: [
+      'Triage for risk first, then write concise next steps.',
+      'Use calm, process-based language in every callback.',
+    ],
+    insight: 'Fast acknowledgment with clear process reduces escalation pressure.',
+  },
+  classroomWalkthrough: {
+    focus: 'Capture objective evidence before drawing conclusions or giving direction.',
+    actions: [
+      'Anchor notes in what was seen and heard.',
+      'Use non-evaluative language that supports coaching.',
+    ],
+    insight: 'Evidence-first walkthroughs build instructional trust.',
+  },
+  lunchClimate: {
+    focus: 'Address immediate climate needs while preserving adult professionalism.',
+    actions: [
+      'Give direct next-step guidance to staff.',
+      'Balance student safety, supervision, and team tone.',
+    ],
+    insight: 'In public spaces, your direction shapes safety and culture simultaneously.',
+  },
+  parentEscalation: {
+    focus: 'Acknowledge emotion without sacrificing process or accuracy.',
+    actions: [
+      'Respond quickly with empathy and boundaries.',
+      'Name what you will review and when follow-up will happen.',
+    ],
+    insight: 'Trust grows when families feel heard and see disciplined follow-through.',
+  },
+  cafeteriaBoundary: {
+    focus: 'Hold staff boundaries firmly while keeping the conversation professional.',
+    actions: [
+      'Start with clarity, not accusation.',
+      'Set the immediate expectation and document next steps.',
+    ],
+    insight: 'Professional tone protects accountability from becoming personal conflict.',
+  },
+  teacherConflict: {
+    focus: 'De-escalate adult conflict and return the team to student-centered work.',
+    actions: [
+      'Open with shared expectations and neutral language.',
+      'Set a process for resolution and follow-up.',
+    ],
+    insight: 'Conflict leadership is measured by clarity, fairness, and reset.',
+  },
+  endOfDayEmail: {
+    focus: 'Close every active case with ownership, documentation, and a next action.',
+    actions: [
+      'Work cases in any order, but finish each with a clear record.',
+      'Use responses that acknowledge concern and define process.',
+    ],
+    insight: 'End-of-day quality determines tomorrow’s trust load.',
+  },
+};
+
 const moduleStatuses = {
   upcoming: 'upcoming',
   active: 'active',
@@ -121,7 +204,6 @@ const deskStackItemStatuses = {
   notStarted: 'Not Started',
   inProgress: 'In Progress',
   complete: 'Complete',
-  comingSoon: 'Coming Soon',
 };
 
 const initialDeskStackStatuses = {
@@ -129,10 +211,8 @@ const initialDeskStackStatuses = {
   studentThreatEmail: deskStackItemStatuses.notStarted,
   ptoTalentShowEmail: deskStackItemStatuses.notStarted,
   academicDeclineEmail: deskStackItemStatuses.notStarted,
-  giftedRetesting: deskStackItemStatuses.comingSoon,
   recessInjuryEmail: deskStackItemStatuses.notStarted,
   studentRemovalVoicemail: deskStackItemStatuses.notStarted,
-  followUpVoicemail: deskStackItemStatuses.comingSoon,
 };
 
 const deskStackItems = [
@@ -166,13 +246,6 @@ const deskStackItems = [
     isAvailable: true,
   },
   {
-    id: 'giftedRetesting',
-    title: 'Email: Gifted Retesting Request',
-    type: 'Email',
-    description: 'Request to revisit gifted identification and communicate fair retesting process.',
-    isAvailable: false,
-  },
-  {
     id: 'recessInjuryEmail',
     title: 'Email: Recess Injury / Liability Concern',
     type: 'Email',
@@ -185,13 +258,6 @@ const deskStackItems = [
     type: 'Voicemail',
     description: 'A teacher requests administrative support after wanting a student removed from class.',
     isAvailable: true,
-  },
-  {
-    id: 'followUpVoicemail',
-    title: 'Voicemail: Remaining Follow-Up',
-    type: 'Voicemail',
-    description: 'Additional late-day voicemail requiring documented response and next-step ownership.',
-    isAvailable: false,
   },
 ];
 
@@ -1669,7 +1735,7 @@ export default function SimulationShellClient() {
   const [builderMode, setBuilderMode] = useState(false);
   const [currentModule, setCurrentModule] = useState('arrival');
   const [timelineStatuses, setTimelineStatuses] = useState(initialModuleStatuses);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(true);
   const [folders, setFolders] = useState(initialFolders);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [firstDecision, setFirstDecision] = useState('');
@@ -1754,6 +1820,16 @@ export default function SimulationShellClient() {
     (item) => deskStackStatuses[item.id] === deskStackItemStatuses.complete,
   );
   const selectedConsequence = hasSelectedDecision ? decisionConsequences[firstDecision] : null;
+  const activeGuidance = useMemo(() => {
+    if (currentModule === 'endOfDayEmail' && currentDeskStackItem) {
+      const itemTitle = deskStackItems.find((item) => item.id === currentDeskStackItem)?.title || 'Current case';
+      return {
+        ...moduleGuidance.endOfDayEmail,
+        insight: `${itemTitle}: keep your response calm, documented, and action-oriented.`,
+      };
+    }
+    return moduleGuidance[currentModule] || moduleGuidance.arrival;
+  }, [currentModule, currentDeskStackItem]);
 
   useEffect(() => {
     if (currentModule !== 'voicemail') return;
@@ -1883,10 +1959,6 @@ export default function SimulationShellClient() {
     }
   };
 
-  const beginSimulation = () => {
-    resetSimulationState();
-  };
-
   const isValidSnapshotForRestore = (snapshot) => Boolean(
     snapshot
       && snapshot.version === 'simulation-snapshot-v1'
@@ -1901,7 +1973,7 @@ export default function SimulationShellClient() {
     const safeRecords = snapshot.records || {};
     const safeUiProgress = snapshot.uiProgress || {};
 
-    setStarted(typeof safeUiProgress.started === 'boolean' ? safeUiProgress.started : true);
+    setStarted(true);
     const safeCurrentModule = snapshot.currentModule === 'teacherObservation'
       ? 'cafeteriaBoundary'
       : snapshot.currentModule;
@@ -2781,83 +2853,65 @@ export default function SimulationShellClient() {
 
   return (
     <div className="simulation-product-shell">
-      {!started ? (
-        <div className="simulation-hero-card">
-          <p className="eyebrow">Interactive Leadership Simulation</p>
-          <h1>A Day in the Life of a School Leader</h1>
-          <p className="lead">
-            An interactive leadership simulation for future principals, aspiring administrators, and
-            education leaders.
-          </p>
-          <p>
-            Step into the rhythm of a real school day. Prioritize urgent issues, write thoughtful
-            responses, and see how leadership decisions build across time.
-          </p>
-          <button className="button primary" onClick={beginSimulation}>
-            Begin Simulation
-          </button>
+      <section className="day-timeline-card timeline-full-width" aria-label="Simulation day modules">
+        <p className="eyebrow">Simulation Day Timeline</p>
+        <h2>A Day in the Life of a School Leader</h2>
+        <p className="timeline-note">
+          Time moves forward. Once a leadership moment passes, it becomes part of your record.
+        </p>
+        <div className="day-timeline-grid">
+          {dayModules.map((module) => {
+            const status = timelineStatuses[module.id];
+            const isActive = status === moduleStatuses.active && currentModule === module.id;
+            const isCompleted = status === moduleStatuses.completed;
+            const isUpcoming = status === moduleStatuses.upcoming;
+            const moduleLabel = isUpcoming && !module.enabled ? `${module.label} (Coming Soon)` : module.label;
+            const isBuilderModeModule = builderModeModuleIds.has(module.id);
+            const isDisabled = builderMode
+              ? !module.enabled || !isBuilderModeModule
+              : !module.enabled || isCompleted;
+
+            return (
+              <button
+                key={module.id}
+                type="button"
+                className={`timeline-module ${
+                  isCompleted
+                    ? 'completed'
+                    : isActive
+                      ? 'active'
+                      : 'upcoming'
+                } ${isUpcoming && !module.enabled ? 'coming-soon' : ''}`}
+                aria-current={isActive ? 'step' : undefined}
+                disabled={isDisabled}
+                onClick={() => {
+                  if (isDisabled) return;
+                  setTimelineStatuses((prev) => {
+                    const next = { ...prev };
+                    dayModules.forEach((dayModule) => {
+                      if (next[dayModule.id] !== moduleStatuses.completed) {
+                        next[dayModule.id] = dayModule.id === module.id
+                          ? moduleStatuses.active
+                          : moduleStatuses.upcoming;
+                      }
+                    });
+                    return next;
+                  });
+                  setCurrentModule(module.id);
+                  setModuleTransitionNote('');
+                }}
+              >
+                <span>{moduleLabel}</span>
+                {isCompleted ? <span className="timeline-module-badge">Locked</span> : null}
+              </button>
+            );
+          })}
         </div>
-      ) : null}
+        {builderMode ? <p className="builder-mode-badge">Builder Mode Active</p> : null}
+      </section>
 
       <div className="simulation-layout-grid">
         <div className="scenario-column card">
-          <section className="day-timeline-card" aria-label="Simulation day modules">
-            <p className="eyebrow">Simulation Day Timeline</p>
-            <h2>A Day in the Life of a School Leader</h2>
-            <p className="timeline-note">
-              Time moves forward. Once a leadership moment passes, it becomes part of your record.
-            </p>
-            <div className="day-timeline-grid">
-              {dayModules.map((module) => {
-                const status = timelineStatuses[module.id];
-                const isActive = status === moduleStatuses.active && currentModule === module.id;
-                const isCompleted = status === moduleStatuses.completed;
-                const isUpcoming = status === moduleStatuses.upcoming;
-                const moduleLabel = isUpcoming && !module.enabled ? `${module.label} (Coming Soon)` : module.label;
-                const isBuilderModeModule = builderModeModuleIds.has(module.id);
-                const isDisabled = builderMode
-                  ? !module.enabled || !isBuilderModeModule
-                  : !module.enabled || isCompleted;
-
-                return (
-                  <button
-                    key={module.id}
-                    type="button"
-                    className={`timeline-module ${
-                      isCompleted
-                        ? 'completed'
-                        : isActive
-                          ? 'active'
-                          : 'upcoming'
-                    } ${isUpcoming && !module.enabled ? 'coming-soon' : ''}`}
-                    aria-current={isActive ? 'step' : undefined}
-                    disabled={isDisabled}
-                    onClick={() => {
-                      if (isDisabled) return;
-                      setTimelineStatuses((prev) => {
-                        const next = { ...prev };
-                        dayModules.forEach((dayModule) => {
-                          if (next[dayModule.id] !== moduleStatuses.completed) {
-                            next[dayModule.id] = dayModule.id === module.id
-                              ? moduleStatuses.active
-                              : moduleStatuses.upcoming;
-                          }
-                        });
-                        return next;
-                      });
-                      setCurrentModule(module.id);
-                      setModuleTransitionNote('');
-                    }}
-                  >
-                    <span>{moduleLabel}</span>
-                    {isCompleted ? <span className="timeline-module-badge">Locked</span> : null}
-                  </button>
-                );
-              })}
-            </div>
-            {builderMode ? <p className="builder-mode-badge">Builder Mode Active</p> : null}
-          </section>
-
           <div className={`scenario-content ${isDecisionMade ? 'decision-made' : 'pre-decision'}`}>
             {currentModule === 'arrival' ? (
               <>
@@ -3918,8 +3972,7 @@ export default function SimulationShellClient() {
 
                   <div className="desk-stack-grid">
                     {deskStackItems.map((item) => {
-                      const status = deskStackStatuses[item.id] || deskStackItemStatuses.comingSoon;
-                      const isClickable = status !== deskStackItemStatuses.comingSoon;
+                      const status = deskStackStatuses[item.id] || deskStackItemStatuses.notStarted;
                       return (
                         <article key={item.id} className="desk-stack-card">
                           <div className="desk-stack-card-header">
@@ -3930,19 +3983,13 @@ export default function SimulationShellClient() {
                           </div>
                           <h3>{item.title}</h3>
                           <p>{item.description}</p>
-                          {isClickable ? (
-                            <button
-                              type="button"
-                              className="button primary"
-                              onClick={() => handleOpenDeskStackItem(item.id)}
-                            >
-                              Open Case
-                            </button>
-                          ) : (
-                            <button type="button" className="button secondary" disabled>
-                              Coming Soon
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            className="button primary"
+                            onClick={() => handleOpenDeskStackItem(item.id)}
+                          >
+                            Open Case
+                          </button>
                         </article>
                       );
                     })}
@@ -4941,22 +4988,14 @@ export default function SimulationShellClient() {
 
           <details className="card vic-panel" open={isVicOpen} onToggle={(event) => setIsVicOpen(event.currentTarget.open)}>
             <summary>VIC Leadership Guidance</summary>
-            <p>
-              This is a high-emotion, high-risk parent communication. Do not begin by defending the
-              school.
-            </p>
+            <p>{activeGuidance.focus}</p>
             <p className="vic-structure-title">Strong leadership response structure:</p>
             <ol className="vic-structure-list">
-              <li>Acknowledge the parent&apos;s concern and the child&apos;s emotional experience.</li>
-              <li>Avoid making promises or assigning blame before gathering facts.</li>
-              <li>Explain that you will review what happened with the teacher and relevant staff.</li>
-              <li>Commit to a clear follow-up timeline.</li>
-              <li>Keep the tone calm, respectful, and student-centered.</li>
+              {activeGuidance.actions.map((action) => (
+                <li key={action}>{action}</li>
+              ))}
             </ol>
-            <p className="vic-note">
-              Leadership Insight: In moments like this, you are not only answering an email. You are
-              protecting trust between the school and the family.
-            </p>
+            <p className="vic-note">Leadership Insight: {activeGuidance.insight}</p>
           </details>
 
           <details className="card" open={false}>
