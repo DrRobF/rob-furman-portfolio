@@ -129,7 +129,7 @@ const initialDeskStackStatuses = {
   rewardConcern: deskStackItemStatuses.notStarted,
   studentThreatEmail: deskStackItemStatuses.notStarted,
   ptoTalentShowEmail: deskStackItemStatuses.notStarted,
-  academicDecline: deskStackItemStatuses.comingSoon,
+  academicDeclineEmail: deskStackItemStatuses.notStarted,
   giftedRetesting: deskStackItemStatuses.comingSoon,
   recessInjuryEmail: deskStackItemStatuses.notStarted,
   studentRemovalVoicemail: deskStackItemStatuses.notStarted,
@@ -160,11 +160,11 @@ const deskStackItems = [
     isAvailable: true,
   },
   {
-    id: 'academicDecline',
+    id: 'academicDeclineEmail',
     title: 'Email: Academic Decline Concern',
     type: 'Email',
-    description: 'Family concern around sudden grade drop and unclear intervention support.',
-    isAvailable: false,
+    description: 'A parent is concerned about a sudden drop in their child\'s grades and performance.',
+    isAvailable: true,
   },
   {
     id: 'giftedRetesting',
@@ -246,6 +246,59 @@ const studentThreatEvidenceCards = [
     title: 'Documentation and Process',
     content:
       'The school must follow proper procedures for documenting and investigating student incidents.',
+  },
+];
+
+const academicDeclineDecisionOptions = [
+  'Acknowledge the parent and review academic records',
+  'Contact the teacher immediately for explanation',
+  'Suggest the parent speak directly with the teacher',
+  'Assume it is a student responsibility issue',
+];
+
+const academicDeclineDecisionCoaching = {
+  'Acknowledge the parent and review academic records': {
+    title: 'Structured Response',
+    message:
+      'You chose to acknowledge the concern and begin reviewing records. This is a strong first step that supports accuracy before drawing conclusions.',
+  },
+  'Contact the teacher immediately for explanation': {
+    title: 'Teacher Insight',
+    message:
+      'You chose to reach out to the teacher quickly. This can provide insight, but should be paired with a structured review of data.',
+  },
+  'Suggest the parent speak directly with the teacher': {
+    title: 'Redirecting the Concern',
+    message:
+      'You chose to redirect the parent. While teacher communication is important, the leader still plays a role in ensuring follow-through and support.',
+  },
+  'Assume it is a student responsibility issue': {
+    title: 'Premature Conclusion',
+    message:
+      'You chose to assume responsibility lies with the student. This risks missing underlying issues and can damage trust with the parent.',
+  },
+};
+
+const academicDeclineEvidenceCards = [
+  {
+    title: 'Multiple Factors',
+    content:
+      'Changes in academic performance can result from many factors, including instruction, workload, student habits, or external issues.',
+  },
+  {
+    title: 'Teacher Insight',
+    content:
+      'The classroom teacher has the most direct understanding of assignments, expectations, and recent changes.',
+  },
+  {
+    title: 'Data Matters',
+    content:
+      'Grades, missing assignments, and patterns over time should be reviewed before forming conclusions.',
+  },
+  {
+    title: 'Parent Partnership',
+    content:
+      'Parents are often the first to notice changes. A strong response keeps them informed and involved.',
   },
 ];
 
@@ -948,6 +1001,50 @@ function analyzeLeadershipWriting(responseText, contextType) {
     'we need you to stay involved',
     'do not quit',
   ]);
+  const hasAcademicLanguage = includesAny(lowered, [
+    'academic',
+    'grades',
+    'performance',
+    'assignments',
+    'missing work',
+  ]);
+  const hasRecordReviewLanguage = includesAny(lowered, [
+    'review records',
+    'review academic records',
+    'review data',
+    'look at grades',
+    'missing assignments',
+    'patterns over time',
+    'data',
+  ]);
+  const hasTeacherInvolvementLanguage = includesAny(lowered, [
+    'teacher input',
+    'speak with the teacher',
+    'check with the teacher',
+    'teacher insight',
+    'classroom teacher',
+  ]);
+  const hasAcademicStudentBlameRisk = includesAny(lowered, [
+    'your child is the problem',
+    'student responsibility issue',
+    'your child needs to be more responsible',
+    'the student is lazy',
+    'the student is the issue',
+  ]);
+  const hasAcademicTeacherBlameRisk = includesAny(lowered, [
+    'the teacher is the problem',
+    'the teacher caused this',
+    'teacher is at fault',
+    'this is the teacher’s fault',
+  ]);
+  const hasNoPlanRisk = !hasNextStep;
+  const hasDataIgnoreRisk = hasAcademicLanguage && !hasRecordReviewLanguage;
+  const hasDismissParentRisk = includesAny(lowered, [
+    'nothing to worry about',
+    'this is normal',
+    'not a concern',
+    'you are overreacting',
+  ]);
 
   const contextConceptGroups = {
     parentFinalResponse: [
@@ -1031,6 +1128,14 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['conversation', 'connect', 'meet', 'call'],
       ['family involvement', 'school community', 'partnership'],
       ['follow up', 'follow-up', 'next step', 'timeline'],
+    ],
+    academicDeclineEmail: [
+      ['parent', 'family', 'guardian'],
+      ['student', 'child'],
+      ['academic', 'grades', 'performance', 'missing assignments'],
+      ['review', 'records', 'data', 'patterns'],
+      ['teacher', 'classroom teacher', 'teacher input'],
+      ['follow up', 'follow-up', 'timeline', 'next steps'],
     ],
   };
 
@@ -1237,6 +1342,30 @@ function analyzeLeadershipWriting(responseText, contextType) {
           note: 'Core scenario fit is present; add stronger school-community partnership language.',
         };
       }
+      if (contextType === 'academicDeclineEmail') {
+        if (!hasAcademicLanguage || !hasRecordReviewLanguage || !hasTeacherInvolvementLanguage) {
+          return {
+            status: 'Needs Attention',
+            note: 'Address academic decline directly and include records/data review plus teacher involvement.',
+          };
+        }
+        if (hasAcademicStudentBlameRisk || hasAcademicTeacherBlameRisk) {
+          return {
+            status: 'Needs Attention',
+            note: 'Avoid blaming the student or teacher. Keep the response neutral, collaborative, and process-based.',
+          };
+        }
+        if (hasMeaningfulLength && hasFollowUpLanguage) {
+          return {
+            status: 'Strong',
+            note: 'Response fits the case by acknowledging concern, using data review, involving the teacher, and outlining follow-up.',
+          };
+        }
+        return {
+          status: 'Developing',
+          note: 'Case alignment is present; strengthen with clearer next steps and timeline language.',
+        };
+      }
       if (unrelatedScenario) {
         return {
           status: 'Needs Attention',
@@ -1382,6 +1511,30 @@ function analyzeLeadershipWriting(responseText, contextType) {
         note: 'Response protects trust by avoiding blame, de-escalating tone, and offering a constructive next step.',
       };
     }
+    if (contextType === 'academicDeclineEmail') {
+      const academicRiskNotes = [];
+      if (hasAcademicStudentBlameRisk) academicRiskNotes.push('blaming the student immediately');
+      if (hasAcademicTeacherBlameRisk) academicRiskNotes.push('blaming the teacher');
+      if (hasNoPlanRisk) academicRiskNotes.push('no plan');
+      if (hasDataIgnoreRisk) academicRiskNotes.push('ignoring records/data review');
+      if (hasDismissParentRisk) academicRiskNotes.push('dismissing parent concern');
+      if (academicRiskNotes.length) {
+        return {
+          status: 'Needs Attention',
+          note: `Risk detected: ${academicRiskNotes.join(', ')}. Keep language neutral, data-informed, and follow-up based.`,
+        };
+      }
+      if (!hasRecordReviewLanguage || !hasTeacherInvolvementLanguage || !hasTimeline) {
+        return {
+          status: 'Developing',
+          note: 'Reduce risk by naming record review, teacher input, and a specific follow-up timeline.',
+        };
+      }
+      return {
+        status: 'Strong',
+        note: 'Response avoids blame, uses records and teacher input, and provides clear next steps and timeline.',
+      };
+    }
     if (hasAnyRisk) {
       const riskNotes = [];
       if (hasRiskBlame) riskNotes.push('blame wording');
@@ -1424,6 +1577,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     recessInjuryEmail: 'recess injury parent email response',
     studentRemovalVoicemail: 'student removal voicemail response/action plan',
     ptoTalentShowEmail: 'PTO talent show parent-volunteer response',
+    academicDeclineEmail: 'academic decline parent email response',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -1579,6 +1733,9 @@ export default function SimulationShellClient() {
   const [studentThreatDecision, setStudentThreatDecision] = useState('');
   const [studentThreatResponse, setStudentThreatResponse] = useState('');
   const [studentThreatWritingAssessment, setStudentThreatWritingAssessment] = useState(null);
+  const [academicDeclineDecision, setAcademicDeclineDecision] = useState('');
+  const [academicDeclineResponse, setAcademicDeclineResponse] = useState('');
+  const [academicDeclineWritingAssessment, setAcademicDeclineWritingAssessment] = useState(null);
   const [ptoTalentShowDecision, setPtoTalentShowDecision] = useState('');
   const [ptoTalentShowResponse, setPtoTalentShowResponse] = useState('');
   const [ptoTalentShowWritingAssessment, setPtoTalentShowWritingAssessment] = useState(null);
@@ -1730,6 +1887,9 @@ export default function SimulationShellClient() {
     setStudentThreatDecision('');
     setStudentThreatResponse('');
     setStudentThreatWritingAssessment(null);
+    setAcademicDeclineDecision('');
+    setAcademicDeclineResponse('');
+    setAcademicDeclineWritingAssessment(null);
     setPtoTalentShowDecision('');
     setPtoTalentShowResponse('');
     setPtoTalentShowWritingAssessment(null);
@@ -1798,6 +1958,7 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryDecision(safeDecisions.cafeteriaBoundaryDecision || '');
     setTeacherConflictDecision(safeDecisions.teacherConflictDecision || '');
     setStudentThreatDecision(safeDecisions.studentThreatDecision || '');
+    setAcademicDeclineDecision(safeDecisions.academicDeclineDecision || '');
     setPtoTalentShowDecision(safeDecisions.ptoTalentShowDecision || '');
     setRecessInjuryDecision(safeDecisions.recessInjuryDecision || '');
     setStudentRemovalDecision(safeDecisions.studentRemovalDecision || '');
@@ -1810,6 +1971,7 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryResponse(safeResponses.cafeteriaBoundaryResponse || '');
     setTeacherConflictResponse(safeResponses.teacherConflictResponse || '');
     setStudentThreatResponse(safeResponses.studentThreatResponse || '');
+    setAcademicDeclineResponse(safeResponses.academicDeclineResponse || '');
     setPtoTalentShowResponse(safeResponses.ptoTalentShowResponse || '');
     setRecessInjuryResponse(safeResponses.recessInjuryResponse || '');
     setStudentRemovalResponse(safeResponses.studentRemovalResponse || '');
@@ -1832,6 +1994,7 @@ export default function SimulationShellClient() {
     setTeacherConflictLeadershipRecord(safeRecords.teacherConflictLeadershipRecord || null);
     setTeacherConflictWritingAssessment(safeRecords.teacherConflictWritingAssessment || null);
     setStudentThreatWritingAssessment(safeRecords.studentThreatWritingAssessment || null);
+    setAcademicDeclineWritingAssessment(safeRecords.academicDeclineWritingAssessment || null);
     setPtoTalentShowWritingAssessment(safeRecords.ptoTalentShowWritingAssessment || null);
     setRecessInjuryWritingAssessment(safeRecords.recessInjuryWritingAssessment || null);
     setStudentRemovalWritingAssessment(safeRecords.studentRemovalWritingAssessment || null);
@@ -1843,6 +2006,9 @@ export default function SimulationShellClient() {
       ...initialDeskStackStatuses,
       ...(safeRecords.deskStackStatuses || {}),
     };
+    if (safeRecords.deskStackStatuses?.academicDecline && !safeRecords.deskStackStatuses?.academicDeclineEmail) {
+      restoredDeskStackStatuses.academicDeclineEmail = safeRecords.deskStackStatuses.academicDecline;
+    }
     if (!safeRecords.deskStackStatuses) {
       if (safeUiProgress.hasCompletedFinalStep) {
         restoredDeskStackStatuses.rewardConcern = deskStackItemStatuses.complete;
@@ -1975,6 +2141,7 @@ export default function SimulationShellClient() {
     if (
       itemId !== 'rewardConcern'
       && itemId !== 'studentThreatEmail'
+      && itemId !== 'academicDeclineEmail'
       && itemId !== 'ptoTalentShowEmail'
       && itemId !== 'recessInjuryEmail'
       && itemId !== 'studentRemovalVoicemail'
@@ -2017,6 +2184,19 @@ export default function SimulationShellClient() {
 
   const handleStudentThreatReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, studentThreatEmail: deskStackItemStatuses.complete }));
+    setCurrentDeskStackItem(null);
+    scrollToTop();
+  };
+
+  const handleAcademicDeclineContinue = () => {
+    if (!academicDeclineDecision || !academicDeclineResponse.trim() || academicDeclineWritingAssessment) return;
+    const assessment = analyzeLeadershipWriting(academicDeclineResponse, 'academicDeclineEmail');
+    setAcademicDeclineWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleAcademicDeclineReturnToDeskStack = () => {
+    setDeskStackStatuses((prev) => ({ ...prev, academicDeclineEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
@@ -2412,6 +2592,8 @@ export default function SimulationShellClient() {
   const hasTeacherConflictDecision = Boolean(teacherConflictDecision);
   const hasStudentThreatDecision = Boolean(studentThreatDecision);
   const hasStudentThreatResponse = Boolean(studentThreatResponse.trim());
+  const hasAcademicDeclineDecision = Boolean(academicDeclineDecision);
+  const hasAcademicDeclineResponse = Boolean(academicDeclineResponse.trim());
   const hasPtoTalentShowDecision = Boolean(ptoTalentShowDecision);
   const hasPtoTalentShowResponse = Boolean(ptoTalentShowResponse.trim());
   const hasRecessInjuryDecision = Boolean(recessInjuryDecision);
@@ -2459,6 +2641,10 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail'),
     [studentThreatResponse],
   );
+  const liveAcademicDeclineWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(academicDeclineResponse, 'academicDeclineEmail'),
+    [academicDeclineResponse],
+  );
   const liveRecessInjuryWritingAssessment = useMemo(
     () => analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail'),
     [recessInjuryResponse],
@@ -2496,6 +2682,7 @@ export default function SimulationShellClient() {
       cafeteriaBoundaryDecision,
       teacherConflictDecision,
       studentThreatDecision,
+      academicDeclineDecision,
       ptoTalentShowDecision,
       recessInjuryDecision,
       studentRemovalDecision,
@@ -2511,6 +2698,7 @@ export default function SimulationShellClient() {
       cafeteriaBoundaryResponse,
       teacherConflictResponse,
       studentThreatResponse,
+      academicDeclineResponse,
       ptoTalentShowResponse,
       recessInjuryResponse,
       studentRemovalResponse,
@@ -2531,6 +2719,7 @@ export default function SimulationShellClient() {
       teacherConflictLeadershipRecord,
       teacherConflictWritingAssessment,
       studentThreatWritingAssessment,
+      academicDeclineWritingAssessment,
       ptoTalentShowWritingAssessment,
       recessInjuryWritingAssessment,
       studentRemovalWritingAssessment,
@@ -3899,6 +4088,114 @@ export default function SimulationShellClient() {
                     </button>
                   ) : (
                     <button type="button" className="button primary" onClick={handleStudentThreatReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
+                </div>
+              </>
+              ) : currentDeskStackItem === 'academicDeclineEmail' ? (
+              <>
+                <p className="eyebrow">4:20 PM</p>
+                <h2>Email: Academic Decline Concern</h2>
+
+                <article className="scenario-alert-card">
+                  <p><strong>Subject:</strong> Concern About Academic Performance</p>
+                  <p><strong>Type:</strong> Email</p>
+                </article>
+
+                <article className="full-email-card">
+                  <p>Good afternoon,</p>
+                  <p>
+                    I am reaching out because I am concerned about my child&apos;s recent grades. Up until this
+                    point, they have always done well in school, but over the last few weeks I have noticed a
+                    significant drop in performance.
+                  </p>
+                  <p>
+                    Assignments that were usually completed on time are now missing, and grades have dropped in
+                    multiple areas. I am not sure what has changed, but I would like to understand what is going on.
+                  </p>
+                  <p>
+                    Can you please help me understand what is happening and what we can do to support my child
+                    moving forward?
+                  </p>
+                  <p>Thank you.</p>
+                </article>
+
+                <h3 className="decision-prompt">What is your first move?</h3>
+                <div className="choices">
+                  {academicDeclineDecisionOptions.map((option) => (
+                    <button
+                      key={option}
+                      className={`choice ${academicDeclineDecision === option ? 'active' : ''}`}
+                      onClick={() => setAcademicDeclineDecision(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+
+                {hasAcademicDeclineDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{academicDeclineDecisionCoaching[academicDeclineDecision].title}</h4>
+                    <p>{academicDeclineDecisionCoaching[academicDeclineDecision].message}</p>
+                  </article>
+                ) : null}
+
+                <div className="investigation-evidence-grid">
+                  {academicDeclineEvidenceCards.map((card) => (
+                    <article key={card.title} className="investigation-card">
+                      <h3>{card.title}</h3>
+                      <p>{card.content}</p>
+                    </article>
+                  ))}
+                </div>
+
+                <label htmlFor="academic-decline-response" className="response-label">
+                  Draft your response to the parent.
+                </label>
+                <textarea
+                  id="academic-decline-response"
+                  rows={6}
+                  className="response-input"
+                  placeholder="Write your response…"
+                  value={academicDeclineResponse}
+                  onChange={(event) => setAcademicDeclineResponse(event.target.value)}
+                />
+
+                {academicDeclineWritingAssessment ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(academicDeclineWritingAssessment || liveAcademicDeclineWritingAssessment).summary}
+                    </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(academicDeclineWritingAssessment || liveAcademicDeclineWritingAssessment).categories.map((category) => (
+                        <article key={`academic-decline-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!academicDeclineWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleAcademicDeclineContinue}
+                      disabled={!hasAcademicDeclineDecision || !hasAcademicDeclineResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleAcademicDeclineReturnToDeskStack}>
                       Return to Desk Stack
                     </button>
                   )}
