@@ -96,7 +96,7 @@ const dayModules = [
   { id: 'lunchClimate', label: '11:30 AM — Lunch & Cafeteria Climate', enabled: true },
   { id: 'parentEscalation', label: '1:00 PM — Parent Escalation', enabled: true },
   { id: 'cafeteriaBoundary', label: '1:30 PM — Cafeteria Boundary Incident', enabled: true },
-  { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: false },
+  { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: true },
   { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
 ];
 const builderModeModuleIds = new Set([
@@ -108,6 +108,7 @@ const builderModeModuleIds = new Set([
   'lunchClimate',
   'parentEscalation',
   'cafeteriaBoundary',
+  'teacherConflict',
   'endOfDayEmail',
 ]);
 
@@ -377,6 +378,57 @@ const cafeteriaBoundaryEvidenceCards = [
       'The leader must address staff behavior, protect students, and ensure proper processes are followed moving forward.',
   },
 ];
+const teacherConflictTaskItem = 'Address teacher conflict before end of day';
+const teacherConflictDecisionOptions = [
+  'Meet with both teachers together immediately',
+  'Speak with each teacher separately first',
+  'Support the team leader’s decision',
+  'Allow each teacher to continue their own approach',
+];
+const teacherConflictDecisionCoaching = {
+  'Meet with both teachers together immediately': {
+    title: 'Immediate Joint Conversation',
+    message:
+      'You chose to address the issue together. This can promote transparency, but it requires careful facilitation to prevent escalation or defensiveness.',
+  },
+  'Speak with each teacher separately first': {
+    title: 'Individual Understanding',
+    message:
+      'You chose to understand each perspective first. This can help you gather insight, but the conflict will still need to be addressed collectively.',
+  },
+  'Support the team leader’s decision': {
+    title: 'Leadership Alignment',
+    message:
+      'You chose to back the team leader. While leadership roles matter, this approach may damage trust if concerns are not fully acknowledged.',
+  },
+  'Allow each teacher to continue their own approach': {
+    title: 'Flexibility Over Consistency',
+    message:
+      'You chose flexibility. While this may reduce conflict short term, inconsistent practices across a grade level can impact students and team cohesion.',
+  },
+};
+const teacherConflictEvidenceCards = [
+  {
+    title: 'Leadership Structure',
+    content:
+      'Grade-level leaders are responsible for guiding instruction, but leadership requires support and alignment, not just authority.',
+  },
+  {
+    title: 'Experience Matters',
+    content:
+      'Veteran teachers bring valuable experience and proven practices. Change without acknowledgment of that experience can create resistance.',
+  },
+  {
+    title: 'Consistency for Students',
+    content:
+      'Students benefit from consistent expectations and instructional approaches across a team.',
+  },
+  {
+    title: 'Change Management',
+    content:
+      'Effective leaders introduce change by building understanding and buy-in, not just presenting a better method.',
+  },
+];
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
@@ -468,6 +520,14 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['address', 'speak with', 'conversation', 'follow up'],
       ['today', 'next steps', 'document', 'process'],
     ],
+    teacherConflict: [
+      ['teacher', 'teachers', 'team leader', 'veteran'],
+      ['approach', 'instruction', 'strategy', 'tools', 'methods'],
+      ['both', 'each', 'together', 'perspective'],
+      ['align', 'consistency', 'grade level', 'students'],
+      ['conversation', 'discuss', 'listen', 'next steps'],
+      ['neutral', 'professional', 'respect', 'calm'],
+    ],
   };
 
   const selectedConceptGroups = contextConceptGroups[contextType] || [];
@@ -483,6 +543,34 @@ function analyzeLeadershipWriting(responseText, contextType) {
     'separate',
     'separately',
     'while at work',
+  ]);
+  const hasBothTeacherReference = includesAny(lowered, ['both teachers', 'each teacher', 'both of you', 'two teachers']);
+  const hasLeaderReference = includesAny(lowered, ['team leader', 'grade-level leader', 'grade level leader']);
+  const hasVeteranReference = includesAny(lowered, ['veteran', 'years of experience', 'experienced teacher']);
+  const hasNeutralityLanguage = includesAny(lowered, [
+    'neutral',
+    'not taking sides',
+    'without taking sides',
+    'respect',
+    'professional',
+    'calm',
+    'listen to both',
+    'hear both',
+  ]);
+  const hasDeEscalationLanguage = includesAny(lowered, [
+    'de-escalate',
+    'deescalate',
+    'calm',
+    'respectful',
+    'productive conversation',
+    'ground rules',
+  ]);
+  const hasEarlySidingRisk = includesAny(lowered, [
+    'i agree with the team leader',
+    'the veteran teacher is wrong',
+    'the team leader is wrong',
+    'you need to do it my way',
+    'no discussion',
   ]);
   const contextMatchScore = selectedConceptGroups.length
     ? matchedConceptCount / selectedConceptGroups.length
@@ -517,6 +605,24 @@ function analyzeLeadershipWriting(responseText, contextType) {
           note: 'The response is aligned; add more specific language for follow-up and expectations.',
         };
       }
+      if (contextType === 'teacherConflict') {
+        if (!(hasBothTeacherReference || (hasLeaderReference && hasVeteranReference))) {
+          return {
+            status: 'Needs Attention',
+            note: 'Reference both teachers and the instructional disagreement before outlining your leadership response.',
+          };
+        }
+        if (hasMeaningfulLength) {
+          return {
+            status: 'Strong',
+            note: 'Response fits the scenario by naming both perspectives and the shared instructional issue.',
+          };
+        }
+        return {
+          status: 'Developing',
+          note: 'Scenario fit is present; add a little more specificity about the issue and leadership approach.',
+        };
+      }
       if (unrelatedScenario) {
         return {
           status: 'Needs Attention',
@@ -548,6 +654,9 @@ function analyzeLeadershipWriting(responseText, contextType) {
       }
       if (!hasAnyRisk && hasMeaningfulLength) {
         return { status: 'Strong', note: 'Tone is steady and professional without blame or escalation.' };
+      }
+      if (contextType === 'teacherConflict' && (hasNeutralityLanguage || hasDeEscalationLanguage) && !hasEarlySidingRisk) {
+        return { status: 'Strong', note: 'Tone is neutral, respectful, and de-escalates adult conflict.' };
       }
       if (hasRiskBlame || hasRiskDismissive) {
         return { status: 'Needs Attention', note: 'Remove blaming or dismissive language to protect trust.' };
@@ -622,6 +731,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     voicemailTeacher: 'voicemail response to teacher call',
     parentEscalation: 'parent escalation response',
     staffBoundary: 'staff boundary response',
+    teacherConflict: 'teacher conflict opening statement',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -768,6 +878,10 @@ export default function SimulationShellClient() {
   const [cafeteriaBoundaryResponse, setCafeteriaBoundaryResponse] = useState('');
   const [cafeteriaBoundaryWritingAssessment, setCafeteriaBoundaryWritingAssessment] = useState(null);
   const [cafeteriaBoundaryLeadershipRecord, setCafeteriaBoundaryLeadershipRecord] = useState(null);
+  const [teacherConflictDecision, setTeacherConflictDecision] = useState('');
+  const [teacherConflictResponse, setTeacherConflictResponse] = useState('');
+  const [teacherConflictWritingAssessment, setTeacherConflictWritingAssessment] = useState(null);
+  const [teacherConflictLeadershipRecord, setTeacherConflictLeadershipRecord] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -811,6 +925,11 @@ export default function SimulationShellClient() {
   useEffect(() => {
     if (currentModule !== 'cafeteriaBoundary') return;
     addFolderItems({ red: [cafeteriaBoundaryTaskItem] });
+  }, [currentModule]);
+
+  useEffect(() => {
+    if (currentModule !== 'teacherConflict') return;
+    addFolderItems({ red: [teacherConflictTaskItem] });
   }, [currentModule]);
 
   useEffect(() => {
@@ -891,6 +1010,10 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryResponse('');
     setCafeteriaBoundaryWritingAssessment(null);
     setCafeteriaBoundaryLeadershipRecord(null);
+    setTeacherConflictDecision('');
+    setTeacherConflictResponse('');
+    setTeacherConflictWritingAssessment(null);
+    setTeacherConflictLeadershipRecord(null);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -948,6 +1071,7 @@ export default function SimulationShellClient() {
     setLunchClimateDecision(safeDecisions.lunchClimateDecision || '');
     setParentEscalationDecision(safeDecisions.parentEscalationDecision || '');
     setCafeteriaBoundaryDecision(safeDecisions.cafeteriaBoundaryDecision || '');
+    setTeacherConflictDecision(safeDecisions.teacherConflictDecision || '');
 
     setInitialParentResponse(safeResponses.initialParentResponse || '');
     setFinalParentResponse(safeResponses.finalParentResponse || '');
@@ -955,6 +1079,7 @@ export default function SimulationShellClient() {
     setLunchMonitorDirectionNote(safeResponses.lunchMonitorDirectionNote || '');
     setParentEscalationResponse(safeResponses.parentEscalationResponse || '');
     setCafeteriaBoundaryResponse(safeResponses.cafeteriaBoundaryResponse || '');
+    setTeacherConflictResponse(safeResponses.teacherConflictResponse || '');
     setWalkthroughResponses(
       safeResponses.walkthroughResponses
       || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
@@ -971,6 +1096,8 @@ export default function SimulationShellClient() {
     setParentEscalationWritingAssessment(safeRecords.parentEscalationWritingAssessment || null);
     setCafeteriaBoundaryLeadershipRecord(safeRecords.cafeteriaBoundaryLeadershipRecord || null);
     setCafeteriaBoundaryWritingAssessment(safeRecords.cafeteriaBoundaryWritingAssessment || null);
+    setTeacherConflictLeadershipRecord(safeRecords.teacherConflictLeadershipRecord || null);
+    setTeacherConflictWritingAssessment(safeRecords.teacherConflictWritingAssessment || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
@@ -1403,6 +1530,41 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleTeacherConflictContinue = () => {
+    if (!teacherConflictDecision || !teacherConflictResponse.trim() || teacherConflictWritingAssessment) return;
+    const nextAssessment = analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict');
+    setTeacherConflictWritingAssessment(nextAssessment);
+    completeFolderItems([teacherConflictTaskItem]);
+    setTeacherConflictLeadershipRecord({
+      module: '3:15 PM — Teacher Conflict',
+      decision: teacherConflictDecision,
+      openingStatement: teacherConflictResponse.trim(),
+      writingAssessment: nextAssessment,
+      coachingNote: teacherConflictDecisionCoaching[teacherConflictDecision]?.message || '',
+    });
+    scrollToTop();
+  };
+
+  const handleTeacherConflictContinueDay = () => {
+    if (!teacherConflictWritingAssessment) return;
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, teacherConflict: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'teacherConflict' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
+    scrollToTop();
+  };
+
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
   const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
@@ -1410,6 +1572,8 @@ export default function SimulationShellClient() {
   const hasParentEscalationDecision = Boolean(parentEscalationDecision);
   const hasCafeteriaBoundaryResponse = Boolean(cafeteriaBoundaryResponse.trim());
   const hasCafeteriaBoundaryDecision = Boolean(cafeteriaBoundaryDecision);
+  const hasTeacherConflictResponse = Boolean(teacherConflictResponse.trim());
+  const hasTeacherConflictDecision = Boolean(teacherConflictDecision);
   const isDecisionMade = currentModule === 'arrival'
     ? hasFinishedArrivalRanking
     : currentModule === 'parentEscalation'
@@ -1443,6 +1607,10 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary'),
     [cafeteriaBoundaryResponse],
   );
+  const liveTeacherConflictWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict'),
+    [teacherConflictResponse],
+  );
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -1470,6 +1638,7 @@ export default function SimulationShellClient() {
       lunchClimateDecision,
       parentEscalationDecision,
       cafeteriaBoundaryDecision,
+      teacherConflictDecision,
       arrivalPriorityAssignments,
       arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
     },
@@ -1480,6 +1649,7 @@ export default function SimulationShellClient() {
       lunchMonitorDirectionNote,
       parentEscalationResponse,
       cafeteriaBoundaryResponse,
+      teacherConflictResponse,
       walkthroughResponses,
     },
     records: {
@@ -1494,6 +1664,8 @@ export default function SimulationShellClient() {
       parentEscalationWritingAssessment,
       cafeteriaBoundaryLeadershipRecord,
       cafeteriaBoundaryWritingAssessment,
+      teacherConflictLeadershipRecord,
+      teacherConflictWritingAssessment,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
     },
@@ -2578,6 +2750,126 @@ export default function SimulationShellClient() {
                   )}
                 </div>
               </>
+            ) : currentModule === 'teacherConflict' ? (
+              <>
+                <p className="eyebrow">3:15 PM</p>
+                <h2>Teacher Conflict</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    As the day is winding down, your secretary lets you know that two teachers are waiting
+                    to speak with you.
+                  </p>
+                  <p>
+                    One teacher is the grade-level team leader. She recently introduced a new academic
+                    approach using updated tools and strategies she believes are more efficient and aligned
+                    with current expectations.
+                  </p>
+                  <p>
+                    The other teacher is a veteran with many years of experience. She is frustrated and
+                    feels the change is unnecessary, stating that her current methods have always worked and
+                    that students learn successfully without the new approach.
+                  </p>
+                  <p>Both teachers are now in your office and want you to support their position.</p>
+                </article>
+
+                <h3 className="decision-prompt">What is your first approach to this situation?</h3>
+                <div className="choices">
+                  {teacherConflictDecisionOptions.map((decision) => (
+                    <button
+                      type="button"
+                      key={decision}
+                      className={`choice ${teacherConflictDecision === decision ? 'active' : ''}`}
+                      onClick={() => setTeacherConflictDecision(decision)}
+                    >
+                      {decision}
+                    </button>
+                  ))}
+                </div>
+
+                {teacherConflictDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{teacherConflictDecisionCoaching[teacherConflictDecision].title}</h4>
+                    <p>{teacherConflictDecisionCoaching[teacherConflictDecision].message}</p>
+                  </article>
+                ) : null}
+
+                {teacherConflictDecision ? (
+                  <>
+                    <div className="investigation-evidence-grid">
+                      {teacherConflictEvidenceCards.map((card) => (
+                        <article key={card.title} className="investigation-card">
+                          <h3>{card.title}</h3>
+                          <p>{card.content}</p>
+                        </article>
+                      ))}
+                    </div>
+
+                    <article className="report-card">
+                      <p className="response-label">
+                        Write how you would open this conversation with both teachers.
+                      </p>
+                      <p className="analysis-note">
+                        This is not a decision or final resolution. This is the first moment of leadership
+                        in the room.
+                      </p>
+                      <label htmlFor="teacher-conflict-response" className="response-label">
+                        Write your opening statement…
+                      </label>
+                      <textarea
+                        id="teacher-conflict-response"
+                        rows={6}
+                        className="response-input"
+                        value={teacherConflictResponse}
+                        onChange={(event) => setTeacherConflictResponse(event.target.value)}
+                        required
+                      />
+                    </article>
+                  </>
+                ) : null}
+
+                {hasTeacherConflictDecision && hasTeacherConflictResponse ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(teacherConflictWritingAssessment || liveTeacherConflictWritingAssessment).summary}
+                    </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(teacherConflictWritingAssessment || liveTeacherConflictWritingAssessment).categories.map((category) => (
+                        <article key={`teacher-conflict-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!teacherConflictWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleTeacherConflictContinue}
+                      disabled={!hasTeacherConflictDecision || !hasTeacherConflictResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleTeacherConflictContinueDay}
+                    >
+                      Continue Day
+                    </button>
+                  )}
+                </div>
+              </>
             ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
               <>
@@ -3147,6 +3439,22 @@ export default function SimulationShellClient() {
                       {cafeteriaBoundaryLeadershipRecord.writingAssessment?.summary || 'Not captured'}
                     </li>
                     <li><strong>Coaching note:</strong> {cafeteriaBoundaryLeadershipRecord.coachingNote}</li>
+                  </ul>
+                </article>
+              ) : null}
+
+              {teacherConflictLeadershipRecord ? (
+                <article className="folder-card">
+                  <h4>Teacher Conflict Record</h4>
+                  <p className="folder-subtitle">Captured adult conflict leadership response notes</p>
+                  <ul>
+                    <li><strong>Decision:</strong> {teacherConflictLeadershipRecord.decision}</li>
+                    <li><strong>Opening statement:</strong> {teacherConflictLeadershipRecord.openingStatement}</li>
+                    <li>
+                      <strong>VIC summary:</strong>{' '}
+                      {teacherConflictLeadershipRecord.writingAssessment?.summary || 'Not captured'}
+                    </li>
+                    <li><strong>Coaching note:</strong> {teacherConflictLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
               ) : null}
