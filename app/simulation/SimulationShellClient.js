@@ -132,7 +132,7 @@ const initialDeskStackStatuses = {
   academicDecline: deskStackItemStatuses.comingSoon,
   giftedRetesting: deskStackItemStatuses.comingSoon,
   recessInjuryEmail: deskStackItemStatuses.notStarted,
-  studentRemovalVoicemail: deskStackItemStatuses.comingSoon,
+  studentRemovalVoicemail: deskStackItemStatuses.notStarted,
   followUpVoicemail: deskStackItemStatuses.comingSoon,
 };
 
@@ -184,8 +184,8 @@ const deskStackItems = [
     id: 'studentRemovalVoicemail',
     title: 'Voicemail: Student Removal From Class',
     type: 'Voicemail',
-    description: 'Urgent message regarding repeated student removals and classroom stability.',
-    isAvailable: false,
+    description: 'A teacher requests administrative support after wanting a student removed from class.',
+    isAvailable: true,
   },
   {
     id: 'followUpVoicemail',
@@ -254,6 +254,59 @@ const recessInjuryDecisionOptions = [
   'Forward the bill to the other family',
   'Call the parent immediately',
   'Refer the matter to district/admin guidance',
+];
+
+const studentRemovalDecisionOptions = [
+  'Support the teacher and remove the student',
+  'Gather more context before deciding',
+  'Speak with the student first',
+  'Help the teacher reset the classroom plan',
+];
+
+const studentRemovalDecisionCoaching = {
+  'Support the teacher and remove the student': {
+    title: 'Immediate Support',
+    message:
+      'You chose to support the teacher’s request quickly. This may help the teacher feel heard, but repeated removal can become the default response if the underlying pattern is not addressed.',
+  },
+  'Gather more context before deciding': {
+    title: 'Context First',
+    message:
+      'You chose to understand what led to the request before acting. This protects fairness and helps avoid making removal the only tool.',
+  },
+  'Speak with the student first': {
+    title: 'Student Perspective',
+    message:
+      'You chose to hear from the student. This can be important, but the teacher still needs visible support and follow-up.',
+  },
+  'Help the teacher reset the classroom plan': {
+    title: 'System Support',
+    message:
+      'You chose to focus on the classroom system. This can support both teacher and student, but it requires careful communication so the teacher does not feel dismissed.',
+  },
+};
+
+const studentRemovalEvidenceCards = [
+  {
+    title: 'Teacher Support',
+    content:
+      'Teachers need to know administrators will respond when classroom behavior becomes difficult.',
+  },
+  {
+    title: 'Student Dignity',
+    content:
+      'Removing a student may be necessary, but it should not become the only response or a public punishment without follow-up.',
+  },
+  {
+    title: 'Pattern Check',
+    content:
+      'The leader should look for patterns: Is this a one-time disruption, a repeated behavior issue, or a classroom management support need?',
+  },
+  {
+    title: 'Follow-Up',
+    content:
+      'The school leader needs a next step for the teacher, the student, and the classroom environment.',
+  },
 ];
 
 const recessInjuryDecisionCoaching = {
@@ -732,6 +785,69 @@ function analyzeLeadershipWriting(responseText, contextType) {
     'nothing happened',
     'not a concern',
   ]);
+  const hasTeacherSupportLanguage = includesAny(lowered, [
+    'support the teacher',
+    'support for the teacher',
+    'teacher support',
+    'classroom support',
+    'support the class',
+    'respond to the teacher',
+  ]);
+  const hasStudentRemovalLanguage = includesAny(lowered, [
+    'remove',
+    'removal',
+    'out of class',
+    'leave class',
+    'behavior',
+    'disruption',
+  ]);
+  const hasContextGatheringLanguage = includesAny(lowered, [
+    'gather context',
+    'more context',
+    'review what happened',
+    'understand what happened',
+    'check pattern',
+    'look for patterns',
+    'before deciding',
+    'investigate',
+  ]);
+  const hasStudentDignityLanguage = includesAny(lowered, [
+    'dignity',
+    'respect',
+    'private',
+    'not public',
+    'without shaming',
+    'reentry',
+    'restore',
+  ]);
+  const hasStudentBlameRisk = includesAny(lowered, [
+    'this student is the problem',
+    'bad kid',
+    'defiant child',
+    'the student is the issue',
+    'the student is the problem',
+    'embarrass',
+    'shame',
+  ]);
+  const hasTeacherBlameRisk = includesAny(lowered, [
+    'the teacher caused this',
+    'teacher is the problem',
+    'teacher cannot manage',
+    'teacher is overreacting',
+  ]);
+  const hasAutoRemovalRisk = includesAny(lowered, [
+    'remove the student immediately',
+    'always remove',
+    'automatic removal',
+    'i will remove the student now',
+  ]);
+  const hasNoReentrySupportRisk = hasStudentRemovalLanguage && !includesAny(lowered, [
+    'reentry',
+    'return to class',
+    'support plan',
+    'follow up',
+    'next step',
+  ]);
 
   const contextConceptGroups = {
     parentFinalResponse: [
@@ -798,6 +914,14 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['privacy', 'confidential', 'student privacy'],
       ['district', 'guidance', 'procedures', 'policy'],
       ['follow up', 'follow-up', 'timeline', 'update'],
+    ],
+    studentRemovalVoicemail: [
+      ['teacher', 'classroom', 'educator'],
+      ['student', 'behavior', 'removal'],
+      ['support', 'immediate support', 'classroom support'],
+      ['context', 'gather', 'review', 'pattern'],
+      ['follow up', 'follow-up', 'next steps', 'reentry'],
+      ['dignity', 'respect', 'private', 'fair'],
     ],
   };
 
@@ -950,6 +1074,30 @@ function analyzeLeadershipWriting(responseText, contextType) {
           note: 'Case alignment is present; add a clearer follow-up timeline and specific process language.',
         };
       }
+      if (contextType === 'studentRemovalVoicemail') {
+        if (!hasTeacherSupportLanguage || !hasStudentRemovalLanguage || !hasContextGatheringLanguage) {
+          return {
+            status: 'Needs Attention',
+            note: 'Address teacher support, student behavior/removal context, and how you will gather facts before final action.',
+          };
+        }
+        if (!hasStudentDignityLanguage || !hasFollowUpLanguage) {
+          return {
+            status: 'Developing',
+            note: 'Add language protecting student dignity and include clear follow-up for teacher, student, and classroom.',
+          };
+        }
+        if (hasMeaningfulLength) {
+          return {
+            status: 'Strong',
+            note: 'Response balances teacher support, context-gathering, student dignity, and concrete follow-up steps.',
+          };
+        }
+        return {
+          status: 'Developing',
+          note: 'Scenario fit is present; strengthen with more concrete, step-by-step action language.',
+        };
+      }
       if (unrelatedScenario) {
         return {
           status: 'Needs Attention',
@@ -1046,6 +1194,30 @@ function analyzeLeadershipWriting(responseText, contextType) {
         note: 'Language avoids liability promises, protects confidentiality, and follows district process.',
       };
     }
+    if (contextType === 'studentRemovalVoicemail') {
+      const studentRemovalRiskNotes = [];
+      if (hasAutoRemovalRisk) studentRemovalRiskNotes.push('automatic removal without context or follow-up');
+      if (hasTeacherBlameRisk) studentRemovalRiskNotes.push('blaming the teacher');
+      if (hasStudentBlameRisk) studentRemovalRiskNotes.push('blaming/shaming the student');
+      if (hasNoReentrySupportRisk) studentRemovalRiskNotes.push('no classroom reentry/support plan');
+      if (!hasTeacherSupportLanguage) studentRemovalRiskNotes.push('teacher support not addressed');
+      if (studentRemovalRiskNotes.length) {
+        return {
+          status: 'Needs Attention',
+          note: `Risk detected: ${studentRemovalRiskNotes.join(', ')}. Keep response supportive, neutral, and follow-up based.`,
+        };
+      }
+      if (!hasFollowUpLanguage || !hasStudentDignityLanguage) {
+        return {
+          status: 'Developing',
+          note: 'Reduce risk with explicit follow-up and student-dignity language, including reentry support.',
+        };
+      }
+      return {
+        status: 'Strong',
+        note: 'Response avoids overreaction, supports teacher needs, and protects student dignity with follow-up.',
+      };
+    }
     if (hasAnyRisk) {
       const riskNotes = [];
       if (hasRiskBlame) riskNotes.push('blame wording');
@@ -1086,6 +1258,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     teacherConflict: 'teacher conflict opening statement',
     studentThreatEmail: 'student threat parent email response',
     recessInjuryEmail: 'recess injury parent email response',
+    studentRemovalVoicemail: 'student removal voicemail response/action plan',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -1244,6 +1417,9 @@ export default function SimulationShellClient() {
   const [recessInjuryDecision, setRecessInjuryDecision] = useState('');
   const [recessInjuryResponse, setRecessInjuryResponse] = useState('');
   const [recessInjuryWritingAssessment, setRecessInjuryWritingAssessment] = useState(null);
+  const [studentRemovalDecision, setStudentRemovalDecision] = useState('');
+  const [studentRemovalResponse, setStudentRemovalResponse] = useState('');
+  const [studentRemovalWritingAssessment, setStudentRemovalWritingAssessment] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -1389,6 +1565,9 @@ export default function SimulationShellClient() {
     setRecessInjuryDecision('');
     setRecessInjuryResponse('');
     setRecessInjuryWritingAssessment(null);
+    setStudentRemovalDecision('');
+    setStudentRemovalResponse('');
+    setStudentRemovalWritingAssessment(null);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -1449,6 +1628,7 @@ export default function SimulationShellClient() {
     setTeacherConflictDecision(safeDecisions.teacherConflictDecision || '');
     setStudentThreatDecision(safeDecisions.studentThreatDecision || '');
     setRecessInjuryDecision(safeDecisions.recessInjuryDecision || '');
+    setStudentRemovalDecision(safeDecisions.studentRemovalDecision || '');
 
     setInitialParentResponse(safeResponses.initialParentResponse || '');
     setFinalParentResponse(safeResponses.finalParentResponse || '');
@@ -1459,6 +1639,7 @@ export default function SimulationShellClient() {
     setTeacherConflictResponse(safeResponses.teacherConflictResponse || '');
     setStudentThreatResponse(safeResponses.studentThreatResponse || '');
     setRecessInjuryResponse(safeResponses.recessInjuryResponse || '');
+    setStudentRemovalResponse(safeResponses.studentRemovalResponse || '');
     setWalkthroughResponses(
       safeResponses.walkthroughResponses
       || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
@@ -1479,6 +1660,7 @@ export default function SimulationShellClient() {
     setTeacherConflictWritingAssessment(safeRecords.teacherConflictWritingAssessment || null);
     setStudentThreatWritingAssessment(safeRecords.studentThreatWritingAssessment || null);
     setRecessInjuryWritingAssessment(safeRecords.recessInjuryWritingAssessment || null);
+    setStudentRemovalWritingAssessment(safeRecords.studentRemovalWritingAssessment || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
@@ -1616,7 +1798,12 @@ export default function SimulationShellClient() {
   };
 
   const handleOpenDeskStackItem = (itemId) => {
-    if (itemId !== 'rewardConcern' && itemId !== 'studentThreatEmail' && itemId !== 'recessInjuryEmail') return;
+    if (
+      itemId !== 'rewardConcern'
+      && itemId !== 'studentThreatEmail'
+      && itemId !== 'recessInjuryEmail'
+      && itemId !== 'studentRemovalVoicemail'
+    ) return;
     setCurrentDeskStackItem(itemId);
     setDeskStackStatuses((prev) => ({
       ...prev,
@@ -1668,6 +1855,19 @@ export default function SimulationShellClient() {
 
   const handleRecessInjuryReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, recessInjuryEmail: deskStackItemStatuses.complete }));
+    setCurrentDeskStackItem(null);
+    scrollToTop();
+  };
+
+  const handleStudentRemovalContinue = () => {
+    if (!studentRemovalDecision || !studentRemovalResponse.trim() || studentRemovalWritingAssessment) return;
+    const assessment = analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail');
+    setStudentRemovalWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleStudentRemovalReturnToDeskStack = () => {
+    setDeskStackStatuses((prev) => ({ ...prev, studentRemovalVoicemail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
@@ -2026,6 +2226,8 @@ export default function SimulationShellClient() {
   const hasStudentThreatResponse = Boolean(studentThreatResponse.trim());
   const hasRecessInjuryDecision = Boolean(recessInjuryDecision);
   const hasRecessInjuryResponse = Boolean(recessInjuryResponse.trim());
+  const hasStudentRemovalDecision = Boolean(studentRemovalDecision);
+  const hasStudentRemovalResponse = Boolean(studentRemovalResponse.trim());
   const isDecisionMade = currentModule === 'arrival'
     ? hasFinishedArrivalRanking
     : currentModule === 'parentEscalation'
@@ -2071,6 +2273,10 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail'),
     [recessInjuryResponse],
   );
+  const liveStudentRemovalWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail'),
+    [studentRemovalResponse],
+  );
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -2101,6 +2307,7 @@ export default function SimulationShellClient() {
       teacherConflictDecision,
       studentThreatDecision,
       recessInjuryDecision,
+      studentRemovalDecision,
       arrivalPriorityAssignments,
       arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
     },
@@ -2114,6 +2321,7 @@ export default function SimulationShellClient() {
       teacherConflictResponse,
       studentThreatResponse,
       recessInjuryResponse,
+      studentRemovalResponse,
       walkthroughResponses,
     },
     records: {
@@ -2132,6 +2340,7 @@ export default function SimulationShellClient() {
       teacherConflictWritingAssessment,
       studentThreatWritingAssessment,
       recessInjuryWritingAssessment,
+      studentRemovalWritingAssessment,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
       deskStackStatuses,
@@ -3613,6 +3822,106 @@ export default function SimulationShellClient() {
                     </button>
                   ) : (
                     <button type="button" className="button primary" onClick={handleRecessInjuryReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
+                </div>
+              </>
+              ) : currentDeskStackItem === 'studentRemovalVoicemail' ? (
+              <>
+                <p className="eyebrow">4:31 PM</p>
+                <h2>Voicemail: Student Removal From Class</h2>
+
+                <article className="report-card voicemail-thread-card">
+                  <p className="response-label">Listen to the voicemail before deciding your next move.</p>
+                  <h3>Voicemail</h3>
+                  <audio controls className="voicemail-audio-player">
+                    <source src="/images/student-removal-class-vm.mp3" type="audio/mpeg" />
+                  </audio>
+                </article>
+
+                <h3 className="decision-prompt">What is your first move?</h3>
+                <div className="choices">
+                  {studentRemovalDecisionOptions.map((option) => (
+                    <button
+                      key={option}
+                      className={`choice ${studentRemovalDecision === option ? 'active' : ''}`}
+                      onClick={() => setStudentRemovalDecision(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+
+                {hasStudentRemovalDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{studentRemovalDecisionCoaching[studentRemovalDecision].title}</h4>
+                    <p>{studentRemovalDecisionCoaching[studentRemovalDecision].message}</p>
+                  </article>
+                ) : null}
+
+                {hasStudentRemovalDecision ? (
+                  <>
+                    <div className="investigation-evidence-grid">
+                      {studentRemovalEvidenceCards.map((card) => (
+                        <article key={card.title} className="investigation-card">
+                          <h3>{card.title}</h3>
+                          <p>{card.content}</p>
+                        </article>
+                      ))}
+                    </div>
+
+                    <article className="report-card">
+                      <p className="response-label">Draft your response or action plan after hearing this voicemail.</p>
+                      <label htmlFor="student-removal-response" className="response-label">
+                        Write your response or action plan…
+                      </label>
+                      <textarea
+                        id="student-removal-response"
+                        rows={6}
+                        className="response-input"
+                        value={studentRemovalResponse}
+                        onChange={(event) => setStudentRemovalResponse(event.target.value)}
+                        required
+                      />
+                    </article>
+                  </>
+                ) : null}
+
+                {hasStudentRemovalDecision && hasStudentRemovalResponse ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(studentRemovalWritingAssessment || liveStudentRemovalWritingAssessment).summary}
+                    </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(studentRemovalWritingAssessment || liveStudentRemovalWritingAssessment).categories.map((category) => (
+                        <article key={`student-removal-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!studentRemovalWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleStudentRemovalContinue}
+                      disabled={!hasStudentRemovalDecision || !hasStudentRemovalResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleStudentRemovalReturnToDeskStack}>
                       Return to Desk Stack
                     </button>
                   )}
