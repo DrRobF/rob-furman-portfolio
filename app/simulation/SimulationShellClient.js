@@ -1234,6 +1234,8 @@ export default function SimulationShellClient() {
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
   const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
+  const hasParentEscalationResponse = Boolean(parentEscalationResponse.trim());
+  const hasParentEscalationDecision = Boolean(parentEscalationDecision);
   const isDecisionMade = currentModule === 'arrival'
     ? hasFinishedArrivalRanking
     : currentModule === 'parentEscalation'
@@ -1244,8 +1246,6 @@ export default function SimulationShellClient() {
   );
   const hasSelectedBothVoicemailDecisions = Object.values(voicemailDecisions).every(Boolean);
   const hasCompletedBothVoicemailResponses = Object.values(voicemailResponses).every((response) => response.trim());
-  const hasParentEscalationResponse = Boolean(parentEscalationResponse.trim());
-  const hasParentEscalationDecision = Boolean(parentEscalationDecision);
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
     [finalParentResponse],
