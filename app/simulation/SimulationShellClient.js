@@ -127,7 +127,7 @@ const deskStackItemStatuses = {
 
 const initialDeskStackStatuses = {
   rewardConcern: deskStackItemStatuses.notStarted,
-  threatLanguage: deskStackItemStatuses.comingSoon,
+  studentThreatEmail: deskStackItemStatuses.notStarted,
   ptoConflict: deskStackItemStatuses.comingSoon,
   academicDecline: deskStackItemStatuses.comingSoon,
   giftedRetesting: deskStackItemStatuses.comingSoon,
@@ -146,11 +146,11 @@ const deskStackItems = [
     isAvailable: true,
   },
   {
-    id: 'threatLanguage',
+    id: 'studentThreatEmail',
     title: 'Email: Student Threat Language',
     type: 'Email',
-    description: 'Escalating concern regarding threatening language and immediate safety follow-up.',
-    isAvailable: false,
+    description: 'A parent reports that another student made a threatening statement toward their child.',
+    isAvailable: true,
   },
   {
     id: 'ptoConflict',
@@ -193,6 +193,59 @@ const deskStackItems = [
     type: 'Voicemail',
     description: 'Additional late-day voicemail requiring documented response and next-step ownership.',
     isAvailable: false,
+  },
+];
+
+const studentThreatDecisionOptions = [
+  'Contact the parent immediately',
+  'Begin investigation before responding',
+  'Contact the students involved first',
+  'Alert administration/counseling support',
+];
+
+const studentThreatDecisionCoaching = {
+  'Contact the parent immediately': {
+    title: 'Immediate Parent Contact',
+    message:
+      'You chose to respond directly. This can build trust, but you must be careful not to provide incomplete or inaccurate information.',
+  },
+  'Begin investigation before responding': {
+    title: 'Investigation First',
+    message:
+      'You chose to gather facts first. This supports accuracy, but the parent may feel anxious if they do not receive acknowledgment.',
+  },
+  'Contact the students involved first': {
+    title: 'Student-Level Action',
+    message:
+      'You chose to address the students directly. This is part of the process, but communication with the parent still needs to happen.',
+  },
+  'Alert administration/counseling support': {
+    title: 'Support Structure',
+    message:
+      'You chose to involve additional support. Threat-related concerns often require multiple layers of response.',
+  },
+};
+
+const studentThreatEvidenceCards = [
+  {
+    title: 'Safety First',
+    content:
+      'Any report of threatening language must be treated seriously, even if the full context is not yet known.',
+  },
+  {
+    title: 'Incomplete Information',
+    content:
+      'The parent is reporting what their child said. This may be accurate, incomplete, or misunderstood.',
+  },
+  {
+    title: 'Communication Timing',
+    content:
+      'The parent needs acknowledgment before a full investigation is complete.',
+  },
+  {
+    title: 'Documentation and Process',
+    content:
+      'The school must follow proper procedures for documenting and investigating student incidents.',
   },
 ];
 
@@ -606,6 +659,14 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['conversation', 'discuss', 'listen', 'next steps'],
       ['neutral', 'professional', 'respect', 'calm'],
     ],
+    studentThreatEmail: [
+      ['parent', 'family', 'guardian'],
+      ['student', 'child'],
+      ['threat', 'threatening', 'safety'],
+      ['serious', 'seriously', 'concern'],
+      ['investigate', 'review', 'look into', 'gather facts'],
+      ['follow up', 'follow-up', 'update', 'next steps'],
+    ],
   };
 
   const selectedConceptGroups = contextConceptGroups[contextType] || [];
@@ -699,6 +760,32 @@ function analyzeLeadershipWriting(responseText, contextType) {
         return {
           status: 'Developing',
           note: 'Scenario fit is present; add a little more specificity about the issue and leadership approach.',
+        };
+      }
+      if (contextType === 'studentThreatEmail') {
+        const hasSafetyLanguage = includesAny(lowered, ['safety', 'safe', 'threat', 'threatening']);
+        const hasSeriousnessLanguage = includesAny(lowered, ['serious', 'seriously', 'immediate concern']);
+        if (!hasSafetyLanguage || !hasSeriousnessLanguage) {
+          return {
+            status: 'Needs Attention',
+            note: 'Name the safety concern directly and acknowledge the seriousness of threatening language.',
+          };
+        }
+        if (hasRiskOverpromise) {
+          return {
+            status: 'Needs Attention',
+            note: 'Avoid promising outcomes before fact-finding; keep the response accurate and process-based.',
+          };
+        }
+        if (hasMeaningfulLength && hasNextStep) {
+          return {
+            status: 'Strong',
+            note: 'Response fits the case by centering safety, seriousness, and process-focused next steps.',
+          };
+        }
+        return {
+          status: 'Developing',
+          note: 'Scenario fit is present; add clearer process language and immediate follow-up commitments.',
         };
       }
       if (unrelatedScenario) {
@@ -810,6 +897,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     parentEscalation: 'parent escalation response',
     staffBoundary: 'staff boundary response',
     teacherConflict: 'teacher conflict opening statement',
+    studentThreatEmail: 'student threat parent email response',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -962,6 +1050,9 @@ export default function SimulationShellClient() {
   const [teacherConflictLeadershipRecord, setTeacherConflictLeadershipRecord] = useState(null);
   const [deskStackStatuses, setDeskStackStatuses] = useState(initialDeskStackStatuses);
   const [currentDeskStackItem, setCurrentDeskStackItem] = useState(null);
+  const [studentThreatDecision, setStudentThreatDecision] = useState('');
+  const [studentThreatResponse, setStudentThreatResponse] = useState('');
+  const [studentThreatWritingAssessment, setStudentThreatWritingAssessment] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -1101,6 +1192,9 @@ export default function SimulationShellClient() {
     setTeacherConflictLeadershipRecord(null);
     setDeskStackStatuses(initialDeskStackStatuses);
     setCurrentDeskStackItem(null);
+    setStudentThreatDecision('');
+    setStudentThreatResponse('');
+    setStudentThreatWritingAssessment(null);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -1159,6 +1253,7 @@ export default function SimulationShellClient() {
     setParentEscalationDecision(safeDecisions.parentEscalationDecision || '');
     setCafeteriaBoundaryDecision(safeDecisions.cafeteriaBoundaryDecision || '');
     setTeacherConflictDecision(safeDecisions.teacherConflictDecision || '');
+    setStudentThreatDecision(safeDecisions.studentThreatDecision || '');
 
     setInitialParentResponse(safeResponses.initialParentResponse || '');
     setFinalParentResponse(safeResponses.finalParentResponse || '');
@@ -1167,6 +1262,7 @@ export default function SimulationShellClient() {
     setParentEscalationResponse(safeResponses.parentEscalationResponse || '');
     setCafeteriaBoundaryResponse(safeResponses.cafeteriaBoundaryResponse || '');
     setTeacherConflictResponse(safeResponses.teacherConflictResponse || '');
+    setStudentThreatResponse(safeResponses.studentThreatResponse || '');
     setWalkthroughResponses(
       safeResponses.walkthroughResponses
       || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
@@ -1185,6 +1281,7 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryWritingAssessment(safeRecords.cafeteriaBoundaryWritingAssessment || null);
     setTeacherConflictLeadershipRecord(safeRecords.teacherConflictLeadershipRecord || null);
     setTeacherConflictWritingAssessment(safeRecords.teacherConflictWritingAssessment || null);
+    setStudentThreatWritingAssessment(safeRecords.studentThreatWritingAssessment || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
@@ -1322,11 +1419,11 @@ export default function SimulationShellClient() {
   };
 
   const handleOpenDeskStackItem = (itemId) => {
-    if (itemId !== 'rewardConcern') return;
+    if (itemId !== 'rewardConcern' && itemId !== 'studentThreatEmail') return;
     setCurrentDeskStackItem(itemId);
     setDeskStackStatuses((prev) => ({
       ...prev,
-      rewardConcern: prev.rewardConcern === deskStackItemStatuses.complete
+      [itemId]: prev[itemId] === deskStackItemStatuses.complete
         ? deskStackItemStatuses.complete
         : deskStackItemStatuses.inProgress,
     }));
@@ -1349,6 +1446,19 @@ export default function SimulationShellClient() {
     setCurrentDeskStackItem('rewardConcern');
     setScene('report');
     setModuleTransitionNote('Desk stack closed. Leadership record saved.');
+    scrollToTop();
+  };
+
+  const handleStudentThreatContinue = () => {
+    if (!studentThreatDecision || !studentThreatResponse.trim() || studentThreatWritingAssessment) return;
+    const assessment = analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail');
+    setStudentThreatWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleStudentThreatReturnToDeskStack = () => {
+    setDeskStackStatuses((prev) => ({ ...prev, studentThreatEmail: deskStackItemStatuses.complete }));
+    setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
@@ -1702,6 +1812,8 @@ export default function SimulationShellClient() {
   const hasCafeteriaBoundaryDecision = Boolean(cafeteriaBoundaryDecision);
   const hasTeacherConflictResponse = Boolean(teacherConflictResponse.trim());
   const hasTeacherConflictDecision = Boolean(teacherConflictDecision);
+  const hasStudentThreatDecision = Boolean(studentThreatDecision);
+  const hasStudentThreatResponse = Boolean(studentThreatResponse.trim());
   const isDecisionMade = currentModule === 'arrival'
     ? hasFinishedArrivalRanking
     : currentModule === 'parentEscalation'
@@ -1739,6 +1851,10 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict'),
     [teacherConflictResponse],
   );
+  const liveStudentThreatWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail'),
+    [studentThreatResponse],
+  );
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -1767,6 +1883,7 @@ export default function SimulationShellClient() {
       parentEscalationDecision,
       cafeteriaBoundaryDecision,
       teacherConflictDecision,
+      studentThreatDecision,
       arrivalPriorityAssignments,
       arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
     },
@@ -1778,6 +1895,7 @@ export default function SimulationShellClient() {
       parentEscalationResponse,
       cafeteriaBoundaryResponse,
       teacherConflictResponse,
+      studentThreatResponse,
       walkthroughResponses,
     },
     records: {
@@ -1794,6 +1912,7 @@ export default function SimulationShellClient() {
       cafeteriaBoundaryWritingAssessment,
       teacherConflictLeadershipRecord,
       teacherConflictWritingAssessment,
+      studentThreatWritingAssessment,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
       deskStackStatuses,
@@ -3021,7 +3140,7 @@ export default function SimulationShellClient() {
                   <div className="desk-stack-grid">
                     {deskStackItems.map((item) => {
                       const status = deskStackStatuses[item.id] || deskStackItemStatuses.comingSoon;
-                      const isClickable = item.id === 'rewardConcern';
+                      const isClickable = status !== deskStackItemStatuses.comingSoon;
                       return (
                         <article key={item.id} className="desk-stack-card">
                           <div className="desk-stack-card-header">
@@ -3061,6 +3180,109 @@ export default function SimulationShellClient() {
                     )}
                   </article>
                 </>
+              ) : currentDeskStackItem === 'studentThreatEmail' ? (
+              <>
+                <p className="eyebrow">4:18 PM</p>
+                <h2>Email: Student Threat Language</h2>
+
+                <article className="scenario-alert-card">
+                  <p><strong>Subject:</strong> Concern About Student Safety</p>
+                  <p><strong>Type:</strong> Email</p>
+                </article>
+
+                <article className="full-email-card">
+                  <p>Good afternoon,</p>
+                  <p>
+                    My child came home very upset today and told me that another student said something
+                    threatening to them during school. I am extremely concerned about what was said and how
+                    serious this situation is.
+                  </p>
+                  <p>
+                    I need to know what happened and what the school is going to do about it. I expect this to
+                    be taken seriously.
+                  </p>
+                  <p>Please contact me as soon as possible.</p>
+                  <p>Thank you.</p>
+                </article>
+
+                <h3 className="decision-prompt">What is your first move?</h3>
+                <div className="choices">
+                  {studentThreatDecisionOptions.map((option) => (
+                    <button
+                      key={option}
+                      className={`choice ${studentThreatDecision === option ? 'active' : ''}`}
+                      onClick={() => setStudentThreatDecision(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+
+                {hasStudentThreatDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{studentThreatDecisionCoaching[studentThreatDecision].title}</h4>
+                    <p>{studentThreatDecisionCoaching[studentThreatDecision].message}</p>
+                  </article>
+                ) : null}
+
+                <div className="investigation-evidence-grid">
+                  {studentThreatEvidenceCards.map((card) => (
+                    <article key={card.title} className="investigation-card">
+                      <h3>{card.title}</h3>
+                      <p>{card.content}</p>
+                    </article>
+                  ))}
+                </div>
+
+                <label htmlFor="student-threat-response" className="response-label">
+                  Draft your response to the parent.
+                </label>
+                <textarea
+                  id="student-threat-response"
+                  rows={6}
+                  className="response-input"
+                  placeholder="Write your response…"
+                  value={studentThreatResponse}
+                  onChange={(event) => setStudentThreatResponse(event.target.value)}
+                />
+
+                {studentThreatWritingAssessment ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">{studentThreatWritingAssessment.summary}</p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {studentThreatWritingAssessment.categories.map((category) => (
+                        <article key={`student-threat-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!studentThreatWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleStudentThreatContinue}
+                      disabled={!hasStudentThreatDecision || !hasStudentThreatResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleStudentThreatReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
+                </div>
+              </>
               ) : isReportScene ? (
               <>
                 <p className="eyebrow">Leadership Case Record</p>
