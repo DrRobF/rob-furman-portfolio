@@ -1331,6 +1331,10 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleParentEscalationDecisionSelect = (decisionLabel) => {
+    setParentEscalationDecision(decisionLabel);
+  };
+
   const handleParentEscalationContinueDay = () => {
     if (!parentEscalationWritingAssessment) return;
     setTimelineStatuses((prev) => {
@@ -2344,10 +2348,10 @@ export default function SimulationShellClient() {
                 <div className="choices">
                   {parentEscalationDecisionOptions.map((decision) => (
                     <button
+                      type="button"
                       key={decision}
                       className={`choice ${parentEscalationDecision === decision ? 'active' : ''}`}
-                      onClick={() => setParentEscalationDecision(decision)}
-                      disabled={!parentEscalationVoicemailPlayed}
+                      onClick={() => handleParentEscalationDecisionSelect(decision)}
                     >
                       {decision}
                     </button>
