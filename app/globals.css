@@ -572,7 +572,7 @@ p {
 }
 .simulation-product-shell {
   display: grid;
-  gap: 1.4rem;
+  gap: 1rem;
 }
 
 .simulation-hero-card {
@@ -590,20 +590,20 @@ p {
 .simulation-layout-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-  gap: 1.2rem;
+  gap: 0.9rem;
   align-items: start;
 }
 
 .scenario-column {
-  padding: 1.1rem;
+  padding: 0.85rem;
 }
 
 .day-timeline-card {
   border: 1px solid #d2def1;
   background: #f9fbff;
   border-radius: 14px;
-  padding: 0.95rem;
-  margin-bottom: 0.9rem;
+  padding: 0.75rem;
+  margin-bottom: 0.65rem;
 }
 
 .day-timeline-card h2 {
@@ -613,14 +613,14 @@ p {
 
 .timeline-note {
   margin: -0.2rem 0 0.7rem;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: #4b5f82;
 }
 
 .day-timeline-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.45rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
 }
 
 .timeline-module {
@@ -628,9 +628,10 @@ p {
   border-radius: 10px;
   border: 1px solid #c9d7ef;
   background: #ffffff;
-  padding: 0.48rem 0.58rem;
+  padding: 0.38rem 0.5rem;
   color: #1d355d;
   font-weight: 600;
+  font-size: 0.82rem;
   transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
   display: grid;
   gap: 0.2rem;
@@ -682,6 +683,13 @@ p {
   background: #f7eef0;
 }
 
+.timeline-module.coming-soon,
+.timeline-module.coming-soon:disabled {
+  color: #8898b6;
+  background: #f8f9fc;
+  border-color: #e2e7f2;
+}
+
 .builder-mode-badge {
   display: inline-flex;
   margin-top: 0.55rem;
@@ -692,47 +700,6 @@ p {
   font-weight: 700;
   padding: 0.12rem 0.45rem;
   border-radius: 999px;
-}
-
-.decision-window {
-  border-radius: 14px;
-  border: 1px solid #c7d7ef;
-  background: #f5f8ff;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.decision-window.calm {
-  box-shadow: inset 0 0 0 1px rgba(74, 133, 245, 0.15);
-}
-
-.decision-window.warning {
-  background: #fff8ea;
-  border-color: #f1cf89;
-}
-
-.decision-window.critical {
-  background: #fff1f1;
-  border-color: #f0b9b9;
-}
-
-.decision-label {
-  color: #3c4f74;
-  font-weight: 700;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.decision-time {
-  font-size: clamp(1.8rem, 4vw, 2.35rem);
-  line-height: 1.1;
-  color: #1b3157;
-  font-weight: 800;
-}
-
-.decision-note {
-  margin-top: 0.3rem;
 }
 
 .scenario-content h2 {
@@ -799,7 +766,7 @@ p {
 
 .dashboard-column {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.65rem;
 }
 
 .dashboard-card h3 {
@@ -807,18 +774,18 @@ p {
 }
 
 .dashboard-intro {
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.65rem;
 }
 
 .folder-list {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 
 .folder-card {
   border: 1px solid #d2def1;
   border-radius: 14px;
-  padding: 0.82rem;
+  padding: 0.68rem;
   background: #fbfdff;
 }
 
@@ -851,13 +818,22 @@ p {
 }
 
 .vic-panel {
-  padding: 0.9rem;
+  padding: 0.75rem;
 }
 
+.dashboard-column > .card > summary,
 .vic-panel summary {
   cursor: pointer;
   font-weight: 700;
   color: #1b3157;
+}
+
+.dashboard-column > .card > summary {
+  margin-bottom: 0.45rem;
+}
+
+.leadership-records-list {
+  margin-top: 0.4rem;
 }
 
 .vic-panel p {

@@ -76,7 +76,6 @@ const postResponseFolderItems = {
   green: ['Reflect on equity in recognition systems'],
 };
 
-const totalDecisionWindowSeconds = 120;
 const simulationProgressStorageKey = 'rob-furman-school-leader-simulation-v1';
 
 const lensNames = [
@@ -782,12 +781,6 @@ const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
   return acc;
 }, {});
-
-function formatTimer(seconds) {
-  const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const secs = String(seconds % 60).padStart(2, '0');
-  return `${mins}:${secs}`;
-}
 
 function includesAny(text, terms) {
   return terms.some((term) => text.includes(term));
@@ -1677,7 +1670,6 @@ export default function SimulationShellClient() {
   const [currentModule, setCurrentModule] = useState('arrival');
   const [timelineStatuses, setTimelineStatuses] = useState(initialModuleStatuses);
   const [started, setStarted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(totalDecisionWindowSeconds);
   const [folders, setFolders] = useState(initialFolders);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [firstDecision, setFirstDecision] = useState('');
@@ -1764,18 +1756,6 @@ export default function SimulationShellClient() {
   const selectedConsequence = hasSelectedDecision ? decisionConsequences[firstDecision] : null;
 
   useEffect(() => {
-    if (!started || timeLeft <= 0) {
-      return undefined;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => Math.max(prev - 1, 0));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [started, timeLeft]);
-
-  useEffect(() => {
     if (currentModule !== 'voicemail') return;
     addFolderItems({ red: [voicemailLoopTaskItem] });
   }, [currentModule]);
@@ -1820,19 +1800,12 @@ export default function SimulationShellClient() {
     }
   }, []);
 
-  const urgencyClass = useMemo(() => {
-    if (timeLeft <= 30) return 'critical';
-    if (timeLeft <= 60) return 'warning';
-    return 'calm';
-  }, [timeLeft]);
-
   const resetSimulationState = ({ clearSavedProgress = false, confirmationMessage = '' } = {}) => {
     if (typeof window !== 'undefined' && clearSavedProgress) {
       window.localStorage.removeItem(simulationProgressStorageKey);
     }
 
     setStarted(true);
-    setTimeLeft(totalDecisionWindowSeconds);
     setScene('initial');
     setCurrentModule('arrival');
     setTimelineStatuses(initialModuleStatuses);
@@ -2808,21 +2781,23 @@ export default function SimulationShellClient() {
 
   return (
     <div className="simulation-product-shell">
-      <div className="simulation-hero-card">
-        <p className="eyebrow">Interactive Leadership Simulation</p>
-        <h1>A Day in the Life of a School Leader</h1>
-        <p className="lead">
-          An interactive leadership simulation for future principals, aspiring administrators, and
-          education leaders.
-        </p>
-        <p>
-          Step into the rhythm of a real school day. Prioritize urgent issues, write thoughtful
-          responses, and see how leadership decisions build across time.
-        </p>
-        <button className="button primary" onClick={beginSimulation}>
-          Begin Simulation
-        </button>
-      </div>
+      {!started ? (
+        <div className="simulation-hero-card">
+          <p className="eyebrow">Interactive Leadership Simulation</p>
+          <h1>A Day in the Life of a School Leader</h1>
+          <p className="lead">
+            An interactive leadership simulation for future principals, aspiring administrators, and
+            education leaders.
+          </p>
+          <p>
+            Step into the rhythm of a real school day. Prioritize urgent issues, write thoughtful
+            responses, and see how leadership decisions build across time.
+          </p>
+          <button className="button primary" onClick={beginSimulation}>
+            Begin Simulation
+          </button>
+        </div>
+      ) : null}
 
       <div className="simulation-layout-grid">
         <div className="scenario-column card">
@@ -2854,7 +2829,7 @@ export default function SimulationShellClient() {
                         : isActive
                           ? 'active'
                           : 'upcoming'
-                    }`}
+                    } ${isUpcoming && !module.enabled ? 'coming-soon' : ''}`}
                     aria-current={isActive ? 'step' : undefined}
                     disabled={isDisabled}
                     onClick={() => {
@@ -2882,12 +2857,6 @@ export default function SimulationShellClient() {
             </div>
             {builderMode ? <p className="builder-mode-badge">Builder Mode Active</p> : null}
           </section>
-
-          <div className={`decision-window ${urgencyClass}`}>
-            <p className="decision-label">Decision Window</p>
-            <p className="decision-time">{formatTimer(timeLeft)}</p>
-            <p className="decision-note">You are managing time-sensitive leadership priorities.</p>
-          </div>
 
           <div className={`scenario-content ${isDecisionMade ? 'decision-made' : 'pre-decision'}`}>
             {currentModule === 'arrival' ? (
@@ -4967,7 +4936,32 @@ export default function SimulationShellClient() {
                   ))}
                 </ul>
               </article>
+            </div>
+          </div>
 
+          <details className="card vic-panel" open={isVicOpen} onToggle={(event) => setIsVicOpen(event.currentTarget.open)}>
+            <summary>VIC Leadership Guidance</summary>
+            <p>
+              This is a high-emotion, high-risk parent communication. Do not begin by defending the
+              school.
+            </p>
+            <p className="vic-structure-title">Strong leadership response structure:</p>
+            <ol className="vic-structure-list">
+              <li>Acknowledge the parent&apos;s concern and the child&apos;s emotional experience.</li>
+              <li>Avoid making promises or assigning blame before gathering facts.</li>
+              <li>Explain that you will review what happened with the teacher and relevant staff.</li>
+              <li>Commit to a clear follow-up timeline.</li>
+              <li>Keep the tone calm, respectful, and student-centered.</li>
+            </ol>
+            <p className="vic-note">
+              Leadership Insight: In moments like this, you are not only answering an email. You are
+              protecting trust between the school and the family.
+            </p>
+          </details>
+
+          <details className="card" open={false}>
+            <summary>Leadership Records</summary>
+            <div className="folder-list leadership-records-list">
               {completedTasks.length ? (
                 <article className="folder-card">
                   <h4>Completed</h4>
@@ -5118,10 +5112,10 @@ export default function SimulationShellClient() {
                 </article>
               ) : null}
             </div>
-          </div>
+          </details>
 
-          <div className="card">
-            <h4>Developer Utilities</h4>
+          <details className="card" open={false}>
+            <summary>Utilities</summary>
             <button
               type="button"
               className="button secondary"
@@ -5158,26 +5152,6 @@ export default function SimulationShellClient() {
             </button>
             {snapshotPreviewMessage ? <p>{snapshotPreviewMessage}</p> : null}
             {snapshotValidationMessage ? <p>{snapshotValidationMessage}</p> : null}
-          </div>
-
-          <details className="card vic-panel" open={isVicOpen} onToggle={(event) => setIsVicOpen(event.currentTarget.open)}>
-            <summary>VIC Leadership Guidance</summary>
-            <p>
-              This is a high-emotion, high-risk parent communication. Do not begin by defending the
-              school.
-            </p>
-            <p className="vic-structure-title">Strong leadership response structure:</p>
-            <ol className="vic-structure-list">
-              <li>Acknowledge the parent&apos;s concern and the child&apos;s emotional experience.</li>
-              <li>Avoid making promises or assigning blame before gathering facts.</li>
-              <li>Explain that you will review what happened with the teacher and relevant staff.</li>
-              <li>Commit to a clear follow-up timeline.</li>
-              <li>Keep the tone calm, respectful, and student-centered.</li>
-            </ol>
-            <p className="vic-note">
-              Leadership Insight: In moments like this, you are not only answering an email. You are
-              protecting trust between the school and the family.
-            </p>
           </details>
         </aside>
       </div>
