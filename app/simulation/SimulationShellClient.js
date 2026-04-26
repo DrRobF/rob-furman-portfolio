@@ -96,7 +96,6 @@ const dayModules = [
   { id: 'lunchClimate', label: '11:30 AM — Lunch & Cafeteria Climate', enabled: true },
   { id: 'parentEscalation', label: '1:00 PM — Parent Escalation', enabled: true },
   { id: 'cafeteriaBoundary', label: '1:30 PM — Cafeteria Boundary Incident', enabled: true },
-  { id: 'teacherObservation', label: '2:00 PM — Teacher Observation', enabled: false },
   { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: false },
   { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
 ];
@@ -910,9 +909,21 @@ export default function SimulationShellClient() {
     const safeUiProgress = snapshot.uiProgress || {};
 
     setStarted(typeof safeUiProgress.started === 'boolean' ? safeUiProgress.started : true);
-    setCurrentModule(snapshot.currentModule || 'arrival');
+    const safeCurrentModule = snapshot.currentModule === 'teacherObservation'
+      ? 'cafeteriaBoundary'
+      : snapshot.currentModule;
+    setCurrentModule(safeCurrentModule || 'arrival');
     setScene(snapshot.scene || 'initial');
-    setTimelineStatuses(snapshot.timelineStatuses || initialModuleStatuses);
+    const snapshotStatuses = snapshot.timelineStatuses || {};
+    const normalizedTimelineStatuses = dayModules.reduce((acc, module) => {
+      if (module.id === 'cafeteriaBoundary' && snapshotStatuses.teacherObservation) {
+        acc[module.id] = snapshotStatuses.teacherObservation;
+      } else {
+        acc[module.id] = snapshotStatuses[module.id] || initialModuleStatuses[module.id];
+      }
+      return acc;
+    }, {});
+    setTimelineStatuses(normalizedTimelineStatuses);
     setFolders(snapshot.folders || initialFolders);
     setCompletedTasks(Array.isArray(snapshot.completedTasks) ? snapshot.completedTasks : []);
 
@@ -2440,7 +2451,9 @@ export default function SimulationShellClient() {
                 <article className="report-card voicemail-thread-card">
                   <p className="response-label">Listen to the voicemail before deciding your next move.</p>
                   {!cafeteriaBoundaryVoicemailPlayed ? (
-                    <p className="analysis-note">Listen to the voicemail before choosing your first move.</p>
+                    <p className="analysis-note">
+                      Tip: Play the voicemail for context, then choose your first move.
+                    </p>
                   ) : null}
                   <h3>Voicemail</h3>
                   <audio
@@ -2459,7 +2472,6 @@ export default function SimulationShellClient() {
                       key={decision}
                       className={`choice ${cafeteriaBoundaryDecision === decision ? 'active' : ''}`}
                       onClick={() => setCafeteriaBoundaryDecision(decision)}
-                      disabled={!cafeteriaBoundaryVoicemailPlayed}
                     >
                       {decision}
                     </button>
