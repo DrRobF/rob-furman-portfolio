@@ -97,7 +97,7 @@ const dayModules = [
   { id: 'parentEscalation', label: '1:00 PM — Parent Escalation', enabled: true },
   { id: 'cafeteriaBoundary', label: '1:30 PM — Cafeteria Boundary Incident', enabled: true },
   { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: true },
-  { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
+  { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Desk Stack', enabled: true },
 ];
 const builderModeModuleIds = new Set([
   'arrival',
@@ -117,6 +117,84 @@ const moduleStatuses = {
   active: 'active',
   completed: 'completed',
 };
+
+const deskStackItemStatuses = {
+  notStarted: 'Not Started',
+  inProgress: 'In Progress',
+  complete: 'Complete',
+  comingSoon: 'Coming Soon',
+};
+
+const initialDeskStackStatuses = {
+  rewardConcern: deskStackItemStatuses.notStarted,
+  threatLanguage: deskStackItemStatuses.comingSoon,
+  ptoConflict: deskStackItemStatuses.comingSoon,
+  academicDecline: deskStackItemStatuses.comingSoon,
+  giftedRetesting: deskStackItemStatuses.comingSoon,
+  recessInjury: deskStackItemStatuses.comingSoon,
+  studentRemovalVoicemail: deskStackItemStatuses.comingSoon,
+  followUpVoicemail: deskStackItemStatuses.comingSoon,
+};
+
+const deskStackItems = [
+  {
+    id: 'rewardConcern',
+    title: 'Parent Email: Classroom Reward Concern',
+    type: 'Email',
+    description:
+      'Parent escalation about perceived exclusion from a classroom reward and concern about student dignity.',
+    isAvailable: true,
+  },
+  {
+    id: 'threatLanguage',
+    title: 'Email: Student Threat Language',
+    type: 'Email',
+    description: 'Escalating concern regarding threatening language and immediate safety follow-up.',
+    isAvailable: false,
+  },
+  {
+    id: 'ptoConflict',
+    title: 'Email: PTO / Talent Show Conflict',
+    type: 'Email',
+    description: 'Parent and PTO disagreement about student participation expectations for the talent show.',
+    isAvailable: false,
+  },
+  {
+    id: 'academicDecline',
+    title: 'Email: Academic Decline Concern',
+    type: 'Email',
+    description: 'Family concern around sudden grade drop and unclear intervention support.',
+    isAvailable: false,
+  },
+  {
+    id: 'giftedRetesting',
+    title: 'Email: Gifted Retesting Request',
+    type: 'Email',
+    description: 'Request to revisit gifted identification and communicate fair retesting process.',
+    isAvailable: false,
+  },
+  {
+    id: 'recessInjury',
+    title: 'Email: Recess Injury / Liability Concern',
+    type: 'Email',
+    description: 'Family report of recess injury with concern about supervision and school liability.',
+    isAvailable: false,
+  },
+  {
+    id: 'studentRemovalVoicemail',
+    title: 'Voicemail: Student Removal From Class',
+    type: 'Voicemail',
+    description: 'Urgent message regarding repeated student removals and classroom stability.',
+    isAvailable: false,
+  },
+  {
+    id: 'followUpVoicemail',
+    title: 'Voicemail: Remaining Follow-Up',
+    type: 'Voicemail',
+    description: 'Additional late-day voicemail requiring documented response and next-step ownership.',
+    isAvailable: false,
+  },
+];
 
 const iepDecisionCoaching = {
   'Handle it immediately after the meeting': {
@@ -882,6 +960,8 @@ export default function SimulationShellClient() {
   const [teacherConflictResponse, setTeacherConflictResponse] = useState('');
   const [teacherConflictWritingAssessment, setTeacherConflictWritingAssessment] = useState(null);
   const [teacherConflictLeadershipRecord, setTeacherConflictLeadershipRecord] = useState(null);
+  const [deskStackStatuses, setDeskStackStatuses] = useState(initialDeskStackStatuses);
+  const [currentDeskStackItem, setCurrentDeskStackItem] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -893,6 +973,11 @@ export default function SimulationShellClient() {
   const [scene, setScene] = useState('initial');
   const isInvestigationScene = scene === 'investigation';
   const isReportScene = scene === 'report';
+  const isDeskStackLanding = currentModule === 'endOfDayEmail' && currentDeskStackItem === null;
+  const availableDeskStackItems = deskStackItems.filter((item) => item.isAvailable);
+  const canCloseDeskStackDay = availableDeskStackItems.every(
+    (item) => deskStackStatuses[item.id] === deskStackItemStatuses.complete,
+  );
   const selectedConsequence = hasSelectedDecision ? decisionConsequences[firstDecision] : null;
 
   useEffect(() => {
@@ -1014,6 +1099,8 @@ export default function SimulationShellClient() {
     setTeacherConflictResponse('');
     setTeacherConflictWritingAssessment(null);
     setTeacherConflictLeadershipRecord(null);
+    setDeskStackStatuses(initialDeskStackStatuses);
+    setCurrentDeskStackItem(null);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -1102,6 +1189,18 @@ export default function SimulationShellClient() {
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
     );
+    const restoredDeskStackStatuses = {
+      ...initialDeskStackStatuses,
+      ...(safeRecords.deskStackStatuses || {}),
+    };
+    if (!safeRecords.deskStackStatuses) {
+      if (safeUiProgress.hasCompletedFinalStep) {
+        restoredDeskStackStatuses.rewardConcern = deskStackItemStatuses.complete;
+      } else if (safeDecisions.firstDecision) {
+        restoredDeskStackStatuses.rewardConcern = deskStackItemStatuses.inProgress;
+      }
+    }
+    setDeskStackStatuses(restoredDeskStackStatuses);
 
     setIsEmailVisible(Boolean(safeUiProgress.showFullEmail));
     setIsVicOpen(Boolean(safeUiProgress.showVicGuidance));
@@ -1111,6 +1210,7 @@ export default function SimulationShellClient() {
     setLunchClimateInsightUnlocked(Boolean(safeUiProgress.lunchClimateInsightUnlocked));
     setParentEscalationVoicemailPlayed(Boolean(safeUiProgress.parentEscalationVoicemailPlayed));
     setCafeteriaBoundaryVoicemailPlayed(Boolean(safeUiProgress.cafeteriaBoundaryVoicemailPlayed));
+    setCurrentDeskStackItem(safeUiProgress.currentDeskStackItem || null);
   };
 
   const scrollToTop = () => {
@@ -1221,6 +1321,37 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleOpenDeskStackItem = (itemId) => {
+    if (itemId !== 'rewardConcern') return;
+    setCurrentDeskStackItem(itemId);
+    setDeskStackStatuses((prev) => ({
+      ...prev,
+      rewardConcern: prev.rewardConcern === deskStackItemStatuses.complete
+        ? deskStackItemStatuses.complete
+        : deskStackItemStatuses.inProgress,
+    }));
+    scrollToTop();
+  };
+
+  const handleReturnToDeskStack = () => {
+    setCurrentDeskStackItem(null);
+    setScene('initial');
+    setIsEmailVisible(false);
+    scrollToTop();
+  };
+
+  const handleCloseDeskStackDay = () => {
+    if (!canCloseDeskStackDay) return;
+    setTimelineStatuses((prev) => ({
+      ...prev,
+      endOfDayEmail: moduleStatuses.completed,
+    }));
+    setCurrentDeskStackItem('rewardConcern');
+    setScene('report');
+    setModuleTransitionNote('Desk stack closed. Leadership record saved.');
+    scrollToTop();
+  };
+
   const handleIepDecisionSelect = (decisionLabel) => {
     setIepDecision(decisionLabel);
   };
@@ -1272,10 +1403,7 @@ export default function SimulationShellClient() {
       'Follow up with parent within 48 hours',
     ]);
     setHasCompletedFinalStep(true);
-    setTimelineStatuses((prev) => ({
-      ...prev,
-      endOfDayEmail: moduleStatuses.completed,
-    }));
+    setDeskStackStatuses((prev) => ({ ...prev, rewardConcern: deskStackItemStatuses.complete }));
     setScene('report');
     scrollToTop();
   };
@@ -1668,6 +1796,7 @@ export default function SimulationShellClient() {
       teacherConflictWritingAssessment,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
+      deskStackStatuses,
     },
     uiProgress: {
       started,
@@ -1682,6 +1811,7 @@ export default function SimulationShellClient() {
       hasCompletedWalkthroughForm,
       isInvestigationScene,
       isReportScene,
+      currentDeskStackItem,
     },
   });
 
@@ -2871,7 +3001,67 @@ export default function SimulationShellClient() {
                 </div>
               </>
             ) : currentModule === 'endOfDayEmail' ? (
-              isReportScene ? (
+              isDeskStackLanding ? (
+                <>
+                  <p className="eyebrow">4:00 PM</p>
+                  <h2>End-of-Day Desk Stack</h2>
+                  <article className="scenario-preview-card">
+                    <p>
+                      Your school day is technically over, but your professional responsibilities are not.
+                      Before you leave, you need to work through the communications, concerns, and follow-ups
+                      still sitting on your desk.
+                    </p>
+                    <p>
+                      At this point in the day, order matters less than completion. Choose what to handle next,
+                      keep track of what is still open, and make sure every communication has a response or next
+                      step.
+                    </p>
+                  </article>
+
+                  <div className="desk-stack-grid">
+                    {deskStackItems.map((item) => {
+                      const status = deskStackStatuses[item.id] || deskStackItemStatuses.comingSoon;
+                      const isClickable = item.id === 'rewardConcern';
+                      return (
+                        <article key={item.id} className="desk-stack-card">
+                          <div className="desk-stack-card-header">
+                            <span className={`desk-stack-type-badge ${item.type.toLowerCase()}`}>{item.type}</span>
+                            <span className={`desk-stack-status-badge ${status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {status}
+                            </span>
+                          </div>
+                          <h3>{item.title}</h3>
+                          <p>{item.description}</p>
+                          {isClickable ? (
+                            <button
+                              type="button"
+                              className="button primary"
+                              onClick={() => handleOpenDeskStackItem(item.id)}
+                            >
+                              Open Case
+                            </button>
+                          ) : (
+                            <button type="button" className="button secondary" disabled>
+                              Coming Soon
+                            </button>
+                          )}
+                        </article>
+                      );
+                    })}
+                  </div>
+
+                  <article className="desk-stack-close-card">
+                    <h3>Day Closure</h3>
+                    {canCloseDeskStackDay ? (
+                      <button type="button" className="button primary" onClick={handleCloseDeskStackDay}>
+                        Close the Day
+                      </button>
+                    ) : (
+                      <p>Complete available desk-stack items before closing the day.</p>
+                    )}
+                  </article>
+                </>
+              ) : isReportScene ? (
               <>
                 <p className="eyebrow">Leadership Case Record</p>
                 <h2>Leadership Response Report</h2>
@@ -3204,7 +3394,10 @@ export default function SimulationShellClient() {
               </article>
             )}
 
-            {currentModule === 'endOfDayEmail' && !isInvestigationScene && !isReportScene ? (
+            {currentModule === 'endOfDayEmail'
+            && currentDeskStackItem === 'rewardConcern'
+            && !isInvestigationScene
+            && !isReportScene ? (
               <button
                 type="button"
                 className="button secondary reveal-email-button"
@@ -3214,7 +3407,11 @@ export default function SimulationShellClient() {
               </button>
             ) : null}
 
-            {currentModule === 'endOfDayEmail' && isEmailVisible && !isInvestigationScene && !isReportScene ? (
+            {currentModule === 'endOfDayEmail'
+            && currentDeskStackItem === 'rewardConcern'
+            && isEmailVisible
+            && !isInvestigationScene
+            && !isReportScene ? (
               <article className="full-email-card">
                 <p className="full-email-greeting">Dear Mr. Principal,</p>
                 <p>
@@ -3239,33 +3436,32 @@ export default function SimulationShellClient() {
               </article>
             ) : null}
 
-            {currentModule === 'endOfDayEmail' && hasSelectedDecision ? (
+            {currentModule === 'endOfDayEmail' && currentDeskStackItem === 'rewardConcern' && hasSelectedDecision ? (
               <>
                 <div className="button-row">
                   <button type="button" className="button secondary" onClick={() => setIsVicOpen(true)}>
                     Ask VIC for Guidance
                   </button>
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={
-                      isReportScene
-                        ? undefined
-                        : (isInvestigationScene
-                          ? handleInvestigationContinue
-                          : handleContinueToInvestigation)
-                    }
-                    disabled={
-                      isReportScene ||
-                      (isInvestigationScene &&
-                        !hasCompletedFinalStep &&
-                        (!investigationDecision || !finalParentResponse.trim()))
-                    }
-                  >
-                    {isReportScene ? 'Continue to Next Scenario' : 'Continue'}
-                  </button>
+                  {isReportScene ? (
+                    <button type="button" className="button primary" onClick={handleReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={isInvestigationScene ? handleInvestigationContinue : handleContinueToInvestigation}
+                      disabled={
+                        isInvestigationScene
+                        && !hasCompletedFinalStep
+                        && (!investigationDecision || !finalParentResponse.trim())
+                      }
+                    >
+                      Continue
+                    </button>
+                  )}
                 </div>
-                {isReportScene ? <p className="next-scenario-note">Next scenario coming soon.</p> : null}
+                {isReportScene ? <p className="next-scenario-note">Return to the desk stack to close the day.</p> : null}
               </>
             ) : null}
           </div>
