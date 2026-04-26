@@ -128,7 +128,7 @@ const deskStackItemStatuses = {
 const initialDeskStackStatuses = {
   rewardConcern: deskStackItemStatuses.notStarted,
   studentThreatEmail: deskStackItemStatuses.notStarted,
-  ptoConflict: deskStackItemStatuses.comingSoon,
+  ptoTalentShowEmail: deskStackItemStatuses.notStarted,
   academicDecline: deskStackItemStatuses.comingSoon,
   giftedRetesting: deskStackItemStatuses.comingSoon,
   recessInjuryEmail: deskStackItemStatuses.notStarted,
@@ -153,11 +153,11 @@ const deskStackItems = [
     isAvailable: true,
   },
   {
-    id: 'ptoConflict',
+    id: 'ptoTalentShowEmail',
     title: 'Email: PTO / Talent Show Conflict',
     type: 'Email',
-    description: 'Parent and PTO disagreement about student participation expectations for the talent show.',
-    isAvailable: false,
+    description: 'A frustrated parent volunteer says she is done helping with the talent show and PTO fundraising.',
+    isAvailable: true,
   },
   {
     id: 'academicDecline',
@@ -246,6 +246,59 @@ const studentThreatEvidenceCards = [
     title: 'Documentation and Process',
     content:
       'The school must follow proper procedures for documenting and investigating student incidents.',
+  },
+];
+
+const ptoTalentShowDecisionOptions = [
+  'Respond with appreciation and invite a conversation',
+  'Forward it to the PTO president',
+  'Explain the planning limitations',
+  'Let the parent step away for now',
+];
+
+const ptoTalentShowDecisionCoaching = {
+  'Respond with appreciation and invite a conversation': {
+    title: 'Relationship Repair',
+    message:
+      'You chose to acknowledge the volunteer’s frustration and keep the relationship open. This can preserve trust, especially when the parent still cares about the school.',
+  },
+  'Forward it to the PTO president': {
+    title: 'Delegating the Conflict',
+    message:
+      'You chose to send the issue back to PTO leadership. That may be appropriate later, but it can feel dismissive if the parent came to you because the process already felt unsupported.',
+  },
+  'Explain the planning limitations': {
+    title: 'Clarifying the System',
+    message:
+      'You chose to explain constraints. This can help, but starting with explanation before acknowledgment can make the parent feel unheard.',
+  },
+  'Let the parent step away for now': {
+    title: 'Respecting Boundaries',
+    message:
+      'You chose not to push the parent to stay involved. That may be respectful, but the school still risks losing a committed volunteer without repairing the relationship.',
+  },
+};
+
+const ptoTalentShowEvidenceCards = [
+  {
+    title: 'Volunteer Trust',
+    content:
+      'Parent volunteers often give time because they feel connected to the school. When communication breaks down, the issue is not only the event — it is trust.',
+  },
+  {
+    title: 'PTO Boundaries',
+    content:
+      'The PTO may manage parts of the event, but the principal still helps protect the school’s relationship with families.',
+  },
+  {
+    title: 'Emotional Tone',
+    content:
+      'The parent is frustrated, but the message also shows that she still cares about the school and students.',
+  },
+  {
+    title: 'Leadership Balance',
+    content:
+      'The response should acknowledge the frustration, avoid blaming PTO or staff, and offer a constructive next step.',
   },
 ];
 
@@ -848,6 +901,53 @@ function analyzeLeadershipWriting(responseText, contextType) {
     'follow up',
     'next step',
   ]);
+  const hasPtoTalentShowLanguage = includesAny(lowered, [
+    'pto',
+    'talent show',
+    'volunteer',
+    'fundraising',
+  ]);
+  const hasParentFrustrationLanguage = includesAny(lowered, [
+    'frustrated',
+    'frustration',
+    'hard',
+    'roadblock',
+    'unsupported',
+  ]);
+  const hasFamilyInvolvementLanguage = includesAny(lowered, [
+    'family involvement',
+    'family partnership',
+    'parent involvement',
+    'community',
+    'school community',
+    'value your support',
+    'value your involvement',
+  ]);
+  const hasConversationInviteLanguage = includesAny(lowered, [
+    'would you be open to',
+    'can we talk',
+    'conversation',
+    'follow-up conversation',
+    'connect',
+    'meet',
+    'call',
+  ]);
+  const hasPtoBlameRisk = includesAny(lowered, [
+    'pto is the problem',
+    'pto caused this',
+    'pto failed',
+    'the pto failed you',
+    'staff failed',
+    'staff is the problem',
+    'it is their fault',
+  ]);
+  const hasPressureToContinueRisk = includesAny(lowered, [
+    'you need to keep helping',
+    'you should not step away',
+    'you must continue',
+    'we need you to stay involved',
+    'do not quit',
+  ]);
 
   const contextConceptGroups = {
     parentFinalResponse: [
@@ -922,6 +1022,15 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['context', 'gather', 'review', 'pattern'],
       ['follow up', 'follow-up', 'next steps', 'reentry'],
       ['dignity', 'respect', 'private', 'fair'],
+    ],
+    ptoTalentShowEmail: [
+      ['parent', 'family', 'volunteer', 'pto'],
+      ['talent show', 'fundraising', 'hospitality committee'],
+      ['frustrated', 'frustration', 'roadblock', 'unsupported'],
+      ['thank you', 'appreciate'],
+      ['conversation', 'connect', 'meet', 'call'],
+      ['family involvement', 'school community', 'partnership'],
+      ['follow up', 'follow-up', 'next step', 'timeline'],
     ],
   };
 
@@ -1098,6 +1207,36 @@ function analyzeLeadershipWriting(responseText, contextType) {
           note: 'Scenario fit is present; strengthen with more concrete, step-by-step action language.',
         };
       }
+      if (contextType === 'ptoTalentShowEmail') {
+        if (!hasPtoTalentShowLanguage || !hasParentFrustrationLanguage) {
+          return {
+            status: 'Needs Attention',
+            note: 'Name the PTO/talent show volunteer concern and acknowledge the parent’s frustration directly.',
+          };
+        }
+        if (!hasAcknowledgment || !hasConversationInviteLanguage || !hasNextStep) {
+          return {
+            status: 'Developing',
+            note: 'Add appreciation, relationship-repair language, and a clear invitation to a calm follow-up conversation.',
+          };
+        }
+        if (hasPtoBlameRisk) {
+          return {
+            status: 'Needs Attention',
+            note: 'Avoid blaming PTO or staff; keep the response relationship-centered and constructive.',
+          };
+        }
+        if (hasMeaningfulLength && hasFamilyInvolvementLanguage) {
+          return {
+            status: 'Strong',
+            note: 'Response fits the case by acknowledging frustration, preserving trust, and inviting a constructive next step.',
+          };
+        }
+        return {
+          status: 'Developing',
+          note: 'Core scenario fit is present; add stronger school-community partnership language.',
+        };
+      }
       if (unrelatedScenario) {
         return {
           status: 'Needs Attention',
@@ -1218,6 +1357,31 @@ function analyzeLeadershipWriting(responseText, contextType) {
         note: 'Response avoids overreaction, supports teacher needs, and protects student dignity with follow-up.',
       };
     }
+    if (contextType === 'ptoTalentShowEmail') {
+      const ptoRiskNotes = [];
+      if (hasPtoBlameRisk) ptoRiskNotes.push('blaming PTO/staff');
+      if (hasRiskDismissive) ptoRiskNotes.push('dismissive response to frustration');
+      if (hasPressureToContinueRisk) ptoRiskNotes.push('pressuring parent to continue volunteering');
+      const startsWithSystemDefense = /^\s*(the issue|the problem|the process|planning limitations|limitations)/.test(lowered);
+      if (startsWithSystemDefense && !hasAcknowledgment) ptoRiskNotes.push('arguing details before acknowledgment');
+      if (!hasNextStep) ptoRiskNotes.push('missing next step/conversation invitation');
+      if (ptoRiskNotes.length) {
+        return {
+          status: 'Needs Attention',
+          note: `Risk detected: ${ptoRiskNotes.join(', ')}. Lead with appreciation, acknowledgment, and relationship repair.`,
+        };
+      }
+      if (!hasConversationInviteLanguage || !hasFamilyInvolvementLanguage) {
+        return {
+          status: 'Developing',
+          note: 'Reduce risk by explicitly inviting a calm follow-up and reaffirming the school’s value of family involvement.',
+        };
+      }
+      return {
+        status: 'Strong',
+        note: 'Response protects trust by avoiding blame, de-escalating tone, and offering a constructive next step.',
+      };
+    }
     if (hasAnyRisk) {
       const riskNotes = [];
       if (hasRiskBlame) riskNotes.push('blame wording');
@@ -1259,6 +1423,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     studentThreatEmail: 'student threat parent email response',
     recessInjuryEmail: 'recess injury parent email response',
     studentRemovalVoicemail: 'student removal voicemail response/action plan',
+    ptoTalentShowEmail: 'PTO talent show parent-volunteer response',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -1414,6 +1579,9 @@ export default function SimulationShellClient() {
   const [studentThreatDecision, setStudentThreatDecision] = useState('');
   const [studentThreatResponse, setStudentThreatResponse] = useState('');
   const [studentThreatWritingAssessment, setStudentThreatWritingAssessment] = useState(null);
+  const [ptoTalentShowDecision, setPtoTalentShowDecision] = useState('');
+  const [ptoTalentShowResponse, setPtoTalentShowResponse] = useState('');
+  const [ptoTalentShowWritingAssessment, setPtoTalentShowWritingAssessment] = useState(null);
   const [recessInjuryDecision, setRecessInjuryDecision] = useState('');
   const [recessInjuryResponse, setRecessInjuryResponse] = useState('');
   const [recessInjuryWritingAssessment, setRecessInjuryWritingAssessment] = useState(null);
@@ -1562,6 +1730,9 @@ export default function SimulationShellClient() {
     setStudentThreatDecision('');
     setStudentThreatResponse('');
     setStudentThreatWritingAssessment(null);
+    setPtoTalentShowDecision('');
+    setPtoTalentShowResponse('');
+    setPtoTalentShowWritingAssessment(null);
     setRecessInjuryDecision('');
     setRecessInjuryResponse('');
     setRecessInjuryWritingAssessment(null);
@@ -1627,6 +1798,7 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryDecision(safeDecisions.cafeteriaBoundaryDecision || '');
     setTeacherConflictDecision(safeDecisions.teacherConflictDecision || '');
     setStudentThreatDecision(safeDecisions.studentThreatDecision || '');
+    setPtoTalentShowDecision(safeDecisions.ptoTalentShowDecision || '');
     setRecessInjuryDecision(safeDecisions.recessInjuryDecision || '');
     setStudentRemovalDecision(safeDecisions.studentRemovalDecision || '');
 
@@ -1638,6 +1810,7 @@ export default function SimulationShellClient() {
     setCafeteriaBoundaryResponse(safeResponses.cafeteriaBoundaryResponse || '');
     setTeacherConflictResponse(safeResponses.teacherConflictResponse || '');
     setStudentThreatResponse(safeResponses.studentThreatResponse || '');
+    setPtoTalentShowResponse(safeResponses.ptoTalentShowResponse || '');
     setRecessInjuryResponse(safeResponses.recessInjuryResponse || '');
     setStudentRemovalResponse(safeResponses.studentRemovalResponse || '');
     setWalkthroughResponses(
@@ -1659,6 +1832,7 @@ export default function SimulationShellClient() {
     setTeacherConflictLeadershipRecord(safeRecords.teacherConflictLeadershipRecord || null);
     setTeacherConflictWritingAssessment(safeRecords.teacherConflictWritingAssessment || null);
     setStudentThreatWritingAssessment(safeRecords.studentThreatWritingAssessment || null);
+    setPtoTalentShowWritingAssessment(safeRecords.ptoTalentShowWritingAssessment || null);
     setRecessInjuryWritingAssessment(safeRecords.recessInjuryWritingAssessment || null);
     setStudentRemovalWritingAssessment(safeRecords.studentRemovalWritingAssessment || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
@@ -1801,6 +1975,7 @@ export default function SimulationShellClient() {
     if (
       itemId !== 'rewardConcern'
       && itemId !== 'studentThreatEmail'
+      && itemId !== 'ptoTalentShowEmail'
       && itemId !== 'recessInjuryEmail'
       && itemId !== 'studentRemovalVoicemail'
     ) return;
@@ -1842,6 +2017,19 @@ export default function SimulationShellClient() {
 
   const handleStudentThreatReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, studentThreatEmail: deskStackItemStatuses.complete }));
+    setCurrentDeskStackItem(null);
+    scrollToTop();
+  };
+
+  const handlePtoTalentShowContinue = () => {
+    if (!ptoTalentShowDecision || !ptoTalentShowResponse.trim() || ptoTalentShowWritingAssessment) return;
+    const assessment = analyzeLeadershipWriting(ptoTalentShowResponse, 'ptoTalentShowEmail');
+    setPtoTalentShowWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handlePtoTalentShowReturnToDeskStack = () => {
+    setDeskStackStatuses((prev) => ({ ...prev, ptoTalentShowEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
@@ -2224,6 +2412,8 @@ export default function SimulationShellClient() {
   const hasTeacherConflictDecision = Boolean(teacherConflictDecision);
   const hasStudentThreatDecision = Boolean(studentThreatDecision);
   const hasStudentThreatResponse = Boolean(studentThreatResponse.trim());
+  const hasPtoTalentShowDecision = Boolean(ptoTalentShowDecision);
+  const hasPtoTalentShowResponse = Boolean(ptoTalentShowResponse.trim());
   const hasRecessInjuryDecision = Boolean(recessInjuryDecision);
   const hasRecessInjuryResponse = Boolean(recessInjuryResponse.trim());
   const hasStudentRemovalDecision = Boolean(studentRemovalDecision);
@@ -2306,6 +2496,7 @@ export default function SimulationShellClient() {
       cafeteriaBoundaryDecision,
       teacherConflictDecision,
       studentThreatDecision,
+      ptoTalentShowDecision,
       recessInjuryDecision,
       studentRemovalDecision,
       arrivalPriorityAssignments,
@@ -2320,6 +2511,7 @@ export default function SimulationShellClient() {
       cafeteriaBoundaryResponse,
       teacherConflictResponse,
       studentThreatResponse,
+      ptoTalentShowResponse,
       recessInjuryResponse,
       studentRemovalResponse,
       walkthroughResponses,
@@ -2339,6 +2531,7 @@ export default function SimulationShellClient() {
       teacherConflictLeadershipRecord,
       teacherConflictWritingAssessment,
       studentThreatWritingAssessment,
+      ptoTalentShowWritingAssessment,
       recessInjuryWritingAssessment,
       studentRemovalWritingAssessment,
       parentFinalWritingAssessment,
@@ -3706,6 +3899,113 @@ export default function SimulationShellClient() {
                     </button>
                   ) : (
                     <button type="button" className="button primary" onClick={handleStudentThreatReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
+                </div>
+              </>
+              ) : currentDeskStackItem === 'ptoTalentShowEmail' ? (
+              <>
+                <p className="eyebrow">4:22 PM</p>
+                <h2>Email: PTO / Talent Show Conflict</h2>
+
+                <article className="scenario-alert-card">
+                  <p><strong>Subject:</strong> Talent Show Concerns</p>
+                  <p><strong>Type:</strong> Email</p>
+                </article>
+
+                <article className="full-email-card">
+                  <p>Dr. Principal,</p>
+                  <p>
+                    I am writing because I am extremely frustrated with how the talent show planning has gone. I
+                    volunteered because I wanted to help raise money for the school and create something fun for
+                    the students, but I feel like I have run into roadblock after roadblock.
+                  </p>
+                  <p>
+                    I have been waiting for dates, guidance, and clear answers. I tried to work with the PTO and
+                    staff, but it feels like no one really wanted this event to happen. At this point, I am done
+                    with the talent show, fundraising, and the hospitality committee.
+                  </p>
+                  <p>
+                    I love this school and I care about the students, but PTO is not for everyone. I will still
+                    help the kids and the community when I can, but I do not want to keep fighting to be involved.
+                  </p>
+                  <p>Thank you for your time.</p>
+                </article>
+
+                <h3 className="decision-prompt">What is your first move?</h3>
+                <div className="choices">
+                  {ptoTalentShowDecisionOptions.map((option) => (
+                    <button
+                      key={option}
+                      className={`choice ${ptoTalentShowDecision === option ? 'active' : ''}`}
+                      onClick={() => setPtoTalentShowDecision(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+
+                {hasPtoTalentShowDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{ptoTalentShowDecisionCoaching[ptoTalentShowDecision].title}</h4>
+                    <p>{ptoTalentShowDecisionCoaching[ptoTalentShowDecision].message}</p>
+                  </article>
+                ) : null}
+
+                <div className="investigation-evidence-grid">
+                  {ptoTalentShowEvidenceCards.map((card) => (
+                    <article key={card.title} className="investigation-card">
+                      <h3>{card.title}</h3>
+                      <p>{card.content}</p>
+                    </article>
+                  ))}
+                </div>
+
+                <label htmlFor="pto-talent-show-response" className="response-label">
+                  Draft your response to the parent volunteer.
+                </label>
+                <textarea
+                  id="pto-talent-show-response"
+                  rows={6}
+                  className="response-input"
+                  placeholder="Write your response…"
+                  value={ptoTalentShowResponse}
+                  onChange={(event) => setPtoTalentShowResponse(event.target.value)}
+                />
+
+                {ptoTalentShowWritingAssessment ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">{ptoTalentShowWritingAssessment.summary}</p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {ptoTalentShowWritingAssessment.categories.map((category) => (
+                        <article key={`pto-talent-show-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!ptoTalentShowWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handlePtoTalentShowContinue}
+                      disabled={!hasPtoTalentShowDecision || !hasPtoTalentShowResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handlePtoTalentShowReturnToDeskStack}>
                       Return to Desk Stack
                     </button>
                   )}
