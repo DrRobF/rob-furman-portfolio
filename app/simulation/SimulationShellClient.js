@@ -94,7 +94,7 @@ const dayModules = [
   { id: 'voicemail', label: '9:30 AM — Voicemail & Mailbox', enabled: true },
   { id: 'classroomWalkthrough', label: '11:00 AM — Classroom Walkthrough', enabled: true },
   { id: 'lunchClimate', label: '11:30 AM — Lunch & Cafeteria Climate', enabled: true },
-  { id: 'parentCall', label: '1:00 PM — Parent Call', enabled: false },
+  { id: 'parentEscalation', label: '1:00 PM — Parent Escalation', enabled: true },
   { id: 'teacherObservation', label: '2:00 PM — Teacher Observation', enabled: false },
   { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: false },
   { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Communication', enabled: true },
@@ -264,6 +264,57 @@ const lunchClimateDecisionCoaching = {
 const lunchClimateTaskItem = 'Stabilize cafeteria expectations today';
 const lunchClimateInsightMessage =
   'Cafeteria behavior improves when adults share the same expectations, use the same language, and respond consistently. Strong leaders do not just correct students — they build systems adults can follow.';
+const parentEscalationTaskItem = 'Respond to parent escalation from lunch incident';
+const parentEscalationDecisionOptions = [
+  'Call the parent back immediately',
+  'Send a quick acknowledgment first',
+  'Finish gathering facts before responding',
+  'Ask the secretary to take a message',
+];
+const parentEscalationDecisionCoaching = {
+  'Call the parent back immediately': {
+    title: 'Direct Contact Under Pressure',
+    message:
+      'You chose live communication. This can build trust, but it may also pull you into a long emotional conversation before your documentation and facts are fully organized.',
+  },
+  'Send a quick acknowledgment first': {
+    title: 'Acknowledge and Set Boundaries',
+    message:
+      'You chose to acknowledge the parent quickly. This can reduce escalation while giving you time to finish gathering facts and set a clear follow-up window.',
+  },
+  'Finish gathering facts before responding': {
+    title: 'Accuracy First',
+    message:
+      'You chose to complete the fact-finding before responding. This protects accuracy, but it can increase parent frustration if they feel ignored.',
+  },
+  'Ask the secretary to take a message': {
+    title: 'Buffering the Contact',
+    message:
+      'You chose to create a buffer. This may protect your time briefly, but the parent still needs to know the concern was received and will be addressed.',
+  },
+};
+const parentEscalationEvidenceCards = [
+  {
+    title: 'Communication Gap',
+    content:
+      'The parent has heard the student’s version first. That does not mean the student is wrong, but it does mean the parent may be reacting to incomplete information.',
+  },
+  {
+    title: 'School Responsibility',
+    content:
+      'The school still needs to document what happened, confirm facts with staff/students, and communicate next steps calmly.',
+  },
+  {
+    title: 'Cell Phone Reality',
+    content:
+      'Information now moves faster than school procedures. Leaders often respond while the story is already spreading.',
+  },
+  {
+    title: 'Leadership Balance',
+    content:
+      'The goal is not to win the narrative. The goal is to acknowledge concern, gather facts, and communicate clearly without blaming or overpromising.',
+  },
+];
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
@@ -338,6 +389,14 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['support', 'help', 'assist', 'coverage'],
       ['concern', 'issue', 'decision', 'judgment'],
       ['follow up', 'follow-up', 'check in', 'update'],
+    ],
+    parentEscalation: [
+      ['parent', 'family', 'guardian'],
+      ['lunch', 'cafeteria', 'incident', 'office'],
+      ['student', 'child'],
+      ['voicemail', 'call', 'called home', 'message'],
+      ['facts', 'review', 'investigate', 'gather'],
+      ['follow up', 'follow-up', 'timeline', 'update'],
     ],
   };
 
@@ -463,6 +522,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     parentFinalResponse: 'final parent response',
     voicemailParent: 'voicemail response to parent request',
     voicemailTeacher: 'voicemail response to teacher call',
+    parentEscalation: 'parent escalation response',
   }[contextType] || 'written response';
 
   const needsAttentionCount = categories.filter((category) => category.status === 'Needs Attention').length;
@@ -598,6 +658,11 @@ export default function SimulationShellClient() {
   const [lunchMonitorDirectionNote, setLunchMonitorDirectionNote] = useState('');
   const [lunchClimateCoachingRecord, setLunchClimateCoachingRecord] = useState(null);
   const [lunchClimateInsightUnlocked, setLunchClimateInsightUnlocked] = useState(false);
+  const [parentEscalationVoicemailPlayed, setParentEscalationVoicemailPlayed] = useState(false);
+  const [parentEscalationDecision, setParentEscalationDecision] = useState('');
+  const [parentEscalationResponse, setParentEscalationResponse] = useState('');
+  const [parentEscalationWritingAssessment, setParentEscalationWritingAssessment] = useState(null);
+  const [parentEscalationLeadershipRecord, setParentEscalationLeadershipRecord] = useState(null);
   const [moduleTransitionNote, setModuleTransitionNote] = useState('');
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
@@ -631,6 +696,11 @@ export default function SimulationShellClient() {
   useEffect(() => {
     if (currentModule !== 'lunchClimate') return;
     addFolderItems({ red: [lunchClimateTaskItem] });
+  }, [currentModule]);
+
+  useEffect(() => {
+    if (currentModule !== 'parentEscalation') return;
+    addFolderItems({ red: [parentEscalationTaskItem] });
   }, [currentModule]);
 
   useEffect(() => {
@@ -701,6 +771,11 @@ export default function SimulationShellClient() {
     setLunchMonitorDirectionNote('');
     setLunchClimateCoachingRecord(null);
     setLunchClimateInsightUnlocked(false);
+    setParentEscalationVoicemailPlayed(false);
+    setParentEscalationDecision('');
+    setParentEscalationResponse('');
+    setParentEscalationWritingAssessment(null);
+    setParentEscalationLeadershipRecord(null);
     setModuleTransitionNote('');
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
@@ -744,11 +819,13 @@ export default function SimulationShellClient() {
     setVoicemailDecisions(safeDecisions.voicemailDecisions || { parentHelp: '', teacherCall: '' });
     setArrivalPriorityAssignments(safeDecisions.arrivalPriorityAssignments || {});
     setLunchClimateDecision(safeDecisions.lunchClimateDecision || '');
+    setParentEscalationDecision(safeDecisions.parentEscalationDecision || '');
 
     setInitialParentResponse(safeResponses.initialParentResponse || '');
     setFinalParentResponse(safeResponses.finalParentResponse || '');
     setVoicemailResponses(safeResponses.voicemailResponses || { parentHelp: '', teacherCall: '' });
     setLunchMonitorDirectionNote(safeResponses.lunchMonitorDirectionNote || '');
+    setParentEscalationResponse(safeResponses.parentEscalationResponse || '');
     setWalkthroughResponses(
       safeResponses.walkthroughResponses
       || walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: '' }), {}),
@@ -761,6 +838,8 @@ export default function SimulationShellClient() {
     setVoicemailLeadershipRecord(safeRecords.voicemailLeadershipRecord || null);
     setWalkthroughLeadershipRecord(safeRecords.walkthroughLeadershipRecord || null);
     setLunchClimateCoachingRecord(safeRecords.lunchClimateCoachingRecord || null);
+    setParentEscalationLeadershipRecord(safeRecords.parentEscalationLeadershipRecord || null);
+    setParentEscalationWritingAssessment(safeRecords.parentEscalationWritingAssessment || null);
     setParentFinalWritingAssessment(safeRecords.parentFinalWritingAssessment || null);
     setVoicemailWritingAssessments(
       safeRecords.voicemailWritingAssessments || { parentHelp: null, teacherCall: null },
@@ -772,6 +851,7 @@ export default function SimulationShellClient() {
     setArrivalCompleted(Boolean(safeUiProgress.arrivalCompleted));
     setVoicemailTaskClosed(Boolean(safeUiProgress.voicemailTaskClosed));
     setLunchClimateInsightUnlocked(Boolean(safeUiProgress.lunchClimateInsightUnlocked));
+    setParentEscalationVoicemailPlayed(Boolean(safeUiProgress.parentEscalationVoicemailPlayed));
   };
 
   const scrollToTop = () => {
@@ -1115,15 +1195,57 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleParentEscalationContinue = () => {
+    if (!parentEscalationDecision || !parentEscalationResponse.trim() || parentEscalationWritingAssessment) return;
+    const nextAssessment = analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation');
+    setParentEscalationWritingAssessment(nextAssessment);
+    completeFolderItems([parentEscalationTaskItem]);
+    setParentEscalationLeadershipRecord({
+      module: '1:00 PM — Parent Escalation',
+      voicemailPlayed: parentEscalationVoicemailPlayed,
+      decision: parentEscalationDecision,
+      response: parentEscalationResponse.trim(),
+      writingAssessment: nextAssessment,
+      coachingNote: parentEscalationDecisionCoaching[parentEscalationDecision]?.message || '',
+    });
+    scrollToTop();
+  };
+
+  const handleParentEscalationContinueDay = () => {
+    if (!parentEscalationWritingAssessment) return;
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, parentEscalation: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'parentEscalation' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
+    });
+    scrollToTop();
+  };
+
   const showInitialParentResponse = firstDecision === 'Send an email response';
   const showFinalParentResponse = Boolean(investigationDecision) && !hasCompletedFinalStep;
   const hasFinishedArrivalRanking = arrivalSortItems.every((item) => Boolean(arrivalPriorityAssignments[item]));
-  const isDecisionMade = currentModule === 'arrival' ? hasFinishedArrivalRanking : hasSelectedDecision;
+  const isDecisionMade = currentModule === 'arrival'
+    ? hasFinishedArrivalRanking
+    : currentModule === 'parentEscalation'
+      ? hasParentEscalationDecision
+      : hasSelectedDecision;
   const hasCompletedWalkthroughForm = walkthroughFormFields.every(
     (field) => walkthroughResponses[field.id].trim(),
   );
   const hasSelectedBothVoicemailDecisions = Object.values(voicemailDecisions).every(Boolean);
   const hasCompletedBothVoicemailResponses = Object.values(voicemailResponses).every((response) => response.trim());
+  const hasParentEscalationResponse = Boolean(parentEscalationResponse.trim());
+  const hasParentEscalationDecision = Boolean(parentEscalationDecision);
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
     [finalParentResponse],
@@ -1138,6 +1260,10 @@ export default function SimulationShellClient() {
       teacherCall: analyzeLeadershipWriting(voicemailResponses.teacherCall, 'voicemailTeacher'),
     }),
     [voicemailResponses.parentHelp, voicemailResponses.teacherCall],
+  );
+  const liveParentEscalationWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation'),
+    [parentEscalationResponse],
   );
 
   const investigationGuidanceCopy = {
@@ -1164,6 +1290,7 @@ export default function SimulationShellClient() {
       announcementsDecision,
       voicemailDecisions,
       lunchClimateDecision,
+      parentEscalationDecision,
       arrivalPriorityAssignments,
       arrivalRankingSequence: arrivalRankingRecord ? arrivalRankingRecord.map((entry) => entry.item) : [],
     },
@@ -1172,6 +1299,7 @@ export default function SimulationShellClient() {
       finalParentResponse,
       voicemailResponses,
       lunchMonitorDirectionNote,
+      parentEscalationResponse,
       walkthroughResponses,
     },
     records: {
@@ -1182,6 +1310,8 @@ export default function SimulationShellClient() {
       voicemailLeadershipRecord,
       walkthroughLeadershipRecord,
       lunchClimateCoachingRecord,
+      parentEscalationLeadershipRecord,
+      parentEscalationWritingAssessment,
       parentFinalWritingAssessment,
       voicemailWritingAssessments,
     },
@@ -1193,6 +1323,7 @@ export default function SimulationShellClient() {
       arrivalCompleted,
       voicemailTaskClosed,
       lunchClimateInsightUnlocked,
+      parentEscalationVoicemailPlayed,
       hasCompletedWalkthroughForm,
       isInvestigationScene,
       isReportScene,
@@ -2010,6 +2141,130 @@ export default function SimulationShellClient() {
                   </>
                 ) : null}
               </>
+            ) : currentModule === 'parentEscalation' ? (
+              <>
+                <p className="eyebrow">1:00 PM</p>
+                <h2>Parent Escalation</h2>
+                <article className="scenario-preview-card">
+                  <p>
+                    You finally return to your office after lunch supervision and handling student behavior.
+                    Before you can finish documenting what happened, your secretary tells you a parent is
+                    already calling.
+                  </p>
+                  <p>
+                    One of the students involved apparently had a cell phone and called home immediately
+                    after leaving your office. The parent now has part of the story before you have finished
+                    the school&apos;s follow-up.
+                  </p>
+                </article>
+
+                <article className="report-card voicemail-thread-card">
+                  <p className="response-label">Listen to the parent voicemail before deciding your next move.</p>
+                  {!parentEscalationVoicemailPlayed ? (
+                    <p className="analysis-note">Listen to the voicemail before choosing your first move.</p>
+                  ) : null}
+                  <h3>Voicemail</h3>
+                  <audio
+                    controls
+                    className="voicemail-audio-player"
+                    onPlay={() => setParentEscalationVoicemailPlayed(true)}
+                  >
+                    <source src="/images/student-fight-vm.mp3" type="audio/mpeg" />
+                  </audio>
+                </article>
+
+                <h3 className="decision-prompt">What is your first move?</h3>
+                <div className="choices">
+                  {parentEscalationDecisionOptions.map((decision) => (
+                    <button
+                      key={decision}
+                      className={`choice ${parentEscalationDecision === decision ? 'active' : ''}`}
+                      onClick={() => setParentEscalationDecision(decision)}
+                      disabled={!parentEscalationVoicemailPlayed}
+                    >
+                      {decision}
+                    </button>
+                  ))}
+                </div>
+
+                {parentEscalationDecision ? (
+                  <article className="decision-consequence-card" aria-live="polite">
+                    <h4>{parentEscalationDecisionCoaching[parentEscalationDecision].title}</h4>
+                    <p>{parentEscalationDecisionCoaching[parentEscalationDecision].message}</p>
+                  </article>
+                ) : null}
+
+                {parentEscalationDecision ? (
+                  <>
+                    <div className="investigation-evidence-grid">
+                      {parentEscalationEvidenceCards.map((card) => (
+                        <article key={card.title} className="investigation-card">
+                          <h3>{card.title}</h3>
+                          <p>{card.content}</p>
+                        </article>
+                      ))}
+                    </div>
+
+                    <article className="report-card">
+                      <p className="response-label">Draft your response or call-back script to the parent.</p>
+                      <label htmlFor="parent-escalation-response" className="response-label">
+                        Write your parent response…
+                      </label>
+                      <textarea
+                        id="parent-escalation-response"
+                        rows={6}
+                        className="response-input"
+                        value={parentEscalationResponse}
+                        onChange={(event) => setParentEscalationResponse(event.target.value)}
+                        required
+                      />
+                    </article>
+                  </>
+                ) : null}
+
+                {hasParentEscalationDecision && hasParentEscalationResponse ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(parentEscalationWritingAssessment || liveParentEscalationWritingAssessment).summary}
+                    </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(parentEscalationWritingAssessment || liveParentEscalationWritingAssessment).categories.map((category) => (
+                        <article key={`parent-escalation-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </article>
+                ) : null}
+
+                <div className="button-row">
+                  {!parentEscalationWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleParentEscalationContinue}
+                      disabled={!hasParentEscalationDecision || !hasParentEscalationResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleParentEscalationContinueDay}
+                    >
+                      Continue Day
+                    </button>
+                  )}
+                </div>
+              </>
             ) : currentModule === 'endOfDayEmail' ? (
               isReportScene ? (
               <>
@@ -2545,6 +2800,23 @@ export default function SimulationShellClient() {
                     <li><strong>Direction note:</strong> {lunchClimateCoachingRecord.monitorDirectionNote}</li>
                     <li><strong>Coaching note:</strong> {lunchClimateCoachingRecord.coachingNote}</li>
                     <li><strong>Leadership insight:</strong> {lunchClimateCoachingRecord.leadershipInsight}</li>
+                  </ul>
+                </article>
+              ) : null}
+
+              {parentEscalationLeadershipRecord ? (
+                <article className="folder-card">
+                  <h4>Parent Escalation Record</h4>
+                  <p className="folder-subtitle">Captured parent escalation response notes</p>
+                  <ul>
+                    <li><strong>Voicemail played:</strong> {parentEscalationLeadershipRecord.voicemailPlayed ? 'Yes' : 'No'}</li>
+                    <li><strong>Decision:</strong> {parentEscalationLeadershipRecord.decision}</li>
+                    <li><strong>Response script:</strong> {parentEscalationLeadershipRecord.response}</li>
+                    <li>
+                      <strong>VIC summary:</strong>{' '}
+                      {parentEscalationLeadershipRecord.writingAssessment?.summary || 'Not captured'}
+                    </li>
+                    <li><strong>Coaching note:</strong> {parentEscalationLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
               ) : null}
