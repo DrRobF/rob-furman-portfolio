@@ -905,6 +905,91 @@ p {
   margin-top: 0.5rem;
 }
 
+.desk-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.desk-stack-card {
+  border: 1px solid #d3deef;
+  border-radius: 12px;
+  padding: 0.85rem 0.9rem;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(23, 44, 74, 0.06);
+  display: grid;
+  gap: 0.55rem;
+}
+
+.desk-stack-card h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.desk-stack-card p {
+  margin: 0;
+  color: #334b73;
+  font-size: 0.92rem;
+}
+
+.desk-stack-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.desk-stack-type-badge,
+.desk-stack-status-badge {
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.14rem 0.45rem;
+  border: 1px solid #ccd9ee;
+  background: #f5f8ff;
+  color: #2f4f80;
+}
+
+.desk-stack-type-badge.voicemail {
+  background: #eef9f4;
+  border-color: #b9dbc8;
+  color: #256243;
+}
+
+.desk-stack-status-badge.not-started {
+  background: #f0f5ff;
+  border-color: #c5d4f2;
+}
+
+.desk-stack-status-badge.in-progress {
+  background: #fff7ea;
+  border-color: #efcf95;
+  color: #8b5a00;
+}
+
+.desk-stack-status-badge.complete {
+  background: #ecf8ef;
+  border-color: #b5dabd;
+  color: #22613c;
+}
+
+.desk-stack-status-badge.coming-soon {
+  background: #f4f5f8;
+  border-color: #d7dce8;
+  color: #596b8a;
+}
+
+.desk-stack-close-card {
+  border: 1px solid #d5e0f3;
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 0.9rem;
+}
+
+.desk-stack-close-card h3 {
+  margin-bottom: 0.4rem;
+}
+
 .investigation-intro-card {
   border: 1px solid #d2ddf0;
   border-radius: 14px;
@@ -1292,6 +1377,10 @@ p {
   }
 
   .investigation-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .desk-stack-grid {
     grid-template-columns: 1fr;
   }
 }
