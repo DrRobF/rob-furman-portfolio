@@ -15,18 +15,19 @@ const featuredBooks = [
     image: '/images/book-reading.jpg',
     alt: 'Personalized Reading book cover',
   },
-];
-
-const additionalWorks = [
   {
     title: 'Technology, Reading & Digital Literacy',
     description:
       'Applied guidance for integrating digital tools into literacy instruction while keeping pedagogy at the center.',
+    image: '/images/book-tech-reading-digital-literacy.svg',
+    alt: 'Technology, Reading & Digital Literacy book cover',
   },
   {
     title: 'Engaging Young Readers',
     description:
       'Practical approaches that help educators improve reading engagement and student ownership in literacy growth.',
+    image: '/images/book-engaging-young-readers.svg',
+    alt: 'Engaging Young Readers book cover',
   },
 ];
 
@@ -36,8 +37,14 @@ export default function PublicationsPage() {
       <div className="container">
         <h1>Publications</h1>
         <p className="lead">
-          Dr. Rob Furman is an ISTE published author focused on educational technology, literacy, and
-          practical innovation for teachers, leaders, and learning organizations.
+          Dr. Rob Furman is an ISTE-published author and national contributor whose work spans
+          books, articles, and media focused on educational technology, literacy, leadership, and
+          practical innovation in schools.
+        </p>
+        <p className="top-space-sm">
+          His writing has appeared in outlets including K12Digest, Authority Magazine, EdTech
+          Review, and other national education platforms, connecting instructional practice with
+          real-world application.
         </p>
 
         <h2 className="top-space">Selected Books and Publications</h2>
@@ -62,14 +69,9 @@ export default function PublicationsPage() {
           ))}
         </div>
 
-        <div className="card-grid top-space">
-          {additionalWorks.map((work) => (
-            <article key={work.title} className="card">
-              <h3>{work.title}</h3>
-              <p>{work.description}</p>
-            </article>
-          ))}
-        </div>
+        <a href="/publications" className="text-link top-space-sm inline-link">
+          View Articles and Publications →
+        </a>
       </div>
     </section>
   );

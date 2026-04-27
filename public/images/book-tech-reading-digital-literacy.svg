@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="760" viewBox="0 0 540 760" role="img" aria-labelledby="title desc">
+  <title id="title">Technology, Reading &amp; Digital Literacy book cover</title>
+  <desc id="desc">Blue book cover with title Technology, Reading and Digital Literacy.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2a5b"/>
+      <stop offset="100%" stop-color="#2f75c9"/>
+    </linearGradient>
+  </defs>
+  <rect width="540" height="760" fill="url(#bg)"/>
+  <rect x="36" y="36" width="468" height="688" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="2"/>
+  <text x="60" y="170" fill="#ffffff" font-size="48" font-family="Arial, Helvetica, sans-serif" font-weight="700">Technology,</text>
+  <text x="60" y="235" fill="#ffffff" font-size="48" font-family="Arial, Helvetica, sans-serif" font-weight="700">Reading &amp;</text>
+  <text x="60" y="300" fill="#ffffff" font-size="48" font-family="Arial, Helvetica, sans-serif" font-weight="700">Digital Literacy</text>
+  <text x="60" y="650" fill="#dbe9ff" font-size="24" font-family="Arial, Helvetica, sans-serif">Dr. Rob Furman</text>
+</svg>

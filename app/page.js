@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-const VIC_URL = 'https://vic-final.vercel.app/askvic';
+const VIC_URL = 'https://askvic.ai';
+const SCHOOL_LEADER_SIMULATION_URL = 'https://drrobfurman.com/simulation';
 
 const credibilityCards = [
   {
@@ -49,10 +50,12 @@ const recognitionHighlights = [
 
 const featuredProjects = [
   {
-    title: 'A Day in the Life of a School Leader',
+    title: 'School Leader Simulation',
     description:
       'A real-time leadership simulation that places aspiring administrators inside a full school day — focused on decision-making, communication, and operational judgment under pressure.',
-    href: '/simulation',
+    href: SCHOOL_LEADER_SIMULATION_URL,
+    linkText: 'Open Simulation →',
+    external: true,
   },
   {
     title: 'Day in the Life of an Urban Student',
@@ -81,7 +84,8 @@ export default function HomePage() {
             <p className="lead">
               Former principal, COO, and national education leader building real-world systems for
               schools. From AI-powered instruction to leadership simulations, my work focuses on
-              how schools actually operate — not just how they&apos;re supposed to.
+              how schools operate in real conditions — and how to improve them through practical
+              systems.
             </p>
             <div className="button-row">
               <Link href="/projects" className="button primary">
