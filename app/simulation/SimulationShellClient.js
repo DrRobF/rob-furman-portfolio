@@ -2193,65 +2193,45 @@ export default function SimulationShellClient() {
   };
 
   const handleStudentThreatContinue = () => {
-    if (!studentThreatDecision || !studentThreatResponse.trim() || studentThreatWritingAssessment) return;
+    if (!studentThreatDecision || !studentThreatResponse.trim()) return;
     const assessment = analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail');
     setStudentThreatWritingAssessment(assessment);
-    scrollToTop();
-  };
-
-  const handleStudentThreatReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, studentThreatEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handleAcademicDeclineContinue = () => {
-    if (!academicDeclineDecision || !academicDeclineResponse.trim() || academicDeclineWritingAssessment) return;
+    if (!academicDeclineDecision || !academicDeclineResponse.trim()) return;
     const assessment = analyzeLeadershipWriting(academicDeclineResponse, 'academicDeclineEmail');
     setAcademicDeclineWritingAssessment(assessment);
-    scrollToTop();
-  };
-
-  const handleAcademicDeclineReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, academicDeclineEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handlePtoTalentShowContinue = () => {
-    if (!ptoTalentShowDecision || !ptoTalentShowResponse.trim() || ptoTalentShowWritingAssessment) return;
+    if (!ptoTalentShowDecision || !ptoTalentShowResponse.trim()) return;
     const assessment = analyzeLeadershipWriting(ptoTalentShowResponse, 'ptoTalentShowEmail');
     setPtoTalentShowWritingAssessment(assessment);
-    scrollToTop();
-  };
-
-  const handlePtoTalentShowReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, ptoTalentShowEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handleRecessInjuryContinue = () => {
-    if (!recessInjuryDecision || !recessInjuryResponse.trim() || recessInjuryWritingAssessment) return;
+    if (!recessInjuryDecision || !recessInjuryResponse.trim()) return;
     const assessment = analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail');
     setRecessInjuryWritingAssessment(assessment);
-    scrollToTop();
-  };
-
-  const handleRecessInjuryReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, recessInjuryEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handleStudentRemovalContinue = () => {
-    if (!studentRemovalDecision || !studentRemovalResponse.trim() || studentRemovalWritingAssessment) return;
+    if (!studentRemovalDecision || !studentRemovalResponse.trim()) return;
     const assessment = analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail');
     setStudentRemovalWritingAssessment(assessment);
-    scrollToTop();
-  };
-
-  const handleStudentRemovalReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, studentRemovalVoicemail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
@@ -2514,7 +2494,7 @@ export default function SimulationShellClient() {
   };
 
   const handleCafeteriaBoundaryContinue = () => {
-    if (!cafeteriaBoundaryDecision || !cafeteriaBoundaryResponse.trim() || cafeteriaBoundaryWritingAssessment) return;
+    if (!cafeteriaBoundaryDecision || !cafeteriaBoundaryResponse.trim()) return;
     const nextAssessment = analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary');
     setCafeteriaBoundaryWritingAssessment(nextAssessment);
     completeFolderItems([cafeteriaBoundaryTaskItem]);
@@ -2526,11 +2506,6 @@ export default function SimulationShellClient() {
       writingAssessment: nextAssessment,
       coachingNote: cafeteriaBoundaryDecisionCoaching[cafeteriaBoundaryDecision]?.message || '',
     });
-    scrollToTop();
-  };
-
-  const handleCafeteriaBoundaryContinueDay = () => {
-    if (!cafeteriaBoundaryWritingAssessment) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, cafeteriaBoundary: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -2550,7 +2525,7 @@ export default function SimulationShellClient() {
   };
 
   const handleTeacherConflictContinue = () => {
-    if (!teacherConflictDecision || !teacherConflictResponse.trim() || teacherConflictWritingAssessment) return;
+    if (!teacherConflictDecision || !teacherConflictResponse.trim()) return;
     const nextAssessment = analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict');
     setTeacherConflictWritingAssessment(nextAssessment);
     completeFolderItems([teacherConflictTaskItem]);
@@ -2561,11 +2536,6 @@ export default function SimulationShellClient() {
       writingAssessment: nextAssessment,
       coachingNote: teacherConflictDecisionCoaching[teacherConflictDecision]?.message || '',
     });
-    scrollToTop();
-  };
-
-  const handleTeacherConflictContinueDay = () => {
-    if (!teacherConflictWritingAssessment) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, teacherConflict: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -2620,50 +2590,6 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(finalParentResponse, 'parentFinalResponse'),
     [finalParentResponse],
   );
-  const liveParentEscalationWritingAssessment = useMemo(
-    () => analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation'),
-    [parentEscalationResponse],
-  );
-  const activeParentEscalationWritingAssessment =
-    parentEscalationWritingAssessment || liveParentEscalationWritingAssessment;
-  const parentEscalationImmediateCoachingLines = useMemo(() => {
-    if (!activeParentEscalationWritingAssessment) return [];
-    const needsAttentionCategory = activeParentEscalationWritingAssessment.categories.find(
-      (category) => category.status === 'Needs Attention',
-    );
-    if (needsAttentionCategory) {
-      return [
-        activeParentEscalationWritingAssessment.summary,
-        `Coaching: ${needsAttentionCategory.note}`,
-      ];
-    }
-    return [activeParentEscalationWritingAssessment.summary];
-  }, [activeParentEscalationWritingAssessment]);
-  const liveCafeteriaBoundaryWritingAssessment = useMemo(
-    () => analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary'),
-    [cafeteriaBoundaryResponse],
-  );
-  const liveTeacherConflictWritingAssessment = useMemo(
-    () => analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict'),
-    [teacherConflictResponse],
-  );
-  const liveStudentThreatWritingAssessment = useMemo(
-    () => analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail'),
-    [studentThreatResponse],
-  );
-  const liveAcademicDeclineWritingAssessment = useMemo(
-    () => analyzeLeadershipWriting(academicDeclineResponse, 'academicDeclineEmail'),
-    [academicDeclineResponse],
-  );
-  const liveRecessInjuryWritingAssessment = useMemo(
-    () => analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail'),
-    [recessInjuryResponse],
-  );
-  const liveStudentRemovalWritingAssessment = useMemo(
-    () => analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail'),
-    [studentRemovalResponse],
-  );
-
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
       'You chose to discuss the situation with the teacher before responding. This is appropriate if the goal is to review the classroom practice, support the teacher, and prevent future misunderstandings — not to assign blame.',
@@ -3256,12 +3182,10 @@ export default function SimulationShellClient() {
 
                 {hasCompletedBothVoicemailResponses ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Coaching Note</h3>
-                    <p className="analysis-note">
-                      VIC noted your response patterns and will include detailed feedback in your final
-                      leadership report.
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
                     </p>
-                    <p className="analysis-lens">View response notes</p>
+                    <p className="analysis-lens">View coaching notes</p>
                   </article>
                 ) : null}
 
@@ -3574,10 +3498,9 @@ export default function SimulationShellClient() {
 
                 {hasParentEscalationDecision && hasParentEscalationResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Coaching</h3>
-                    {parentEscalationImmediateCoachingLines.slice(0, 2).map((line) => (
-                      <p key={line} className="analysis-note">{line}</p>
-                    ))}
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    </p>
                   </article>
                 ) : null}
 
@@ -3677,45 +3600,21 @@ export default function SimulationShellClient() {
 
                 {hasCafeteriaBoundaryDecision && hasCafeteriaBoundaryResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">
-                      {(cafeteriaBoundaryWritingAssessment || liveCafeteriaBoundaryWritingAssessment).summary}
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
                     </p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {(cafeteriaBoundaryWritingAssessment || liveCafeteriaBoundaryWritingAssessment).categories.map((category) => (
-                        <article key={`cafeteria-boundary-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!cafeteriaBoundaryWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleCafeteriaBoundaryContinue}
-                      disabled={!hasCafeteriaBoundaryDecision || !hasCafeteriaBoundaryResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleCafeteriaBoundaryContinueDay}
-                    >
-                      Continue Day
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleCafeteriaBoundaryContinue}
+                    disabled={!hasCafeteriaBoundaryDecision || !hasCafeteriaBoundaryResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
             ) : currentModule === 'teacherConflict' ? (
@@ -3797,45 +3696,21 @@ export default function SimulationShellClient() {
 
                 {hasTeacherConflictDecision && hasTeacherConflictResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">
-                      {(teacherConflictWritingAssessment || liveTeacherConflictWritingAssessment).summary}
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
                     </p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {(teacherConflictWritingAssessment || liveTeacherConflictWritingAssessment).categories.map((category) => (
-                        <article key={`teacher-conflict-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!teacherConflictWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleTeacherConflictContinue}
-                      disabled={!hasTeacherConflictDecision || !hasTeacherConflictResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleTeacherConflictContinueDay}
-                    >
-                      Continue Day
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleTeacherConflictContinue}
+                    disabled={!hasTeacherConflictDecision || !hasTeacherConflictResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
             ) : currentModule === 'endOfDayEmail' ? (
@@ -3958,41 +3833,23 @@ export default function SimulationShellClient() {
                   onChange={(event) => setStudentThreatResponse(event.target.value)}
                 />
 
-                {studentThreatWritingAssessment ? (
+                {hasStudentThreatDecision && hasStudentThreatResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">{studentThreatWritingAssessment.summary}</p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {studentThreatWritingAssessment.categories.map((category) => (
-                        <article key={`student-threat-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    </p>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!studentThreatWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleStudentThreatContinue}
-                      disabled={!hasStudentThreatDecision || !hasStudentThreatResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleStudentThreatReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleStudentThreatContinue}
+                    disabled={!hasStudentThreatDecision || !hasStudentThreatResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'academicDeclineEmail' ? (
@@ -4064,43 +3921,23 @@ export default function SimulationShellClient() {
                   onChange={(event) => setAcademicDeclineResponse(event.target.value)}
                 />
 
-                {academicDeclineWritingAssessment ? (
+                {hasAcademicDeclineDecision && hasAcademicDeclineResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">
-                      {(academicDeclineWritingAssessment || liveAcademicDeclineWritingAssessment).summary}
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
                     </p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {(academicDeclineWritingAssessment || liveAcademicDeclineWritingAssessment).categories.map((category) => (
-                        <article key={`academic-decline-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!academicDeclineWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleAcademicDeclineContinue}
-                      disabled={!hasAcademicDeclineDecision || !hasAcademicDeclineResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleAcademicDeclineReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleAcademicDeclineContinue}
+                    disabled={!hasAcademicDeclineDecision || !hasAcademicDeclineResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'ptoTalentShowEmail' ? (
@@ -4173,41 +4010,23 @@ export default function SimulationShellClient() {
                   onChange={(event) => setPtoTalentShowResponse(event.target.value)}
                 />
 
-                {ptoTalentShowWritingAssessment ? (
+                {hasPtoTalentShowDecision && hasPtoTalentShowResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">{ptoTalentShowWritingAssessment.summary}</p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {ptoTalentShowWritingAssessment.categories.map((category) => (
-                        <article key={`pto-talent-show-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    </p>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!ptoTalentShowWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handlePtoTalentShowContinue}
-                      disabled={!hasPtoTalentShowDecision || !hasPtoTalentShowResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handlePtoTalentShowReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handlePtoTalentShowContinue}
+                    disabled={!hasPtoTalentShowDecision || !hasPtoTalentShowResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'recessInjuryEmail' ? (
@@ -4289,41 +4108,23 @@ export default function SimulationShellClient() {
                   onChange={(event) => setRecessInjuryResponse(event.target.value)}
                 />
 
-                {recessInjuryWritingAssessment ? (
+                {hasRecessInjuryDecision && hasRecessInjuryResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">{(recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment).summary}</p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {(recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment).categories.map((category) => (
-                        <article key={`recess-injury-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    </p>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!recessInjuryWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleRecessInjuryContinue}
-                      disabled={!hasRecessInjuryDecision || !hasRecessInjuryResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleRecessInjuryReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleRecessInjuryContinue}
+                    disabled={!hasRecessInjuryDecision || !hasRecessInjuryResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'studentRemovalVoicemail' ? (
@@ -4389,41 +4190,21 @@ export default function SimulationShellClient() {
 
                 {hasStudentRemovalDecision && hasStudentRemovalResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">
-                      {(studentRemovalWritingAssessment || liveStudentRemovalWritingAssessment).summary}
+                    <p className="analysis-note compact-feedback-note">
+                      Response recorded. Feedback will be included in your end-of-day leadership report.
                     </p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {(studentRemovalWritingAssessment || liveStudentRemovalWritingAssessment).categories.map((category) => (
-                        <article key={`student-removal-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!studentRemovalWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleStudentRemovalContinue}
-                      disabled={!hasStudentRemovalDecision || !hasStudentRemovalResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleStudentRemovalReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleStudentRemovalContinue}
+                    disabled={!hasStudentRemovalDecision || !hasStudentRemovalResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : isReportScene ? (
