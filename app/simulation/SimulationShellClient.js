@@ -3661,19 +3661,18 @@ export default function SimulationShellClient() {
 
                     <article className="report-card">
                       <p className="response-label">
-                        You do not yet have a full investigation completed, but the parent expects a response.
+                        You do not yet have a full investigation completed, but the parent is expecting a response now.
                       </p>
                       <label htmlFor="parent-escalation-response" className="response-label">
-                        Write your response to the parent.
+                        Based on the information available, respond to the parent.
                       </label>
                       <ul className="support-list">
                         <li>acknowledge the concern</li>
-                        <li>reflect what is known so far</li>
-                        <li>communicate next steps</li>
-                        <li>maintain professionalism and clarity</li>
+                        <li>reflect what is currently known</li>
+                        <li>communicate how the situation will be handled moving forward</li>
                       </ul>
                       <p className="analysis-note">
-                        Avoid simply delaying the situation without providing direction.
+                        This is not a placeholder response — the parent expects clarity, direction, and professionalism.
                       </p>
                       <textarea
                         id="parent-escalation-response"
