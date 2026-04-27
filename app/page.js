@@ -7,22 +7,22 @@ const credibilityCards = [
   {
     title: 'Doctoral-Prepared Instructional Leader',
     detail:
-      'Ed.D. in Instructional Leadership with a sustained focus on instruction, school improvement, and durable learning systems.',
+      'Ed.D. in Instructional Leadership with a sustained focus on instruction, school improvement, and durable learning systems that scale across real schools.',
   },
   {
     title: 'Award-Winning School Administrator',
     detail:
-      'Former principal and school administrator with direct experience leading operations, instructional systems, and team development.',
+      'Former principal and school administrator with 16+ years leading real school operations, instructional systems, and teams.',
   },
   {
     title: 'ISTE Author and TEDx Speaker',
     detail:
-      'Published author and presenter known for translating future-ready ideas into practical district and school action.',
+      'Published author and presenter known for translating future-ready ideas into real-world district and school implementation.',
   },
   {
     title: 'AI Learning Systems Builder',
     detail:
-      'Builder of VIC and interactive simulations that combine AI, instructional design, and professional learning for implementation.',
+      'Builder of AI-powered instructional systems, including VIC, and leadership simulations designed for real-world classroom and administrative use.',
   },
 ];
 
@@ -31,9 +31,8 @@ const careerHighlights = [
   'Former elementary principal and school administrator',
   'ISTE published author',
   'TEDx speaker and keynote presenter',
-  'National presenter on educational technology and future-ready learning',
   'Builder of VIC, an AI-supported virtual co-teacher',
-  'Creator of interactive leadership and student-experience simulations',
+  'Creator of interactive leadership simulations',
 ];
 
 const recognitionHighlights = [
@@ -52,25 +51,19 @@ const featuredProjects = [
   {
     title: 'A Day in the Life of a School Leader',
     description:
-      "Interactive simulation shell modeled after Dr. Furman's leadership training experience for priority-setting, communication, and decision flow.",
+      'A real-time leadership simulation that places aspiring administrators inside a full school day — focused on decision-making, communication, and operational judgment under pressure.',
     href: '/simulation',
-  },
-  {
-    title: 'Day in the Life of a Principal',
-    description:
-      'Scenario-based leadership simulation for principals and aspiring administrators focused on instructional judgment, communication, and operations.',
-    href: '/simulations/principal',
   },
   {
     title: 'Day in the Life of an Urban Student',
     description:
-      'Interactive simulation that develops empathy-informed planning by surfacing student realities affecting attendance, engagement, and achievement.',
+      'A perspective-driven simulation that helps educators understand the real conditions shaping student engagement, attendance, and performance.',
     href: '/simulations/urban-student',
   },
   {
     title: 'VIC: Virtual Co-Teacher',
     description:
-      'AI-supported learning system designed to support teachers with differentiated guidance, formative insight, and instructionally aligned supports.',
+      'An AI-powered instructional system designed to function as an additional teacher — guiding learning, adapting to students, and extending instruction beyond the classroom.',
     href: VIC_URL,
     linkText: 'Try VIC →',
     external: true,
@@ -84,18 +77,18 @@ export default function HomePage() {
         <div className="container hero-layout">
           <div className="hero-content">
             <p className="eyebrow">Dr. Rob Furman · Ed.D. · Leadership + AI + Learning Design</p>
-            <h1>Instructional Leadership, AI, and Learning Design That Move Schools Forward</h1>
+            <h1>Building the Next Layer of School Leadership and AI-Powered Learning</h1>
             <p className="lead">
-              Dr. Rob Furman brings 20+ years of school leadership, instructional technology,
-              professional learning, and AI-supported innovation to help schools and organizations
-              build better learning systems.
+              Former principal, COO, and national education leader building real-world systems for
+              schools. From AI-powered instruction to leadership simulations, my work focuses on
+              how schools actually operate — not just how they&apos;re supposed to.
             </p>
             <div className="button-row">
               <Link href="/projects" className="button primary">
-                View Projects
+                Explore My Work
               </Link>
               <Link href={VIC_URL} className="button secondary" target="_blank" rel="noreferrer">
-                Explore VIC
+                See VIC in Action
               </Link>
               <Link href="/contact" className="button secondary">
                 Contact Me
@@ -118,7 +111,7 @@ export default function HomePage() {
 
       <section className="section section-soft credibility-panel">
         <div className="container">
-          <h2>Leadership Credibility + Innovation Focus</h2>
+          <h2>Built from Leadership. Driven by Innovation.</h2>
           <div className="card-grid four-up">
             {credibilityCards.map((card) => (
               <article key={card.title} className="card card-featured equal-card">
@@ -132,7 +125,7 @@ export default function HomePage() {
 
       <section className="section section-light compact-section">
         <div className="container">
-          <h2>Selected Career Highlights</h2>
+          <h2>Where Experience Meets Application</h2>
           <ul className="clean-list top-space-sm">
             {careerHighlights.map((item) => (
               <li key={item}>{item}</li>
@@ -151,7 +144,7 @@ export default function HomePage() {
             className="section-image keynote-image"
           />
           <div className="keynote-overlay">
-            <p>TEDx Speaker | Keynote Presenter | Instructional Leader</p>
+            <p>TEDx Speaker | AI + Education Systems Builder | Former Principal</p>
           </div>
         </div>
       </section>
@@ -170,13 +163,12 @@ export default function HomePage() {
           <div>
             <h2>Leadership That Balances Vision and Implementation</h2>
             <p>
-              As a former principal and instructional leader, Rob has led school operations,
-              instructional systems, professional development, and technology adoption efforts that
-              improve teacher practice and student outcomes.
+              As a former principal and system-level leader, Rob has led the full reality of school
+              operations — instruction, staff development, and performance under pressure.
             </p>
             <p className="top-space-sm">
-              His leadership approach is practical and people-centered: aligning bold instructional
-              vision with coaching, systems thinking, and consistent execution.
+              His work focuses on bridging the gap between vision and execution, building systems
+              that actually function inside schools — not just on paper.
             </p>
           </div>
         </div>
@@ -184,8 +176,12 @@ export default function HomePage() {
 
       <section className="section section-soft compact-section">
         <div className="container">
-          <h2>Recognition and Professional Highlights</h2>
+          <h2>Recognition and Impact</h2>
           <div className="card award-card top-space-sm">
+            <p>
+              Recognized nationally for leadership, innovation, and contributions to educational
+              technology.
+            </p>
             <ul className="clean-list two-column-list">
               {recognitionHighlights.map((award) => (
                 <li key={award}>{award}</li>
@@ -222,8 +218,9 @@ export default function HomePage() {
           <div>
             <h2>Publications and Professional Voice</h2>
             <p>
-              ISTE-published books and articles in educational technology, literacy, and future-ready
-              learning highlight a track record of thought leadership tied to real school practice.
+              ISTE-published books and articles in educational technology, literacy, and
+              future-ready learning highlight a track record of applied thought leadership connected
+              to real school systems.
             </p>
             <Link href="/publications" className="text-link top-space-sm inline-link">
               View Publications →
@@ -243,10 +240,10 @@ export default function HomePage() {
 
       <section className="section cta section-light compact-section">
         <div className="container">
-          <h2>Partner with Dr. Rob Furman</h2>
+          <h2>Let&apos;s Build Something That Actually Works in Schools</h2>
           <p>
-            Available for school leadership consulting, AI-enabled instructional design, professional
-            learning, and keynote speaking.
+            Available for leadership consulting, AI system design, professional learning, and
+            keynote speaking focused on real-world implementation.
           </p>
           <div className="button-row center top-space-sm">
             <Link href="/contact" className="button primary">
