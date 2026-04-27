@@ -765,53 +765,58 @@ const cafeteriaBoundaryEvidenceCards = [
 ];
 const teacherConflictTaskItem = 'Address teacher conflict before end of day';
 const teacherConflictDecisionOptions = [
-  'Meet with both teachers together immediately',
-  'Speak with each teacher separately first',
-  'Support the team leader’s decision',
-  'Allow each teacher to continue their own approach',
+  'A. Meet with both teachers together immediately and ask them to explain the problem in front of each other.',
+  'B. Meet briefly with each teacher separately, clarify concerns, then schedule a structured follow-up meeting with shared expectations.',
+  'C. Tell both teachers to work it out themselves because professional adults should be able to manage disagreement.',
+  'D. Move one teacher to a different duty or team without discussing the conflict directly.',
 ];
 const teacherConflictDecisionCoaching = {
-  'Meet with both teachers together immediately': {
-    title: 'Immediate Joint Conversation',
+  'A. Meet with both teachers together immediately and ask them to explain the problem in front of each other.': {
+    title: 'Not the best first step',
     message:
-      'You chose to address the issue together. This can promote transparency, but it requires careful facilitation to prevent escalation or defensiveness.',
+      'A joint meeting may eventually be useful, but beginning there can escalate defensiveness before the leader understands each person’s perspective.',
   },
-  'Speak with each teacher separately first': {
-    title: 'Individual Understanding',
+  'B. Meet briefly with each teacher separately, clarify concerns, then schedule a structured follow-up meeting with shared expectations.': {
+    title: 'Best first move',
     message:
-      'You chose to understand each perspective first. This can help you gather insight, but the conflict will still need to be addressed collectively.',
+      'It gathers information without escalating the conflict, gives each staff member a professional space to be heard, and creates a path toward a structured resolution.',
   },
-  'Support the team leader’s decision': {
-    title: 'Leadership Alignment',
+  'C. Tell both teachers to work it out themselves because professional adults should be able to manage disagreement.': {
+    title: 'Leadership responsibility missed',
     message:
-      'You chose to back the team leader. While leadership roles matter, this approach may damage trust if concerns are not fully acknowledged.',
+      'This avoids leadership responsibility and allows adult conflict to continue affecting students and the team.',
   },
-  'Allow each teacher to continue their own approach': {
-    title: 'Flexibility Over Consistency',
+  'D. Move one teacher to a different duty or team without discussing the conflict directly.': {
+    title: 'Surface-level fix only',
     message:
-      'You chose flexibility. While this may reduce conflict short term, inconsistent practices across a grade level can impact students and team cohesion.',
+      'A schedule or duty change may reduce contact, but it does not address the underlying professional conflict or expectations.',
   },
 };
 const teacherConflictEvidenceCards = [
   {
-    title: 'Leadership Structure',
+    title: 'Teacher A Concern',
     content:
-      'Grade-level leaders are responsible for guiding instruction, but leadership requires support and alignment, not just authority.',
+      '"Teacher A says Teacher B dismisses their input during shared planning and makes last-minute changes without communicating."',
   },
   {
-    title: 'Experience Matters',
+    title: 'Teacher B Concern',
     content:
-      'Veteran teachers bring valuable experience and proven practices. Change without acknowledgment of that experience can create resistance.',
+      '"Teacher B says Teacher A resists changes, avoids shared responsibilities, and brings up concerns in front of others instead of privately."',
   },
   {
-    title: 'Consistency for Students',
+    title: 'Team Impact',
     content:
-      'Students benefit from consistent expectations and instructional approaches across a team.',
+      '"Other staff members have noticed the tension during planning time and say meetings are becoming uncomfortable."',
   },
   {
-    title: 'Change Management',
+    title: 'Student Impact',
     content:
-      'Effective leaders introduce change by building understanding and buy-in, not just presenting a better method.',
+      '"Students have begun asking why the teachers seem upset with each other."',
+  },
+  {
+    title: 'Prior Context',
+    content:
+      '"This is the second time this month that concerns about this working relationship have reached administration."',
   },
 ];
 
@@ -1119,12 +1124,12 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['today', 'next steps', 'document', 'process'],
     ],
     teacherConflict: [
-      ['teacher', 'teachers', 'team leader', 'veteran'],
-      ['approach', 'instruction', 'strategy', 'tools', 'methods'],
-      ['both', 'each', 'together', 'perspective'],
-      ['align', 'consistency', 'grade level', 'students'],
-      ['conversation', 'discuss', 'listen', 'next steps'],
-      ['neutral', 'professional', 'respect', 'calm'],
+      ['teacher', 'teachers', 'teacher a', 'teacher b'],
+      ['conflict', 'tension', 'concern', 'planning', 'shared responsibilities'],
+      ['separately', 'information', 'clarify', 'understand', 'perspective'],
+      ['expectations', 'professionalism', 'professional', 'reset expectations'],
+      ['follow-up', 'follow up', 'structured', 'meeting', 'resolution'],
+      ['students', 'team', 'instruction', 'protect students', 'school day'],
     ],
     studentThreatEmail: [
       ['parent', 'family', 'guardian'],
@@ -1603,7 +1608,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     voicemailTeacher: 'voicemail response to teacher call',
     parentEscalation: 'parent escalation response',
     staffBoundary: 'staff boundary response',
-    teacherConflict: 'teacher conflict opening statement',
+    teacherConflict: 'teacher conflict resolution plan',
     studentThreatEmail: 'student threat parent email response',
     recessInjuryEmail: 'recess injury parent email response',
     studentRemovalVoicemail: 'student removal voicemail response/action plan',
@@ -2532,7 +2537,7 @@ export default function SimulationShellClient() {
     setTeacherConflictLeadershipRecord({
       module: '3:15 PM — Teacher Conflict',
       decision: teacherConflictDecision,
-      openingStatement: teacherConflictResponse.trim(),
+      conflictResolutionPlan: teacherConflictResponse.trim(),
       writingAssessment: nextAssessment,
       coachingNote: teacherConflictDecisionCoaching[teacherConflictDecision]?.message || '',
     });
@@ -3621,25 +3626,38 @@ export default function SimulationShellClient() {
               <>
                 <p className="eyebrow">3:15 PM</p>
                 <h2>Teacher Conflict</h2>
+                <h3 className="decision-prompt">Leadership Briefing</h3>
                 <article className="scenario-preview-card">
                   <p>
-                    As the day is winding down, your secretary lets you know that two teachers are waiting
-                    to speak with you.
+                    Two staff members who work closely together are in conflict, and the tension is beginning
+                    to affect the school day.
                   </p>
                   <p>
-                    One teacher is the grade-level team leader. She recently introduced a new academic
-                    approach using updated tools and strategies she believes are more efficient and aligned
-                    with current expectations.
+                    This is no longer just a personality issue. When adult conflict becomes visible to students
+                    or disrupts instruction, the school leader must step in with clarity, professionalism, and a
+                    plan.
                   </p>
                   <p>
-                    The other teacher is a veteran with many years of experience. She is frustrated and
-                    feels the change is unnecessary, stating that her current methods have always worked and
-                    that students learn successfully without the new approach.
+                    Your goal is not to “pick a side.” Your goal is to understand the issue, reset expectations,
+                    and create a process that allows both adults to work together appropriately.
                   </p>
-                  <p>Both teachers are now in your office and want you to support their position.</p>
                 </article>
 
-                <h3 className="decision-prompt">What is your first approach to this situation?</h3>
+                <h3 className="decision-prompt">Context and Available Information</h3>
+                <div className="investigation-evidence-grid">
+                  {teacherConflictEvidenceCards.map((card) => (
+                    <article key={card.title} className="investigation-card">
+                      <h3>{card.title}</h3>
+                      <p>{card.content}</p>
+                    </article>
+                  ))}
+                </div>
+
+                <h3 className="decision-prompt">What is your first leadership move?</h3>
+                <p className="analysis-note">
+                  Choose the response that best protects professionalism, gathers information, and begins
+                  resolving the conflict.
+                </p>
                 <div className="choices">
                   {teacherConflictDecisionOptions.map((decision) => (
                     <button
@@ -3662,25 +3680,20 @@ export default function SimulationShellClient() {
 
                 {teacherConflictDecision ? (
                   <>
-                    <div className="investigation-evidence-grid">
-                      {teacherConflictEvidenceCards.map((card) => (
-                        <article key={card.title} className="investigation-card">
-                          <h3>{card.title}</h3>
-                          <p>{card.content}</p>
-                        </article>
-                      ))}
-                    </div>
-
                     <article className="report-card">
-                      <p className="response-label">
-                        Write how you would open this conversation with both teachers.
-                      </p>
+                      <p className="response-label">Write your conflict resolution plan.</p>
+                      <p className="analysis-note">Your plan should include:</p>
+                      <ul className="analysis-note">
+                        <li>how you would gather information from both teachers</li>
+                        <li>how you would set expectations for professionalism</li>
+                        <li>how you would structure a follow-up conversation</li>
+                        <li>how you would protect students and team functioning while the issue is addressed</li>
+                      </ul>
                       <p className="analysis-note">
-                        This is not a decision or final resolution. This is the first moment of leadership
-                        in the room.
+                        This should be a leadership process, not just an opening statement.
                       </p>
                       <label htmlFor="teacher-conflict-response" className="response-label">
-                        Write your opening statement…
+                        Write your conflict resolution plan…
                       </label>
                       <textarea
                         id="teacher-conflict-response"
@@ -4808,7 +4821,7 @@ export default function SimulationShellClient() {
                   <p className="folder-subtitle">Captured adult conflict leadership response notes</p>
                   <ul>
                     <li><strong>Decision:</strong> {teacherConflictLeadershipRecord.decision}</li>
-                    <li><strong>Opening statement:</strong> {teacherConflictLeadershipRecord.openingStatement}</li>
+                    <li><strong>Conflict resolution plan:</strong> {teacherConflictLeadershipRecord.conflictResolutionPlan}</li>
                     <li>
                       <strong>VIC summary:</strong>{' '}
                       {teacherConflictLeadershipRecord.writingAssessment?.summary || 'Not captured'}
