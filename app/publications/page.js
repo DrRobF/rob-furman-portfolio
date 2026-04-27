@@ -5,28 +5,28 @@ const featuredBooks = [
     title: 'The Future Ready Challenge',
     description:
       'A practical framework for preparing schools and learning communities for rapidly changing futures.',
-    image: '/images/book-future-ready.jpg',
+    image: '/future-ready-challenge.jpeg',
     alt: 'The Future Ready Challenge book cover',
   },
   {
     title: 'Personalized Reading',
     description:
       'Strategies to improve reading outcomes through personalized pathways and instructional design.',
-    image: '/images/book-reading.jpg',
+    image: '/personalized-reading.jpeg',
     alt: 'Personalized Reading book cover',
   },
   {
     title: 'Technology, Reading & Digital Literacy',
     description:
       'Applied guidance for integrating digital tools into literacy instruction while keeping pedagogy at the center.',
-    image: '/images/book-tech-reading-digital-literacy.svg',
+    image: '/technology-reading-digital-literacy.jpeg',
     alt: 'Technology, Reading & Digital Literacy book cover',
   },
   {
     title: 'Engaging Young Readers',
     description:
       'Practical approaches that help educators improve reading engagement and student ownership in literacy growth.',
-    image: '/images/book-engaging-young-readers.svg',
+    image: '/engaging-young-readers.jpeg',
     alt: 'Engaging Young Readers book cover',
   },
 ];
