@@ -4,22 +4,22 @@ const speakingAreas = [
   {
     title: 'Keynote Speaking',
     detail:
-      'Keynotes for conferences, districts, and leadership teams focused on instructional leadership, innovation, and the future of learning.',
+      'Keynotes designed to challenge thinking and drive action — focused on leadership, performance, and the future of learning in complex environments.',
   },
   {
     title: 'Leadership and Instructional Systems',
     detail:
-      'Sessions focused on building effective school systems, improving instructional practice, and leading under real-world conditions.',
+      'Sessions focused on improving how schools operate — including decision-making, communication, instructional systems, and leadership under pressure.',
   },
   {
     title: 'AI in Education',
     detail:
-      'Practical sessions on AI integration in schools, including instructional use, system design, and responsible implementation.',
+      'Practical sessions on using AI to support instruction, improve efficiency, and expand learning capacity in real classroom environments.',
   },
   {
     title: 'Professional Learning and Workshops',
     detail:
-      'Action-oriented sessions designed to support teachers and leaders in applying strategies immediately in classrooms and schools.',
+      'Hands-on sessions that move beyond ideas into implementation — giving educators and leaders tools they can apply immediately.',
   },
 ];
 
@@ -29,14 +29,17 @@ export default function SpeakingPage() {
       <div className="container">
         <h1>Speaking</h1>
         <p className="lead">
-          Dr. Rob Furman is a national speaker and keynote presenter with experience across major
-          education conferences including ISTE, ASCD, NAESP, and AMLE. His work focuses on
-          instructional leadership, AI in education, and practical systems that schools can actually
-          implement.
+          Dr. Rob Furman delivers keynotes and professional learning experiences focused on
+          improving performance in real-world educational environments.
         </p>
         <p className="top-space-sm">
-          Delivered presentations and keynotes across national and regional conferences, districts,
-          and leadership organizations throughout the United States.
+          With a background as a principal, organizational leader, and systems builder, his
+          sessions go beyond theory — helping leaders and educators make better decisions,
+          strengthen communication, and apply ideas immediately in their work.
+        </p>
+        <p className="top-space-sm">
+          Delivered presentations across national conferences including ISTE, ASCD, NAESP, and
+          AMLE, as well as districts and leadership organizations throughout the United States.
         </p>
         <div className="card-grid two-up top-space">
           <div className="media-card">
@@ -67,6 +70,10 @@ export default function SpeakingPage() {
             </article>
           ))}
         </div>
+        <p className="top-space-sm">
+          Available for keynotes, district professional learning, leadership development, and
+          consulting engagements.
+        </p>
       </div>
     </section>
   );
