@@ -2,29 +2,24 @@ import Image from 'next/image';
 
 const speakingAreas = [
   {
-    title: 'TEDx speaking',
+    title: 'Keynote Speaking',
     detail:
-      'Presentations focused on educational transformation, literacy, and future-ready learning systems.',
+      'Keynotes for conferences, districts, and leadership teams focused on instructional leadership, innovation, and the future of learning.',
   },
   {
-    title: 'Keynote presentations',
+    title: 'Leadership and Instructional Systems',
     detail:
-      'Conference and district keynotes for principals, leadership teams, and educator audiences.',
+      'Sessions focused on building effective school systems, improving instructional practice, and leading under real-world conditions.',
   },
   {
-    title: 'Professional development workshops',
+    title: 'AI in Education',
     detail:
-      'Action-oriented sessions on implementation planning, instructional systems, and technology integration.',
+      'Practical sessions on AI integration in schools, including instructional use, system design, and responsible implementation.',
   },
   {
-    title: 'AI and instructional innovation sessions',
+    title: 'Professional Learning and Workshops',
     detail:
-      'Practical frameworks for responsible AI adoption that support teachers, leaders, and learners.',
-  },
-  {
-    title: 'Future-ready learning and technology adoption',
-    detail:
-      'Strategic support for schools building sustainable, people-centered innovation plans.',
+      'Action-oriented sessions designed to support teachers and leaders in applying strategies immediately in classrooms and schools.',
   },
 ];
 
@@ -34,9 +29,14 @@ export default function SpeakingPage() {
       <div className="container">
         <h1>Speaking</h1>
         <p className="lead">
-          Dr. Rob Furman is a TEDx speaker and keynote presenter focused on instructional leadership,
-          educational innovation, AI-enabled learning, and practical implementation for schools and
-          organizations.
+          Dr. Rob Furman is a national speaker and keynote presenter with experience across major
+          education conferences including ISTE, ASCD, NAESP, and AMLE. His work focuses on
+          instructional leadership, AI in education, and practical systems that schools can actually
+          implement.
+        </p>
+        <p className="top-space-sm">
+          Delivered presentations and keynotes across national and regional conferences, districts,
+          and leadership organizations throughout the United States.
         </p>
         <div className="card-grid two-up top-space">
           <div className="media-card">
