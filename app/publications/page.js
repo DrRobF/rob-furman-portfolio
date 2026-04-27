@@ -9,18 +9,18 @@ const featuredBooks = [
     alt: 'The Future Ready Challenge book cover',
   },
   {
-    title: 'Personalized Reading',
-    description:
-      'Strategies to improve reading outcomes through personalized pathways and instructional design.',
-    image: '/images/book-reading.jpg',
-    alt: 'Personalized Reading book cover',
-  },
-  {
     title: 'Technology, Reading & Digital Literacy',
     description:
       'Applied guidance for integrating digital tools into literacy instruction while keeping pedagogy at the center.',
     image: '/images/technology-reading-digital-literacy.jpeg',
     alt: 'Technology, Reading & Digital Literacy book cover',
+  },
+  {
+    title: 'Personalized Reading',
+    description:
+      'Strategies to improve reading outcomes through personalized pathways and instructional design.',
+    image: '/images/book-reading.jpg',
+    alt: 'Personalized Reading book cover',
   },
   {
     title: 'Engaging Young Readers',
