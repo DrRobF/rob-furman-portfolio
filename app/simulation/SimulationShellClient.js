@@ -595,34 +595,6 @@ const announcementsTasks = [
   },
 ];
 const voicemailLoopTaskItem = 'Close open voicemail loops';
-const voicemailFirstMoveOptions = [
-  'Send acknowledgment',
-  'Investigate first',
-  'Call back directly',
-  'Delegate follow-up',
-];
-const voicemailCoachingByDecision = {
-  'Send acknowledgment': {
-    title: 'Acknowledge First',
-    message:
-      'You chose to acknowledge the message. This can reduce anxiety and show responsiveness while buying time to gather accurate information before giving a full answer.',
-  },
-  'Investigate first': {
-    title: 'Process First',
-    message:
-      'You chose to gather information before responding. This protects accuracy, but if the caller is waiting for a response, a short acknowledgment may still be needed.',
-  },
-  'Call back directly': {
-    title: 'Live Contact',
-    message:
-      'You chose direct contact. A call can build trust, but it can also take significant time and become difficult if you do not yet have enough information.',
-  },
-  'Delegate follow-up': {
-    title: 'Delegated Follow-Up',
-    message:
-      'You chose to involve someone else in the follow-up. Delegation can be appropriate, but the principal still needs to ensure the loop is closed.',
-  },
-};
 const walkthroughFormFields = [
   {
     id: 'studentEngagement',
@@ -2398,10 +2370,6 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
-  const handleVoicemailDecisionSelect = (threadId, decision) => {
-    setVoicemailDecisions((prev) => ({ ...prev, [threadId]: decision }));
-  };
-
   const handleVoicemailResponseChange = (threadId, value) => {
     setVoicemailResponses((prev) => ({ ...prev, [threadId]: value }));
   };
@@ -2643,7 +2611,6 @@ export default function SimulationShellClient() {
   const hasCompletedWalkthroughForm = walkthroughFormFields.every(
     (field) => walkthroughResponses[field.id].trim(),
   );
-  const hasSelectedBothVoicemailDecisions = Object.values(voicemailDecisions).every(Boolean);
   const hasCompletedBothVoicemailResponses = Object.values(voicemailResponses).every((response) => response.trim());
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
@@ -2652,13 +2619,6 @@ export default function SimulationShellClient() {
   const liveParentFinalWritingAssessment = useMemo(
     () => analyzeLeadershipWriting(finalParentResponse, 'parentFinalResponse'),
     [finalParentResponse],
-  );
-  const liveVoicemailWritingAssessments = useMemo(
-    () => ({
-      parentHelp: analyzeLeadershipWriting(voicemailResponses.parentHelp, 'voicemailParent'),
-      teacherCall: analyzeLeadershipWriting(voicemailResponses.teacherCall, 'voicemailTeacher'),
-    }),
-    [voicemailResponses.parentHelp, voicemailResponses.teacherCall],
   );
   const liveParentEscalationWritingAssessment = useMemo(
     () => analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation'),
@@ -3204,203 +3164,117 @@ export default function SimulationShellClient() {
                 <p className="eyebrow">9:30 AM</p>
                 <h2>Voicemail Backlog</h2>
                 <article className="scenario-preview-card">
+                  <h3>Leadership Briefing</h3>
                   <p>
-                    You finally get a few minutes near your desk. The red voicemail light is blinking
-                    again. Some messages came in before you arrived, and now they need to be triaged
-                    before the day moves too far ahead.
+                    You return to the office and find two parent voicemails waiting.
+                  </p>
+                  <p>
+                    Both messages involve student concerns that require a response before the day moves too
+                    far ahead. You do not have every detail yet, but you do have enough context to
+                    acknowledge the concern, communicate what is known, and explain your next steps.
+                  </p>
+                  <p>
+                    Your job is to respond professionally without overpromising, dismissing the concern, or
+                    simply saying you will “look into it” with no direction.
                   </p>
                 </article>
-                <article className="decision-next-step-panel">
-                  <p>
-                    Voicemails often carry a different urgency than email. If someone took the time to
-                    call, there may be emotion, confusion, or a time-sensitive concern behind the message.
-                  </p>
-                </article>
 
-                <div className="arrival-priority-list voicemail-thread-list">
-                  <article className="arrival-priority-card voicemail-thread-card">
-                    <h3>Voicemail 1</h3>
-                    <audio controls className="voicemail-audio-player">
-                      <source src="/images/parent-help-request.vm.mp3" type="audio/mpeg" />
-                    </audio>
-                    <h4 className="decision-prompt">What is your first move with this message?</h4>
-                    <div className="button-row arrival-rank-row">
-                      {voicemailFirstMoveOptions.map((choice) => (
-                        <button
-                          key={`parent-${choice}`}
-                          type="button"
-                          className={`button secondary ${voicemailDecisions.parentHelp === choice ? 'active' : ''}`}
-                          onClick={() => handleVoicemailDecisionSelect('parentHelp', choice)}
-                        >
-                          {choice}
-                        </button>
-                      ))}
-                    </div>
-                    {voicemailDecisions.parentHelp ? (
-                      <article className="decision-consequence-card" aria-live="polite">
-                        <h4>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].title}</h4>
-                        <p>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].message}</p>
-                      </article>
-                    ) : null}
-                  </article>
-
-                  <article className="arrival-priority-card voicemail-thread-card">
-                    <h3>Voicemail 2</h3>
-                    <audio controls className="voicemail-audio-player">
-                      <source src="/images/teacher-call-vm.mp3" type="audio/mpeg" />
-                    </audio>
-                    <h4 className="decision-prompt">What is your first move with this message?</h4>
-                    <div className="button-row arrival-rank-row">
-                      {voicemailFirstMoveOptions.map((choice) => (
-                        <button
-                          key={`teacher-${choice}`}
-                          type="button"
-                          className={`button secondary ${voicemailDecisions.teacherCall === choice ? 'active' : ''}`}
-                          onClick={() => handleVoicemailDecisionSelect('teacherCall', choice)}
-                        >
-                          {choice}
-                        </button>
-                      ))}
-                    </div>
-                    {voicemailDecisions.teacherCall ? (
-                      <article className="decision-consequence-card" aria-live="polite">
-                        <h4>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].title}</h4>
-                        <p>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].message}</p>
-                      </article>
-                    ) : null}
-                  </article>
-                </div>
-
-                {hasSelectedBothVoicemailDecisions ? (
-                  <>
-                    <article className="report-card report-intro">
-                      <h3>Open Voicemail Threads</h3>
-                      <p>
-                        Both messages now require follow-through. A voicemail is not complete when it
-                        is heard. It is complete when the concern has been acknowledged, investigated
-                        if needed, and answered with next steps.
-                      </p>
-                    </article>
-                    <article className="report-card">
-                      <h3>Parent Help Request — Context Needed</h3>
-                      <p>
-                        Before giving a full answer, determine what the parent is asking for, whether
-                        the concern involves a student need, a classroom issue, a scheduling issue, or
-                        a support request, and whether anyone else needs to be consulted.
-                      </p>
-                    </article>
-                    <article className="report-card">
-                      <h3>Teacher Call — Context Needed</h3>
-                      <p>
-                        Before closing the loop, determine whether the teacher needs a decision, a
-                        resource, coverage, parent support, student support, or administrative
-                        follow-up.
-                      </p>
-                    </article>
-                    <article className="report-card report-intro">
-                      <h3>Voicemail Response Guidance</h3>
-                      <p>
-                        Strong leaders do not just listen to messages. They close loops. Before you write, make
-                        sure the caller knows the message was received, what will happen next, and when they can
-                        expect follow-up.
-                      </p>
+                <article className="report-card">
+                  <h3>Context and Available Information</h3>
+                  <div className="analysis-grid">
+                    <div className="analysis-row">
+                      <p className="analysis-lens">CASE 1 — Parent Concern About Classroom Removal</p>
+                      <p><strong>Voicemail Summary:</strong> &quot;My child told me they were removed from class this morning. I want to know why this happened and whether anyone called me.&quot;</p>
+                      <p><strong>Available Information:</strong></p>
                       <ul className="strong-response-list">
-                        <li>Acknowledge the concern.</li>
-                        <li>Avoid overpromising.</li>
-                        <li>Identify the next step.</li>
-                        <li>Give a realistic timeline.</li>
-                        <li>Preserve time for the rest of the day.</li>
+                        <li>Teacher note: &quot;Student repeatedly interrupted instruction and refused two redirections.&quot;</li>
+                        <li>Student was moved to a nearby buddy classroom for approximately 8 minutes to reset.</li>
+                        <li>No office referral was submitted.</li>
+                        <li>Student returned to class and completed the assignment.</li>
+                        <li>Parent has previously expressed concern about discipline communication.</li>
                       </ul>
-                    </article>
-                    <article className="report-card">
-                      <div className="analysis-grid">
-                        <div className="analysis-row">
-                          <p className="analysis-lens">Thread 1: Parent Help Request</p>
-                          <p><strong>First move:</strong> {voicemailDecisions.parentHelp}</p>
-                          <p><strong>Status:</strong> Open</p>
-                          <label htmlFor="voicemail-parent-response" className="response-label">
-                            Draft the response or next-step message…
-                          </label>
-                          <textarea
-                            id="voicemail-parent-response"
-                            rows={5}
-                            className="response-input"
-                            value={voicemailResponses.parentHelp}
-                            onChange={(event) => handleVoicemailResponseChange('parentHelp', event.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="analysis-row">
-                          <p className="analysis-lens">Thread 2: Teacher Call</p>
-                          <p><strong>First move:</strong> {voicemailDecisions.teacherCall}</p>
-                          <p><strong>Status:</strong> Open</p>
-                          <label htmlFor="voicemail-teacher-response" className="response-label">
-                            Draft the response or next-step message…
-                          </label>
-                          <textarea
-                            id="voicemail-teacher-response"
-                            rows={5}
-                            className="response-input"
-                            value={voicemailResponses.teacherCall}
-                            onChange={(event) => handleVoicemailResponseChange('teacherCall', event.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </article>
-                    {hasCompletedBothVoicemailResponses ? (
-                      <article className="report-card" aria-live="polite">
-                        <h3>VIC Writing Assessment</h3>
-                        <p className="analysis-note">
-                          VIC reviewed each voicemail draft for tone, clarity, empathy, risk, and next steps.
-                          This is a first-pass local assessment and will expand with deeper AI coaching.
-                        </p>
-                        <div className="analysis-grid report-analysis-grid">
-                          <article className="analysis-row report-analysis-row">
-                            <p className="analysis-lens">Voicemail 1 Response</p>
-                            <p className="analysis-note">{liveVoicemailWritingAssessments.parentHelp.summary}</p>
-                            <div className="analysis-grid">
-                              {liveVoicemailWritingAssessments.parentHelp.categories.map((category) => (
-                                <div key={`vm1-${category.name}`} className="report-analysis-category-row">
-                                  <p className="analysis-lens">{category.name}</p>
-                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                                    {category.status}
-                                  </p>
-                                  <p>{category.note}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </article>
-                          <article className="analysis-row report-analysis-row">
-                            <p className="analysis-lens">Voicemail 2 Response</p>
-                            <p className="analysis-note">{liveVoicemailWritingAssessments.teacherCall.summary}</p>
-                            <div className="analysis-grid">
-                              {liveVoicemailWritingAssessments.teacherCall.categories.map((category) => (
-                                <div key={`vm2-${category.name}`} className="report-analysis-category-row">
-                                  <p className="analysis-lens">{category.name}</p>
-                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                                    {category.status}
-                                  </p>
-                                  <p>{category.note}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </article>
-                        </div>
-                      </article>
-                    ) : null}
-                    <div className="button-row">
-                      <button
-                        type="button"
-                        className="button primary"
-                        onClick={handleVoicemailContinue}
-                        disabled={!hasCompletedBothVoicemailResponses}
-                      >
-                        Continue
-                      </button>
                     </div>
-                  </>
+                    <div className="analysis-row">
+                      <p className="analysis-lens">CASE 2 — Parent Concern About Recess Injury</p>
+                      <p><strong>Voicemail Summary:</strong> &quot;My child came home saying they got hurt at recess and nobody told me. I need someone to explain what happened.&quot;</p>
+                      <p><strong>Available Information:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>Recess monitor note: &quot;Student tripped while running near the basketball area.&quot;</li>
+                        <li>Student reported knee pain but returned to play after sitting briefly.</li>
+                        <li>Nurse log shows the student visited the nurse for 5 minutes.</li>
+                        <li>No visible swelling or major injury was recorded.</li>
+                        <li>Parent was not called because the injury appeared minor at the time.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </article>
+
+                <article className="report-card">
+                  <h3>Write a brief response plan for each parent.</h3>
+                  <p>For each response, include:</p>
+                  <ul className="strong-response-list">
+                    <li>how you would acknowledge the concern</li>
+                    <li>what information you can share now</li>
+                    <li>what follow-up you will complete</li>
+                    <li>how you will maintain professionalism and trust</li>
+                  </ul>
+                  <p>
+                    These should not be placeholder responses. Each parent should receive enough clarity
+                    to know the concern is being handled.
+                  </p>
+                  <div className="analysis-grid">
+                    <div className="analysis-row">
+                      <p className="analysis-lens">CASE 1 Response Plan</p>
+                      <label htmlFor="voicemail-parent-response" className="response-label">
+                        Parent concern about classroom removal
+                      </label>
+                      <textarea
+                        id="voicemail-parent-response"
+                        rows={5}
+                        className="response-input"
+                        value={voicemailResponses.parentHelp}
+                        onChange={(event) => handleVoicemailResponseChange('parentHelp', event.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="analysis-row">
+                      <p className="analysis-lens">CASE 2 Response Plan</p>
+                      <label htmlFor="voicemail-teacher-response" className="response-label">
+                        Parent concern about recess injury
+                      </label>
+                      <textarea
+                        id="voicemail-teacher-response"
+                        rows={5}
+                        className="response-input"
+                        value={voicemailResponses.teacherCall}
+                        onChange={(event) => handleVoicemailResponseChange('teacherCall', event.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </article>
+
+                {hasCompletedBothVoicemailResponses ? (
+                  <article className="report-card" aria-live="polite">
+                    <h3>VIC Coaching Note</h3>
+                    <p className="analysis-note">
+                      VIC noted your response patterns and will include detailed feedback in your final
+                      leadership report.
+                    </p>
+                    <p className="analysis-lens">View response notes</p>
+                  </article>
                 ) : null}
+
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleVoicemailContinue}
+                    disabled={!hasCompletedBothVoicemailResponses}
+                  >
+                    Continue
+                  </button>
+                </div>
               </>
             ) : currentModule === 'classroomWalkthrough' ? (
               <>
