@@ -14,7 +14,9 @@ export default function SimulationOverviewPage() {
         <p>
           You will respond to real-world scenarios across instruction, student behavior, staff
           dynamics, and parent communication, building the judgment and communication skills
-          required in actual school leadership.
+          required in actual school leadership. Throughout the experience, your responses are
+          analyzed and coached by an AI leadership system, helping you refine both decision-making
+          and communication in real time.
         </p>
         <p className="top-space-sm">Built from over 20 years of real leadership experience.</p>
 
@@ -30,6 +32,10 @@ export default function SimulationOverviewPage() {
               Navigating moments where there is no perfect answer — only better judgment
             </li>
             <li>Seeing how your decisions shape outcomes across a full school day</li>
+            <li>
+              Receiving AI-based coaching on your written responses, tone, and decision-making
+            </li>
+            <li>Building a record of your leadership choices across the day</li>
           </ul>
         </div>
 
@@ -44,9 +50,15 @@ export default function SimulationOverviewPage() {
           </ul>
           <p>
             Your choices move the day forward — revealing patterns in how you prioritize, respond,
-            and lead under pressure.
+            and lead under pressure. At the end of the simulation, you receive a summary of your
+            leadership patterns — including strengths, areas for growth, and how you approached
+            communication and decision-making throughout the day.
           </p>
           <p>This is not passive learning. It is applied decision-making.</p>
+          <p>
+            This is a full-cycle leadership experience — decision, response, feedback, and
+            reflection.
+          </p>
           <Link href="/simulation" className="button primary top-space-sm inline-link">
             Launch Simulation →
           </Link>
