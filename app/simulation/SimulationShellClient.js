@@ -562,38 +562,29 @@ const iepFolderOptions = [
 
 const iepTaskItem = 'Send IDEA manual to parents and CC Special Education Director';
 const announcementsDecisionCoaching = {
-  'Handle it yourself right away': {
-    title: 'Helpful but Costly',
+  'A. Make a quick note of the issue, continue hallway presence, and plan to have the secretary correct the announcements when you return to the office.': {
+    title: 'Best choice.',
     message:
-      'You chose to personally handle the request. This supports the teacher, but it can also pull you away from other responsibilities if every hallway request becomes your task.',
+      'Best choice. You stayed visible during a critical time, captured the issue, and planned appropriate delegation.',
   },
-  'Ask the administrative assistant to send the announcements': {
-    title: 'Smart Delegation',
+  'B. Leave the hallway immediately and personally fix the announcement before students settle into class.': {
+    title: 'Presence Tradeoff',
     message:
-      'You chose to use the office system to help quickly. This is often a strong move: the teacher gets what she needs, students do not miss information, and you preserve time for other leadership work.',
+      'This resolves the issue quickly but sacrifices your presence during a key supervision moment.',
   },
-  'Tell the teacher to email you': {
-    title: 'Delay Risk',
+  'C. Ignore the issue because announcements are not a priority.': {
+    title: 'Missed Follow-Through',
     message:
-      'You chose to push the request back to the teacher. This may create a record, but it also adds work for someone who already lost instructional access and may delay a simple fix.',
+      'Even routine communication matters. Ignoring it can lead to confusion later.',
   },
-  'Make a quick note and keep moving': {
-    title: 'Capture Before It Disappears',
+  'D. Tell a nearby staff member to fix it without clarifying what needs to be changed.': {
+    title: 'Unclear Delegation',
     message:
-      'You chose to capture the request before moving on. Principals need a reliable system for hallway tasks because five more people may stop you before you reach your desk.',
+      'Delegation is appropriate, but without clear direction the issue may not be handled correctly.',
   },
 };
-
-const announcementsTasks = [
-  {
-    id: 'announcementsCopy',
-    label: 'Send teacher a copy of the morning announcements',
-  },
-  {
-    id: 'announcementsMaintenance',
-    label: 'Notify maintenance that classroom TV is not working',
-  },
-];
+const announcementsTaskItem =
+  'Morning announcements correction: note issue and delegate office follow-up';
 const voicemailLoopTaskItem = 'Close open voicemail loops';
 const walkthroughFormFields = [
   {
@@ -1731,7 +1722,6 @@ export default function SimulationShellClient() {
   const [iepFolderChoice, setIepFolderChoice] = useState('');
   const [iepLeadershipRecord, setIepLeadershipRecord] = useState(null);
   const [announcementsDecision, setAnnouncementsDecision] = useState('');
-  const [announcementsTaskFolders, setAnnouncementsTaskFolders] = useState({});
   const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
   const [voicemailDecisions, setVoicemailDecisions] = useState({ parentHelp: '', teacherCall: '' });
   const [voicemailResponses, setVoicemailResponses] = useState({ parentHelp: '', teacherCall: '' });
@@ -1881,7 +1871,6 @@ export default function SimulationShellClient() {
     setIepFolderChoice('');
     setIepLeadershipRecord(null);
     setAnnouncementsDecision('');
-    setAnnouncementsTaskFolders({});
     setAnnouncementsLeadershipRecord(null);
     setVoicemailDecisions({ parentHelp: '', teacherCall: '' });
     setVoicemailResponses({ parentHelp: '', teacherCall: '' });
@@ -2299,42 +2288,25 @@ export default function SimulationShellClient() {
   };
 
   const handleAnnouncementsDecisionSelect = (decisionLabel) => {
+    const coaching = announcementsDecisionCoaching[decisionLabel];
+    if (!coaching) return;
+
+    completeFolderItems([announcementsTaskItem]);
     setAnnouncementsDecision(decisionLabel);
-  };
-
-  const handleAnnouncementsTaskFolderSelection = (taskId, folderId) => {
-    const task = announcementsTasks.find((card) => card.id === taskId);
-    if (!task) return;
-
-    setAnnouncementsTaskFolders((prev) => {
-      const previousFolder = prev[taskId];
-      const next = { ...prev, [taskId]: folderId };
-
-      if (previousFolder && previousFolder !== folderId) {
-        setFolders((folderState) => ({
-          red: folderState.red.filter((item) => item !== task.label),
-          orange: folderState.orange.filter((item) => item !== task.label),
-          green: folderState.green.filter((item) => item !== task.label),
-        }));
-      }
-
-      return next;
-    });
-    addFolderItems({ [folderId]: [task.label] });
+    addFolderItems({ orange: [announcementsTaskItem] });
   };
 
   const handleAnnouncementsContinueDay = () => {
-    const hasAllTaskFolders = announcementsTasks.every((task) => Boolean(announcementsTaskFolders[task.id]));
-    if (!announcementsDecision || !hasAllTaskFolders) return;
+    if (!announcementsDecision) return;
 
     setAnnouncementsLeadershipRecord({
       module: '9:00 AM — Announcements',
       decision: announcementsDecision,
-      taskFolders: announcementsTaskFolders,
+      folder: 'orange',
       coachingNote: announcementsDecisionCoaching[announcementsDecision]?.message || '',
       insight:
-        'Visibility creates access. The more present you are in the building, the more people will bring needs to you in motion. Strong leaders use a capture system — notebook, phone, assistant, or dashboard — so small requests do not disappear on the walk back to the office.',
-      suggestedFolder: 'Red for both tasks.',
+        'Effective leaders do not stop for every small task. They capture issues quickly, stay present during key moments, and use delegation to keep the day moving.',
+      suggestedFolder: 'Orange — important but not urgent.',
     });
 
     setTimelineStatuses((prev) => {
@@ -2992,19 +2964,32 @@ export default function SimulationShellClient() {
                 <p className="eyebrow">9:00 AM</p>
                 <h2>Morning Announcements</h2>
                 <article className="scenario-preview-card">
+                  <h3>Leadership Briefing</h3>
                   <p>
-                    You finish morning announcements with the student TV crew. These moments matter —
-                    students see the principal as present, visible, and part of the life of the school.
+                    As students arrive, you are in the hallway maintaining visibility and setting the tone
+                    for the day.
                   </p>
                   <p>
-                    On your way back to the office, a teacher stops you. Her classroom TV was not
-                    working, so her students could not hear the announcements. She asks if you can get her
-                    a copy and also let maintenance know her TV needs attention.
+                    While walking, you realize there is an issue with the morning announcements that will
+                    need to be corrected.
+                  </p>
+                  <p>
+                    This is not an urgent safety issue, but it does require follow-up.
+                  </p>
+                  <p>
+                    Your decision should balance presence, time management, and how you handle routine
+                    operational tasks.
+                  </p>
+                </article>
+                <article className="decision-consequence-card">
+                  <h4>Leadership Guidance</h4>
+                  <p>
+                    Effective leaders do not stop for every small task. They capture issues quickly, stay
+                    present during key moments, and use delegation to keep the day moving.
                   </p>
                 </article>
                 <h3 className="decision-prompt">
-                  You are only steps away from the office, but this is how a principal&apos;s day fills up:
-                  one hallway request becomes three things to remember before you even sit down.
+                  What is your best next move?
                 </h3>
                 <div className="choices">
                   {Object.keys(announcementsDecisionCoaching).map((decision) => (
@@ -3022,58 +3007,10 @@ export default function SimulationShellClient() {
                   <article className="decision-consequence-card" aria-live="polite">
                     <h4>{announcementsDecisionCoaching[announcementsDecision].title}</h4>
                     <p>{announcementsDecisionCoaching[announcementsDecision].message}</p>
+                    <p>
+                      <strong>Task added to Orange folder:</strong> {announcementsTaskItem}
+                    </p>
                   </article>
-                ) : null}
-
-                {announcementsDecision ? (
-                  <>
-                    <h3 className="decision-prompt">
-                      What needs to be captured from this hallway request?
-                    </h3>
-                    <div className="arrival-priority-list">
-                      {announcementsTasks.map((task) => (
-                        <article key={task.id} className="arrival-priority-card">
-                          <span className="selected-decision-label">{task.label}</span>
-                          <div className="button-row arrival-rank-row">
-                            {iepFolderOptions.map((option) => (
-                              <button
-                                key={`${task.id}-${option.id}`}
-                                type="button"
-                                className={`button secondary ${announcementsTaskFolders[task.id] === option.id ? 'active' : ''}`}
-                                onClick={() => handleAnnouncementsTaskFolderSelection(task.id, option.id)}
-                              >
-                                {option.label}
-                              </button>
-                            ))}
-                          </div>
-                          {announcementsTaskFolders[task.id] ? (
-                            <p className="arrival-assigned-rank">
-                              Added to{' '}
-                              <strong>
-                                {announcementsTaskFolders[task.id].charAt(0).toUpperCase()
-                                  + announcementsTaskFolders[task.id].slice(1)}
-                              </strong>{' '}
-                              folder.
-                            </p>
-                          ) : null}
-                        </article>
-                      ))}
-                    </div>
-                    {announcementsTasks.every((task) => Boolean(announcementsTaskFolders[task.id])) ? (
-                      <article className="decision-consequence-card" aria-live="polite">
-                        <h4>Hallway Leadership Insight</h4>
-                        <p>
-                          Visibility creates access. The more present you are in the building, the more
-                          people will bring needs to you in motion. Strong leaders use a capture system —
-                          notebook, phone, assistant, or dashboard — so small requests do not disappear on
-                          the walk back to the office.
-                        </p>
-                        <p>
-                          <strong>Suggested folder: Red for both tasks.</strong>
-                        </p>
-                      </article>
-                    ) : null}
-                  </>
                 ) : null}
 
                 <div className="button-row">
@@ -3081,12 +3018,9 @@ export default function SimulationShellClient() {
                     type="button"
                     className="button primary"
                     onClick={handleAnnouncementsContinueDay}
-                    disabled={
-                      !announcementsDecision
-                      || announcementsTasks.some((task) => !announcementsTaskFolders[task.id])
-                    }
+                    disabled={!announcementsDecision}
                   >
-                    Continue Day
+                    Continue
                   </button>
                 </div>
               </>
@@ -4715,15 +4649,11 @@ export default function SimulationShellClient() {
                   <p className="folder-subtitle">Captured hallway request follow-through notes</p>
                   <ul>
                     <li><strong>Decision:</strong> {announcementsLeadershipRecord.decision}</li>
-                    {announcementsTasks.map((task) => (
-                      <li key={`record-${task.id}`}>
-                        <strong>{task.label}:</strong>{' '}
-                        {(announcementsLeadershipRecord.taskFolders[task.id] || '')
-                          .charAt(0)
-                          .toUpperCase()
-                          + (announcementsLeadershipRecord.taskFolders[task.id] || '').slice(1)}
-                      </li>
-                    ))}
+                    <li>
+                      <strong>Folder selected:</strong>{' '}
+                      {announcementsLeadershipRecord.folder.charAt(0).toUpperCase()
+                        + announcementsLeadershipRecord.folder.slice(1)}
+                    </li>
                     <li><strong>Coaching note:</strong> {announcementsLeadershipRecord.coachingNote}</li>
                     <li><strong>Suggested folder:</strong> {announcementsLeadershipRecord.suggestedFolder}</li>
                   </ul>
