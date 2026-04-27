@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-const SCHOOL_LEADER_SIMULATION_URL = 'https://drrobfurman.com/simulation';
 const VIC_URL = 'https://askvic.ai';
 
 const projects = [
@@ -9,9 +8,8 @@ const projects = [
     title: 'School Leader Simulation',
     description:
       'A real-time leadership simulation that places aspiring administrators inside a full school day — focused on decision-making, communication, and operational judgment under pressure.',
-    href: SCHOOL_LEADER_SIMULATION_URL,
-    linkText: 'Open Simulation →',
-    external: true,
+    href: '/simulation-overview',
+    linkText: 'Learn About Simulation →',
   },
   {
     title: 'VIC: Virtual Co-Teacher',
