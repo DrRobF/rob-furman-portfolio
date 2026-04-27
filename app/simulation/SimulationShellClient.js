@@ -659,36 +659,36 @@ const walkthroughFormFields = [
   },
 ];
 const lunchClimateDecisionOptions = [
-  'Step in and reset expectations',
-  'Watch before acting',
-  'Pull the lunch monitors together',
-  'Remove the loudest students',
+  'A. Move closer to the back corner, calmly redirect nearby students, and quietly check in with the monitor before the situation escalates.',
+  'B. Stop the entire lunch period immediately and give a loud cafeteria-wide lecture about behavior expectations.',
+  'C. Stay near the entrance and observe for several more minutes before getting involved.',
+  'D. Pull the cafeteria monitors aside for a full discussion while students continue eating without direct supervision.',
 ];
 const lunchClimateDecisionCoaching = {
-  'Step in and reset expectations': {
-    title: 'Immediate Climate Reset',
+  'A. Move closer to the back corner, calmly redirect nearby students, and quietly check in with the monitor before the situation escalates.': {
+    title: 'Best Move: Calm, Close, and Preventive',
     message:
-      'You chose to reset expectations directly. This can quickly calm the room, but it works best when paired with consistent follow-through from the adults supervising.',
+      'Strong first move. You are present, support supervision, and reduce risk before escalation.',
   },
-  'Watch before acting': {
-    title: 'Observe the Pattern',
+  'B. Stop the entire lunch period immediately and give a loud cafeteria-wide lecture about behavior expectations.': {
+    title: 'Too Broad, Too Fast',
     message:
-      'You chose to observe before acting. This can help you identify the real pattern instead of reacting to noise alone. The risk is waiting too long while behavior escalates.',
+      'This may regain attention, but it escalates tone before confirming what is happening.',
   },
-  'Pull the lunch monitors together': {
-    title: 'Adult Alignment',
+  'C. Stay near the entrance and observe for several more minutes before getting involved.': {
+    title: 'Delay Risk',
     message:
-      'You chose to align the adults first. This is often a strong move because inconsistent adult responses create inconsistent student behavior.',
+      'Observation matters, but waiting here could allow a preventable problem to grow.',
   },
-  'Remove the loudest students': {
-    title: 'Control Move',
+  'D. Pull the cafeteria monitors aside for a full discussion while students continue eating without direct supervision.': {
+    title: 'Supervision Gap',
     message:
-      'You chose to remove the most visible behavior. This may calm the room temporarily, but it can miss the system issue if expectations and adult responses remain unclear.',
+      'Supporting staff is important, but pulling monitors away during possible escalation creates safety risk.',
   },
 };
 const lunchClimateTaskItem = 'Stabilize cafeteria expectations today';
 const lunchClimateInsightMessage =
-  'Cafeteria behavior improves when adults share the same expectations, use the same language, and respond consistently. Strong leaders do not just correct students — they build systems adults can follow.';
+  'Best practice: move toward risk, stabilize expectations calmly, and keep supervision active while gathering quick facts.';
 const parentEscalationTaskItem = 'Respond to parent escalation from lunch incident';
 const parentEscalationDecisionOptions = [
   'Call the parent back immediately',
@@ -2492,11 +2492,6 @@ export default function SimulationShellClient() {
       leadershipInsight: lunchClimateInsightMessage,
     });
     setLunchClimateInsightUnlocked(true);
-    scrollToTop();
-  };
-
-  const handleLunchClimateContinueDay = () => {
-    if (!lunchClimateDecision || !lunchMonitorDirectionNote.trim() || !lunchClimateInsightUnlocked) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, lunchClimate: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -3511,17 +3506,53 @@ export default function SimulationShellClient() {
                 <h2>Lunch & Cafeteria Climate</h2>
                 <article className="scenario-preview-card">
                   <p>
-                    You head to the cafeteria for two lunch periods because you have been hearing concerns
-                    that these periods are becoming rowdy. Lunch is not just supervision — it is school
-                    culture in motion.
+                    Lunch is usually one of the loudest parts of the school day, but today the cafeteria
+                    feels different.
                   </p>
                   <p>
-                    The cafeteria is loud, movement is loose, and several students are testing boundaries.
-                    Lunch monitors are trying, but expectations are inconsistent from table to table.
+                    The volume is higher than usual, several students are moving between tables, and staff
+                    members appear to be reacting instead of directing. A few students are clustered near
+                    the back corner, and one monitor looks visibly frustrated.
+                  </p>
+                  <p>
+                    This may simply be an unstructured lunch period beginning to drift, or it may be the
+                    early stage of a larger behavior issue. Your response needs to balance presence,
+                    safety, supervision, and student dignity.
                   </p>
                 </article>
 
-                <h3 className="decision-prompt">What do you focus on first?</h3>
+                <article className="report-card">
+                  <h3>Context and Available Information</h3>
+                  <ul className="strong-response-list">
+                    <li>
+                      <strong>Current Lunch Expectation:</strong> &quot;Students are expected to remain
+                      seated unless given permission, use indoor voices, and follow monitor
+                      directions.&quot;
+                    </li>
+                    <li>
+                      <strong>Staff Note:</strong> &quot;The cafeteria monitor reports that the same group
+                      of students has been pushing limits for several days.&quot;
+                    </li>
+                    <li>
+                      <strong>Student Pattern:</strong> &quot;Two students near the back corner were
+                      involved in a hallway disagreement earlier this week.&quot;
+                    </li>
+                    <li>
+                      <strong>Immediate Observation:</strong> &quot;No physical fight has occurred yet, but
+                      several students are watching the back corner instead of eating.&quot;
+                    </li>
+                    <li>
+                      <strong>Risk Signal:</strong> &quot;One student appears to be holding a phone under
+                      the table while others lean in to look.&quot;
+                    </li>
+                  </ul>
+                </article>
+
+                <h3 className="decision-prompt">What is your first leadership move?</h3>
+                <p>
+                  You need to decide whether this is a moment for observation, immediate intervention,
+                  staff direction, or a reset of expectations.
+                </p>
                 <div className="choices">
                   {lunchClimateDecisionOptions.map((decision) => (
                     <button
@@ -3544,14 +3575,19 @@ export default function SimulationShellClient() {
                 {lunchClimateDecision ? (
                   <article className="report-card">
                     <label htmlFor="lunch-monitor-direction-note" className="response-label">
-                      Draft a short note to the lunch monitors explaining the next steps for improving
-                      cafeteria expectations.
+                      Write a brief leadership note documenting what you observed and what immediate steps
+                      you took.
                     </label>
+                    <p className="analysis-note">
+                      Your note should include: what you saw, why you intervened, how you supported
+                      supervision, and what follow-up may be needed. This note should be clear enough that
+                      you could use it later if the situation escalates.
+                    </p>
                     <textarea
                       id="lunch-monitor-direction-note"
                       rows={5}
                       className="response-input"
-                      placeholder="Write your lunch monitor direction note…"
+                      placeholder="Write your leadership note…"
                       value={lunchMonitorDirectionNote}
                       onChange={(event) => setLunchMonitorDirectionNote(event.target.value)}
                     />
@@ -3566,30 +3602,6 @@ export default function SimulationShellClient() {
                       </button>
                     </div>
                   </article>
-                ) : null}
-
-                {lunchClimateInsightUnlocked ? (
-                  <>
-                    <article className="decision-consequence-card" aria-live="polite">
-                      <h4>Cafeteria Leadership Insight</h4>
-                      <p>{lunchClimateInsightMessage}</p>
-                      <ul className="strong-response-list">
-                        <li>Did you clarify expectations?</li>
-                        <li>Did you support the monitors rather than blame them?</li>
-                        <li>Did you identify consistent adult actions?</li>
-                        <li>Did you keep the tone calm and practical?</li>
-                      </ul>
-                    </article>
-                    <div className="button-row">
-                      <button
-                        type="button"
-                        className="button primary"
-                        onClick={handleLunchClimateContinueDay}
-                      >
-                        Continue Day
-                      </button>
-                    </div>
-                  </>
                 ) : null}
               </>
             ) : currentModule === 'parentEscalation' ? (
