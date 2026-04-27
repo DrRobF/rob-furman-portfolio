@@ -2,24 +2,24 @@ import Image from 'next/image';
 
 const focusAreas = [
   {
-    title: 'Instructional leadership',
+    title: 'School Leadership',
     detail:
-      'Leads systems-level instructional improvement anchored in coherence, equity, and measurable student impact.',
+      'More than 20 years of experience leading instructional systems, school improvement, staff development, student support, and day-to-day school operations.',
   },
   {
-    title: 'School administration',
+    title: 'Educational Technology & AI',
     detail:
-      'Former principal and school administrator with experience in operations, culture, staffing, and data-informed decision structures.',
+      'Builder of practical AI-supported tools, leadership simulations, and learning systems designed for real school workflows and classroom use.',
   },
   {
-    title: 'Professional learning',
+    title: 'Publishing & Thought Leadership',
     detail:
-      'Designs and facilitates professional development that supports implementation, coaching, and sustained practice change.',
+      'Author of multiple education books and national articles focused on literacy, technology integration, future-ready learning, and practical school innovation.',
   },
   {
-    title: 'AI + learning systems',
+    title: 'Professional Learning',
     detail:
-      'Builds practical AI tools, simulations, and instructional supports that fit real school workflows and priorities.',
+      'Designs and delivers professional learning experiences that help educators move from big ideas to implementation, coaching, and sustained practice change.',
   },
 ];
 
@@ -29,24 +29,24 @@ export default function AboutPage() {
       <div className="container">
         <h1>About Dr. Rob Furman</h1>
         <p className="lead">
-          Dr. Rob Furman holds an Ed.D. in Instructional Leadership and brings more than 20 years in
-          education as a principal, school administrator, instructional leader, author, and speaker.
+          Dr. Rob Furman is an educational leader, author, speaker, and builder of practical learning
+          systems for schools. Across more than two decades in education, he has served as a
+          principal, school administrator, COO, adjunct faculty member, music educator, and
+          instructional technology leader.
         </p>
         <div className="split-grid top-space about-layout">
           <div>
             <p>
-              Across his career, he has led instructional systems, school improvement strategy,
-              professional development, and technology adoption initiatives that strengthen teaching
-              quality and student outcomes.
+              His work sits at the intersection of school leadership, instructional design,
+              educational technology, and AI-supported learning. Rather than treating innovation as
+              theory, Rob focuses on building tools, simulations, and professional learning
+              experiences that help educators make better decisions in real school conditions.
             </p>
             <p className="top-space-sm">
-              He is an ISTE published author and TEDx speaker known for translating future-ready ideas
-              into practical action for schools, districts, and leadership teams.
-            </p>
-            <p className="top-space-sm">
-              His current work blends school leadership expertise with instructional design, AI-enabled
-              learning tools, interactive simulations, and scalable learning systems that help
-              educators implement innovation with confidence.
+              He has published multiple books with the International Society for Technology in
+              Education, presented nationally across major education conferences, developed virtual
+              and simulation-based learning environments, and now builds AI-supported systems
+              designed to strengthen teaching, leadership, and student support.
             </p>
           </div>
           <div className="media-card">
