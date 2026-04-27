@@ -562,30 +562,67 @@ const iepFolderOptions = [
 
 const iepTaskItem = 'Send IDEA manual to parents and CC Special Education Director';
 const announcementsDecisionCoaching = {
-  'A. Make a quick note of the issue, continue hallway presence, and plan to have the secretary correct the announcements when you return to the office.': {
-    title: 'Best choice.',
+  'Handle it yourself right away': {
+    title: 'Helpful but Costly',
     message:
-      'Best choice. You stayed visible during a critical time, captured the issue, and planned appropriate delegation.',
+      'You chose to personally handle the request. This supports the teacher, but it can also pull you away from other responsibilities if every hallway request becomes your task.',
   },
-  'B. Leave the hallway immediately and personally fix the announcement before students settle into class.': {
-    title: 'Presence Tradeoff',
+  'Ask the administrative assistant to send the announcements': {
+    title: 'Smart Delegation',
     message:
-      'This resolves the issue quickly but sacrifices your presence during a key supervision moment.',
+      'You chose to use the office system to help quickly. This is often a strong move: the teacher gets what she needs, students do not miss information, and you preserve time for other leadership work.',
   },
-  'C. Ignore the issue because announcements are not a priority.': {
-    title: 'Missed Follow-Through',
+  'Tell the teacher to email you': {
+    title: 'Delay Risk',
     message:
-      'Even routine communication matters. Ignoring it can lead to confusion later.',
+      'You chose to push the request back to the teacher. This may create a record, but it also adds work for someone who already lost instructional access and may delay a simple fix.',
   },
-  'D. Tell a nearby staff member to fix it without clarifying what needs to be changed.': {
-    title: 'Unclear Delegation',
+  'Make a quick note and keep moving': {
+    title: 'Capture Before It Disappears',
     message:
-      'Delegation is appropriate, but without clear direction the issue may not be handled correctly.',
+      'You chose to capture the request before moving on. Principals need a reliable system for hallway tasks because five more people may stop you before you reach your desk.',
   },
 };
-const announcementsTaskItem =
-  'Morning announcements correction: note issue and delegate office follow-up';
+
+const announcementsTasks = [
+  {
+    id: 'announcementsCopy',
+    label: 'Send teacher a copy of the morning announcements',
+  },
+  {
+    id: 'announcementsMaintenance',
+    label: 'Notify maintenance that classroom TV is not working',
+  },
+];
 const voicemailLoopTaskItem = 'Close open voicemail loops';
+const voicemailFirstMoveOptions = [
+  'Send acknowledgment',
+  'Investigate first',
+  'Call back directly',
+  'Delegate follow-up',
+];
+const voicemailCoachingByDecision = {
+  'Send acknowledgment': {
+    title: 'Acknowledge First',
+    message:
+      'You chose to acknowledge the message. This can reduce anxiety and show responsiveness while buying time to gather accurate information before giving a full answer.',
+  },
+  'Investigate first': {
+    title: 'Process First',
+    message:
+      'You chose to gather information before responding. This protects accuracy, but if the caller is waiting for a response, a short acknowledgment may still be needed.',
+  },
+  'Call back directly': {
+    title: 'Live Contact',
+    message:
+      'You chose direct contact. A call can build trust, but it can also take significant time and become difficult if you do not yet have enough information.',
+  },
+  'Delegate follow-up': {
+    title: 'Delegated Follow-Up',
+    message:
+      'You chose to involve someone else in the follow-up. Delegation can be appropriate, but the principal still needs to ensure the loop is closed.',
+  },
+};
 const walkthroughFormFields = [
   {
     id: 'studentEngagement',
@@ -622,36 +659,36 @@ const walkthroughFormFields = [
   },
 ];
 const lunchClimateDecisionOptions = [
-  'A. Move closer to the back corner, calmly redirect nearby students, and quietly check in with the monitor before the situation escalates.',
-  'B. Stop the entire lunch period immediately and give a loud cafeteria-wide lecture about behavior expectations.',
-  'C. Stay near the entrance and observe for several more minutes before getting involved.',
-  'D. Pull the cafeteria monitors aside for a full discussion while students continue eating without direct supervision.',
+  'Step in and reset expectations',
+  'Watch before acting',
+  'Pull the lunch monitors together',
+  'Remove the loudest students',
 ];
 const lunchClimateDecisionCoaching = {
-  'A. Move closer to the back corner, calmly redirect nearby students, and quietly check in with the monitor before the situation escalates.': {
-    title: 'Best Move: Calm, Close, and Preventive',
+  'Step in and reset expectations': {
+    title: 'Immediate Climate Reset',
     message:
-      'Strong first move. You are present, support supervision, and reduce risk before escalation.',
+      'You chose to reset expectations directly. This can quickly calm the room, but it works best when paired with consistent follow-through from the adults supervising.',
   },
-  'B. Stop the entire lunch period immediately and give a loud cafeteria-wide lecture about behavior expectations.': {
-    title: 'Too Broad, Too Fast',
+  'Watch before acting': {
+    title: 'Observe the Pattern',
     message:
-      'This may regain attention, but it escalates tone before confirming what is happening.',
+      'You chose to observe before acting. This can help you identify the real pattern instead of reacting to noise alone. The risk is waiting too long while behavior escalates.',
   },
-  'C. Stay near the entrance and observe for several more minutes before getting involved.': {
-    title: 'Delay Risk',
+  'Pull the lunch monitors together': {
+    title: 'Adult Alignment',
     message:
-      'Observation matters, but waiting here could allow a preventable problem to grow.',
+      'You chose to align the adults first. This is often a strong move because inconsistent adult responses create inconsistent student behavior.',
   },
-  'D. Pull the cafeteria monitors aside for a full discussion while students continue eating without direct supervision.': {
-    title: 'Supervision Gap',
+  'Remove the loudest students': {
+    title: 'Control Move',
     message:
-      'Supporting staff is important, but pulling monitors away during possible escalation creates safety risk.',
+      'You chose to remove the most visible behavior. This may calm the room temporarily, but it can miss the system issue if expectations and adult responses remain unclear.',
   },
 };
 const lunchClimateTaskItem = 'Stabilize cafeteria expectations today';
 const lunchClimateInsightMessage =
-  'Best practice: move toward risk, stabilize expectations calmly, and keep supervision active while gathering quick facts.';
+  'Cafeteria behavior improves when adults share the same expectations, use the same language, and respond consistently. Strong leaders do not just correct students — they build systems adults can follow.';
 const parentEscalationTaskItem = 'Respond to parent escalation from lunch incident';
 const parentEscalationDecisionOptions = [
   'Call the parent back immediately',
@@ -683,24 +720,24 @@ const parentEscalationDecisionCoaching = {
 };
 const parentEscalationEvidenceCards = [
   {
-    title: 'Teacher Note',
+    title: 'Communication Gap',
     content:
-      '"Student became disruptive during class and refused redirection. Removed briefly to reset."',
+      'The parent has heard the student’s version first. That does not mean the student is wrong, but it does mean the parent may be reacting to incomplete information.',
   },
   {
-    title: 'Student Background',
+    title: 'School Responsibility',
     content:
-      '"Student has had two prior minor behavior incidents this month."',
+      'The school still needs to document what happened, confirm facts with staff/students, and communicate next steps calmly.',
   },
   {
-    title: 'Parent History',
+    title: 'Cell Phone Reality',
     content:
-      '"Parent has contacted the school previously expressing concern about how discipline is handled."',
+      'Information now moves faster than school procedures. Leaders often respond while the story is already spreading.',
   },
   {
-    title: 'Supervision Context',
+    title: 'Leadership Balance',
     content:
-      '"No major incident report filed. Situation was handled at classroom level."',
+      'The goal is not to win the narrative. The goal is to acknowledge concern, gather facts, and communicate clearly without blaming or overpromising.',
   },
 ];
 const cafeteriaBoundaryTaskItem = 'Address cafeteria staff boundary issue';
@@ -756,58 +793,53 @@ const cafeteriaBoundaryEvidenceCards = [
 ];
 const teacherConflictTaskItem = 'Address teacher conflict before end of day';
 const teacherConflictDecisionOptions = [
-  'A. Meet with both teachers together immediately and ask them to explain the problem in front of each other.',
-  'B. Meet briefly with each teacher separately, clarify concerns, then schedule a structured follow-up meeting with shared expectations.',
-  'C. Tell both teachers to work it out themselves because professional adults should be able to manage disagreement.',
-  'D. Move one teacher to a different duty or team without discussing the conflict directly.',
+  'Meet with both teachers together immediately',
+  'Speak with each teacher separately first',
+  'Support the team leader’s decision',
+  'Allow each teacher to continue their own approach',
 ];
 const teacherConflictDecisionCoaching = {
-  'A. Meet with both teachers together immediately and ask them to explain the problem in front of each other.': {
-    title: 'Not the best first step',
+  'Meet with both teachers together immediately': {
+    title: 'Immediate Joint Conversation',
     message:
-      'A joint meeting may eventually be useful, but beginning there can escalate defensiveness before the leader understands each person’s perspective.',
+      'You chose to address the issue together. This can promote transparency, but it requires careful facilitation to prevent escalation or defensiveness.',
   },
-  'B. Meet briefly with each teacher separately, clarify concerns, then schedule a structured follow-up meeting with shared expectations.': {
-    title: 'Best first move',
+  'Speak with each teacher separately first': {
+    title: 'Individual Understanding',
     message:
-      'It gathers information without escalating the conflict, gives each staff member a professional space to be heard, and creates a path toward a structured resolution.',
+      'You chose to understand each perspective first. This can help you gather insight, but the conflict will still need to be addressed collectively.',
   },
-  'C. Tell both teachers to work it out themselves because professional adults should be able to manage disagreement.': {
-    title: 'Leadership responsibility missed',
+  'Support the team leader’s decision': {
+    title: 'Leadership Alignment',
     message:
-      'This avoids leadership responsibility and allows adult conflict to continue affecting students and the team.',
+      'You chose to back the team leader. While leadership roles matter, this approach may damage trust if concerns are not fully acknowledged.',
   },
-  'D. Move one teacher to a different duty or team without discussing the conflict directly.': {
-    title: 'Surface-level fix only',
+  'Allow each teacher to continue their own approach': {
+    title: 'Flexibility Over Consistency',
     message:
-      'A schedule or duty change may reduce contact, but it does not address the underlying professional conflict or expectations.',
+      'You chose flexibility. While this may reduce conflict short term, inconsistent practices across a grade level can impact students and team cohesion.',
   },
 };
 const teacherConflictEvidenceCards = [
   {
-    title: 'Teacher A Concern',
+    title: 'Leadership Structure',
     content:
-      '"Teacher A says Teacher B dismisses their input during shared planning and makes last-minute changes without communicating."',
+      'Grade-level leaders are responsible for guiding instruction, but leadership requires support and alignment, not just authority.',
   },
   {
-    title: 'Teacher B Concern',
+    title: 'Experience Matters',
     content:
-      '"Teacher B says Teacher A resists changes, avoids shared responsibilities, and brings up concerns in front of others instead of privately."',
+      'Veteran teachers bring valuable experience and proven practices. Change without acknowledgment of that experience can create resistance.',
   },
   {
-    title: 'Team Impact',
+    title: 'Consistency for Students',
     content:
-      '"Other staff members have noticed the tension during planning time and say meetings are becoming uncomfortable."',
+      'Students benefit from consistent expectations and instructional approaches across a team.',
   },
   {
-    title: 'Student Impact',
+    title: 'Change Management',
     content:
-      '"Students have begun asking why the teachers seem upset with each other."',
-  },
-  {
-    title: 'Prior Context',
-    content:
-      '"This is the second time this month that concerns about this working relationship have reached administration."',
+      'Effective leaders introduce change by building understanding and buy-in, not just presenting a better method.',
   },
 ];
 
@@ -1115,12 +1147,12 @@ function analyzeLeadershipWriting(responseText, contextType) {
       ['today', 'next steps', 'document', 'process'],
     ],
     teacherConflict: [
-      ['teacher', 'teachers', 'teacher a', 'teacher b'],
-      ['conflict', 'tension', 'concern', 'planning', 'shared responsibilities'],
-      ['separately', 'information', 'clarify', 'understand', 'perspective'],
-      ['expectations', 'professionalism', 'professional', 'reset expectations'],
-      ['follow-up', 'follow up', 'structured', 'meeting', 'resolution'],
-      ['students', 'team', 'instruction', 'protect students', 'school day'],
+      ['teacher', 'teachers', 'team leader', 'veteran'],
+      ['approach', 'instruction', 'strategy', 'tools', 'methods'],
+      ['both', 'each', 'together', 'perspective'],
+      ['align', 'consistency', 'grade level', 'students'],
+      ['conversation', 'discuss', 'listen', 'next steps'],
+      ['neutral', 'professional', 'respect', 'calm'],
     ],
     studentThreatEmail: [
       ['parent', 'family', 'guardian'],
@@ -1599,7 +1631,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
     voicemailTeacher: 'voicemail response to teacher call',
     parentEscalation: 'parent escalation response',
     staffBoundary: 'staff boundary response',
-    teacherConflict: 'teacher conflict resolution plan',
+    teacherConflict: 'teacher conflict opening statement',
     studentThreatEmail: 'student threat parent email response',
     recessInjuryEmail: 'recess injury parent email response',
     studentRemovalVoicemail: 'student removal voicemail response/action plan',
@@ -1722,6 +1754,7 @@ export default function SimulationShellClient() {
   const [iepFolderChoice, setIepFolderChoice] = useState('');
   const [iepLeadershipRecord, setIepLeadershipRecord] = useState(null);
   const [announcementsDecision, setAnnouncementsDecision] = useState('');
+  const [announcementsTaskFolders, setAnnouncementsTaskFolders] = useState({});
   const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
   const [voicemailDecisions, setVoicemailDecisions] = useState({ parentHelp: '', teacherCall: '' });
   const [voicemailResponses, setVoicemailResponses] = useState({ parentHelp: '', teacherCall: '' });
@@ -1871,6 +1904,7 @@ export default function SimulationShellClient() {
     setIepFolderChoice('');
     setIepLeadershipRecord(null);
     setAnnouncementsDecision('');
+    setAnnouncementsTaskFolders({});
     setAnnouncementsLeadershipRecord(null);
     setVoicemailDecisions({ parentHelp: '', teacherCall: '' });
     setVoicemailResponses({ parentHelp: '', teacherCall: '' });
@@ -2187,45 +2221,65 @@ export default function SimulationShellClient() {
   };
 
   const handleStudentThreatContinue = () => {
-    if (!studentThreatDecision || !studentThreatResponse.trim()) return;
+    if (!studentThreatDecision || !studentThreatResponse.trim() || studentThreatWritingAssessment) return;
     const assessment = analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail');
     setStudentThreatWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleStudentThreatReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, studentThreatEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handleAcademicDeclineContinue = () => {
-    if (!academicDeclineDecision || !academicDeclineResponse.trim()) return;
+    if (!academicDeclineDecision || !academicDeclineResponse.trim() || academicDeclineWritingAssessment) return;
     const assessment = analyzeLeadershipWriting(academicDeclineResponse, 'academicDeclineEmail');
     setAcademicDeclineWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleAcademicDeclineReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, academicDeclineEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handlePtoTalentShowContinue = () => {
-    if (!ptoTalentShowDecision || !ptoTalentShowResponse.trim()) return;
+    if (!ptoTalentShowDecision || !ptoTalentShowResponse.trim() || ptoTalentShowWritingAssessment) return;
     const assessment = analyzeLeadershipWriting(ptoTalentShowResponse, 'ptoTalentShowEmail');
     setPtoTalentShowWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handlePtoTalentShowReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, ptoTalentShowEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handleRecessInjuryContinue = () => {
-    if (!recessInjuryDecision || !recessInjuryResponse.trim()) return;
+    if (!recessInjuryDecision || !recessInjuryResponse.trim() || recessInjuryWritingAssessment) return;
     const assessment = analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail');
     setRecessInjuryWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleRecessInjuryReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, recessInjuryEmail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
 
   const handleStudentRemovalContinue = () => {
-    if (!studentRemovalDecision || !studentRemovalResponse.trim()) return;
+    if (!studentRemovalDecision || !studentRemovalResponse.trim() || studentRemovalWritingAssessment) return;
     const assessment = analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail');
     setStudentRemovalWritingAssessment(assessment);
+    scrollToTop();
+  };
+
+  const handleStudentRemovalReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, studentRemovalVoicemail: deskStackItemStatuses.complete }));
     setCurrentDeskStackItem(null);
     scrollToTop();
@@ -2288,25 +2342,42 @@ export default function SimulationShellClient() {
   };
 
   const handleAnnouncementsDecisionSelect = (decisionLabel) => {
-    const coaching = announcementsDecisionCoaching[decisionLabel];
-    if (!coaching) return;
-
-    completeFolderItems([announcementsTaskItem]);
     setAnnouncementsDecision(decisionLabel);
-    addFolderItems({ orange: [announcementsTaskItem] });
+  };
+
+  const handleAnnouncementsTaskFolderSelection = (taskId, folderId) => {
+    const task = announcementsTasks.find((card) => card.id === taskId);
+    if (!task) return;
+
+    setAnnouncementsTaskFolders((prev) => {
+      const previousFolder = prev[taskId];
+      const next = { ...prev, [taskId]: folderId };
+
+      if (previousFolder && previousFolder !== folderId) {
+        setFolders((folderState) => ({
+          red: folderState.red.filter((item) => item !== task.label),
+          orange: folderState.orange.filter((item) => item !== task.label),
+          green: folderState.green.filter((item) => item !== task.label),
+        }));
+      }
+
+      return next;
+    });
+    addFolderItems({ [folderId]: [task.label] });
   };
 
   const handleAnnouncementsContinueDay = () => {
-    if (!announcementsDecision) return;
+    const hasAllTaskFolders = announcementsTasks.every((task) => Boolean(announcementsTaskFolders[task.id]));
+    if (!announcementsDecision || !hasAllTaskFolders) return;
 
     setAnnouncementsLeadershipRecord({
       module: '9:00 AM — Announcements',
       decision: announcementsDecision,
-      folder: 'orange',
+      taskFolders: announcementsTaskFolders,
       coachingNote: announcementsDecisionCoaching[announcementsDecision]?.message || '',
       insight:
-        'Effective leaders do not stop for every small task. They capture issues quickly, stay present during key moments, and use delegation to keep the day moving.',
-      suggestedFolder: 'Orange — important but not urgent.',
+        'Visibility creates access. The more present you are in the building, the more people will bring needs to you in motion. Strong leaders use a capture system — notebook, phone, assistant, or dashboard — so small requests do not disappear on the walk back to the office.',
+      suggestedFolder: 'Red for both tasks.',
     });
 
     setTimelineStatuses((prev) => {
@@ -2325,6 +2396,10 @@ export default function SimulationShellClient() {
       return next;
     });
     scrollToTop();
+  };
+
+  const handleVoicemailDecisionSelect = (threadId, decision) => {
+    setVoicemailDecisions((prev) => ({ ...prev, [threadId]: decision }));
   };
 
   const handleVoicemailResponseChange = (threadId, value) => {
@@ -2417,6 +2492,11 @@ export default function SimulationShellClient() {
       leadershipInsight: lunchClimateInsightMessage,
     });
     setLunchClimateInsightUnlocked(true);
+    scrollToTop();
+  };
+
+  const handleLunchClimateContinueDay = () => {
+    if (!lunchClimateDecision || !lunchMonitorDirectionNote.trim() || !lunchClimateInsightUnlocked) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, lunchClimate: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -2448,6 +2528,15 @@ export default function SimulationShellClient() {
       writingAssessment: nextAssessment,
       coachingNote: parentEscalationDecisionCoaching[parentEscalationDecision]?.message || '',
     });
+    scrollToTop();
+  };
+
+  const handleParentEscalationDecisionSelect = (decisionLabel) => {
+    setParentEscalationDecision(decisionLabel);
+  };
+
+  const handleParentEscalationContinueDay = () => {
+    if (!parentEscalationWritingAssessment) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, parentEscalation: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -2466,12 +2555,8 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
-  const handleParentEscalationDecisionSelect = (decisionLabel) => {
-    setParentEscalationDecision(decisionLabel);
-  };
-
   const handleCafeteriaBoundaryContinue = () => {
-    if (!cafeteriaBoundaryDecision || !cafeteriaBoundaryResponse.trim()) return;
+    if (!cafeteriaBoundaryDecision || !cafeteriaBoundaryResponse.trim() || cafeteriaBoundaryWritingAssessment) return;
     const nextAssessment = analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary');
     setCafeteriaBoundaryWritingAssessment(nextAssessment);
     completeFolderItems([cafeteriaBoundaryTaskItem]);
@@ -2483,6 +2568,11 @@ export default function SimulationShellClient() {
       writingAssessment: nextAssessment,
       coachingNote: cafeteriaBoundaryDecisionCoaching[cafeteriaBoundaryDecision]?.message || '',
     });
+    scrollToTop();
+  };
+
+  const handleCafeteriaBoundaryContinueDay = () => {
+    if (!cafeteriaBoundaryWritingAssessment) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, cafeteriaBoundary: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -2502,17 +2592,22 @@ export default function SimulationShellClient() {
   };
 
   const handleTeacherConflictContinue = () => {
-    if (!teacherConflictDecision || !teacherConflictResponse.trim()) return;
+    if (!teacherConflictDecision || !teacherConflictResponse.trim() || teacherConflictWritingAssessment) return;
     const nextAssessment = analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict');
     setTeacherConflictWritingAssessment(nextAssessment);
     completeFolderItems([teacherConflictTaskItem]);
     setTeacherConflictLeadershipRecord({
       module: '3:15 PM — Teacher Conflict',
       decision: teacherConflictDecision,
-      conflictResolutionPlan: teacherConflictResponse.trim(),
+      openingStatement: teacherConflictResponse.trim(),
       writingAssessment: nextAssessment,
       coachingNote: teacherConflictDecisionCoaching[teacherConflictDecision]?.message || '',
     });
+    scrollToTop();
+  };
+
+  const handleTeacherConflictContinueDay = () => {
+    if (!teacherConflictWritingAssessment) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, teacherConflict: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -2558,6 +2653,7 @@ export default function SimulationShellClient() {
   const hasCompletedWalkthroughForm = walkthroughFormFields.every(
     (field) => walkthroughResponses[field.id].trim(),
   );
+  const hasSelectedBothVoicemailDecisions = Object.values(voicemailDecisions).every(Boolean);
   const hasCompletedBothVoicemailResponses = Object.values(voicemailResponses).every((response) => response.trim());
   const finalResponseAnalysis = useMemo(
     () => analyzeFinalResponse(finalParentResponse),
@@ -2567,6 +2663,42 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(finalParentResponse, 'parentFinalResponse'),
     [finalParentResponse],
   );
+  const liveVoicemailWritingAssessments = useMemo(
+    () => ({
+      parentHelp: analyzeLeadershipWriting(voicemailResponses.parentHelp, 'voicemailParent'),
+      teacherCall: analyzeLeadershipWriting(voicemailResponses.teacherCall, 'voicemailTeacher'),
+    }),
+    [voicemailResponses.parentHelp, voicemailResponses.teacherCall],
+  );
+  const liveParentEscalationWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation'),
+    [parentEscalationResponse],
+  );
+  const liveCafeteriaBoundaryWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary'),
+    [cafeteriaBoundaryResponse],
+  );
+  const liveTeacherConflictWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict'),
+    [teacherConflictResponse],
+  );
+  const liveStudentThreatWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail'),
+    [studentThreatResponse],
+  );
+  const liveAcademicDeclineWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(academicDeclineResponse, 'academicDeclineEmail'),
+    [academicDeclineResponse],
+  );
+  const liveRecessInjuryWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail'),
+    [recessInjuryResponse],
+  );
+  const liveStudentRemovalWritingAssessment = useMemo(
+    () => analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail'),
+    [studentRemovalResponse],
+  );
+
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
       'You chose to discuss the situation with the teacher before responding. This is appropriate if the goal is to review the classroom practice, support the teacher, and prevent future misunderstandings — not to assign blame.',
@@ -2964,32 +3096,19 @@ export default function SimulationShellClient() {
                 <p className="eyebrow">9:00 AM</p>
                 <h2>Morning Announcements</h2>
                 <article className="scenario-preview-card">
-                  <h3>Leadership Briefing</h3>
                   <p>
-                    As students arrive, you are in the hallway maintaining visibility and setting the tone
-                    for the day.
+                    You finish morning announcements with the student TV crew. These moments matter —
+                    students see the principal as present, visible, and part of the life of the school.
                   </p>
                   <p>
-                    While walking, you realize there is an issue with the morning announcements that will
-                    need to be corrected.
-                  </p>
-                  <p>
-                    This is not an urgent safety issue, but it does require follow-up.
-                  </p>
-                  <p>
-                    Your decision should balance presence, time management, and how you handle routine
-                    operational tasks.
-                  </p>
-                </article>
-                <article className="decision-consequence-card">
-                  <h4>Leadership Guidance</h4>
-                  <p>
-                    Effective leaders do not stop for every small task. They capture issues quickly, stay
-                    present during key moments, and use delegation to keep the day moving.
+                    On your way back to the office, a teacher stops you. Her classroom TV was not
+                    working, so her students could not hear the announcements. She asks if you can get her
+                    a copy and also let maintenance know her TV needs attention.
                   </p>
                 </article>
                 <h3 className="decision-prompt">
-                  What is your best next move?
+                  You are only steps away from the office, but this is how a principal&apos;s day fills up:
+                  one hallway request becomes three things to remember before you even sit down.
                 </h3>
                 <div className="choices">
                   {Object.keys(announcementsDecisionCoaching).map((decision) => (
@@ -3007,10 +3126,58 @@ export default function SimulationShellClient() {
                   <article className="decision-consequence-card" aria-live="polite">
                     <h4>{announcementsDecisionCoaching[announcementsDecision].title}</h4>
                     <p>{announcementsDecisionCoaching[announcementsDecision].message}</p>
-                    <p>
-                      <strong>Task added to Orange folder:</strong> {announcementsTaskItem}
-                    </p>
                   </article>
+                ) : null}
+
+                {announcementsDecision ? (
+                  <>
+                    <h3 className="decision-prompt">
+                      What needs to be captured from this hallway request?
+                    </h3>
+                    <div className="arrival-priority-list">
+                      {announcementsTasks.map((task) => (
+                        <article key={task.id} className="arrival-priority-card">
+                          <span className="selected-decision-label">{task.label}</span>
+                          <div className="button-row arrival-rank-row">
+                            {iepFolderOptions.map((option) => (
+                              <button
+                                key={`${task.id}-${option.id}`}
+                                type="button"
+                                className={`button secondary ${announcementsTaskFolders[task.id] === option.id ? 'active' : ''}`}
+                                onClick={() => handleAnnouncementsTaskFolderSelection(task.id, option.id)}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                          {announcementsTaskFolders[task.id] ? (
+                            <p className="arrival-assigned-rank">
+                              Added to{' '}
+                              <strong>
+                                {announcementsTaskFolders[task.id].charAt(0).toUpperCase()
+                                  + announcementsTaskFolders[task.id].slice(1)}
+                              </strong>{' '}
+                              folder.
+                            </p>
+                          ) : null}
+                        </article>
+                      ))}
+                    </div>
+                    {announcementsTasks.every((task) => Boolean(announcementsTaskFolders[task.id])) ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <h4>Hallway Leadership Insight</h4>
+                        <p>
+                          Visibility creates access. The more present you are in the building, the more
+                          people will bring needs to you in motion. Strong leaders use a capture system —
+                          notebook, phone, assistant, or dashboard — so small requests do not disappear on
+                          the walk back to the office.
+                        </p>
+                        <p>
+                          <strong>Suggested folder: Red for both tasks.</strong>
+                        </p>
+                      </article>
+                    ) : null}
+                  </>
                 ) : null}
 
                 <div className="button-row">
@@ -3018,9 +3185,12 @@ export default function SimulationShellClient() {
                     type="button"
                     className="button primary"
                     onClick={handleAnnouncementsContinueDay}
-                    disabled={!announcementsDecision}
+                    disabled={
+                      !announcementsDecision
+                      || announcementsTasks.some((task) => !announcementsTaskFolders[task.id])
+                    }
                   >
-                    Continue
+                    Continue Day
                   </button>
                 </div>
               </>
@@ -3029,123 +3199,203 @@ export default function SimulationShellClient() {
                 <p className="eyebrow">9:30 AM</p>
                 <h2>Voicemail Backlog</h2>
                 <article className="scenario-preview-card">
-                  <h3>Leadership Briefing</h3>
                   <p>
-                    You return to the office and find two parent voicemails waiting.
+                    You finally get a few minutes near your desk. The red voicemail light is blinking
+                    again. Some messages came in before you arrived, and now they need to be triaged
+                    before the day moves too far ahead.
                   </p>
+                </article>
+                <article className="decision-next-step-panel">
                   <p>
-                    Both messages involve student concerns that require a response before the day moves too
-                    far ahead. You do not have every detail yet, but you do have enough context to
-                    acknowledge the concern, communicate what is known, and explain your next steps.
-                  </p>
-                  <p>
-                    Your job is to respond professionally without overpromising, dismissing the concern, or
-                    simply saying you will “look into it” with no direction.
+                    Voicemails often carry a different urgency than email. If someone took the time to
+                    call, there may be emotion, confusion, or a time-sensitive concern behind the message.
                   </p>
                 </article>
 
-                <article className="report-card">
-                  <h3>Context and Available Information</h3>
-                  <div className="analysis-grid">
-                    <audio controls>
-                      <source src="/images/student-removal-class-vm.mp3" type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
-                    <div className="analysis-row">
-                      <p className="analysis-lens">CASE 1 — Parent Concern About Classroom Removal</p>
-                      <p><strong>Voicemail Summary:</strong> &quot;My child told me they were removed from class this morning. I want to know why this happened and whether anyone called me.&quot;</p>
-                      <p><strong>Available Information:</strong></p>
-                      <ul className="strong-response-list">
-                        <li>Teacher note: &quot;Student repeatedly interrupted instruction and refused two redirections.&quot;</li>
-                        <li>Student was moved to a nearby buddy classroom for approximately 8 minutes to reset.</li>
-                        <li>No office referral was submitted.</li>
-                        <li>Student returned to class and completed the assignment.</li>
-                        <li>Parent has previously expressed concern about discipline communication.</li>
-                      </ul>
-                    </div>
-                    <audio controls>
+                <div className="arrival-priority-list voicemail-thread-list">
+                  <article className="arrival-priority-card voicemail-thread-card">
+                    <h3>Voicemail 1</h3>
+                    <audio controls className="voicemail-audio-player">
                       <source src="/images/parent-help-request.vm.mp3" type="audio/mpeg" />
-                      Your browser does not support the audio element.
                     </audio>
-                    <div className="analysis-row">
-                      <p className="analysis-lens">CASE 2 — Parent Concern About Recess Injury</p>
-                      <p><strong>Voicemail Summary:</strong> &quot;My child came home saying they got hurt at recess and nobody told me. I need someone to explain what happened.&quot;</p>
-                      <p><strong>Available Information:</strong></p>
-                      <ul className="strong-response-list">
-                        <li>Recess monitor note: &quot;Student tripped while running near the basketball area.&quot;</li>
-                        <li>Student reported knee pain but returned to play after sitting briefly.</li>
-                        <li>Nurse log shows the student visited the nurse for 5 minutes.</li>
-                        <li>No visible swelling or major injury was recorded.</li>
-                        <li>Parent was not called because the injury appeared minor at the time.</li>
-                      </ul>
+                    <h4 className="decision-prompt">What is your first move with this message?</h4>
+                    <div className="button-row arrival-rank-row">
+                      {voicemailFirstMoveOptions.map((choice) => (
+                        <button
+                          key={`parent-${choice}`}
+                          type="button"
+                          className={`button secondary ${voicemailDecisions.parentHelp === choice ? 'active' : ''}`}
+                          onClick={() => handleVoicemailDecisionSelect('parentHelp', choice)}
+                        >
+                          {choice}
+                        </button>
+                      ))}
                     </div>
-                  </div>
-                </article>
-
-                <article className="report-card">
-                  <h3>Write a brief response plan for each parent.</h3>
-                  <p>For each response, include:</p>
-                  <ul className="strong-response-list">
-                    <li>how you would acknowledge the concern</li>
-                    <li>what information you can share now</li>
-                    <li>what follow-up you will complete</li>
-                    <li>how you will maintain professionalism and trust</li>
-                  </ul>
-                  <p>
-                    These should not be placeholder responses. Each parent should receive enough clarity
-                    to know the concern is being handled.
-                  </p>
-                  <div className="analysis-grid">
-                    <div className="analysis-row">
-                      <p className="analysis-lens">CASE 1 Response Plan</p>
-                      <label htmlFor="voicemail-parent-response" className="response-label">
-                        Parent concern about classroom removal
-                      </label>
-                      <textarea
-                        id="voicemail-parent-response"
-                        rows={5}
-                        className="response-input"
-                        value={voicemailResponses.parentHelp}
-                        onChange={(event) => handleVoicemailResponseChange('parentHelp', event.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="analysis-row">
-                      <p className="analysis-lens">CASE 2 Response Plan</p>
-                      <label htmlFor="voicemail-teacher-response" className="response-label">
-                        Parent concern about recess injury
-                      </label>
-                      <textarea
-                        id="voicemail-teacher-response"
-                        rows={5}
-                        className="response-input"
-                        value={voicemailResponses.teacherCall}
-                        onChange={(event) => handleVoicemailResponseChange('teacherCall', event.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                </article>
-
-                {hasCompletedBothVoicemailResponses ? (
-                  <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
-                    </p>
-                    <p className="analysis-lens">View coaching notes</p>
+                    {voicemailDecisions.parentHelp ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <h4>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].title}</h4>
+                        <p>{voicemailCoachingByDecision[voicemailDecisions.parentHelp].message}</p>
+                      </article>
+                    ) : null}
                   </article>
-                ) : null}
 
-                <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleVoicemailContinue}
-                    disabled={!hasCompletedBothVoicemailResponses}
-                  >
-                    Continue
-                  </button>
+                  <article className="arrival-priority-card voicemail-thread-card">
+                    <h3>Voicemail 2</h3>
+                    <audio controls className="voicemail-audio-player">
+                      <source src="/images/teacher-call-vm.mp3" type="audio/mpeg" />
+                    </audio>
+                    <h4 className="decision-prompt">What is your first move with this message?</h4>
+                    <div className="button-row arrival-rank-row">
+                      {voicemailFirstMoveOptions.map((choice) => (
+                        <button
+                          key={`teacher-${choice}`}
+                          type="button"
+                          className={`button secondary ${voicemailDecisions.teacherCall === choice ? 'active' : ''}`}
+                          onClick={() => handleVoicemailDecisionSelect('teacherCall', choice)}
+                        >
+                          {choice}
+                        </button>
+                      ))}
+                    </div>
+                    {voicemailDecisions.teacherCall ? (
+                      <article className="decision-consequence-card" aria-live="polite">
+                        <h4>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].title}</h4>
+                        <p>{voicemailCoachingByDecision[voicemailDecisions.teacherCall].message}</p>
+                      </article>
+                    ) : null}
+                  </article>
                 </div>
+
+                {hasSelectedBothVoicemailDecisions ? (
+                  <>
+                    <article className="report-card report-intro">
+                      <h3>Open Voicemail Threads</h3>
+                      <p>
+                        Both messages now require follow-through. A voicemail is not complete when it
+                        is heard. It is complete when the concern has been acknowledged, investigated
+                        if needed, and answered with next steps.
+                      </p>
+                    </article>
+                    <article className="report-card">
+                      <h3>Parent Help Request — Context Needed</h3>
+                      <p>
+                        Before giving a full answer, determine what the parent is asking for, whether
+                        the concern involves a student need, a classroom issue, a scheduling issue, or
+                        a support request, and whether anyone else needs to be consulted.
+                      </p>
+                    </article>
+                    <article className="report-card">
+                      <h3>Teacher Call — Context Needed</h3>
+                      <p>
+                        Before closing the loop, determine whether the teacher needs a decision, a
+                        resource, coverage, parent support, student support, or administrative
+                        follow-up.
+                      </p>
+                    </article>
+                    <article className="report-card report-intro">
+                      <h3>Voicemail Response Guidance</h3>
+                      <p>
+                        Strong leaders do not just listen to messages. They close loops. Before you write, make
+                        sure the caller knows the message was received, what will happen next, and when they can
+                        expect follow-up.
+                      </p>
+                      <ul className="strong-response-list">
+                        <li>Acknowledge the concern.</li>
+                        <li>Avoid overpromising.</li>
+                        <li>Identify the next step.</li>
+                        <li>Give a realistic timeline.</li>
+                        <li>Preserve time for the rest of the day.</li>
+                      </ul>
+                    </article>
+                    <article className="report-card">
+                      <div className="analysis-grid">
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Thread 1: Parent Help Request</p>
+                          <p><strong>First move:</strong> {voicemailDecisions.parentHelp}</p>
+                          <p><strong>Status:</strong> Open</p>
+                          <label htmlFor="voicemail-parent-response" className="response-label">
+                            Draft the response or next-step message…
+                          </label>
+                          <textarea
+                            id="voicemail-parent-response"
+                            rows={5}
+                            className="response-input"
+                            value={voicemailResponses.parentHelp}
+                            onChange={(event) => handleVoicemailResponseChange('parentHelp', event.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Thread 2: Teacher Call</p>
+                          <p><strong>First move:</strong> {voicemailDecisions.teacherCall}</p>
+                          <p><strong>Status:</strong> Open</p>
+                          <label htmlFor="voicemail-teacher-response" className="response-label">
+                            Draft the response or next-step message…
+                          </label>
+                          <textarea
+                            id="voicemail-teacher-response"
+                            rows={5}
+                            className="response-input"
+                            value={voicemailResponses.teacherCall}
+                            onChange={(event) => handleVoicemailResponseChange('teacherCall', event.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </article>
+                    {hasCompletedBothVoicemailResponses ? (
+                      <article className="report-card" aria-live="polite">
+                        <h3>VIC Writing Assessment</h3>
+                        <p className="analysis-note">
+                          VIC reviewed each voicemail draft for tone, clarity, empathy, risk, and next steps.
+                          This is a first-pass local assessment and will expand with deeper AI coaching.
+                        </p>
+                        <div className="analysis-grid report-analysis-grid">
+                          <article className="analysis-row report-analysis-row">
+                            <p className="analysis-lens">Voicemail 1 Response</p>
+                            <p className="analysis-note">{liveVoicemailWritingAssessments.parentHelp.summary}</p>
+                            <div className="analysis-grid">
+                              {liveVoicemailWritingAssessments.parentHelp.categories.map((category) => (
+                                <div key={`vm1-${category.name}`} className="report-analysis-category-row">
+                                  <p className="analysis-lens">{category.name}</p>
+                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                                    {category.status}
+                                  </p>
+                                  <p>{category.note}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </article>
+                          <article className="analysis-row report-analysis-row">
+                            <p className="analysis-lens">Voicemail 2 Response</p>
+                            <p className="analysis-note">{liveVoicemailWritingAssessments.teacherCall.summary}</p>
+                            <div className="analysis-grid">
+                              {liveVoicemailWritingAssessments.teacherCall.categories.map((category) => (
+                                <div key={`vm2-${category.name}`} className="report-analysis-category-row">
+                                  <p className="analysis-lens">{category.name}</p>
+                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                                    {category.status}
+                                  </p>
+                                  <p>{category.note}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </article>
+                        </div>
+                      </article>
+                    ) : null}
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={handleVoicemailContinue}
+                        disabled={!hasCompletedBothVoicemailResponses}
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </>
+                ) : null}
               </>
             ) : currentModule === 'classroomWalkthrough' ? (
               <>
@@ -3251,53 +3501,17 @@ export default function SimulationShellClient() {
                 <h2>Lunch & Cafeteria Climate</h2>
                 <article className="scenario-preview-card">
                   <p>
-                    Lunch is usually one of the loudest parts of the school day, but today the cafeteria
-                    feels different.
+                    You head to the cafeteria for two lunch periods because you have been hearing concerns
+                    that these periods are becoming rowdy. Lunch is not just supervision — it is school
+                    culture in motion.
                   </p>
                   <p>
-                    The volume is higher than usual, several students are moving between tables, and staff
-                    members appear to be reacting instead of directing. A few students are clustered near
-                    the back corner, and one monitor looks visibly frustrated.
-                  </p>
-                  <p>
-                    This may simply be an unstructured lunch period beginning to drift, or it may be the
-                    early stage of a larger behavior issue. Your response needs to balance presence,
-                    safety, supervision, and student dignity.
+                    The cafeteria is loud, movement is loose, and several students are testing boundaries.
+                    Lunch monitors are trying, but expectations are inconsistent from table to table.
                   </p>
                 </article>
 
-                <article className="report-card">
-                  <h3>Context and Available Information</h3>
-                  <ul className="strong-response-list">
-                    <li>
-                      <strong>Current Lunch Expectation:</strong> &quot;Students are expected to remain
-                      seated unless given permission, use indoor voices, and follow monitor
-                      directions.&quot;
-                    </li>
-                    <li>
-                      <strong>Staff Note:</strong> &quot;The cafeteria monitor reports that the same group
-                      of students has been pushing limits for several days.&quot;
-                    </li>
-                    <li>
-                      <strong>Student Pattern:</strong> &quot;Two students near the back corner were
-                      involved in a hallway disagreement earlier this week.&quot;
-                    </li>
-                    <li>
-                      <strong>Immediate Observation:</strong> &quot;No physical fight has occurred yet, but
-                      several students are watching the back corner instead of eating.&quot;
-                    </li>
-                    <li>
-                      <strong>Risk Signal:</strong> &quot;One student appears to be holding a phone under
-                      the table while others lean in to look.&quot;
-                    </li>
-                  </ul>
-                </article>
-
-                <h3 className="decision-prompt">What is your first leadership move?</h3>
-                <p>
-                  You need to decide whether this is a moment for observation, immediate intervention,
-                  staff direction, or a reset of expectations.
-                </p>
+                <h3 className="decision-prompt">What do you focus on first?</h3>
                 <div className="choices">
                   {lunchClimateDecisionOptions.map((decision) => (
                     <button
@@ -3320,19 +3534,14 @@ export default function SimulationShellClient() {
                 {lunchClimateDecision ? (
                   <article className="report-card">
                     <label htmlFor="lunch-monitor-direction-note" className="response-label">
-                      Write a brief leadership note documenting what you observed and what immediate steps
-                      you took.
+                      Draft a short note to the lunch monitors explaining the next steps for improving
+                      cafeteria expectations.
                     </label>
-                    <p className="analysis-note">
-                      Your note should include: what you saw, why you intervened, how you supported
-                      supervision, and what follow-up may be needed. This note should be clear enough that
-                      you could use it later if the situation escalates.
-                    </p>
                     <textarea
                       id="lunch-monitor-direction-note"
                       rows={5}
                       className="response-input"
-                      placeholder="Write your leadership note…"
+                      placeholder="Write your lunch monitor direction note…"
                       value={lunchMonitorDirectionNote}
                       onChange={(event) => setLunchMonitorDirectionNote(event.target.value)}
                     />
@@ -3348,6 +3557,30 @@ export default function SimulationShellClient() {
                     </div>
                   </article>
                 ) : null}
+
+                {lunchClimateInsightUnlocked ? (
+                  <>
+                    <article className="decision-consequence-card" aria-live="polite">
+                      <h4>Cafeteria Leadership Insight</h4>
+                      <p>{lunchClimateInsightMessage}</p>
+                      <ul className="strong-response-list">
+                        <li>Did you clarify expectations?</li>
+                        <li>Did you support the monitors rather than blame them?</li>
+                        <li>Did you identify consistent adult actions?</li>
+                        <li>Did you keep the tone calm and practical?</li>
+                      </ul>
+                    </article>
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button primary"
+                        onClick={handleLunchClimateContinueDay}
+                      >
+                        Continue Day
+                      </button>
+                    </div>
+                  </>
+                ) : null}
               </>
             ) : currentModule === 'parentEscalation' ? (
               <>
@@ -3355,16 +3588,14 @@ export default function SimulationShellClient() {
                 <h2>Parent Escalation</h2>
                 <article className="scenario-preview-card">
                   <p>
-                    A parent has contacted the school upset about a situation involving their child during
-                    the school day.
+                    You finally return to your office after lunch supervision and handling student behavior.
+                    Before you can finish documenting what happened, your secretary tells you a parent is
+                    already calling.
                   </p>
                   <p>
-                    The issue appears to involve a classroom or supervision concern, but the details are
-                    not fully clear. The parent is frustrated and expects a response.
-                  </p>
-                  <p>
-                    You are responsible for responding in a way that is professional, responsive, and
-                    appropriate based on the information available.
+                    One of the students involved apparently had a cell phone and called home immediately
+                    after leaving your office. The parent now has part of the story before you have finished
+                    the school&apos;s follow-up.
                   </p>
                 </article>
 
@@ -3406,7 +3637,6 @@ export default function SimulationShellClient() {
 
                 {parentEscalationDecision ? (
                   <>
-                    <h3>Context and Available Information</h3>
                     <div className="investigation-evidence-grid">
                       {parentEscalationEvidenceCards.map((card) => (
                         <article key={card.title} className="investigation-card">
@@ -3417,20 +3647,10 @@ export default function SimulationShellClient() {
                     </div>
 
                     <article className="report-card">
-                      <p className="response-label">
-                        You do not yet have a full investigation completed, but the parent is expecting a response now.
-                      </p>
+                      <p className="response-label">Draft your response or call-back script to the parent.</p>
                       <label htmlFor="parent-escalation-response" className="response-label">
-                        Based on the information available, respond to the parent.
+                        Write your parent response…
                       </label>
-                      <ul className="support-list">
-                        <li>acknowledge the concern</li>
-                        <li>reflect what is currently known</li>
-                        <li>communicate how the situation will be handled moving forward</li>
-                      </ul>
-                      <p className="analysis-note">
-                        This is not a placeholder response — the parent expects clarity, direction, and professionalism.
-                      </p>
                       <textarea
                         id="parent-escalation-response"
                         rows={6}
@@ -3445,21 +3665,45 @@ export default function SimulationShellClient() {
 
                 {hasParentEscalationDecision && hasParentEscalationResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(parentEscalationWritingAssessment || liveParentEscalationWritingAssessment).summary}
                     </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(parentEscalationWritingAssessment || liveParentEscalationWritingAssessment).categories.map((category) => (
+                        <article key={`parent-escalation-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleParentEscalationContinue}
-                    disabled={!hasParentEscalationDecision || !hasParentEscalationResponse}
-                  >
-                    Continue
-                  </button>
+                  {!parentEscalationWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleParentEscalationContinue}
+                      disabled={!hasParentEscalationDecision || !hasParentEscalationResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleParentEscalationContinueDay}
+                    >
+                      Continue Day
+                    </button>
+                  )}
                 </div>
               </>
             ) : currentModule === 'cafeteriaBoundary' ? (
@@ -3547,59 +3791,70 @@ export default function SimulationShellClient() {
 
                 {hasCafeteriaBoundaryDecision && hasCafeteriaBoundaryResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(cafeteriaBoundaryWritingAssessment || liveCafeteriaBoundaryWritingAssessment).summary}
                     </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(cafeteriaBoundaryWritingAssessment || liveCafeteriaBoundaryWritingAssessment).categories.map((category) => (
+                        <article key={`cafeteria-boundary-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleCafeteriaBoundaryContinue}
-                    disabled={!hasCafeteriaBoundaryDecision || !hasCafeteriaBoundaryResponse}
-                  >
-                    Continue
-                  </button>
+                  {!cafeteriaBoundaryWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleCafeteriaBoundaryContinue}
+                      disabled={!hasCafeteriaBoundaryDecision || !hasCafeteriaBoundaryResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleCafeteriaBoundaryContinueDay}
+                    >
+                      Continue Day
+                    </button>
+                  )}
                 </div>
               </>
             ) : currentModule === 'teacherConflict' ? (
               <>
                 <p className="eyebrow">3:15 PM</p>
                 <h2>Teacher Conflict</h2>
-                <h3 className="decision-prompt">Leadership Briefing</h3>
                 <article className="scenario-preview-card">
                   <p>
-                    Two staff members who work closely together are in conflict, and the tension is beginning
-                    to affect the school day.
+                    As the day is winding down, your secretary lets you know that two teachers are waiting
+                    to speak with you.
                   </p>
                   <p>
-                    This is no longer just a personality issue. When adult conflict becomes visible to students
-                    or disrupts instruction, the school leader must step in with clarity, professionalism, and a
-                    plan.
+                    One teacher is the grade-level team leader. She recently introduced a new academic
+                    approach using updated tools and strategies she believes are more efficient and aligned
+                    with current expectations.
                   </p>
                   <p>
-                    Your goal is not to “pick a side.” Your goal is to understand the issue, reset expectations,
-                    and create a process that allows both adults to work together appropriately.
+                    The other teacher is a veteran with many years of experience. She is frustrated and
+                    feels the change is unnecessary, stating that her current methods have always worked and
+                    that students learn successfully without the new approach.
                   </p>
+                  <p>Both teachers are now in your office and want you to support their position.</p>
                 </article>
 
-                <h3 className="decision-prompt">Context and Available Information</h3>
-                <div className="investigation-evidence-grid">
-                  {teacherConflictEvidenceCards.map((card) => (
-                    <article key={card.title} className="investigation-card">
-                      <h3>{card.title}</h3>
-                      <p>{card.content}</p>
-                    </article>
-                  ))}
-                </div>
-
-                <h3 className="decision-prompt">What is your first leadership move?</h3>
-                <p className="analysis-note">
-                  Choose the response that best protects professionalism, gathers information, and begins
-                  resolving the conflict.
-                </p>
+                <h3 className="decision-prompt">What is your first approach to this situation?</h3>
                 <div className="choices">
                   {teacherConflictDecisionOptions.map((decision) => (
                     <button
@@ -3622,20 +3877,25 @@ export default function SimulationShellClient() {
 
                 {teacherConflictDecision ? (
                   <>
+                    <div className="investigation-evidence-grid">
+                      {teacherConflictEvidenceCards.map((card) => (
+                        <article key={card.title} className="investigation-card">
+                          <h3>{card.title}</h3>
+                          <p>{card.content}</p>
+                        </article>
+                      ))}
+                    </div>
+
                     <article className="report-card">
-                      <p className="response-label">Write your conflict resolution plan.</p>
-                      <p className="analysis-note">Your plan should include:</p>
-                      <ul className="analysis-note">
-                        <li>how you would gather information from both teachers</li>
-                        <li>how you would set expectations for professionalism</li>
-                        <li>how you would structure a follow-up conversation</li>
-                        <li>how you would protect students and team functioning while the issue is addressed</li>
-                      </ul>
+                      <p className="response-label">
+                        Write how you would open this conversation with both teachers.
+                      </p>
                       <p className="analysis-note">
-                        This should be a leadership process, not just an opening statement.
+                        This is not a decision or final resolution. This is the first moment of leadership
+                        in the room.
                       </p>
                       <label htmlFor="teacher-conflict-response" className="response-label">
-                        Write your conflict resolution plan…
+                        Write your opening statement…
                       </label>
                       <textarea
                         id="teacher-conflict-response"
@@ -3651,21 +3911,45 @@ export default function SimulationShellClient() {
 
                 {hasTeacherConflictDecision && hasTeacherConflictResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(teacherConflictWritingAssessment || liveTeacherConflictWritingAssessment).summary}
                     </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(teacherConflictWritingAssessment || liveTeacherConflictWritingAssessment).categories.map((category) => (
+                        <article key={`teacher-conflict-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleTeacherConflictContinue}
-                    disabled={!hasTeacherConflictDecision || !hasTeacherConflictResponse}
-                  >
-                    Continue
-                  </button>
+                  {!teacherConflictWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleTeacherConflictContinue}
+                      disabled={!hasTeacherConflictDecision || !hasTeacherConflictResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleTeacherConflictContinueDay}
+                    >
+                      Continue Day
+                    </button>
+                  )}
                 </div>
               </>
             ) : currentModule === 'endOfDayEmail' ? (
@@ -3788,23 +4072,41 @@ export default function SimulationShellClient() {
                   onChange={(event) => setStudentThreatResponse(event.target.value)}
                 />
 
-                {hasStudentThreatDecision && hasStudentThreatResponse ? (
+                {studentThreatWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
-                    </p>
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">{studentThreatWritingAssessment.summary}</p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {studentThreatWritingAssessment.categories.map((category) => (
+                        <article key={`student-threat-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleStudentThreatContinue}
-                    disabled={!hasStudentThreatDecision || !hasStudentThreatResponse}
-                  >
-                    Continue
-                  </button>
+                  {!studentThreatWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleStudentThreatContinue}
+                      disabled={!hasStudentThreatDecision || !hasStudentThreatResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleStudentThreatReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
                 </div>
               </>
               ) : currentDeskStackItem === 'academicDeclineEmail' ? (
@@ -3876,23 +4178,43 @@ export default function SimulationShellClient() {
                   onChange={(event) => setAcademicDeclineResponse(event.target.value)}
                 />
 
-                {hasAcademicDeclineDecision && hasAcademicDeclineResponse ? (
+                {academicDeclineWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(academicDeclineWritingAssessment || liveAcademicDeclineWritingAssessment).summary}
                     </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(academicDeclineWritingAssessment || liveAcademicDeclineWritingAssessment).categories.map((category) => (
+                        <article key={`academic-decline-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleAcademicDeclineContinue}
-                    disabled={!hasAcademicDeclineDecision || !hasAcademicDeclineResponse}
-                  >
-                    Continue
-                  </button>
+                  {!academicDeclineWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleAcademicDeclineContinue}
+                      disabled={!hasAcademicDeclineDecision || !hasAcademicDeclineResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleAcademicDeclineReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
                 </div>
               </>
               ) : currentDeskStackItem === 'ptoTalentShowEmail' ? (
@@ -3965,23 +4287,41 @@ export default function SimulationShellClient() {
                   onChange={(event) => setPtoTalentShowResponse(event.target.value)}
                 />
 
-                {hasPtoTalentShowDecision && hasPtoTalentShowResponse ? (
+                {ptoTalentShowWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
-                    </p>
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">{ptoTalentShowWritingAssessment.summary}</p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {ptoTalentShowWritingAssessment.categories.map((category) => (
+                        <article key={`pto-talent-show-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handlePtoTalentShowContinue}
-                    disabled={!hasPtoTalentShowDecision || !hasPtoTalentShowResponse}
-                  >
-                    Continue
-                  </button>
+                  {!ptoTalentShowWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handlePtoTalentShowContinue}
+                      disabled={!hasPtoTalentShowDecision || !hasPtoTalentShowResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handlePtoTalentShowReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
                 </div>
               </>
               ) : currentDeskStackItem === 'recessInjuryEmail' ? (
@@ -4063,23 +4403,41 @@ export default function SimulationShellClient() {
                   onChange={(event) => setRecessInjuryResponse(event.target.value)}
                 />
 
-                {hasRecessInjuryDecision && hasRecessInjuryResponse ? (
+                {recessInjuryWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
-                    </p>
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">{(recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment).summary}</p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment).categories.map((category) => (
+                        <article key={`recess-injury-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleRecessInjuryContinue}
-                    disabled={!hasRecessInjuryDecision || !hasRecessInjuryResponse}
-                  >
-                    Continue
-                  </button>
+                  {!recessInjuryWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleRecessInjuryContinue}
+                      disabled={!hasRecessInjuryDecision || !hasRecessInjuryResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleRecessInjuryReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
                 </div>
               </>
               ) : currentDeskStackItem === 'studentRemovalVoicemail' ? (
@@ -4145,21 +4503,41 @@ export default function SimulationShellClient() {
 
                 {hasStudentRemovalDecision && hasStudentRemovalResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <p className="analysis-note compact-feedback-note">
-                      Response recorded. Feedback will be included in your end-of-day leadership report.
+                    <h3>VIC Writing Assessment</h3>
+                    <p className="analysis-note">
+                      {(studentRemovalWritingAssessment || liveStudentRemovalWritingAssessment).summary}
                     </p>
+                    <div className="analysis-grid report-analysis-grid">
+                      {(studentRemovalWritingAssessment || liveStudentRemovalWritingAssessment).categories.map((category) => (
+                        <article key={`student-removal-${category.name}`} className="analysis-row report-analysis-row">
+                          <div className="report-analysis-header">
+                            <p className="analysis-lens">{category.name}</p>
+                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {category.status}
+                            </p>
+                          </div>
+                          <p>{category.note}</p>
+                        </article>
+                      ))}
+                    </div>
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={handleStudentRemovalContinue}
-                    disabled={!hasStudentRemovalDecision || !hasStudentRemovalResponse}
-                  >
-                    Continue
-                  </button>
+                  {!studentRemovalWritingAssessment ? (
+                    <button
+                      type="button"
+                      className="button primary"
+                      onClick={handleStudentRemovalContinue}
+                      disabled={!hasStudentRemovalDecision || !hasStudentRemovalResponse}
+                    >
+                      Continue
+                    </button>
+                  ) : (
+                    <button type="button" className="button primary" onClick={handleStudentRemovalReturnToDeskStack}>
+                      Return to Desk Stack
+                    </button>
+                  )}
                 </div>
               </>
               ) : isReportScene ? (
@@ -4657,11 +5035,15 @@ export default function SimulationShellClient() {
                   <p className="folder-subtitle">Captured hallway request follow-through notes</p>
                   <ul>
                     <li><strong>Decision:</strong> {announcementsLeadershipRecord.decision}</li>
-                    <li>
-                      <strong>Folder selected:</strong>{' '}
-                      {announcementsLeadershipRecord.folder.charAt(0).toUpperCase()
-                        + announcementsLeadershipRecord.folder.slice(1)}
-                    </li>
+                    {announcementsTasks.map((task) => (
+                      <li key={`record-${task.id}`}>
+                        <strong>{task.label}:</strong>{' '}
+                        {(announcementsLeadershipRecord.taskFolders[task.id] || '')
+                          .charAt(0)
+                          .toUpperCase()
+                          + (announcementsLeadershipRecord.taskFolders[task.id] || '').slice(1)}
+                      </li>
+                    ))}
                     <li><strong>Coaching note:</strong> {announcementsLeadershipRecord.coachingNote}</li>
                     <li><strong>Suggested folder:</strong> {announcementsLeadershipRecord.suggestedFolder}</li>
                   </ul>
@@ -4759,7 +5141,7 @@ export default function SimulationShellClient() {
                   <p className="folder-subtitle">Captured adult conflict leadership response notes</p>
                   <ul>
                     <li><strong>Decision:</strong> {teacherConflictLeadershipRecord.decision}</li>
-                    <li><strong>Conflict resolution plan:</strong> {teacherConflictLeadershipRecord.conflictResolutionPlan}</li>
+                    <li><strong>Opening statement:</strong> {teacherConflictLeadershipRecord.openingStatement}</li>
                     <li>
                       <strong>VIC summary:</strong>{' '}
                       {teacherConflictLeadershipRecord.writingAssessment?.summary || 'Not captured'}
