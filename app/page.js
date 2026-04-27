@@ -147,7 +147,7 @@ export default function HomePage() {
             className="section-image keynote-image"
           />
           <div className="keynote-overlay">
-            <p>From Strategy to Execution</p>
+            <p>Strategy → Execution</p>
           </div>
         </div>
       </section>
@@ -164,12 +164,7 @@ export default function HomePage() {
             />
           </div>
           <div>
-            <h2>From Strategy to Execution</h2>
-            <p>
-              Many organizations struggle not with ideas, but with execution. My work focuses on
-              closing that gap — designing systems that help people make better decisions,
-              communicate more effectively, and perform under real-world conditions.
-            </p>
+            <h2>Turning Strategy Into Real-World Performance</h2>
             <p className="top-space-sm">
               Rather than relying on theory alone, I build tools, simulations, and learning
               environments that reflect how systems actually operate.
@@ -180,7 +175,6 @@ export default function HomePage() {
 
       <section className="section section-soft compact-section">
         <div className="container">
-          <h2>From Strategy to Execution</h2>
           <div className="card award-card top-space-sm">
             <p>
               Many organizations struggle not with ideas, but with execution. My work focuses on
