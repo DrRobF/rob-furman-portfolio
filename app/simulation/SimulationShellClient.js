@@ -720,24 +720,24 @@ const parentEscalationDecisionCoaching = {
 };
 const parentEscalationEvidenceCards = [
   {
-    title: 'Communication Gap',
+    title: 'Teacher Note',
     content:
-      'The parent has heard the student’s version first. That does not mean the student is wrong, but it does mean the parent may be reacting to incomplete information.',
+      '"Student became disruptive during class and refused redirection. Removed briefly to reset."',
   },
   {
-    title: 'School Responsibility',
+    title: 'Student Background',
     content:
-      'The school still needs to document what happened, confirm facts with staff/students, and communicate next steps calmly.',
+      '"Student has had two prior minor behavior incidents this month."',
   },
   {
-    title: 'Cell Phone Reality',
+    title: 'Parent History',
     content:
-      'Information now moves faster than school procedures. Leaders often respond while the story is already spreading.',
+      '"Parent has contacted the school previously expressing concern about how discipline is handled."',
   },
   {
-    title: 'Leadership Balance',
+    title: 'Supervision Context',
     content:
-      'The goal is not to win the narrative. The goal is to acknowledge concern, gather facts, and communicate clearly without blaming or overpromising.',
+      '"No major incident report filed. Situation was handled at classroom level."',
   },
 ];
 const cafeteriaBoundaryTaskItem = 'Address cafeteria staff boundary issue';
@@ -2528,15 +2528,6 @@ export default function SimulationShellClient() {
       writingAssessment: nextAssessment,
       coachingNote: parentEscalationDecisionCoaching[parentEscalationDecision]?.message || '',
     });
-    scrollToTop();
-  };
-
-  const handleParentEscalationDecisionSelect = (decisionLabel) => {
-    setParentEscalationDecision(decisionLabel);
-  };
-
-  const handleParentEscalationContinueDay = () => {
-    if (!parentEscalationWritingAssessment) return;
     setTimelineStatuses((prev) => {
       const next = { ...prev, parentEscalation: moduleStatuses.completed };
       const nextEnabledModule = dayModules.find((module) => (
@@ -2553,6 +2544,10 @@ export default function SimulationShellClient() {
       return next;
     });
     scrollToTop();
+  };
+
+  const handleParentEscalationDecisionSelect = (decisionLabel) => {
+    setParentEscalationDecision(decisionLabel);
   };
 
   const handleCafeteriaBoundaryContinue = () => {
@@ -2674,6 +2669,21 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation'),
     [parentEscalationResponse],
   );
+  const activeParentEscalationWritingAssessment =
+    parentEscalationWritingAssessment || liveParentEscalationWritingAssessment;
+  const parentEscalationImmediateCoachingLines = useMemo(() => {
+    if (!activeParentEscalationWritingAssessment) return [];
+    const needsAttentionCategory = activeParentEscalationWritingAssessment.categories.find(
+      (category) => category.status === 'Needs Attention',
+    );
+    if (needsAttentionCategory) {
+      return [
+        activeParentEscalationWritingAssessment.summary,
+        `Coaching: ${needsAttentionCategory.note}`,
+      ];
+    }
+    return [activeParentEscalationWritingAssessment.summary];
+  }, [activeParentEscalationWritingAssessment]);
   const liveCafeteriaBoundaryWritingAssessment = useMemo(
     () => analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary'),
     [cafeteriaBoundaryResponse],
@@ -3588,14 +3598,16 @@ export default function SimulationShellClient() {
                 <h2>Parent Escalation</h2>
                 <article className="scenario-preview-card">
                   <p>
-                    You finally return to your office after lunch supervision and handling student behavior.
-                    Before you can finish documenting what happened, your secretary tells you a parent is
-                    already calling.
+                    A parent has contacted the school upset about a situation involving their child during
+                    the school day.
                   </p>
                   <p>
-                    One of the students involved apparently had a cell phone and called home immediately
-                    after leaving your office. The parent now has part of the story before you have finished
-                    the school&apos;s follow-up.
+                    The issue appears to involve a classroom or supervision concern, but the details are
+                    not fully clear. The parent is frustrated and expects a response.
+                  </p>
+                  <p>
+                    You are responsible for responding in a way that is professional, responsive, and
+                    appropriate based on the information available.
                   </p>
                 </article>
 
@@ -3637,6 +3649,7 @@ export default function SimulationShellClient() {
 
                 {parentEscalationDecision ? (
                   <>
+                    <h3>Context and Available Information</h3>
                     <div className="investigation-evidence-grid">
                       {parentEscalationEvidenceCards.map((card) => (
                         <article key={card.title} className="investigation-card">
@@ -3647,10 +3660,21 @@ export default function SimulationShellClient() {
                     </div>
 
                     <article className="report-card">
-                      <p className="response-label">Draft your response or call-back script to the parent.</p>
+                      <p className="response-label">
+                        You do not yet have a full investigation completed, but the parent expects a response.
+                      </p>
                       <label htmlFor="parent-escalation-response" className="response-label">
-                        Write your parent response…
+                        Write your response to the parent.
                       </label>
+                      <ul className="support-list">
+                        <li>acknowledge the concern</li>
+                        <li>reflect what is known so far</li>
+                        <li>communicate next steps</li>
+                        <li>maintain professionalism and clarity</li>
+                      </ul>
+                      <p className="analysis-note">
+                        Avoid simply delaying the situation without providing direction.
+                      </p>
                       <textarea
                         id="parent-escalation-response"
                         rows={6}
@@ -3665,45 +3689,22 @@ export default function SimulationShellClient() {
 
                 {hasParentEscalationDecision && hasParentEscalationResponse ? (
                   <article className="report-card" aria-live="polite">
-                    <h3>VIC Writing Assessment</h3>
-                    <p className="analysis-note">
-                      {(parentEscalationWritingAssessment || liveParentEscalationWritingAssessment).summary}
-                    </p>
-                    <div className="analysis-grid report-analysis-grid">
-                      {(parentEscalationWritingAssessment || liveParentEscalationWritingAssessment).categories.map((category) => (
-                        <article key={`parent-escalation-${category.name}`} className="analysis-row report-analysis-row">
-                          <div className="report-analysis-header">
-                            <p className="analysis-lens">{category.name}</p>
-                            <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                              {category.status}
-                            </p>
-                          </div>
-                          <p>{category.note}</p>
-                        </article>
-                      ))}
-                    </div>
+                    <h3>VIC Coaching</h3>
+                    {parentEscalationImmediateCoachingLines.slice(0, 2).map((line) => (
+                      <p key={line} className="analysis-note">{line}</p>
+                    ))}
                   </article>
                 ) : null}
 
                 <div className="button-row">
-                  {!parentEscalationWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleParentEscalationContinue}
-                      disabled={!hasParentEscalationDecision || !hasParentEscalationResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleParentEscalationContinueDay}
-                    >
-                      Continue Day
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleParentEscalationContinue}
+                    disabled={!hasParentEscalationDecision || !hasParentEscalationResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
             ) : currentModule === 'cafeteriaBoundary' ? (
