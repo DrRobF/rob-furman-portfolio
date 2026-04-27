@@ -5,14 +5,14 @@ const featuredBooks = [
     title: 'The Future Ready Challenge',
     description:
       'A practical framework for preparing schools and learning communities for rapidly changing futures.',
-    image: '/images/future-ready-challenge.jpeg',
+    image: '/images/book-future-ready.jpg',
     alt: 'The Future Ready Challenge book cover',
   },
   {
     title: 'Personalized Reading',
     description:
       'Strategies to improve reading outcomes through personalized pathways and instructional design.',
-    image: '/images/personalized-reading.jpeg',
+    image: '/images/book-reading.jpg',
     alt: 'Personalized Reading book cover',
   },
   {
