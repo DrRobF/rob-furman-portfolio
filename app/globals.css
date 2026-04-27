@@ -1117,12 +1117,6 @@ p {
   color: #40597d;
 }
 
-.compact-feedback-note {
-  margin-top: 0.25rem;
-  font-size: 0.82rem;
-  color: #5b6f8f;
-}
-
 .analysis-grid {
   margin-top: 0.75rem;
   display: grid;
