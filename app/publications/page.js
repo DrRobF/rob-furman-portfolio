@@ -4,28 +4,28 @@ const featuredBooks = [
   {
     title: 'The Future Ready Challenge',
     description:
-      'A practical framework for preparing schools and learning communities for rapidly changing futures.',
+      'A practical framework for helping schools and organizations adapt to change, improve decision-making, and prepare for evolving learning environments.',
     image: '/images/book-future-ready.jpg',
     alt: 'The Future Ready Challenge book cover',
   },
   {
     title: 'Technology, Reading & Digital Literacy',
     description:
-      'Applied guidance for integrating digital tools into literacy instruction while keeping pedagogy at the center.',
+      'A guide to integrating digital tools into literacy instruction while maintaining strong pedagogy, instructional clarity, and student engagement.',
     image: '/images/book-reading.jpg',
     alt: 'Technology, Reading & Digital Literacy book cover',
   },
   {
     title: 'Personalized Reading',
     description:
-      'Strategies to improve reading outcomes through personalized pathways and instructional design.',
+      'Strategies for improving reading outcomes through personalization, instructional design, and systems that meet learners where they are.',
     image: '/images/personalized-reading.jpeg',
     alt: 'Personalized Reading book cover',
   },
   {
     title: 'Engaging Young Readers',
     description:
-      'Practical approaches that help educators improve reading engagement and student ownership in literacy growth.',
+      'Approaches for increasing student engagement, ownership, and motivation in reading through practical classroom strategies.',
     image: '/images/engaging-young-readers.jpeg',
     alt: 'Engaging Young Readers book cover',
   },
@@ -37,17 +37,20 @@ export default function PublicationsPage() {
       <div className="container">
         <h1>Publications</h1>
         <p className="lead">
-          Dr. Rob Furman is an ISTE-published author and national contributor whose work spans
-          books, articles, and media focused on educational technology, literacy, leadership, and
-          practical innovation in schools.
+          Dr. Rob Furman is an ISTE-published author and national contributor whose work focuses on
+          improving how learning, instruction, and leadership function in real-world environments.
         </p>
         <p className="top-space-sm">
-          His writing has appeared in outlets including K12Digest, Authority Magazine, EdTech
-          Review, and other national education platforms, connecting instructional practice with
-          real-world application.
+          His writing spans books, articles, and media contributions across educational technology,
+          literacy, leadership, and applied innovation — connecting ideas directly to practice in
+          schools and organizations.
+        </p>
+        <p className="top-space-sm">
+          His work has appeared in outlets including K12Digest, Authority Magazine, EdTech Review,
+          and other national education platforms.
         </p>
 
-        <h2 className="top-space">Selected Books and Publications</h2>
+        <h2 className="top-space">Books and Selected Work</h2>
 
         <div className="publication-cards top-space-sm">
           {featuredBooks.map((book) => (
@@ -68,6 +71,25 @@ export default function PublicationsPage() {
             </article>
           ))}
         </div>
+
+        <h2 className="top-space">Selected Articles</h2>
+        <ul className="top-space-sm">
+          <li>
+            <a href="https://www.k12digest.com/3-predictions-about-the-future-of-education/">
+              3 Predictions About the Future of Education
+            </a>
+          </li>
+          <li>
+            <a href="https://medium.com/authority-magazine/author-dr-l-robert-furman-on-the-5-things-parents-can-do-to-help-their-children-thrive-and-excel-d4c3aab54a84">
+              5 Things Parents Can Do To Help Their Children Thrive and Excel
+            </a>
+          </li>
+        </ul>
+
+        <p className="top-space-sm">
+          Additional work includes national articles, blog contributions, and media features focused
+          on instructional design, leadership, and educational innovation.
+        </p>
       </div>
     </section>
   );
