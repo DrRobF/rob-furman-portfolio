@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="760" viewBox="0 0 540 760" role="img" aria-labelledby="title desc">
+  <title id="title">Engaging Young Readers book cover</title>
+  <desc id="desc">Teal book cover with title Engaging Young Readers.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#155e63"/>
+      <stop offset="100%" stop-color="#2e9ca3"/>
+    </linearGradient>
+  </defs>
+  <rect width="540" height="760" fill="url(#bg)"/>
+  <rect x="36" y="36" width="468" height="688" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="2"/>
+  <text x="60" y="220" fill="#ffffff" font-size="56" font-family="Arial, Helvetica, sans-serif" font-weight="700">Engaging</text>
+  <text x="60" y="295" fill="#ffffff" font-size="56" font-family="Arial, Helvetica, sans-serif" font-weight="700">Young</text>
+  <text x="60" y="370" fill="#ffffff" font-size="56" font-family="Arial, Helvetica, sans-serif" font-weight="700">Readers</text>
+  <text x="60" y="650" fill="#dffbfd" font-size="24" font-family="Arial, Helvetica, sans-serif">Dr. Rob Furman</text>
+</svg>

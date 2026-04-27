@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-const VIC_URL = 'https://vic-final.vercel.app/askvic';
+const VIC_URL = 'https://askvic.ai';
 
 export default function VicPage() {
   return (
