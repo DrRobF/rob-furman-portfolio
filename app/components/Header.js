@@ -1,12 +1,11 @@
 import Link from 'next/link';
 
 const navItems = [
-  ['Home', '/'],
-  ['Projects', '/projects'],
-  ['Speaking', '/speaking'],
-  ['Publications', '/publications'],
-  ['About', '/about'],
-  ['Contact', '/contact'],
+  ['Services', '/#services'],
+  ['Gallery', '/#gallery'],
+  ['About', '/#about'],
+  ['Journal', '/#journal'],
+  ['Contact', '/#contact'],
 ];
 
 export function Header() {
@@ -14,7 +13,7 @@ export function Header() {
     <header className="site-header">
       <div className="container nav-wrap">
         <Link href="/" className="brand">
-          Dr. Rob Furman
+          Maison Lucia
         </Link>
         <nav aria-label="Primary">
           <ul className="nav-list">
@@ -25,6 +24,9 @@ export function Header() {
             ))}
           </ul>
         </nav>
+        <Link href="/#contact" className="header-inquire">
+          Inquire
+        </Link>
       </div>
     </header>
   );

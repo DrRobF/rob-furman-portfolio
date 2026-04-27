@@ -2,11 +2,10 @@ import './globals.css';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import Script from 'next/script';
-
 export const metadata = {
-  title: 'Dr. Rob Furman | AI + Learning Design Portfolio',
+  title: 'Maison Lucia | Luxury Event Styling',
   description:
-    'Portfolio of Dr. Rob Furman focused on AI learning systems, simulation design, educational leadership, speaking, and publications.',
+    'Maison Lucia creates refined tablescapes and elevated event styling for celebrations, milestones, intimate gatherings, and unforgettable events.',
 };
 
 export default function RootLayout({ children }) {
