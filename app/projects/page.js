@@ -7,14 +7,14 @@ const projects = [
   {
     title: 'School Leader Simulation',
     description:
-      'A real-time leadership simulation that places aspiring administrators inside a full school day — focused on decision-making, communication, and operational judgment under pressure.',
+      'A leadership training system that places administrators inside a full school day, requiring real decisions across instruction, behavior, and communication. Developed from real school leadership experience, this simulation focuses on judgment, writing, and decision-making under pressure.',
     href: '/simulation-overview',
     linkText: 'Learn About Simulation →',
   },
   {
     title: 'VIC: Virtual Co-Teacher',
     description:
-      'An AI-powered instructional system designed to function as an additional teacher — guiding learning, adapting to students, and extending instruction beyond the classroom.',
+      'An AI-supported instructional system that functions as an additional teacher — guiding learning, adapting to students, and extending support beyond the classroom. Built to operate inside real instructional environments, VIC focuses on improving student understanding and teacher capacity.',
     href: VIC_URL,
     linkText: 'Explore VIC →',
     external: true,
@@ -22,7 +22,7 @@ const projects = [
   {
     title: 'Day in the Life of an Urban Student (In Development)',
     description:
-      'A future simulation designed to deepen perspective-taking and help educators better understand the conditions shaping student engagement and achievement.',
+      'A simulation in development focused on helping educators understand the real conditions shaping student engagement, attendance, and performance. Part of a broader system of perspective-driven training environments.',
     linkText: 'Coming Soon',
   },
 ];
@@ -31,10 +31,10 @@ export default function ProjectsPage() {
   return (
     <section className="section section-light">
       <div className="container">
-        <h1>Projects</h1>
+        <h1>Systems I&apos;ve Built</h1>
         <p className="lead">
-          Core systems and simulations focused on real-world school leadership, instructional
-          decision-making, and AI-supported learning.
+          These are applied systems designed to improve decision-making, learning, and performance
+          in real-world environments.
         </p>
         <div className="card-grid">
           {projects.map((project) => (
