@@ -3047,6 +3047,10 @@ export default function SimulationShellClient() {
                 <article className="report-card">
                   <h3>Context and Available Information</h3>
                   <div className="analysis-grid">
+                    <audio controls>
+                      <source src="/images/student-removal-class-vm.mp3" type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
                     <div className="analysis-row">
                       <p className="analysis-lens">CASE 1 — Parent Concern About Classroom Removal</p>
                       <p><strong>Voicemail Summary:</strong> &quot;My child told me they were removed from class this morning. I want to know why this happened and whether anyone called me.&quot;</p>
@@ -3059,6 +3063,10 @@ export default function SimulationShellClient() {
                         <li>Parent has previously expressed concern about discipline communication.</li>
                       </ul>
                     </div>
+                    <audio controls>
+                      <source src="/images/parent-help-request.vm.mp3" type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
                     <div className="analysis-row">
                       <p className="analysis-lens">CASE 2 — Parent Concern About Recess Injury</p>
                       <p><strong>Voicemail Summary:</strong> &quot;My child came home saying they got hurt at recess and nobody told me. I need someone to explain what happened.&quot;</p>
