@@ -6,69 +6,63 @@ const SCHOOL_LEADER_SIMULATION_OVERVIEW_URL = '/simulation-overview';
 
 const credibilityCards = [
   {
-    title: 'Doctoral-Prepared Instructional Leader',
+    title: 'Leadership and Operations',
     detail:
-      'Ed.D. in Instructional Leadership with a sustained focus on instruction, school improvement, and durable learning systems that scale across real schools.',
+      'Led full organizational systems including instruction, staffing, culture, and performance in high-pressure, real-world environments.',
   },
   {
-    title: 'Award-Winning School Administrator',
+    title: 'Instructional Design and Learning Systems',
     detail:
-      'Former principal and school administrator with 16+ years leading real school operations, instructional systems, and teams.',
+      'Designs scalable learning systems that improve decision-making, communication, and performance across teams and organizations.',
   },
   {
-    title: 'ISTE Author and TEDx Speaker',
+    title: 'Publishing and Thought Leadership',
     detail:
-      'Published author and presenter known for translating future-ready ideas into real-world district and school implementation.',
+      'Author of multiple books and national publications focused on literacy, technology integration, and applied innovation.',
   },
   {
-    title: 'AI Learning Systems Builder',
+    title: 'AI and Simulation Systems',
     detail:
-      'Builder of AI-powered instructional systems, including VIC, and leadership simulations designed for real-world classroom and administrative use.',
+      'Builder of AI-supported learning tools and interactive simulations designed for real-world use in classrooms and leadership environments.',
   },
 ];
 
 const careerHighlights = [
   'Ed.D. in Instructional Leadership',
-  'Former elementary principal and school administrator',
-  'ISTE published author',
-  'TEDx speaker and keynote presenter',
-  'Builder of VIC, an AI-supported virtual co-teacher',
-  'Creator of interactive leadership simulations',
+  '16+ years as a principal and school administrator',
+  'Organizational leadership experience including COO-level work',
+  'ISTE-published author and national presenter',
+  'Builder of AI-supported learning systems (VIC)',
+  'Creator of real-time leadership simulations',
 ];
 
 const recognitionHighlights = [
-  '2021 Albert Nelson Marquis Lifetime Achievement Award',
-  '2020 Advocate for Public Education, Pennsylvania Association of Middle Level Education',
-  '2020 Transformational Leader, PowerSchool Honor Roll',
-  '2017 Best-Selling ISTE Author',
-  '2015 Top 100 Educational Blogs recognition',
-  '2015 Bammy Award Finalist',
-  '2015 CREATE PGH Award Finalist for Art & Technology',
-  '2014 Pittsburgh Tribune Review Total Media Newsmaker',
-  '2013 NSBA “20 to Watch” in Instructional Technology',
+  'Many organizations struggle not with ideas, but with execution. My work focuses on closing that gap — designing systems that help people make better decisions, communicate more effectively, and perform under real-world conditions.',
+  'Rather than relying on theory alone, I build tools, simulations, and learning environments that reflect how systems actually operate.',
 ];
 
 const featuredProjects = [
   {
     title: 'School Leader Simulation',
     description:
-      'A real-time leadership simulation that places aspiring administrators inside a full school day — focused on decision-making, communication, and operational judgment under pressure.',
+      'A leadership training system that places administrators inside a full school day, requiring real decisions across instruction, behavior, and communication.',
     href: SCHOOL_LEADER_SIMULATION_OVERVIEW_URL,
     linkText: 'Learn About Simulation →',
   },
   {
-    title: 'Day in the Life of an Urban Student',
-    description:
-      'A perspective-driven simulation that helps educators understand the real conditions shaping student engagement, attendance, and performance.',
-    href: '/simulations/urban-student',
-  },
-  {
     title: 'VIC: Virtual Co-Teacher',
     description:
-      'An AI-powered instructional system designed to function as an additional teacher — guiding learning, adapting to students, and extending instruction beyond the classroom.',
+      'An AI-supported co-teacher that guides instruction, adapts to students, and extends learning beyond the classroom.',
     href: VIC_URL,
     linkText: 'Try VIC →',
     external: true,
+  },
+  {
+    title: 'Day in the Life of an Urban Student (In Development)',
+    description:
+      'A future simulation designed to help educators better understand the real conditions shaping student engagement and performance.',
+    href: '/simulations/urban-student',
+    linkText: 'Coming Soon',
   },
 ];
 
@@ -78,13 +72,19 @@ export default function HomePage() {
       <section className="hero section section-light">
         <div className="container hero-layout">
           <div className="hero-content">
-            <p className="eyebrow">Dr. Rob Furman · Ed.D. · Leadership + AI + Learning Design</p>
-            <h1>Building the Next Layer of School Leadership and AI-Powered Learning</h1>
+            <p className="eyebrow">Dr. Rob Furman · Ed.D.</p>
+            <h1>Learning Systems That Improve Performance in Real-World Environments</h1>
             <p className="lead">
-              Former principal, COO, and national education leader building real-world systems for
-              schools. From AI-powered instruction to leadership simulations, my work focuses on
-              how schools operate in real conditions — and how to improve them through practical
-              systems.
+              I design and build systems that help people perform better in complex settings —
+              from school leadership and instructional design to AI-powered learning and
+              decision-making.
+            </p>
+            <p>
+              With over 20 years of experience as a principal, school administrator, and
+              organizational leader, my work focuses on improving how systems actually function —
+              not just how they&apos;re designed to work. From leadership simulations to AI-supported
+              learning tools, everything I build is grounded in real-world conditions, pressure,
+              and performance.
             </p>
             <div className="button-row">
               <Link href="/projects" className="button primary">
@@ -114,7 +114,7 @@ export default function HomePage() {
 
       <section className="section section-soft credibility-panel">
         <div className="container">
-          <h2>Built from Leadership. Driven by Innovation.</h2>
+          <h2>Built from Leadership. Focused on Performance.</h2>
           <div className="card-grid four-up">
             {credibilityCards.map((card) => (
               <article key={card.title} className="card card-featured equal-card">
@@ -147,7 +147,7 @@ export default function HomePage() {
             className="section-image keynote-image"
           />
           <div className="keynote-overlay">
-            <p>TEDx Speaker | AI + Education Systems Builder | Former Principal</p>
+            <p>From Strategy to Execution</p>
           </div>
         </div>
       </section>
@@ -164,14 +164,15 @@ export default function HomePage() {
             />
           </div>
           <div>
-            <h2>Leadership That Balances Vision and Implementation</h2>
+            <h2>From Strategy to Execution</h2>
             <p>
-              As a former principal and system-level leader, Rob has led the full reality of school
-              operations — instruction, staff development, and performance under pressure.
+              Many organizations struggle not with ideas, but with execution. My work focuses on
+              closing that gap — designing systems that help people make better decisions,
+              communicate more effectively, and perform under real-world conditions.
             </p>
             <p className="top-space-sm">
-              His work focuses on bridging the gap between vision and execution, building systems
-              that actually function inside schools — not just on paper.
+              Rather than relying on theory alone, I build tools, simulations, and learning
+              environments that reflect how systems actually operate.
             </p>
           </div>
         </div>
@@ -179,11 +180,12 @@ export default function HomePage() {
 
       <section className="section section-soft compact-section">
         <div className="container">
-          <h2>Recognition and Impact</h2>
+          <h2>From Strategy to Execution</h2>
           <div className="card award-card top-space-sm">
             <p>
-              Recognized nationally for leadership, innovation, and contributions to educational
-              technology.
+              Many organizations struggle not with ideas, but with execution. My work focuses on
+              closing that gap — designing systems that help people make better decisions,
+              communicate more effectively, and perform under real-world conditions.
             </p>
             <ul className="clean-list two-column-list">
               {recognitionHighlights.map((award) => (
@@ -196,7 +198,7 @@ export default function HomePage() {
 
       <section className="section section-light">
         <div className="container">
-          <h2>Featured Projects</h2>
+          <h2>Featured Work</h2>
           <div className="card-grid">
             {featuredProjects.map((project) => (
               <article key={project.title} className="card project-card equal-card">
@@ -221,9 +223,9 @@ export default function HomePage() {
           <div>
             <h2>Publications and Professional Voice</h2>
             <p>
-              ISTE-published books and articles in educational technology, literacy, and
-              future-ready learning highlight a track record of applied thought leadership connected
-              to real school systems.
+              My work includes books, articles, and national publications focused on instructional
+              design, literacy, technology integration, and real-world application in schools and
+              organizations.
             </p>
             <Link href="/publications" className="text-link top-space-sm inline-link">
               View Publications →
@@ -243,10 +245,10 @@ export default function HomePage() {
 
       <section className="section cta section-light compact-section">
         <div className="container">
-          <h2>Let&apos;s Build Something That Actually Works in Schools</h2>
+          <h2>Let&apos;s Build Systems That Actually Work</h2>
           <p>
-            Available for leadership consulting, AI system design, professional learning, and
-            keynote speaking focused on real-world implementation.
+            Available for leadership consulting, instructional design, AI learning systems, and
+            professional development focused on real-world performance and implementation.
           </p>
           <div className="button-row center top-space-sm">
             <Link href="/contact" className="button primary">
