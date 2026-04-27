@@ -1,37 +1,26 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-const VIC_URL = 'https://vic-final.vercel.app/askvic';
-
 const projects = [
   {
-    title: 'Day in the Life of a Principal',
+    title: 'School Leader Simulation',
     description:
-      'Interactive leadership simulation that places school administrators in time-sensitive instructional, operational, and culture decisions.',
+      'A real-time leadership simulation that places aspiring administrators inside a full school day — focused on decision-making, communication, and operational judgment under pressure.',
     href: '/simulations/principal',
-    linkText: 'Open project →',
+    linkText: 'Open Simulation →',
   },
   {
-    title: 'Day in the Life of an Urban Student',
+    title: 'VIC: Virtual Co-Teacher',
     description:
-      'Simulation designed to deepen perspective-taking and strengthen instructional planning around real student conditions.',
-    href: '/simulations/urban-student',
-    linkText: 'Open project →',
-  },
-  {
-    title: 'VIC',
-    description:
-      'A virtual co-teacher framework for AI-supported instruction, differentiated pathways, and actionable teacher insight.',
-    href: VIC_URL,
+      'An AI-powered instructional system designed to function as an additional teacher — guiding learning, adapting to students, and extending instruction beyond the classroom.',
+    href: '/vic',
     linkText: 'Explore VIC →',
-    external: true,
   },
   {
-    title: 'Virtual Leadership Pathway for School Administrators',
+    title: 'Day in the Life of an Urban Student (In Development)',
     description:
-      'A modular development pathway combining simulation, coaching, and reflection for aspiring and current school leaders.',
-    href: '/simulations',
-    linkText: 'Open project →',
+      'A future simulation designed to deepen perspective-taking and help educators better understand the conditions shaping student engagement and achievement.',
+    linkText: 'Coming Soon',
   },
 ];
 
@@ -41,22 +30,23 @@ export default function ProjectsPage() {
       <div className="container">
         <h1>Projects</h1>
         <p className="lead">
-          Selected work at the intersection of school leadership, instructional design, professional
-          learning, and AI-enabled learning systems.
+          Core systems and simulations focused on real-world school leadership, instructional
+          decision-making, and AI-supported learning.
         </p>
         <div className="card-grid">
           {projects.map((project) => (
             <article key={project.title} className="card project-card">
               <h3>{project.title}</h3>
               <p>{project.description}</p>
-              <Link
-                href={project.href}
-                className="text-link"
-                target={project.external ? '_blank' : undefined}
-                rel={project.external ? 'noreferrer' : undefined}
-              >
-                {project.linkText}
-              </Link>
+              {project.href ? (
+                <Link href={project.href} className="text-link">
+                  {project.linkText}
+                </Link>
+              ) : (
+                <span className="text-link" aria-disabled="true">
+                  {project.linkText}
+                </span>
+              )}
             </article>
           ))}
         </div>
