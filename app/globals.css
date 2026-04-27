@@ -874,26 +874,27 @@ p {
 }
 
 .scenario-preview-card {
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   border-radius: 14px;
-  border: 1px solid #c8d8f2;
-  background: linear-gradient(180deg, #f8fbff, #eef4ff);
-  padding: 1rem;
-  box-shadow: inset 0 0 0 1px rgba(92, 127, 187, 0.08);
+  border: 1px solid #9fb5d9;
+  border-left: 5px solid #35598f;
+  background: linear-gradient(180deg, #f6f9ff, #eaf1ff);
+  padding: 1.08rem 1.05rem;
+  box-shadow: inset 0 0 0 1px rgba(43, 76, 126, 0.22), 0 8px 20px rgba(18, 39, 73, 0.08);
 }
 
 .scenario-content .scenario-preview-card::before {
-  content: 'Leadership Briefing';
+  content: 'Required Briefing';
   display: inline-flex;
-  margin-bottom: 0.45rem;
-  border: 1px solid #b8cbee;
-  background: #e7efff;
-  color: #294d84;
+  margin-bottom: 0.55rem;
+  border: 1px solid #8ba7d4;
+  background: #dce7fb;
+  color: #1d3f72;
   border-radius: 999px;
-  padding: 0.1rem 0.55rem;
+  padding: 0.18rem 0.6rem;
   font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-weight: 800;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
 }
 
