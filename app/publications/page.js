@@ -12,14 +12,14 @@ const featuredBooks = [
     title: 'Technology, Reading & Digital Literacy',
     description:
       'Applied guidance for integrating digital tools into literacy instruction while keeping pedagogy at the center.',
-    image: '/images/technology-reading-digital-literacy.jpeg',
+    image: '/images/book-reading.jpg',
     alt: 'Technology, Reading & Digital Literacy book cover',
   },
   {
     title: 'Personalized Reading',
     description:
       'Strategies to improve reading outcomes through personalized pathways and instructional design.',
-    image: '/images/book-reading.jpg',
+    image: '/images/personalized-reading.jpeg',
     alt: 'Personalized Reading book cover',
   },
   {
