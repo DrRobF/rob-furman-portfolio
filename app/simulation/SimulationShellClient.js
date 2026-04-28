@@ -1655,82 +1655,6 @@ function analyzeLeadershipWriting(responseText, contextType) {
   return { summary, categories };
 }
 
-function analyzeFinalResponse(response) {
-  const lowered = response.toLowerCase();
-  const wordCount = response.trim().split(/\s+/).filter(Boolean).length;
-
-  const empathyTerms = [
-    'concern',
-    'understand',
-    'appreciate',
-    'sorry',
-    'thank you',
-    'support',
-    'hear',
-    'reviewed',
-  ];
-  const emotionalTerms = ['embarrass', 'frustrat', 'concern', 'worry', 'upset', 'ashamed', 'feel'];
-  const processTerms = ['follow up', 'tomorrow', 'today', 'by ', 'will review', 'will speak', 'will call'];
-  const factFindingTerms = ['review', 'gather', 'look into', 'speak with', 'context', 'facts'];
-  const defensiveTerms = ['not our fault', 'your child', 'teacher was wrong', 'you are wrong', 'calm down'];
-  const blameTerms = ['lied', 'lazy', 'teacher is wrong', 'parent is wrong', 'your daughter was wrong'];
-  const overpromiseTerms = ['i promise', 'guarantee', 'will be punished immediately', 'this will never happen again'];
-  const dismissiveTerms = ['nothing happened', 'no issue', 'overreacting'];
-
-  const hasEmpathy = includesAny(lowered, empathyTerms);
-  const hasEmotionAcknowledgment = includesAny(lowered, emotionalTerms);
-  const hasProcess = includesAny(lowered, processTerms);
-  const hasFactFinding = includesAny(lowered, factFindingTerms);
-  const hasDefensive = includesAny(lowered, defensiveTerms);
-  const hasBlame = includesAny(lowered, blameTerms);
-  const hasOverpromise = includesAny(lowered, overpromiseTerms);
-  const hasDismissive = includesAny(lowered, dismissiveTerms);
-
-  const rows = {
-    'Communication & Tone': {
-      status:
-        (wordCount >= 45 && hasEmpathy && !hasDefensive && !hasBlame) ? 'Strong' : 'Needs Attention',
-      note:
-        (wordCount >= 45 && hasEmpathy && !hasDefensive && !hasBlame)
-          ? 'You acknowledged concern in a calm voice that protects trust.'
-          : 'Add clearer empathy language and remove any defensive or blaming tone.',
-    },
-    'Fairness & Professional Integrity': {
-      status: !hasBlame && hasFactFinding ? 'Strong' : 'Needs Attention',
-      note:
-        !hasBlame && hasFactFinding
-          ? 'You stayed neutral and grounded your response in fact-finding.'
-          : 'Avoid assigning fault; focus on review before conclusions.',
-    },
-    'Process & Follow-Through': {
-      status: hasProcess ? 'Strong' : 'Needs Attention',
-      note: hasProcess
-        ? 'You gave a concrete next step and timeline.'
-        : 'Add a specific next step and when the parent will hear from you.',
-    },
-    'Emotional Awareness': {
-      status: hasEmotionAcknowledgment ? 'Strong' : 'Needs Attention',
-      note: hasEmotionAcknowledgment
-        ? 'You recognized the family’s emotional experience, not just the facts.'
-        : 'Explicitly acknowledge student and parent emotions in your response.',
-    },
-    'Judgment Under Pressure': {
-      status: hasDismissive || hasBlame || includesAny(lowered, ['discipline immediately'])
-        ? 'Needs Attention'
-        : hasEmpathy && hasFactFinding && !hasOverpromise
-          ? 'Strong'
-          : 'Developing',
-      note: hasDismissive || hasBlame || includesAny(lowered, ['discipline immediately'])
-        ? 'Avoid dismissal, blame, or immediate punitive guarantees before facts are confirmed.'
-        : hasEmpathy && hasFactFinding && !hasOverpromise
-          ? 'You balanced urgency, empathy, and process without overcommitting outcomes.'
-          : 'Keep acknowledgment, but tighten language to avoid overpromising before full review.',
-    },
-  };
-
-  return lensNames.map((name) => ({ lens: name, ...rows[name] }));
-}
-
 const leadershipStyles = [
   'Democratic',
   'Autocratic',
@@ -2882,10 +2806,6 @@ export default function SimulationShellClient() {
   );
   const hasSelectedBothVoicemailDecisions = Object.values(voicemailDecisions).every(Boolean);
   const hasCompletedBothVoicemailResponses = Object.values(voicemailResponses).every((response) => response.trim());
-  const finalResponseAnalysis = useMemo(
-    () => analyzeFinalResponse(finalParentResponse),
-    [finalParentResponse],
-  );
   const liveParentFinalWritingAssessment = useMemo(
     () => analyzeLeadershipWriting(finalParentResponse, 'parentFinalResponse'),
     [finalParentResponse],
@@ -2984,6 +2904,177 @@ export default function SimulationShellClient() {
       studentRemovalDecision,
     ],
   );
+  const fullSimulationFirstMoveDecisions = useMemo(
+    () => ([
+      { module: 'Arrival Priorities', decision: arrivalRankingRecord ? 'Priorities ranked' : '' },
+      { module: 'Parent Concern — Reward Practice', decision: firstDecision },
+      { module: 'Parent Concern Investigation', decision: investigationDecision },
+      { module: 'IEP Meeting', decision: iepDecision },
+      { module: 'Announcements', decision: announcementsDecision },
+      { module: 'Voicemail (Parent Help)', decision: voicemailDecisions.parentHelp },
+      { module: 'Voicemail (Teacher Call)', decision: voicemailDecisions.teacherCall },
+      { module: 'Lunch & Cafeteria Climate', decision: lunchClimateDecision },
+      { module: 'Parent Escalation', decision: parentEscalationDecision },
+      { module: 'Cafeteria Boundary Incident', decision: cafeteriaBoundaryDecision },
+      { module: 'Teacher Conflict', decision: teacherConflictDecision },
+      { module: 'Student Threat Report', decision: studentThreatDecision },
+      { module: 'Academic Decline Concern', decision: academicDeclineDecision },
+      { module: 'PTO Talent Show Equity', decision: ptoTalentShowDecision },
+      { module: 'Recess Injury Parent Concern', decision: recessInjuryDecision },
+      { module: 'Student Removal Request', decision: studentRemovalDecision },
+    ]).filter((entry) => Boolean(entry.decision)),
+    [
+      arrivalRankingRecord,
+      firstDecision,
+      investigationDecision,
+      iepDecision,
+      announcementsDecision,
+      voicemailDecisions,
+      lunchClimateDecision,
+      parentEscalationDecision,
+      cafeteriaBoundaryDecision,
+      teacherConflictDecision,
+      studentThreatDecision,
+      academicDeclineDecision,
+      ptoTalentShowDecision,
+      recessInjuryDecision,
+      studentRemovalDecision,
+    ],
+  );
+  const fullSimulationWrittenResponses = useMemo(
+    () => ([
+      { module: 'Parent Concern — Initial Response', label: 'Initial parent response', response: initialParentResponse },
+      { module: 'Parent Concern — Final Response', label: 'Final parent response', response: finalParentResponse },
+      { module: 'Voicemail & Mailbox', label: 'Parent help response', response: voicemailResponses.parentHelp },
+      { module: 'Voicemail & Mailbox', label: 'Teacher call response', response: voicemailResponses.teacherCall },
+      { module: 'Classroom Walkthrough', label: 'Walkthrough reflection', response: Object.values(walkthroughResponses).join(' ').trim() },
+      { module: 'Lunch & Cafeteria Climate', label: 'Monitor direction note', response: lunchMonitorDirectionNote },
+      { module: 'Parent Escalation', label: 'Parent escalation response', response: parentEscalationResponse },
+      { module: 'Cafeteria Boundary Incident', label: 'Staff boundary response', response: cafeteriaBoundaryResponse },
+      { module: 'Teacher Conflict', label: 'Teacher conflict opening statement', response: teacherConflictResponse },
+      { module: 'Student Threat Report', label: 'Student threat response', response: studentThreatResponse },
+      { module: 'Academic Decline Concern', label: 'Academic concern response', response: academicDeclineResponse },
+      { module: 'PTO Talent Show Equity', label: 'PTO response', response: ptoTalentShowResponse },
+      { module: 'Recess Injury Parent Concern', label: 'Recess injury response', response: recessInjuryResponse },
+      { module: 'Student Removal Request', label: 'Student removal response', response: studentRemovalResponse },
+    ]).filter((entry) => Boolean(entry.response.trim())),
+    [
+      initialParentResponse,
+      finalParentResponse,
+      voicemailResponses,
+      walkthroughResponses,
+      lunchMonitorDirectionNote,
+      parentEscalationResponse,
+      cafeteriaBoundaryResponse,
+      teacherConflictResponse,
+      studentThreatResponse,
+      academicDeclineResponse,
+      ptoTalentShowResponse,
+      recessInjuryResponse,
+      studentRemovalResponse,
+    ],
+  );
+  const fullSimulationWritingAssessments = useMemo(
+    () => ([
+      { module: 'Parent Concern — Final Response', assessment: parentFinalWritingAssessment || liveParentFinalWritingAssessment },
+      { module: 'Parent Escalation', assessment: parentEscalationWritingAssessment || liveParentEscalationWritingAssessment },
+      { module: 'Cafeteria Boundary Incident', assessment: cafeteriaBoundaryWritingAssessment || liveCafeteriaBoundaryWritingAssessment },
+      { module: 'Teacher Conflict', assessment: teacherConflictWritingAssessment || liveTeacherConflictWritingAssessment },
+      { module: 'Student Threat Report', assessment: studentThreatWritingAssessment || liveStudentThreatWritingAssessment },
+      { module: 'Academic Decline Concern', assessment: academicDeclineWritingAssessment || liveAcademicDeclineWritingAssessment },
+      { module: 'PTO Talent Show Equity', assessment: ptoTalentShowWritingAssessment || analyzeLeadershipWriting(ptoTalentShowResponse, 'ptoTalentShowEmail') },
+      { module: 'Recess Injury Parent Concern', assessment: recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment },
+      { module: 'Student Removal Request', assessment: studentRemovalWritingAssessment || liveStudentRemovalWritingAssessment },
+      { module: 'Voicemail (Parent Help)', assessment: voicemailWritingAssessments.parentHelp || analyzeLeadershipWriting(voicemailResponses.parentHelp, 'voicemailParent') },
+      { module: 'Voicemail (Teacher Call)', assessment: voicemailWritingAssessments.teacherCall || analyzeLeadershipWriting(voicemailResponses.teacherCall, 'voicemailTeacher') },
+    ]).filter((entry) => Boolean(entry.assessment?.summary)),
+    [
+      parentFinalWritingAssessment,
+      liveParentFinalWritingAssessment,
+      parentEscalationWritingAssessment,
+      liveParentEscalationWritingAssessment,
+      cafeteriaBoundaryWritingAssessment,
+      liveCafeteriaBoundaryWritingAssessment,
+      teacherConflictWritingAssessment,
+      liveTeacherConflictWritingAssessment,
+      studentThreatWritingAssessment,
+      liveStudentThreatWritingAssessment,
+      academicDeclineWritingAssessment,
+      liveAcademicDeclineWritingAssessment,
+      ptoTalentShowWritingAssessment,
+      ptoTalentShowResponse,
+      recessInjuryWritingAssessment,
+      liveRecessInjuryWritingAssessment,
+      studentRemovalWritingAssessment,
+      liveStudentRemovalWritingAssessment,
+      voicemailWritingAssessments,
+      voicemailResponses,
+    ],
+  );
+  const decisionPatternSummary = useMemo(() => {
+    const decisionText = fullSimulationFirstMoveDecisions.map((entry) => entry.decision.toLowerCase());
+    const patternCounts = {
+      investigateFirst: decisionText.filter((value) => /(investigate|review|gather|assess|learn more|clarify)/.test(value)).length,
+      acknowledgeFirst: decisionText.filter((value) => /(acknowledge|respond|contact|call|speak|follow up)/.test(value)).length,
+      actImmediately: decisionText.filter((value) => /(immediate|right away|at once|urgent|secure|intervene)/.test(value)).length,
+      delegateOrCollaborate: decisionText.filter((value) => /(team|delegate|support|coach|with teacher|assistant|partner)/.test(value)).length,
+    };
+
+    return [
+      `Investigate-first choices appeared in ${patternCounts.investigateFirst} decision points.`,
+      `Acknowledge/contact-first moves appeared in ${patternCounts.acknowledgeFirst} decision points.`,
+      `Immediate action language appeared in ${patternCounts.actImmediately} decision points.`,
+      `Delegation/collaboration language appeared in ${patternCounts.delegateOrCollaborate} decision points.`,
+    ];
+  }, [fullSimulationFirstMoveDecisions]);
+  const writingCategoryTrends = useMemo(() => {
+    const statusCounts = {};
+    fullSimulationWritingAssessments.forEach(({ assessment }) => {
+      (assessment?.categories || []).forEach((category) => {
+        if (!statusCounts[category.name]) {
+          statusCounts[category.name] = { strong: 0, needsAttention: 0 };
+        }
+        if (category.status === 'Strong') {
+          statusCounts[category.name].strong += 1;
+        } else if (category.status === 'Needs Attention') {
+          statusCounts[category.name].needsAttention += 1;
+        }
+      });
+    });
+    return statusCounts;
+  }, [fullSimulationWritingAssessments]);
+  const fullSimulationStrengths = useMemo(() => {
+    const strengths = [];
+    if ((writingCategoryTrends['Tone & Professionalism']?.strong || 0) >= 3) {
+      strengths.push('Maintains a professional leadership tone across multiple written responses.');
+    }
+    if ((writingCategoryTrends.Empathy?.strong || 0) >= 3) {
+      strengths.push('Consistently acknowledges stakeholder emotion and perspective.');
+    }
+    if ((writingCategoryTrends['Actionability & Follow-Through']?.strong || 0) >= 3) {
+      strengths.push('Frequently includes concrete next steps and follow-through commitments.');
+    }
+    if (decisionPatternSummary.some((line) => line.includes('Investigate-first choices appeared in') && !line.includes(' 0 '))) {
+      strengths.push('Demonstrates a fact-finding mindset before making final judgments.');
+    }
+    return strengths.slice(0, 4);
+  }, [writingCategoryTrends, decisionPatternSummary]);
+  const fullSimulationGrowthAreas = useMemo(() => {
+    const growth = [];
+    if ((writingCategoryTrends['Tone & Professionalism']?.needsAttention || 0) >= 2) {
+      growth.push('Increase consistency of calm, confidence-building language in high-stress communications.');
+    }
+    if ((writingCategoryTrends.Empathy?.needsAttention || 0) >= 2) {
+      growth.push('Add clearer acknowledgment of stakeholder concerns before moving to logistics.');
+    }
+    if ((writingCategoryTrends['Specificity & Clarity']?.needsAttention || 0) >= 2) {
+      growth.push('Improve specificity by naming concrete actions, owners, and timelines.');
+    }
+    if ((writingCategoryTrends['Actionability & Follow-Through']?.needsAttention || 0) >= 2) {
+      growth.push('Close communication loops with explicit next steps and follow-up timing.');
+    }
+    return growth.slice(0, 4);
+  }, [writingCategoryTrends]);
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -5045,109 +5136,45 @@ export default function SimulationShellClient() {
               </>
               ) : isReportScene ? (
               <>
-                <p className="eyebrow">Leadership Case Record</p>
-                <h2>Leadership Response Report</h2>
-                <p className="report-subtitle">Case: Parent concern about classroom reward practice</p>
+                <p className="eyebrow">End-of-Day Leadership Review</p>
+                <h2>Final Leadership Simulation Report</h2>
+                <p className="report-subtitle">
+                  Summary of your decisions, written responses, leadership tendencies, and growth areas across the full simulation.
+                </p>
 
                 <article className="report-card report-intro">
                   <p>
-                    Your decisions and written response have been added to the leadership record for this
-                    case.
+                    This report synthesizes your leadership performance across the full simulation day, including
+                    your first-move decisions, written communication, response quality patterns, and leadership style indicators.
                   </p>
                 </article>
 
                 <article className="report-card">
-                  <h3>Your Path</h3>
-                  <ul className="report-path-list">
-                    <li>
-                      <span className="report-path-label">First move selected:</span>{' '}
-                      {firstDecision || 'Not selected'}
-                    </li>
-                    <li>
-                      <span className="report-path-label">Investigation choice selected:</span>{' '}
-                      {investigationDecision || 'Not selected'}
-                    </li>
-                    <li>
-                      <span className="report-path-label">Initial parent response drafted:</span>{' '}
-                      {initialParentResponse.trim() ? 'Yes' : 'No'}
-                    </li>
-                    <li>
-                      <span className="report-path-label">Final parent response recorded:</span>{' '}
-                      {finalParentResponse.trim() ? 'Yes' : 'No'}
-                    </li>
-                  </ul>
+                  <h3>1. Executive Summary</h3>
+                  <p>
+                    Across {fullSimulationFirstMoveDecisions.length} captured decision points and{' '}
+                    {fullSimulationWrittenResponses.length} written responses, your leadership approach showed a blend of
+                    structured problem-solving and stakeholder communication. Decision patterns suggest how you balance
+                    investigation, acknowledgement, urgency, and collaboration. Writing patterns show how consistently your
+                    tone, empathy, clarity, and follow-through translated into actionable leadership communication.
+                  </p>
+                  <p>
+                    Your current style profile points most strongly to{' '}
+                    <strong>{leadershipStyleProfile.primaryStyle?.style || 'an emerging style pattern'}</strong>, with
+                    secondary tendencies that shift based on pressure, risk, and audience.
+                  </p>
                 </article>
 
                 <article className="report-card" aria-live="polite">
-                  <h3>Leadership Response Analysis</h3>
+                  <h3>2. Leadership Style Profile</h3>
                   <p className="analysis-note">
-                    First-pass local simulation analysis only (keyword/heuristic based), not final AI
-                    analysis.
+                    This profile reflects your full-simulation data using the existing style engine (75% writing patterns / 25% decision patterns).
                   </p>
-                  <div className="analysis-grid report-analysis-grid">
-                    {finalResponseAnalysis.map((row) => (
-                      <article key={row.lens} className="analysis-row report-analysis-row">
-                        <div className="report-analysis-header">
-                          <p className="analysis-lens">{row.lens}</p>
-                          <p className={`analysis-status ${row.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                            {row.status}
-                          </p>
-                        </div>
-                        <p>{row.note}</p>
-                      </article>
-                    ))}
-                  </div>
-                </article>
-
-                <article className="report-card" aria-live="polite">
-                  <h3>VIC Writing Assessment</h3>
-                  <p className="analysis-note">
-                    VIC reviewed the written response for tone, clarity, empathy, risk, and next steps.
-                    This is a first-pass local assessment; future versions will use deeper AI coaching.
-                  </p>
-                  <p className="analysis-note">
-                    {(parentFinalWritingAssessment || liveParentFinalWritingAssessment).summary}
-                  </p>
-                  <div className="analysis-grid report-analysis-grid">
-                    {(parentFinalWritingAssessment || liveParentFinalWritingAssessment).categories.map((category) => (
-                      <article key={category.name} className="analysis-row report-analysis-row">
-                        <div className="report-analysis-header">
-                          <p className="analysis-lens">{category.name}</p>
-                          <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                            {category.status}
-                          </p>
-                        </div>
-                        <p>{category.note}</p>
-                      </article>
-                    ))}
-                  </div>
-                </article>
-
-                <article className="report-card">
-                  <h3>Strong Response Should Include</h3>
-                  <ul className="strong-response-list">
-                    <li>Acknowledge the parent&apos;s concern.</li>
-                    <li>Recognize the child&apos;s emotional experience.</li>
-                    <li>Clarify that the reward was participation-based, not accuracy-based.</li>
-                    <li>Avoid blaming the child or teacher.</li>
-                    <li>Explain that classroom practices around rewards and exclusion will be reviewed.</li>
-                    <li>Offer a follow-up conversation or timeline.</li>
-                  </ul>
-                </article>
-
-                <article className="report-card" aria-live="polite">
-                  <h3>Leadership Style Profile</h3>
-                  <p className="analysis-note">
-                    Your leadership profile reflects a blend of styles rather than a single fixed approach.
-                    The strongest pattern across your written responses and decisions was{' '}
-                    <strong>{leadershipStyleProfile.primaryStyle?.style || 'Not enough data yet'}</strong>.
-                  </p>
-                  <p className="analysis-note">{leadershipStyleProfile.dataNote}</p>
                   <ul className="strong-response-list">
                     <li>
                       <strong>Primary Leadership Style:</strong>{' '}
                       {leadershipStyleProfile.primaryStyle?.score > 0
-                        ? `${leadershipStyleProfile.primaryStyle.style} tendencies appeared most often in your responses.`
+                        ? `${leadershipStyleProfile.primaryStyle.style} tendencies appeared most often across the full simulation.`
                         : 'Not enough simulation evidence yet.'}
                     </li>
                     <li>
@@ -5167,24 +5194,91 @@ export default function SimulationShellClient() {
                         : 'No clear watch areas identified yet from available evidence.'}
                     </li>
                   </ul>
-                  <p className="analysis-note">
-                    Leadership style is situational. In high-pressure moments, your choices suggested different
-                    approaches depending on urgency, process, and stakeholder needs.
-                  </p>
                 </article>
 
                 <article className="report-card">
-                  <h3>Recorded Response</h3>
-                  {initialParentResponse.trim() ? (
-                    <div className="recorded-response-block">
-                      <p className="recorded-response-title">Initial acknowledgment / first response</p>
-                      <p>{initialParentResponse}</p>
-                    </div>
-                  ) : null}
-                  <div className="recorded-response-block">
-                    <p className="recorded-response-title">Final parent response</p>
-                    <p>{finalParentResponse}</p>
-                  </div>
+                  <h3>3. Decision-Making Patterns</h3>
+                  <ul className="strong-response-list">
+                    {decisionPatternSummary.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>4. Communication &amp; Writing Analysis</h3>
+                  <p className="analysis-note">
+                    Writing analysis below is aggregated across all completed writing tasks and highlights trends instead of module-by-module ratings.
+                  </p>
+                  <ul className="strong-response-list">
+                    {Object.entries(writingCategoryTrends).map(([name, totals]) => (
+                      <li key={name}>
+                        <strong>{name}:</strong> Strong in {totals.strong} task(s); Needs Attention in {totals.needsAttention} task(s).
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>5. Leadership Strengths</h3>
+                  <ul className="strong-response-list">
+                    {(fullSimulationStrengths.length ? fullSimulationStrengths : [
+                      'Emerging strengths will become clearer as more modules are completed with detailed responses.',
+                    ]).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>6. Growth Areas</h3>
+                  <ul className="strong-response-list">
+                    {(fullSimulationGrowthAreas.length ? fullSimulationGrowthAreas : [
+                      'Continue adding details, empathy, and explicit follow-up timing to strengthen consistency.',
+                    ]).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>7. Recommended Next Steps</h3>
+                  <ul className="strong-response-list">
+                    <li>Use a repeatable response structure: acknowledge concern, share known facts, name next steps, and give timeline.</li>
+                    <li>During high-risk scenarios, add one explicit risk-check sentence to clarify student safety, process, and documentation.</li>
+                    <li>Schedule short reflection reviews after each major interaction to track pattern shifts across decisions and writing.</li>
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>8. Scenario Records / Appendix</h3>
+                  <p className="analysis-note">
+                    The items below are supporting records from individual modules. They do not replace the full-simulation summary above.
+                  </p>
+                  <h4>First-Move Decisions</h4>
+                  <ul className="report-path-list">
+                    {fullSimulationFirstMoveDecisions.map((entry) => (
+                      <li key={`${entry.module}-${entry.decision}`}>
+                        <span className="report-path-label">{entry.module}:</span> {entry.decision}
+                      </li>
+                    ))}
+                  </ul>
+                  <h4>Written Responses Captured</h4>
+                  <ul className="report-path-list">
+                    {fullSimulationWrittenResponses.map((entry) => (
+                      <li key={`${entry.module}-${entry.label}`}>
+                        <span className="report-path-label">{entry.module} — {entry.label}:</span> Recorded
+                      </li>
+                    ))}
+                  </ul>
+                  <h4>Writing Assessments Logged</h4>
+                  <ul className="report-path-list">
+                    {fullSimulationWritingAssessments.map((entry) => (
+                      <li key={`${entry.module}-assessment`}>
+                        <span className="report-path-label">{entry.module}:</span> {entry.assessment.summary}
+                      </li>
+                    ))}
+                  </ul>
                 </article>
               </>
               ) : !isInvestigationScene ? (
