@@ -1783,6 +1783,7 @@ export default function SimulationShellClient() {
   const [cafeteriaBoundaryVoicemailPlayed, setCafeteriaBoundaryVoicemailPlayed] = useState(false);
   const [cafeteriaBoundaryDecision, setCafeteriaBoundaryDecision] = useState('');
   const [cafeteriaBoundaryResponse, setCafeteriaBoundaryResponse] = useState('');
+  const [showCafeteriaBoundarySupportingInfo, setShowCafeteriaBoundarySupportingInfo] = useState(false);
   const [cafeteriaBoundaryWritingAssessment, setCafeteriaBoundaryWritingAssessment] = useState(null);
   const [cafeteriaBoundaryLeadershipRecord, setCafeteriaBoundaryLeadershipRecord] = useState(null);
   const [teacherConflictDecision, setTeacherConflictDecision] = useState('');
@@ -3847,6 +3848,47 @@ export default function SimulationShellClient() {
                         </article>
                       ))}
                     </div>
+
+                    <article className="report-card">
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => setShowCafeteriaBoundarySupportingInfo((prev) => !prev)}
+                      >
+                        {showCafeteriaBoundarySupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                      </button>
+                      {showCafeteriaBoundarySupportingInfo ? (
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Cafeteria Boundary Incident — Supporting Information</p>
+                          <p><strong>Witness Summary:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Multiple students and at least one staff member observed the interaction.</li>
+                            <li>The cafeteria worker approached the student directly during lunch.</li>
+                            <li>The tone was described as firm and emotionally charged.</li>
+                            <li>The interaction drew attention from nearby students.</li>
+                          </ul>
+                          <p><strong>Student Impact:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>The student appeared uncomfortable and unsure how to respond.</li>
+                            <li>Other students began watching and reacting.</li>
+                            <li>The situation disrupted normal cafeteria flow.</li>
+                          </ul>
+                          <p><strong>Staff Role Expectation:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Cafeteria staff are responsible for supervision, not discipline beyond basic redirection.</li>
+                            <li>Personal concerns involving their own child should be directed to administration.</li>
+                            <li>Staff members are expected to maintain professional boundaries during the school day.</li>
+                          </ul>
+                          <p><strong>Leadership Considerations:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Address the behavior quickly to prevent repetition.</li>
+                            <li>Separate the employee role from the parent role clearly.</li>
+                            <li>Reinforce expectations without escalating emotion.</li>
+                            <li>Maintain a calm, private, and professional tone in the first conversation.</li>
+                          </ul>
+                        </div>
+                      ) : null}
+                    </article>
 
                     <article className="report-card">
                       <p className="response-label">
