@@ -3201,8 +3201,6 @@ export default function SimulationShellClient() {
                     again. Some messages came in before you arrived, and now they need to be triaged
                     before the day moves too far ahead.
                   </p>
-                </article>
-                <article className="decision-next-step-panel">
                   <p>
                     Voicemails often carry a different urgency than email. If someone took the time to
                     call, there may be emotion, confusion, or a time-sensitive concern behind the message.
@@ -3442,8 +3440,6 @@ export default function SimulationShellClient() {
                     it is a chance to gather evidence about instruction, student engagement, and classroom
                     dynamics.
                   </p>
-                </article>
-                <article className="decision-next-step-panel">
                   <p>
                     Effective walkthroughs are short, non-evaluative, and focused on gathering evidence to
                     improve instruction. Strong leaders observe student engagement, clarity of learning goals,
