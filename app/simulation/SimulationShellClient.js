@@ -1806,6 +1806,7 @@ export default function SimulationShellClient() {
   const [ptoTalentShowWritingAssessment, setPtoTalentShowWritingAssessment] = useState(null);
   const [recessInjuryDecision, setRecessInjuryDecision] = useState('');
   const [recessInjuryResponse, setRecessInjuryResponse] = useState('');
+  const [showRecessInjurySupportingInfo, setShowRecessInjurySupportingInfo] = useState(false);
   const [recessInjuryWritingAssessment, setRecessInjuryWritingAssessment] = useState(null);
   const [studentRemovalDecision, setStudentRemovalDecision] = useState('');
   const [studentRemovalResponse, setStudentRemovalResponse] = useState('');
@@ -4630,6 +4631,67 @@ export default function SimulationShellClient() {
                     </article>
                   ))}
                 </div>
+
+                <article className="report-card">
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() => setShowRecessInjurySupportingInfo((prev) => !prev)}
+                  >
+                    {showRecessInjurySupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                  </button>
+                  {showRecessInjurySupportingInfo ? (
+                    <div className="analysis-row">
+                      <p className="analysis-lens">Recess Injury — Supporting Information</p>
+                      <p><strong>Incident Report Summary:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The incident occurred during scheduled recess while students were engaged in active play.</li>
+                        <li>A student fell and hit their head during the activity.</li>
+                        <li>Staff were supervising the area and responded immediately.</li>
+                        <li>The student was escorted to the nurse.</li>
+                      </ul>
+                      <p><strong>Nurse Documentation:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The student was evaluated by the school nurse.</li>
+                        <li>Ice was applied and the student was monitored.</li>
+                        <li>The parent was contacted promptly.</li>
+                        <li>No immediate signs of severe injury were observed at the time.</li>
+                      </ul>
+                      <p><strong>Staff Observations:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The situation occurred during active play involving multiple students.</li>
+                        <li>Accounts differ regarding whether the contact was intentional or incidental.</li>
+                        <li>No clear determination of fault has been established.</li>
+                      </ul>
+                      <p><strong>Documentation Status:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>An official incident/accident report has been completed.</li>
+                        <li>The report includes time, location, supervision, and general circumstances.</li>
+                        <li>The report does NOT include identifying information about other students.</li>
+                      </ul>
+                      <p><strong>Confidentiality Guidelines:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The school cannot share the names or personal information of other students.</li>
+                        <li>Student involvement or discipline cannot be discussed with other families.</li>
+                        <li>Communication must follow student privacy requirements and district procedures.</li>
+                      </ul>
+                      <p><strong>Liability Boundaries:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The school does not assign financial responsibility between families.</li>
+                        <li>The school does not forward medical bills to other families.</li>
+                        <li>Any financial or legal concerns must be handled outside of the school process.</li>
+                      </ul>
+                      <p><strong>Important:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>Do NOT include names of other students.</li>
+                        <li>Do NOT include assignment of fault.</li>
+                        <li>Do NOT include payment commitments.</li>
+                        <li>Do NOT include legal conclusions.</li>
+                      </ul>
+                      <p>The purpose of this section is to provide information only, not resolution.</p>
+                    </div>
+                  ) : null}
+                </article>
 
                 <label htmlFor="recess-injury-response" className="response-label">
                   Draft your response to the parent.
