@@ -1795,6 +1795,7 @@ export default function SimulationShellClient() {
   const [currentDeskStackItem, setCurrentDeskStackItem] = useState(null);
   const [studentThreatDecision, setStudentThreatDecision] = useState('');
   const [studentThreatResponse, setStudentThreatResponse] = useState('');
+  const [showStudentThreatSupportingInfo, setShowStudentThreatSupportingInfo] = useState(false);
   const [studentThreatWritingAssessment, setStudentThreatWritingAssessment] = useState(null);
   const [academicDeclineDecision, setAcademicDeclineDecision] = useState('');
   const [academicDeclineResponse, setAcademicDeclineResponse] = useState('');
@@ -4182,6 +4183,42 @@ export default function SimulationShellClient() {
                     </article>
                   ))}
                 </div>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => setShowStudentThreatSupportingInfo((prev) => !prev)}
+                >
+                  {showStudentThreatSupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                </button>
+                {showStudentThreatSupportingInfo ? (
+                  <div className="analysis-row">
+                    <p className="analysis-lens">Student Threat Language — Supporting Information</p>
+                    <p><strong>Incident Summary:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>The report involves a statement made by one student toward another during the school day.</li>
+                      <li>The comment was reported after the fact and was not directly heard by staff at the moment it occurred.</li>
+                      <li>Staff were notified and began follow-up with the students involved.</li>
+                    </ul>
+                    <p><strong>Student Statements:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>The student who made the comment stated it was said out of frustration.</li>
+                      <li>The reporting student interpreted the comment as serious and felt unsafe.</li>
+                      <li>No prior documented conflict exists between the students.</li>
+                    </ul>
+                    <p><strong>Staff Findings:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>Multiple students confirmed that a concerning statement was made.</li>
+                      <li>Accounts of tone and intent varied among those present.</li>
+                      <li>No staff member directly heard the original statement.</li>
+                    </ul>
+                    <p><strong>Safety Context:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>The situation has been contained within the school setting.</li>
+                      <li>Students are currently supervised and accounted for.</li>
+                      <li>No immediate disruption to the broader school environment was reported.</li>
+                    </ul>
+                  </div>
+                ) : null}
 
                 <label htmlFor="student-threat-response" className="response-label">
                   Draft your response to the parent.
