@@ -1758,6 +1758,8 @@ export default function SimulationShellClient() {
   const [announcementsLeadershipRecord, setAnnouncementsLeadershipRecord] = useState(null);
   const [voicemailDecisions, setVoicemailDecisions] = useState({ parentHelp: '', teacherCall: '' });
   const [voicemailResponses, setVoicemailResponses] = useState({ parentHelp: '', teacherCall: '' });
+  const [showParentSupportingInfo, setShowParentSupportingInfo] = useState(false);
+  const [showTeacherSupportingInfo, setShowTeacherSupportingInfo] = useState(false);
   const [voicemailWritingAssessments, setVoicemailWritingAssessments] = useState({
     parentHelp: null,
     teacherCall: null,
@@ -1908,6 +1910,8 @@ export default function SimulationShellClient() {
     setAnnouncementsLeadershipRecord(null);
     setVoicemailDecisions({ parentHelp: '', teacherCall: '' });
     setVoicemailResponses({ parentHelp: '', teacherCall: '' });
+    setShowParentSupportingInfo(false);
+    setShowTeacherSupportingInfo(false);
     setVoicemailWritingAssessments({ parentHelp: null, teacherCall: null });
     setVoicemailTaskClosed(false);
     setVoicemailLeadershipRecord(null);
@@ -3283,6 +3287,45 @@ export default function SimulationShellClient() {
                         the concern involves a student need, a classroom issue, a scheduling issue, or
                         a support request, and whether anyone else needs to be consulted.
                       </p>
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => setShowParentSupportingInfo((prev) => !prev)}
+                      >
+                        {showParentSupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                      </button>
+                      {showParentSupportingInfo ? (
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Parent Help Request — Supporting Information</p>
+                          <p><strong>Teacher Observation Note:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Student becomes overwhelmed during transitions, group work, and loud classroom moments.</li>
+                            <li>Student covers ears, asks to leave, or shuts down when the room becomes noisy.</li>
+                            <li>Concern has become more frequent over the past two weeks.</li>
+                          </ul>
+                          <p><strong>Student Support Snapshot:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Student has a documented ADHD diagnosis.</li>
+                            <li>Parent does not want the child moved to another classroom.</li>
+                            <li>Parent is asking for strategies and consistency between home and school.</li>
+                            <li>No major discipline incidents are connected to this concern.</li>
+                          </ul>
+                          <p><strong>Current Classroom Supports:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Preferential seating away from the highest-traffic area.</li>
+                            <li>Quiet breaks are allowed when the student requests support.</li>
+                            <li>Teacher has used proximity support and calm verbal redirection.</li>
+                            <li>No formal noise-reduction plan has been written yet.</li>
+                          </ul>
+                          <p><strong>Guidance / ESE Input:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Consider noise-reduction headphones during high-noise activities.</li>
+                            <li>Add predictable transition warnings before noisy parts of the day.</li>
+                            <li>Identify a quiet reset space the student can use appropriately.</li>
+                            <li>Align home and school language so the student can practice the same coping script in both places.</li>
+                          </ul>
+                        </div>
+                      ) : null}
                     </article>
                     <article className="report-card">
                       <h3>Teacher Call — Context Needed</h3>
@@ -3291,6 +3334,46 @@ export default function SimulationShellClient() {
                         resource, coverage, parent support, student support, or administrative
                         follow-up.
                       </p>
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => setShowTeacherSupportingInfo((prev) => !prev)}
+                      >
+                        {showTeacherSupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                      </button>
+                      {showTeacherSupportingInfo ? (
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Teacher Call — Supporting Information</p>
+                          <p><strong>Placement / IEP Snapshot:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Student has an IEP with inclusion time in the general education setting.</li>
+                            <li>Placement was determined through the IEP/support process.</li>
+                            <li>Placement is not determined by teacher preference alone.</li>
+                            <li>Concerns should be addressed through support planning, not by refusing placement.</li>
+                          </ul>
+                          <p><strong>Student Readiness Information:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Student has participated successfully in short general education activities with support.</li>
+                            <li>Student may need help with transitions, sensory regulation, and peer interaction.</li>
+                            <li>Student responds well to predictable routines, visual supports, and calm adult prompting.</li>
+                            <li>There is no current evidence that the student is unsafe in general education with appropriate supports.</li>
+                          </ul>
+                          <p><strong>Teacher Support Plan:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>ESE staff will provide push-in support during the initial transition period.</li>
+                            <li>Teacher will receive a brief support plan with triggers, calming strategies, and communication guidance.</li>
+                            <li>A check-in meeting can be scheduled after the first week.</li>
+                            <li>Administration will monitor the transition and support both the student and teacher.</li>
+                          </ul>
+                          <p><strong>Leadership Considerations:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Acknowledge the teacher’s concern without validating refusal of placement.</li>
+                            <li>Reinforce that the school will follow the IEP process.</li>
+                            <li>Focus on support, preparation, and collaboration.</li>
+                            <li>Maintain a firm, calm, process-based tone.</li>
+                          </ul>
+                        </div>
+                      ) : null}
                     </article>
                     <article className="report-card report-intro">
                       <h3>Voicemail Response Guidance</h3>
