@@ -1731,6 +1731,142 @@ function analyzeFinalResponse(response) {
   return lensNames.map((name) => ({ lens: name, ...rows[name] }));
 }
 
+const leadershipStyles = [
+  'Democratic',
+  'Autocratic',
+  'Laissez-faire',
+  'Transformational',
+  'Transactional',
+  'Bureaucratic',
+  'Servant',
+  'Adaptive',
+];
+
+const leadershipWritingKeywordClusters = {
+  Democratic: ['we', 'together', 'team', 'input', 'perspective', 'collaborate', 'discuss', 'listen', 'shared', 'involve'],
+  Autocratic: ['i will', 'must', 'immediately', 'require', 'direct', 'decide', 'non-negotiable', 'mandate'],
+  'Laissez-faire': ['let me know', 'handle it', 'up to you', 'wait and see', 'later', 'optional', 'if needed'],
+  Transformational: ['growth', 'improve', 'develop', 'opportunity', 'change', 'build', 'better', 'reflect', 'learn'],
+  Transactional: ['expectations', 'consequences', 'follow-through', 'compliance', 'rules', 'reward', 'accountability'],
+  Bureaucratic: ['policy', 'procedure', 'protocol', 'process', 'documentation', 'district', 'regulation', 'formal', 'records'],
+  Servant: ['support', 'care', 'help', 'understand', 'dignity', 'student needs', 'staff needs', 'empathy', 'safe'],
+  Adaptive: [
+    'based on what we know',
+    'gather information',
+    'next steps',
+    'balance',
+    'adjust',
+    'monitor',
+    'respond',
+    'context',
+    'flexible',
+    'appropriate',
+  ],
+};
+
+function countTermOccurrences(text, term) {
+  let count = 0;
+  let start = 0;
+  while (start < text.length) {
+    const index = text.indexOf(term, start);
+    if (index === -1) break;
+    count += 1;
+    start = index + term.length;
+  }
+  return count;
+}
+
+function buildLeadershipStyleProfile({ writtenResponses = [], decisions = [] } = {}) {
+  const writingScores = leadershipStyles.reduce((acc, style) => ({ ...acc, [style]: 0 }), {});
+  const decisionScores = leadershipStyles.reduce((acc, style) => ({ ...acc, [style]: 0 }), {});
+
+  const normalizedWrittenResponses = writtenResponses
+    .map((response) => response.trim().toLowerCase())
+    .filter(Boolean);
+
+  normalizedWrittenResponses.forEach((response) => {
+    leadershipStyles.forEach((style) => {
+      const terms = leadershipWritingKeywordClusters[style] || [];
+      terms.forEach((term) => {
+        writingScores[style] += countTermOccurrences(response, term.toLowerCase());
+      });
+    });
+  });
+
+  const normalizedDecisions = decisions
+    .map((decision) => decision.trim().toLowerCase())
+    .filter(Boolean);
+
+  normalizedDecisions.forEach((decision) => {
+    if (includesAny(decision, ['gather', 'investigate', 'review', 'records', 'information'])) {
+      decisionScores.Adaptive += 2;
+      decisionScores.Bureaucratic += 1.5;
+      decisionScores.Democratic += 1;
+    }
+    if (includesAny(decision, ['call', 'immediate', 'immediately', 'act now'])) {
+      decisionScores.Autocratic += 1.5;
+      decisionScores.Servant += 1;
+      decisionScores.Adaptive += 1;
+    }
+    if (includesAny(decision, ['delegate', 'on their own', 'up to', 'follow-up roles'])) {
+      decisionScores['Laissez-faire'] += 1.5;
+      decisionScores.Democratic += 1;
+    }
+    if (includesAny(decision, ['support teacher immediately', 'remove student', 'suspension', 'no conference'])) {
+      decisionScores.Autocratic += 1.5;
+      decisionScores.Transactional += 1.5;
+    }
+    if (includesAny(decision, ['acknowledge', 'validate', 'hear', 'listen'])) {
+      decisionScores.Servant += 1.5;
+      decisionScores.Adaptive += 1;
+      decisionScores.Democratic += 1;
+    }
+    if (includesAny(decision, ['district', 'administration', 'counseling support', 'guidance', 'procedure', 'policy'])) {
+      decisionScores.Bureaucratic += 1.5;
+      decisionScores.Adaptive += 1;
+    }
+  });
+
+  const writingTotal = Object.values(writingScores).reduce((sum, value) => sum + value, 0);
+  const decisionTotal = Object.values(decisionScores).reduce((sum, value) => sum + value, 0);
+
+  const bothAvailable = writingTotal > 0 && decisionTotal > 0;
+  const writingWeight = bothAvailable ? 0.75 : writingTotal > 0 ? 1 : 0;
+  const decisionWeight = bothAvailable ? 0.25 : decisionTotal > 0 ? 1 : 0;
+
+  const normalizedScores = leadershipStyles.reduce((acc, style) => {
+    const normalizedWritingScore = writingTotal > 0 ? writingScores[style] / writingTotal : 0;
+    const normalizedDecisionScore = decisionTotal > 0 ? decisionScores[style] / decisionTotal : 0;
+    acc[style] = (normalizedWritingScore * writingWeight) + (normalizedDecisionScore * decisionWeight);
+    return acc;
+  }, {});
+
+  const rankedStyles = leadershipStyles
+    .map((style) => ({ style, score: normalizedScores[style] }))
+    .sort((a, b) => b.score - a.score);
+
+  const primaryStyle = rankedStyles[0];
+  const secondaryTendencies = rankedStyles.slice(1, 4).filter((entry) => entry.score > 0);
+  const situationalWatchAreas = rankedStyles.slice(-3).reverse().filter((entry) => entry.score > 0);
+
+  const dataNote = bothAvailable
+    ? 'Profile weights: written responses 75% and decision/button choices 25%.'
+    : writingTotal > 0
+      ? 'Decision-choice data was limited, so this profile is based on writing patterns only.'
+      : decisionTotal > 0
+        ? 'Writing data was limited, so this profile is based on decision/button choices only.'
+        : 'Writing and decision data are limited, so this profile is provisional.';
+
+  return {
+    primaryStyle,
+    secondaryTendencies,
+    situationalWatchAreas,
+    dataNote,
+    hasWritingData: writingTotal > 0,
+    hasDecisionData: decisionTotal > 0,
+  };
+}
+
 export default function SimulationShellClient() {
   const [builderMode, setBuilderMode] = useState(false);
   const [currentModule, setCurrentModule] = useState('arrival');
@@ -2781,6 +2917,72 @@ export default function SimulationShellClient() {
   const liveStudentRemovalWritingAssessment = useMemo(
     () => analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail'),
     [studentRemovalResponse],
+  );
+  const leadershipStyleProfile = useMemo(
+    () => buildLeadershipStyleProfile({
+      writtenResponses: [
+        initialParentResponse,
+        finalParentResponse,
+        voicemailResponses.parentHelp,
+        voicemailResponses.teacherCall,
+        ...Object.values(walkthroughResponses),
+        lunchMonitorDirectionNote,
+        parentEscalationResponse,
+        cafeteriaBoundaryResponse,
+        teacherConflictResponse,
+        studentThreatResponse,
+        academicDeclineResponse,
+        ptoTalentShowResponse,
+        recessInjuryResponse,
+        studentRemovalResponse,
+      ],
+      decisions: [
+        firstDecision,
+        investigationDecision,
+        iepDecision,
+        announcementsDecision,
+        voicemailDecisions.parentHelp,
+        voicemailDecisions.teacherCall,
+        lunchClimateDecision,
+        parentEscalationDecision,
+        cafeteriaBoundaryDecision,
+        teacherConflictDecision,
+        studentThreatDecision,
+        academicDeclineDecision,
+        ptoTalentShowDecision,
+        recessInjuryDecision,
+        studentRemovalDecision,
+      ],
+    }),
+    [
+      initialParentResponse,
+      finalParentResponse,
+      voicemailResponses,
+      walkthroughResponses,
+      lunchMonitorDirectionNote,
+      parentEscalationResponse,
+      cafeteriaBoundaryResponse,
+      teacherConflictResponse,
+      studentThreatResponse,
+      academicDeclineResponse,
+      ptoTalentShowResponse,
+      recessInjuryResponse,
+      studentRemovalResponse,
+      firstDecision,
+      investigationDecision,
+      iepDecision,
+      announcementsDecision,
+      voicemailDecisions,
+      lunchClimateDecision,
+      parentEscalationDecision,
+      cafeteriaBoundaryDecision,
+      teacherConflictDecision,
+      studentThreatDecision,
+      academicDeclineDecision,
+      ptoTalentShowDecision,
+      recessInjuryDecision,
+      studentRemovalDecision,
+    ],
   );
 
   const investigationGuidanceCopy = {
@@ -4931,6 +5133,44 @@ export default function SimulationShellClient() {
                     <li>Explain that classroom practices around rewards and exclusion will be reviewed.</li>
                     <li>Offer a follow-up conversation or timeline.</li>
                   </ul>
+                </article>
+
+                <article className="report-card" aria-live="polite">
+                  <h3>Leadership Style Profile</h3>
+                  <p className="analysis-note">
+                    Your leadership profile reflects a blend of styles rather than a single fixed approach.
+                    The strongest pattern across your written responses and decisions was{' '}
+                    <strong>{leadershipStyleProfile.primaryStyle?.style || 'Not enough data yet'}</strong>.
+                  </p>
+                  <p className="analysis-note">{leadershipStyleProfile.dataNote}</p>
+                  <ul className="strong-response-list">
+                    <li>
+                      <strong>Primary Leadership Style:</strong>{' '}
+                      {leadershipStyleProfile.primaryStyle?.score > 0
+                        ? `${leadershipStyleProfile.primaryStyle.style} tendencies appeared most often in your responses.`
+                        : 'Not enough simulation evidence yet.'}
+                    </li>
+                    <li>
+                      <strong>Secondary Leadership Tendencies:</strong>{' '}
+                      {leadershipStyleProfile.secondaryTendencies.length
+                        ? leadershipStyleProfile.secondaryTendencies
+                          .map((entry) => `${entry.style} (${Math.round(entry.score * 100)}%)`)
+                          .join(', ')
+                        : 'Secondary tendencies are still emerging as more responses are completed.'}
+                    </li>
+                    <li>
+                      <strong>Situational Watch Areas:</strong>{' '}
+                      {leadershipStyleProfile.situationalWatchAreas.length
+                        ? leadershipStyleProfile.situationalWatchAreas
+                          .map((entry) => `${entry.style} (${Math.round(entry.score * 100)}%)`)
+                          .join(', ')
+                        : 'No clear watch areas identified yet from available evidence.'}
+                    </li>
+                  </ul>
+                  <p className="analysis-note">
+                    Leadership style is situational. In high-pressure moments, your choices suggested different
+                    approaches depending on urgency, process, and stakeholder needs.
+                  </p>
                 </article>
 
                 <article className="report-card">
