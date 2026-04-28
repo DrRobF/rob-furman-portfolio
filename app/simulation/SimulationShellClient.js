@@ -1778,6 +1778,7 @@ export default function SimulationShellClient() {
   const [parentEscalationDecision, setParentEscalationDecision] = useState('');
   const [parentEscalationResponse, setParentEscalationResponse] = useState('');
   const [showParentEscalationSupportingInfo, setShowParentEscalationSupportingInfo] = useState(false);
+  const [showRewardConcernSupportingInfo, setShowRewardConcernSupportingInfo] = useState(false);
   const [parentEscalationWritingAssessment, setParentEscalationWritingAssessment] = useState(null);
   const [parentEscalationLeadershipRecord, setParentEscalationLeadershipRecord] = useState(null);
   const [cafeteriaBoundaryVoicemailPlayed, setCafeteriaBoundaryVoicemailPlayed] = useState(false);
@@ -1926,6 +1927,7 @@ export default function SimulationShellClient() {
     setParentEscalationVoicemailPlayed(false);
     setParentEscalationDecision('');
     setParentEscalationResponse('');
+    setShowRewardConcernSupportingInfo(false);
     setParentEscalationWritingAssessment(null);
     setParentEscalationLeadershipRecord(null);
     setCafeteriaBoundaryVoicemailPlayed(false);
@@ -2211,6 +2213,7 @@ export default function SimulationShellClient() {
     setCurrentDeskStackItem(null);
     setScene('initial');
     setIsEmailVisible(false);
+    setShowRewardConcernSupportingInfo(false);
     scrollToTop();
   };
 
@@ -5004,6 +5007,66 @@ export default function SimulationShellClient() {
               >
                 {isEmailVisible ? 'Hide Full Email' : 'Reveal Full Email'}
               </button>
+            ) : null}
+
+            {currentModule === 'endOfDayEmail'
+            && currentDeskStackItem === 'rewardConcern'
+            && !isInvestigationScene
+            && !isReportScene ? (
+              <article className="report-card">
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => setShowRewardConcernSupportingInfo((prev) => !prev)}
+                >
+                  {showRewardConcernSupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                </button>
+                {showRewardConcernSupportingInfo ? (
+                  <div className="analysis-row">
+                    <p className="analysis-lens">Parent Concern — Supporting Information</p>
+                    <p><strong>Teacher Explanation:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>The pizza activity was based on participation in a class activity, not academic performance.</li>
+                      <li>Students who completed the activity were invited to participate.</li>
+                      <li>Sue chose not to complete the activity, along with one other student.</li>
+                      <li>The teacher reports that expectations were clearly explained ahead of time.</li>
+                    </ul>
+                    <p><strong>Student Context:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>Sue is currently receiving reading intervention support.</li>
+                      <li>She has shown inconsistent effort during independent and practice tasks.</li>
+                      <li>On this occasion, she did not engage in the required activity.</li>
+                      <li>Another student also chose not to participate and did not attend the activity.</li>
+                    </ul>
+                    <p><strong>Classroom Practice Review:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>The activity was structured around participation, not ability or achievement.</li>
+                      <li>Students were aware of expectations ahead of time.</li>
+                      <li>While not intended to exclude, the visible separation created unintended social impact.</li>
+                    </ul>
+                    <p><strong>Impact Observed:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>Sue reported feeling embarrassed after not participating.</li>
+                      <li>The parent received a partial and emotionally framed version of events.</li>
+                      <li>The situation escalated due to a mismatch between perception and actual classroom practice.</li>
+                    </ul>
+                    <p><strong>Leadership Action Taken:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>Met with the teacher to review the situation.</li>
+                      <li>Confirmed that participation—not performance—was the basis for inclusion.</li>
+                      <li>Discussed how reward structures can create unintended emotional responses.</li>
+                      <li>Reinforced expectations for minimizing visible exclusion.</li>
+                    </ul>
+                    <p><strong>Next Steps:</strong></p>
+                    <ul className="strong-response-list">
+                      <li>Teacher will continue participation-based expectations with clearer framing.</li>
+                      <li>Alternative recognition methods will be explored to reduce visible separation.</li>
+                      <li>Administration will monitor classroom practices.</li>
+                      <li>Parent communication will clarify expectations and reinforce student support.</li>
+                    </ul>
+                  </div>
+                ) : null}
+              </article>
             ) : null}
 
             {currentModule === 'endOfDayEmail'
