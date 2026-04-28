@@ -2233,10 +2233,14 @@ export default function SimulationShellClient() {
   };
 
   const handleStudentThreatContinue = () => {
-    if (!studentThreatDecision || !studentThreatResponse.trim() || studentThreatWritingAssessment) return;
+    if (!studentThreatDecision || !studentThreatResponse.trim()) return;
+    if (studentThreatWritingAssessment) {
+      handleStudentThreatReturnToDeskStack();
+      return;
+    }
     const assessment = analyzeLeadershipWriting(studentThreatResponse, 'studentThreatEmail');
     setStudentThreatWritingAssessment(assessment);
-    scrollToTop();
+    handleStudentThreatReturnToDeskStack();
   };
 
   const handleStudentThreatReturnToDeskStack = () => {
@@ -2246,10 +2250,14 @@ export default function SimulationShellClient() {
   };
 
   const handleAcademicDeclineContinue = () => {
-    if (!academicDeclineDecision || !academicDeclineResponse.trim() || academicDeclineWritingAssessment) return;
+    if (!academicDeclineDecision || !academicDeclineResponse.trim()) return;
+    if (academicDeclineWritingAssessment) {
+      handleAcademicDeclineReturnToDeskStack();
+      return;
+    }
     const assessment = analyzeLeadershipWriting(academicDeclineResponse, 'academicDeclineEmail');
     setAcademicDeclineWritingAssessment(assessment);
-    scrollToTop();
+    handleAcademicDeclineReturnToDeskStack();
   };
 
   const handleAcademicDeclineReturnToDeskStack = () => {
@@ -2260,10 +2268,14 @@ export default function SimulationShellClient() {
   };
 
   const handlePtoTalentShowContinue = () => {
-    if (!ptoTalentShowDecision || !ptoTalentShowResponse.trim() || ptoTalentShowWritingAssessment) return;
+    if (!ptoTalentShowDecision || !ptoTalentShowResponse.trim()) return;
+    if (ptoTalentShowWritingAssessment) {
+      handlePtoTalentShowReturnToDeskStack();
+      return;
+    }
     const assessment = analyzeLeadershipWriting(ptoTalentShowResponse, 'ptoTalentShowEmail');
     setPtoTalentShowWritingAssessment(assessment);
-    scrollToTop();
+    handlePtoTalentShowReturnToDeskStack();
   };
 
   const handlePtoTalentShowReturnToDeskStack = () => {
@@ -2273,10 +2285,14 @@ export default function SimulationShellClient() {
   };
 
   const handleRecessInjuryContinue = () => {
-    if (!recessInjuryDecision || !recessInjuryResponse.trim() || recessInjuryWritingAssessment) return;
+    if (!recessInjuryDecision || !recessInjuryResponse.trim()) return;
+    if (recessInjuryWritingAssessment) {
+      handleRecessInjuryReturnToDeskStack();
+      return;
+    }
     const assessment = analyzeLeadershipWriting(recessInjuryResponse, 'recessInjuryEmail');
     setRecessInjuryWritingAssessment(assessment);
-    scrollToTop();
+    handleRecessInjuryReturnToDeskStack();
   };
 
   const handleRecessInjuryReturnToDeskStack = () => {
@@ -2286,10 +2302,14 @@ export default function SimulationShellClient() {
   };
 
   const handleStudentRemovalContinue = () => {
-    if (!studentRemovalDecision || !studentRemovalResponse.trim() || studentRemovalWritingAssessment) return;
+    if (!studentRemovalDecision || !studentRemovalResponse.trim()) return;
+    if (studentRemovalWritingAssessment) {
+      handleStudentRemovalReturnToDeskStack();
+      return;
+    }
     const assessment = analyzeLeadershipWriting(studentRemovalResponse, 'studentRemovalVoicemail');
     setStudentRemovalWritingAssessment(assessment);
-    scrollToTop();
+    handleStudentRemovalReturnToDeskStack();
   };
 
   const handleStudentRemovalReturnToDeskStack = () => {
@@ -2529,7 +2549,11 @@ export default function SimulationShellClient() {
   };
 
   const handleParentEscalationContinue = () => {
-    if (!parentEscalationDecision || !parentEscalationResponse.trim() || parentEscalationWritingAssessment) return;
+    if (!parentEscalationDecision || !parentEscalationResponse.trim()) return;
+    if (parentEscalationWritingAssessment) {
+      handleParentEscalationContinueDay();
+      return;
+    }
     const nextAssessment = analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation');
     setParentEscalationWritingAssessment(nextAssessment);
     completeFolderItems([parentEscalationTaskItem]);
@@ -2540,6 +2564,21 @@ export default function SimulationShellClient() {
       response: parentEscalationResponse.trim(),
       writingAssessment: nextAssessment,
       coachingNote: parentEscalationDecisionCoaching[parentEscalationDecision]?.message || '',
+    });
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, parentEscalation: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'parentEscalation' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
     });
     scrollToTop();
   };
@@ -2569,7 +2608,11 @@ export default function SimulationShellClient() {
   };
 
   const handleCafeteriaBoundaryContinue = () => {
-    if (!cafeteriaBoundaryDecision || !cafeteriaBoundaryResponse.trim() || cafeteriaBoundaryWritingAssessment) return;
+    if (!cafeteriaBoundaryDecision || !cafeteriaBoundaryResponse.trim()) return;
+    if (cafeteriaBoundaryWritingAssessment) {
+      handleCafeteriaBoundaryContinueDay();
+      return;
+    }
     const nextAssessment = analyzeLeadershipWriting(cafeteriaBoundaryResponse, 'staffBoundary');
     setCafeteriaBoundaryWritingAssessment(nextAssessment);
     completeFolderItems([cafeteriaBoundaryTaskItem]);
@@ -2580,6 +2623,21 @@ export default function SimulationShellClient() {
       response: cafeteriaBoundaryResponse.trim(),
       writingAssessment: nextAssessment,
       coachingNote: cafeteriaBoundaryDecisionCoaching[cafeteriaBoundaryDecision]?.message || '',
+    });
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, cafeteriaBoundary: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'cafeteriaBoundary' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
     });
     scrollToTop();
   };
@@ -2605,7 +2663,11 @@ export default function SimulationShellClient() {
   };
 
   const handleTeacherConflictContinue = () => {
-    if (!teacherConflictDecision || !teacherConflictResponse.trim() || teacherConflictWritingAssessment) return;
+    if (!teacherConflictDecision || !teacherConflictResponse.trim()) return;
+    if (teacherConflictWritingAssessment) {
+      handleTeacherConflictContinueDay();
+      return;
+    }
     const nextAssessment = analyzeLeadershipWriting(teacherConflictResponse, 'teacherConflict');
     setTeacherConflictWritingAssessment(nextAssessment);
     completeFolderItems([teacherConflictTaskItem]);
@@ -2615,6 +2677,21 @@ export default function SimulationShellClient() {
       openingStatement: teacherConflictResponse.trim(),
       writingAssessment: nextAssessment,
       coachingNote: teacherConflictDecisionCoaching[teacherConflictDecision]?.message || '',
+    });
+    setTimelineStatuses((prev) => {
+      const next = { ...prev, teacherConflict: moduleStatuses.completed };
+      const nextEnabledModule = dayModules.find((module) => (
+        module.enabled && module.id !== 'teacherConflict' && next[module.id] !== moduleStatuses.completed
+      ));
+
+      if (nextEnabledModule) {
+        next[nextEnabledModule.id] = moduleStatuses.active;
+        setCurrentModule(nextEnabledModule.id);
+        setModuleTransitionNote('');
+      } else {
+        setModuleTransitionNote('Next module coming soon.');
+      }
+      return next;
     });
     scrollToTop();
   };
@@ -3749,7 +3826,7 @@ export default function SimulationShellClient() {
                   </>
                 ) : null}
 
-                {hasParentEscalationDecision && hasParentEscalationResponse ? (
+                {false && hasParentEscalationDecision && hasParentEscalationResponse ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">
@@ -3772,24 +3849,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!parentEscalationWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleParentEscalationContinue}
-                      disabled={!hasParentEscalationDecision || !hasParentEscalationResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleParentEscalationContinueDay}
-                    >
-                      Continue Day
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleParentEscalationContinue}
+                    disabled={!hasParentEscalationDecision || !hasParentEscalationResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
             ) : currentModule === 'cafeteriaBoundary' ? (
@@ -3916,7 +3983,7 @@ export default function SimulationShellClient() {
                   </>
                 ) : null}
 
-                {hasCafeteriaBoundaryDecision && hasCafeteriaBoundaryResponse ? (
+                {false && hasCafeteriaBoundaryDecision && hasCafeteriaBoundaryResponse ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">
@@ -3939,24 +4006,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!cafeteriaBoundaryWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleCafeteriaBoundaryContinue}
-                      disabled={!hasCafeteriaBoundaryDecision || !hasCafeteriaBoundaryResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleCafeteriaBoundaryContinueDay}
-                    >
-                      Continue Day
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleCafeteriaBoundaryContinue}
+                    disabled={!hasCafeteriaBoundaryDecision || !hasCafeteriaBoundaryResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
             ) : currentModule === 'teacherConflict' ? (
@@ -4036,7 +4093,7 @@ export default function SimulationShellClient() {
                   </>
                 ) : null}
 
-                {hasTeacherConflictDecision && hasTeacherConflictResponse ? (
+                {false && hasTeacherConflictDecision && hasTeacherConflictResponse ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">
@@ -4059,24 +4116,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!teacherConflictWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleTeacherConflictContinue}
-                      disabled={!hasTeacherConflictDecision || !hasTeacherConflictResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleTeacherConflictContinueDay}
-                    >
-                      Continue Day
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleTeacherConflictContinue}
+                    disabled={!hasTeacherConflictDecision || !hasTeacherConflictResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
             ) : currentModule === 'endOfDayEmail' ? (
@@ -4235,7 +4282,7 @@ export default function SimulationShellClient() {
                   onChange={(event) => setStudentThreatResponse(event.target.value)}
                 />
 
-                {studentThreatWritingAssessment ? (
+                {false && studentThreatWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">{studentThreatWritingAssessment.summary}</p>
@@ -4256,20 +4303,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!studentThreatWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleStudentThreatContinue}
-                      disabled={!hasStudentThreatDecision || !hasStudentThreatResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleStudentThreatReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleStudentThreatContinue}
+                    disabled={!hasStudentThreatDecision || !hasStudentThreatResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'academicDeclineEmail' ? (
@@ -4389,7 +4430,7 @@ export default function SimulationShellClient() {
                   onChange={(event) => setAcademicDeclineResponse(event.target.value)}
                 />
 
-                {academicDeclineWritingAssessment ? (
+                {false && academicDeclineWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">
@@ -4412,20 +4453,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!academicDeclineWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleAcademicDeclineContinue}
-                      disabled={!hasAcademicDeclineDecision || !hasAcademicDeclineResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleAcademicDeclineReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleAcademicDeclineContinue}
+                    disabled={!hasAcademicDeclineDecision || !hasAcademicDeclineResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'ptoTalentShowEmail' ? (
@@ -4498,7 +4533,7 @@ export default function SimulationShellClient() {
                   onChange={(event) => setPtoTalentShowResponse(event.target.value)}
                 />
 
-                {ptoTalentShowWritingAssessment ? (
+                {false && ptoTalentShowWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">{ptoTalentShowWritingAssessment.summary}</p>
@@ -4519,20 +4554,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!ptoTalentShowWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handlePtoTalentShowContinue}
-                      disabled={!hasPtoTalentShowDecision || !hasPtoTalentShowResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handlePtoTalentShowReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handlePtoTalentShowContinue}
+                    disabled={!hasPtoTalentShowDecision || !hasPtoTalentShowResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'recessInjuryEmail' ? (
@@ -4614,7 +4643,7 @@ export default function SimulationShellClient() {
                   onChange={(event) => setRecessInjuryResponse(event.target.value)}
                 />
 
-                {recessInjuryWritingAssessment ? (
+                {false && recessInjuryWritingAssessment ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">{(recessInjuryWritingAssessment || liveRecessInjuryWritingAssessment).summary}</p>
@@ -4635,20 +4664,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!recessInjuryWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleRecessInjuryContinue}
-                      disabled={!hasRecessInjuryDecision || !hasRecessInjuryResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleRecessInjuryReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleRecessInjuryContinue}
+                    disabled={!hasRecessInjuryDecision || !hasRecessInjuryResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : currentDeskStackItem === 'studentRemovalVoicemail' ? (
@@ -4712,7 +4735,7 @@ export default function SimulationShellClient() {
                   </>
                 ) : null}
 
-                {hasStudentRemovalDecision && hasStudentRemovalResponse ? (
+                {false && hasStudentRemovalDecision && hasStudentRemovalResponse ? (
                   <article className="report-card" aria-live="polite">
                     <h3>VIC Writing Assessment</h3>
                     <p className="analysis-note">
@@ -4735,20 +4758,14 @@ export default function SimulationShellClient() {
                 ) : null}
 
                 <div className="button-row">
-                  {!studentRemovalWritingAssessment ? (
-                    <button
-                      type="button"
-                      className="button primary"
-                      onClick={handleStudentRemovalContinue}
-                      disabled={!hasStudentRemovalDecision || !hasStudentRemovalResponse}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button type="button" className="button primary" onClick={handleStudentRemovalReturnToDeskStack}>
-                      Return to Desk Stack
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="button primary"
+                    onClick={handleStudentRemovalContinue}
+                    disabled={!hasStudentRemovalDecision || !hasStudentRemovalResponse}
+                  >
+                    Continue
+                  </button>
                 </div>
               </>
               ) : isReportScene ? (
@@ -5330,14 +5347,6 @@ export default function SimulationShellClient() {
                     <li><strong>Teacher Call first move:</strong> {voicemailLeadershipRecord.triageDecisions.teacherCall}</li>
                     <li><strong>Parent response draft:</strong> {voicemailLeadershipRecord.responses.parentHelp}</li>
                     <li><strong>Teacher response draft:</strong> {voicemailLeadershipRecord.responses.teacherCall}</li>
-                    <li>
-                      <strong>Voicemail 1 VIC summary:</strong>{' '}
-                      {voicemailLeadershipRecord.writingAssessments?.parentHelp?.summary || 'Not captured'}
-                    </li>
-                    <li>
-                      <strong>Voicemail 2 VIC summary:</strong>{' '}
-                      {voicemailLeadershipRecord.writingAssessments?.teacherCall?.summary || 'Not captured'}
-                    </li>
                     <li><strong>Guidance note:</strong> {voicemailLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
@@ -5380,10 +5389,6 @@ export default function SimulationShellClient() {
                     <li><strong>Voicemail played:</strong> {parentEscalationLeadershipRecord.voicemailPlayed ? 'Yes' : 'No'}</li>
                     <li><strong>Decision:</strong> {parentEscalationLeadershipRecord.decision}</li>
                     <li><strong>Response script:</strong> {parentEscalationLeadershipRecord.response}</li>
-                    <li>
-                      <strong>VIC summary:</strong>{' '}
-                      {parentEscalationLeadershipRecord.writingAssessment?.summary || 'Not captured'}
-                    </li>
                     <li><strong>Coaching note:</strong> {parentEscalationLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
@@ -5397,10 +5402,6 @@ export default function SimulationShellClient() {
                     <li><strong>Voicemail played:</strong> {cafeteriaBoundaryLeadershipRecord.voicemailPlayed ? 'Yes' : 'No'}</li>
                     <li><strong>Decision:</strong> {cafeteriaBoundaryLeadershipRecord.decision}</li>
                     <li><strong>Staff conversation opener:</strong> {cafeteriaBoundaryLeadershipRecord.response}</li>
-                    <li>
-                      <strong>VIC summary:</strong>{' '}
-                      {cafeteriaBoundaryLeadershipRecord.writingAssessment?.summary || 'Not captured'}
-                    </li>
                     <li><strong>Coaching note:</strong> {cafeteriaBoundaryLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
@@ -5413,10 +5414,6 @@ export default function SimulationShellClient() {
                   <ul>
                     <li><strong>Decision:</strong> {teacherConflictLeadershipRecord.decision}</li>
                     <li><strong>Opening statement:</strong> {teacherConflictLeadershipRecord.openingStatement}</li>
-                    <li>
-                      <strong>VIC summary:</strong>{' '}
-                      {teacherConflictLeadershipRecord.writingAssessment?.summary || 'Not captured'}
-                    </li>
                     <li><strong>Coaching note:</strong> {teacherConflictLeadershipRecord.coachingNote}</li>
                   </ul>
                 </article>
