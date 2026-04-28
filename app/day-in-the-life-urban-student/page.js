@@ -5,21 +5,20 @@ import { useMemo, useState } from 'react';
 const scenes = {
   introLobby: {
     id: 'introLobby',
-    title: 'Lobby',
-    timeLocation: 'Intro · Lobby',
+    title: 'Intro',
+    timeLocation: 'Intro',
     narrative: [
-      'You are Adam. This simulation follows the same sequence of events from the Urban Student manuscript, beginning before sunrise and continuing through first period at school.',
-      'As you move scene by scene, you will experience the choices and pressures exactly as they build across the morning: exhaustion, fear for family, missed time, and school responses that do not match what Adam is carrying internally.',
+      'This simulation will take you step by step in the day in the life of an urban student.',
+      'All events in this "day" are real and have happened in the day of an Urban Child. Teachers and administrators have come together to discuss their Urban experiences. This simulation was created based on stories and discussions shared with the staff from by various urban students in and around the Pittsburgh PA region. Some concepts in this simulation may be disturbing... but real.',
     ],
-    choices: [{ label: 'Enter the bedroom scene at 2:00 AM.', next: 'bedroomNightToMorning' }],
+    choices: [{ label: 'Continue to Bedroom / 2:00 AM.', next: 'bedroomNightToMorning' }],
   },
   bedroomNightToMorning: {
     id: 'bedroomNightToMorning',
     title: 'Bedroom at 2:00 AM',
     timeLocation: '2:00 AM · Adam\'s Bedroom',
     narrative: [
-      'It is 2:00 AM and Adam is still awake. The apartment is not calm. Noise from home keeps cutting through the night, and he cannot get real sleep before school.',
-      'He listens for what is happening with his mother and baby sister in the other room. Instead of resting, he stays alert, worried, and tense while the clock keeps moving toward morning.',
+      'You’re in your bed and you hear your mom with her boyfriend downstairs giggling. It is quite hard to fall asleep since they have been making noise since he came over at 10:00. Your baby sister is in the bed beside you. How does she stay asleep through all this noise? You have to get up at 6am to get ready for school. Looks like another long night and tired morning.',
     ],
     choices: [{ label: 'Continue to 6:25 AM.', next: 'morningChoice' }],
   },
@@ -28,8 +27,7 @@ const scenes = {
     title: 'Morning Decision',
     timeLocation: '6:25 AM · Home',
     narrative: [
-      'At 6:25 AM, Adam has barely slept. The night noise and stress are still in his body, and he knows he has to decide immediately what to do next.',
-      'He can try to grab a few more minutes of sleep and risk missing time, or get up right now and push through the morning while exhausted.',
+      'You heard your alarm go off twice so far. The snooze alarm is a great thing… 10 extra minutes. You start to weigh your options in your half dream state. You can get up, get dressed and get to the Port Authority Bus stop so you will not be late to school or you can hit that snooze just one more time. You try to remember the bus schedule wondering if you can hit it for ten more minutes and still make the last run. As you go in and out of sleep you try to remember where you put your school issued bus pass.',
     ],
     choices: [
       {
@@ -47,10 +45,12 @@ const scenes = {
     title: 'Snooze Path / Boyfriend Incident',
     timeLocation: 'Morning · Home',
     narrative: [
-      'Adam chooses ten more minutes because he is exhausted. When he wakes again, the situation at home is louder and more chaotic, including conflict involving his mother\'s boyfriend.',
-      'His fear for his mother and baby sister spikes, and now he is behind schedule. He does not feel safe going deeper into what is happening in the apartment, but he also cannot afford to miss school.',
+      'As you silence your alarm using the beautiful snooze button, you start to hear movement downstairs and assume it is your mom getting up for work. She works a 12 hour shift today and may even need to double out. In your half asleep state of mind you think it will be a long night at home without her. The noise starts to get a bit louder downstairs and it sounds like arguing. You assume that the boyfriend from last night must have stayed over. Your first thought is that you made a bad decision hitting that snooze so many times because now you are stuck up stairs until this argument is over. if you go down stairs it may only get worse for your mom or even you. As you slowly start to get out of the bed you hear the arguing getting louder and closer and you hear your name mentioned a few times. This is not good. Suddenly your bedroom door bursts open and the boyfriend comes flying into the room and yanks you off the bed. Your head hits the bed post on your way down to hit the floor. You hear screaming from both the boyfriend and your mom. Typical, your mom is screaming but not actually stopping him. The boyfriend is screaming about having only one day to sleep in and my alarm. Your head hurts where it hit the bed post and you don\'t really care what the boyfriend is saying. What was his name anyhow? You sit on the floor until the shouting is over and they leave your room.',
     ],
-    choices: [{ label: 'Get ready and get to the bus stop.', next: 'busStop' }],
+    choices: [
+      { label: 'Get ready and get to the bus stop', next: 'busStop' },
+      { label: 'I have had enough. This is too much.', next: 'teacherRefusal' },
+    ],
   },
   getUpPath: {
     id: 'getUpPath',
