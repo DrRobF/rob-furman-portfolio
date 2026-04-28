@@ -4781,10 +4781,21 @@ export default function SimulationShellClient() {
                     </div>
 
                     <article className="report-card">
-                      <p className="response-label">Draft your response or action plan after hearing this voicemail.</p>
+                      <p className="response-label">
+                        Before responding to the teacher, outline the information you need and how you will gather it.
+                      </p>
                       <label htmlFor="student-removal-response" className="response-label">
-                        Write your response or action plan…
+                        What questions do you need answered by the teacher, and what steps will you take to understand the
+                        situation before making a decision?
                       </label>
+                      <p className="response-label">Focus on:</p>
+                      <ul className="response-label">
+                        <li>Questions about the student’s behavior pattern</li>
+                        <li>What strategies have already been attempted</li>
+                        <li>When and where the behavior occurs most often</li>
+                        <li>What support the teacher may need</li>
+                        <li>How you will observe, review, or follow up before deciding on removal</li>
+                      </ul>
                       <textarea
                         id="student-removal-response"
                         rows={6}
