@@ -1777,6 +1777,7 @@ export default function SimulationShellClient() {
   const [parentEscalationVoicemailPlayed, setParentEscalationVoicemailPlayed] = useState(false);
   const [parentEscalationDecision, setParentEscalationDecision] = useState('');
   const [parentEscalationResponse, setParentEscalationResponse] = useState('');
+  const [showParentEscalationSupportingInfo, setShowParentEscalationSupportingInfo] = useState(false);
   const [parentEscalationWritingAssessment, setParentEscalationWritingAssessment] = useState(null);
   const [parentEscalationLeadershipRecord, setParentEscalationLeadershipRecord] = useState(null);
   const [cafeteriaBoundaryVoicemailPlayed, setCafeteriaBoundaryVoicemailPlayed] = useState(false);
@@ -3676,6 +3677,52 @@ export default function SimulationShellClient() {
                         </article>
                       ))}
                     </div>
+                    <article className="report-card">
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => setShowParentEscalationSupportingInfo((prev) => !prev)}
+                      >
+                        {showParentEscalationSupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                      </button>
+                      {showParentEscalationSupportingInfo ? (
+                        <div className="analysis-row">
+                          <p className="analysis-lens">Parent Escalation — Supporting Information</p>
+                          <p><strong>Incident Snapshot:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Two students were involved in a verbal conflict that escalated to minor physical contact during lunch.</li>
+                            <li>Staff intervened and brought both students to the office.</li>
+                            <li>No serious injuries were reported.</li>
+                            <li>The situation was contained quickly.</li>
+                          </ul>
+                          <p><strong>Student Statements (Preliminary):</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Students provided conflicting accounts of how the situation started.</li>
+                            <li>One student reports being provoked.</li>
+                            <li>The other reports responding to repeated comments.</li>
+                            <li>Full investigation is still in progress.</li>
+                          </ul>
+                          <p><strong>Parent Awareness:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>One student used a cell phone immediately after leaving the office.</li>
+                            <li>Parent likely received a partial and emotional version of events.</li>
+                            <li>School has not yet made direct contact with the parent.</li>
+                          </ul>
+                          <p><strong>Staff Input:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Lunch monitors report increased noise and crowding during that time.</li>
+                            <li>Visibility across groups was limited.</li>
+                            <li>Staff responded quickly but did not witness the full lead-up to the conflict.</li>
+                          </ul>
+                          <p><strong>Process Status:</strong></p>
+                          <ul className="strong-response-list">
+                            <li>Documentation is not yet complete.</li>
+                            <li>Administration is still gathering information.</li>
+                            <li>No final decisions or consequences have been communicated.</li>
+                          </ul>
+                        </div>
+                      ) : null}
+                    </article>
 
                     <article className="report-card">
                       <p className="response-label">Draft your response or call-back script to the parent.</p>
