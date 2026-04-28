@@ -2667,13 +2667,6 @@ export default function SimulationShellClient() {
     () => analyzeLeadershipWriting(finalParentResponse, 'parentFinalResponse'),
     [finalParentResponse],
   );
-  const liveVoicemailWritingAssessments = useMemo(
-    () => ({
-      parentHelp: analyzeLeadershipWriting(voicemailResponses.parentHelp, 'voicemailParent'),
-      teacherCall: analyzeLeadershipWriting(voicemailResponses.teacherCall, 'voicemailTeacher'),
-    }),
-    [voicemailResponses.parentHelp, voicemailResponses.teacherCall],
-  );
   const liveParentEscalationWritingAssessment = useMemo(
     () => analyzeLeadershipWriting(parentEscalationResponse, 'parentEscalation'),
     [parentEscalationResponse],
@@ -3426,47 +3419,6 @@ export default function SimulationShellClient() {
                         </div>
                       </div>
                     </article>
-                    {hasCompletedBothVoicemailResponses ? (
-                      <article className="report-card" aria-live="polite">
-                        <h3>VIC Writing Assessment</h3>
-                        <p className="analysis-note">
-                          VIC reviewed each voicemail draft for tone, clarity, empathy, risk, and next steps.
-                          This is a first-pass local assessment and will expand with deeper AI coaching.
-                        </p>
-                        <div className="analysis-grid report-analysis-grid">
-                          <article className="analysis-row report-analysis-row">
-                            <p className="analysis-lens">Voicemail 1 Response</p>
-                            <p className="analysis-note">{liveVoicemailWritingAssessments.parentHelp.summary}</p>
-                            <div className="analysis-grid">
-                              {liveVoicemailWritingAssessments.parentHelp.categories.map((category) => (
-                                <div key={`vm1-${category.name}`} className="report-analysis-category-row">
-                                  <p className="analysis-lens">{category.name}</p>
-                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                                    {category.status}
-                                  </p>
-                                  <p>{category.note}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </article>
-                          <article className="analysis-row report-analysis-row">
-                            <p className="analysis-lens">Voicemail 2 Response</p>
-                            <p className="analysis-note">{liveVoicemailWritingAssessments.teacherCall.summary}</p>
-                            <div className="analysis-grid">
-                              {liveVoicemailWritingAssessments.teacherCall.categories.map((category) => (
-                                <div key={`vm2-${category.name}`} className="report-analysis-category-row">
-                                  <p className="analysis-lens">{category.name}</p>
-                                  <p className={`analysis-status ${category.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                                    {category.status}
-                                  </p>
-                                  <p>{category.note}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </article>
-                        </div>
-                      </article>
-                    ) : null}
                     <div className="button-row">
                       <button
                         type="button"
