@@ -18,7 +18,7 @@ const simCards = [
     title: 'Day in the Life of an Urban Student',
     description:
       'A narrative simulation designed to strengthen empathy, perspective-taking, and responsive instructional planning.',
-    href: '/simulations/urban-student',
+    href: '/day-in-the-life-urban-student',
   },
 ];
 
