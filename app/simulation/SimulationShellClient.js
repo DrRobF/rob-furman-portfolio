@@ -98,6 +98,21 @@ const dayModules = [
   { id: 'teacherConflict', label: '3:15 PM — Teacher Conflict', enabled: true },
   { id: 'endOfDayEmail', label: '4:00 PM — End-of-Day Desk Stack', enabled: true },
 ];
+
+const requiredDayModuleDefinitions = [
+  { id: 'arrival', label: 'Arrival Priorities' },
+  { id: 'endOfDayRewardConcern', label: 'Parent Concern' },
+  { id: 'iepMeeting', label: 'IEP Meeting' },
+  { id: 'announcements', label: 'Announcements' },
+  { id: 'voicemailParentHelp', label: 'Voicemail (Parent Help)' },
+  { id: 'voicemailTeacherCall', label: 'Voicemail (Teacher Call)' },
+  { id: 'lunchClimate', label: 'Lunch & Cafeteria Climate' },
+  { id: 'parentEscalation', label: 'Parent Escalation' },
+  { id: 'cafeteriaBoundary', label: 'Cafeteria Boundary Incident' },
+  { id: 'teacherConflict', label: 'Teacher Conflict' },
+  { id: 'studentThreatEmail', label: 'Student Threat' },
+  { id: 'academicDeclineEmail', label: 'Academic Concern' },
+];
 const builderModeModuleIds = new Set([
   'arrival',
   'iepMeeting',
@@ -1884,9 +1899,41 @@ export default function SimulationShellClient() {
   const isReportScene = scene === 'report';
   const isDeskStackLanding = currentModule === 'endOfDayEmail' && currentDeskStackItem === null;
   const availableDeskStackItems = deskStackItems.filter((item) => item.isAvailable);
+  const moduleCompletionState = useMemo(() => ({
+    arrival: timelineStatuses.arrival === moduleStatuses.completed,
+    endOfDayRewardConcern: deskStackStatuses.rewardConcern === deskStackItemStatuses.complete,
+    iepMeeting: timelineStatuses.iepMeeting === moduleStatuses.completed,
+    announcements: timelineStatuses.announcements === moduleStatuses.completed,
+    voicemailParentHelp: Boolean(voicemailDecisions.parentHelp) && Boolean(voicemailResponses.parentHelp.trim()),
+    voicemailTeacherCall: Boolean(voicemailDecisions.teacherCall) && Boolean(voicemailResponses.teacherCall.trim()),
+    lunchClimate: timelineStatuses.lunchClimate === moduleStatuses.completed,
+    parentEscalation: timelineStatuses.parentEscalation === moduleStatuses.completed,
+    cafeteriaBoundary: timelineStatuses.cafeteriaBoundary === moduleStatuses.completed,
+    teacherConflict: timelineStatuses.teacherConflict === moduleStatuses.completed,
+    studentThreatEmail: !deskStackItems.find((item) => item.id === 'studentThreatEmail')?.isAvailable
+      || deskStackStatuses.studentThreatEmail === deskStackItemStatuses.complete,
+    academicDeclineEmail: !deskStackItems.find((item) => item.id === 'academicDeclineEmail')?.isAvailable
+      || deskStackStatuses.academicDeclineEmail === deskStackItemStatuses.complete,
+  }), [
+    timelineStatuses,
+    deskStackStatuses,
+    voicemailDecisions,
+    voicemailResponses,
+  ]);
+  const requiredDayModules = useMemo(
+    () => requiredDayModuleDefinitions.filter((module) => (
+      module.id !== 'studentThreatEmail'
+      && module.id !== 'academicDeclineEmail'
+    ) || deskStackItems.find((item) => item.id === module.id)?.isAvailable),
+    [],
+  );
+  const unresolvedRequiredDayModules = requiredDayModules.filter((module) => !moduleCompletionState[module.id]);
+  const completedRequiredModuleCount = requiredDayModules.length - unresolvedRequiredDayModules.length;
+  const allRequiredModulesComplete = unresolvedRequiredDayModules.length === 0;
+  const unresolvedRequiredItemCount = unresolvedRequiredDayModules.length;
   const canCloseDeskStackDay = availableDeskStackItems.every(
     (item) => deskStackStatuses[item.id] === deskStackItemStatuses.complete,
-  );
+  ) && allRequiredModulesComplete;
   const selectedConsequence = hasSelectedDecision ? decisionConsequences[firstDecision] : null;
   const activeGuidance = useMemo(() => {
     if (currentModule === 'endOfDayEmail' && currentDeskStackItem) {
@@ -2281,8 +2328,48 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleReturnToNextUnfinishedItem = () => {
+    const nextUnfinishedModule = unresolvedRequiredDayModules[0];
+    if (!nextUnfinishedModule) return;
+
+    if (
+      nextUnfinishedModule.id === 'endOfDayRewardConcern'
+      || nextUnfinishedModule.id === 'studentThreatEmail'
+      || nextUnfinishedModule.id === 'academicDeclineEmail'
+    ) {
+      setCurrentModule('endOfDayEmail');
+      setCurrentDeskStackItem(
+        nextUnfinishedModule.id === 'endOfDayRewardConcern' ? 'rewardConcern' : nextUnfinishedModule.id,
+      );
+      setScene('initial');
+      scrollToTop();
+      return;
+    }
+
+    setCurrentModule(nextUnfinishedModule.id);
+    setScene('initial');
+    setModuleTransitionNote('');
+    setTimelineStatuses((prev) => {
+      const next = { ...prev };
+      dayModules.forEach((module) => {
+        if (next[module.id] !== moduleStatuses.completed) {
+          next[module.id] = module.id === nextUnfinishedModule.id
+            ? moduleStatuses.active
+            : moduleStatuses.upcoming;
+        }
+      });
+      return next;
+    });
+    scrollToTop();
+  };
+
   const handleCloseDeskStackDay = () => {
-    if (!canCloseDeskStackDay) return;
+    if (!canCloseDeskStackDay) {
+      setModuleTransitionNote(
+        `You still have ${unresolvedRequiredItemCount} unresolved items before the end-of-day review.`,
+      );
+      return;
+    }
     setTimelineStatuses((prev) => ({
       ...prev,
       endOfDayEmail: moduleStatuses.completed,
@@ -2431,7 +2518,11 @@ export default function SimulationShellClient() {
     ]);
     setHasCompletedFinalStep(true);
     setDeskStackStatuses((prev) => ({ ...prev, rewardConcern: deskStackItemStatuses.complete }));
-    setScene('report');
+    setScene('initial');
+    setCurrentDeskStackItem(null);
+    setModuleTransitionNote(
+      `Parent Concern complete. You still have ${Math.max(unresolvedRequiredItemCount - 1, 0)} unresolved items before the end-of-day review.`,
+    );
     scrollToTop();
   };
 
@@ -3235,6 +3326,11 @@ export default function SimulationShellClient() {
         <h2>A Day in the Life of a School Leader</h2>
         <p className="timeline-note">
           Time moves forward. Once a leadership moment passes, it becomes part of your record.
+        </p>
+        <p className="timeline-note">
+          <strong>
+            Day Progress: {completedRequiredModuleCount} / {requiredDayModules.length} scenarios completed
+          </strong>
         </p>
         <div className="day-timeline-grid">
           {dayModules.map((module) => {
@@ -4470,7 +4566,23 @@ export default function SimulationShellClient() {
                         Close the Day
                       </button>
                     ) : (
-                      <p>Complete available desk-stack items before closing the day.</p>
+                      <>
+                        <p>
+                          You still have {unresolvedRequiredItemCount} unresolved items before the end-of-day review.
+                        </p>
+                        {unresolvedRequiredDayModules.length ? (
+                          <ul className="strong-response-list">
+                            {unresolvedRequiredDayModules.map((module) => (
+                              <li key={module.id}>{module.label}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+                        <div className="button-row">
+                          <button type="button" className="button secondary" onClick={handleReturnToNextUnfinishedItem}>
+                            Return to Unfinished Items
+                          </button>
+                        </div>
+                      </>
                     )}
                   </article>
                 </>
@@ -5134,7 +5246,7 @@ export default function SimulationShellClient() {
                   </button>
                 </div>
               </>
-              ) : isReportScene ? (
+              ) : isReportScene && allRequiredModulesComplete ? (
               <>
                 <p className="eyebrow">End-of-Day Leadership Review</p>
                 <h2>Final Leadership Simulation Report</h2>
@@ -5279,6 +5391,24 @@ export default function SimulationShellClient() {
                       </li>
                     ))}
                   </ul>
+                </article>
+              </>
+              ) : isReportScene ? (
+              <>
+                <p className="eyebrow">End-of-Day Review Locked</p>
+                <h2>Complete Remaining Scenarios</h2>
+                <article className="report-card">
+                  <p>
+                    You still have {unresolvedRequiredItemCount} unresolved items before the end-of-day review.
+                  </p>
+                  <ul className="strong-response-list">
+                    {unresolvedRequiredDayModules.map((module) => (
+                      <li key={module.id}>{module.label}</li>
+                    ))}
+                  </ul>
+                  <button type="button" className="button primary" onClick={handleReturnToNextUnfinishedItem}>
+                    Return to Unfinished Items
+                  </button>
                 </article>
               </>
               ) : !isInvestigationScene ? (
