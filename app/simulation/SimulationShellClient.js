@@ -1892,6 +1892,7 @@ export default function SimulationShellClient() {
   const [saveProgressMessage, setSaveProgressMessage] = useState('');
   const [lastSavedLabel, setLastSavedLabel] = useState('');
   const [savedSnapshot, setSavedSnapshot] = useState(null);
+  const [hasReachedEndOfDay, setHasReachedEndOfDay] = useState(false);
 
   const hasSelectedDecision = Boolean(firstDecision);
   const [scene, setScene] = useState('initial');
@@ -1970,6 +1971,12 @@ export default function SimulationShellClient() {
     if (currentModule !== 'teacherConflict') return;
     addFolderItems({ red: [teacherConflictTaskItem] });
   }, [currentModule]);
+
+  useEffect(() => {
+    if (currentModule === 'endOfDayEmail' || scene === 'report') {
+      setHasReachedEndOfDay(true);
+    }
+  }, [currentModule, scene]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -2071,6 +2078,7 @@ export default function SimulationShellClient() {
     setSnapshotPreviewMessage('');
     setSnapshotValidationMessage('');
     setSaveProgressMessage(confirmationMessage);
+    setHasReachedEndOfDay(false);
 
     if (clearSavedProgress) {
       setSavedSnapshot(null);
@@ -2191,6 +2199,11 @@ export default function SimulationShellClient() {
     setParentEscalationVoicemailPlayed(Boolean(safeUiProgress.parentEscalationVoicemailPlayed));
     setCafeteriaBoundaryVoicemailPlayed(Boolean(safeUiProgress.cafeteriaBoundaryVoicemailPlayed));
     setCurrentDeskStackItem(safeUiProgress.currentDeskStackItem || null);
+    setHasReachedEndOfDay(Boolean(
+      safeUiProgress.hasReachedEndOfDay
+      || snapshot.currentModule === 'endOfDayEmail'
+      || snapshot.scene === 'report',
+    ));
   };
 
   const scrollToTop = () => {
@@ -2325,41 +2338,6 @@ export default function SimulationShellClient() {
     setScene('initial');
     setIsEmailVisible(false);
     setShowRewardConcernSupportingInfo(false);
-    scrollToTop();
-  };
-
-  const handleReturnToNextUnfinishedItem = () => {
-    const nextUnfinishedModule = unresolvedRequiredDayModules[0];
-    if (!nextUnfinishedModule) return;
-
-    if (
-      nextUnfinishedModule.id === 'endOfDayRewardConcern'
-      || nextUnfinishedModule.id === 'studentThreatEmail'
-      || nextUnfinishedModule.id === 'academicDeclineEmail'
-    ) {
-      setCurrentModule('endOfDayEmail');
-      setCurrentDeskStackItem(
-        nextUnfinishedModule.id === 'endOfDayRewardConcern' ? 'rewardConcern' : nextUnfinishedModule.id,
-      );
-      setScene('initial');
-      scrollToTop();
-      return;
-    }
-
-    setCurrentModule(nextUnfinishedModule.id);
-    setScene('initial');
-    setModuleTransitionNote('');
-    setTimelineStatuses((prev) => {
-      const next = { ...prev };
-      dayModules.forEach((module) => {
-        if (next[module.id] !== moduleStatuses.completed) {
-          next[module.id] = module.id === nextUnfinishedModule.id
-            ? moduleStatuses.active
-            : moduleStatuses.upcoming;
-        }
-      });
-      return next;
-    });
     scrollToTop();
   };
 
@@ -3254,6 +3232,7 @@ export default function SimulationShellClient() {
       isInvestigationScene,
       isReportScene,
       currentDeskStackItem,
+      hasReachedEndOfDay,
     },
   });
 
@@ -3342,7 +3321,7 @@ export default function SimulationShellClient() {
             const isBuilderModeModule = builderModeModuleIds.has(module.id);
             const isDisabled = builderMode
               ? !module.enabled || !isBuilderModeModule
-              : !module.enabled || isCompleted;
+              : !module.enabled || (!hasReachedEndOfDay && isCompleted);
 
             return (
               <button
@@ -3359,6 +3338,14 @@ export default function SimulationShellClient() {
                 disabled={isDisabled}
                 onClick={() => {
                   if (isDisabled) return;
+                  if (hasReachedEndOfDay) {
+                    setCurrentModule(module.id);
+                    setCurrentDeskStackItem(null);
+                    setScene('initial');
+                    setModuleTransitionNote('');
+                    scrollToTop();
+                    return;
+                  }
                   setTimelineStatuses((prev) => {
                     const next = { ...prev };
                     dayModules.forEach((dayModule) => {
@@ -4577,11 +4564,9 @@ export default function SimulationShellClient() {
                             ))}
                           </ul>
                         ) : null}
-                        <div className="button-row">
-                          <button type="button" className="button secondary" onClick={handleReturnToNextUnfinishedItem}>
-                            Return to Unfinished Items
-                          </button>
-                        </div>
+                        <p className="analysis-note">
+                          Use the timeline above to return to unresolved required scenarios.
+                        </p>
                       </>
                     )}
                   </article>
@@ -5406,9 +5391,9 @@ export default function SimulationShellClient() {
                       <li key={module.id}>{module.label}</li>
                     ))}
                   </ul>
-                  <button type="button" className="button primary" onClick={handleReturnToNextUnfinishedItem}>
-                    Return to Unfinished Items
-                  </button>
+                  <p className="analysis-note">
+                    Use the timeline above to return to unresolved required scenarios.
+                  </p>
                 </article>
               </>
               ) : !isInvestigationScene ? (
