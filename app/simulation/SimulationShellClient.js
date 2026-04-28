@@ -1799,6 +1799,7 @@ export default function SimulationShellClient() {
   const [studentThreatWritingAssessment, setStudentThreatWritingAssessment] = useState(null);
   const [academicDeclineDecision, setAcademicDeclineDecision] = useState('');
   const [academicDeclineResponse, setAcademicDeclineResponse] = useState('');
+  const [showAcademicDeclineSupportingInfo, setShowAcademicDeclineSupportingInfo] = useState(false);
   const [academicDeclineWritingAssessment, setAcademicDeclineWritingAssessment] = useState(null);
   const [ptoTalentShowDecision, setPtoTalentShowDecision] = useState('');
   const [ptoTalentShowResponse, setPtoTalentShowResponse] = useState('');
@@ -1947,6 +1948,7 @@ export default function SimulationShellClient() {
     setStudentThreatWritingAssessment(null);
     setAcademicDeclineDecision('');
     setAcademicDeclineResponse('');
+    setShowAcademicDeclineSupportingInfo(false);
     setAcademicDeclineWritingAssessment(null);
     setPtoTalentShowDecision('');
     setPtoTalentShowResponse('');
@@ -2252,6 +2254,7 @@ export default function SimulationShellClient() {
 
   const handleAcademicDeclineReturnToDeskStack = () => {
     setDeskStackStatuses((prev) => ({ ...prev, academicDeclineEmail: deskStackItemStatuses.complete }));
+    setShowAcademicDeclineSupportingInfo(false);
     setCurrentDeskStackItem(null);
     scrollToTop();
   };
@@ -4325,6 +4328,54 @@ export default function SimulationShellClient() {
                     </article>
                   ))}
                 </div>
+
+                <article className="report-card">
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() => setShowAcademicDeclineSupportingInfo((prev) => !prev)}
+                  >
+                    {showAcademicDeclineSupportingInfo ? '🔎 Hide Supporting Information' : '🔎 View Supporting Information'}
+                  </button>
+                  {showAcademicDeclineSupportingInfo ? (
+                    <div className="analysis-row">
+                      <p className="analysis-lens">Academic Decline — Supporting Information</p>
+                      <p><strong>Academic Data Snapshot:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>Over the past 3–4 weeks, the student&apos;s grades have declined across multiple subject areas.</li>
+                        <li>Missing assignments have increased, particularly in independent work and homework.</li>
+                        <li>Assessment scores show a drop from earlier performance levels.</li>
+                        <li>Participation during class activities has become less consistent.</li>
+                      </ul>
+                      <p><strong>Teacher Observations:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The student has been less engaged during lessons and group work.</li>
+                        <li>Work completion during class time has slowed.</li>
+                        <li>The student occasionally appears distracted or off-task.</li>
+                        <li>No major behavior concerns have been reported.</li>
+                      </ul>
+                      <p><strong>Instructional Changes:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The class recently transitioned into a more independent and application-based unit.</li>
+                        <li>Assignments now require sustained focus and multi-step thinking.</li>
+                        <li>Expectations have increased slightly in workload and pacing.</li>
+                      </ul>
+                      <p><strong>Support Strategies in Place:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>Teacher has provided reminders and check-ins during class.</li>
+                        <li>Opportunities for extra help have been offered.</li>
+                        <li>Some assignments have been re-explained or broken into smaller steps.</li>
+                        <li>The teacher has spoken with the student about missing work.</li>
+                      </ul>
+                      <p><strong>Pattern Considerations:</strong></p>
+                      <ul className="strong-response-list">
+                        <li>The change has occurred gradually over several weeks.</li>
+                        <li>The decline is consistent across more than one subject.</li>
+                        <li>No single cause has been identified at this time.</li>
+                      </ul>
+                    </div>
+                  ) : null}
+                </article>
 
                 <label htmlFor="academic-decline-response" className="response-label">
                   Draft your response to the parent.
