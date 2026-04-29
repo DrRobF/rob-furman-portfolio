@@ -323,25 +323,103 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'No explanation.\n\nNo details.\n\nNo way.' },
         { type: 'thought', text: 'That’s enough.' },
         { type: 'paragraph', text: 'You move on toward first period.' },
-      ] },
+      ], nextSceneId: 'scene_technology_class' },
       { id: 'make_excuse', label: 'Think of a quick excuse', resultTitle: 'You search for a reason.', metrics: { sleep: 0, stress: -1, time: 0, care: 0 }, result: [
         { type: 'paragraph', text: 'You try to come up with something fast.\n\nSomething normal.\n\nSomething that does not involve your house.' },
         { type: 'paragraph', text: 'Nothing sounds right.' },
         { type: 'thought', text: 'Just say anything.' },
         { type: 'paragraph', text: 'You mumble that you left it at home and keep moving before anyone asks more.' },
-      ] },
+      ], nextSceneId: 'scene_technology_class' },
       { id: 'get_guarded', label: 'Shut the conversation down', resultTitle: 'You put the wall up.', metrics: { sleep: 0, stress: -1, time: 0, care: -1 }, result: [
         { type: 'paragraph', text: 'You feel the question coming before it lands.\n\nYou already hate it.' },
         { type: 'paragraph', text: 'Your face changes.\n\nYour voice gets flat.' },
         { type: 'thought', text: 'Don’t ask me.' },
         { type: 'paragraph', text: 'You make it clear there is nothing else to say.\n\nThen you head toward first period.' },
-      ] },
+      ], nextSceneId: 'scene_technology_class' },
       { id: 'none_business', label: 'Decide it is none of their business', resultTitle: 'You decide it is not their business.', metrics: { sleep: 0, stress: 1, time: 1, care: -1 }, result: [
         { type: 'paragraph', text: 'You make the decision before anyone can press you.\n\nYou forgot it.\n\nThat is the story.' },
         { type: 'paragraph', text: 'Not the boyfriend.\n\nNot the yelling.\n\nNot your mom.\n\nNot your sister.' },
         { type: 'thought', text: 'It’s none of their business.' },
         { type: 'paragraph', text: 'You head off to first period.' },
-      ] },
+      ], nextSceneId: 'scene_technology_class' },
+    ],
+  },
+  {
+    id: 'scene_technology_class',
+    sceneNumber: 5,
+    totalScenes: 10,
+    time: 'First Period',
+    heading: 'Technology Class',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: 'My first period is technology. I always found this subject so damn dumb.' },
+        { type: 'thought', text: 'Seriously, do these teachers actually think that my mom will buy me a computer that actually can run the internet?' },
+        { type: 'paragraph', text: 'This subject is such a waste of my time!' },
+      ],
+      [
+        { type: 'paragraph', text: 'When I roll into class I see a few kids talking.' },
+        { type: 'paragraph', text: 'When I go to sit down one of them says to me, “Are you OK bro?”' },
+        { type: 'paragraph', text: 'I look at him like he was a freak.' },
+        { type: 'thought', text: "What the hell are you talkin' 'bout?" },
+      ],
+      [
+        { type: 'paragraph', text: 'He begins to explain to me that he heard that there was police called to my street for a fight in one of the homes.' },
+        { type: 'paragraph', text: 'He heard that a female got beat up by some dude.' },
+        { type: 'paragraph', text: 'My heart stopped.' },
+        { type: 'paragraph', text: 'He continued, “Bro, I was worried that maybe it was you and your mom. I am glad you’re here. Must not have been you then.”' },
+        { type: 'paragraph', text: "I didn't say anything to him." },
+        { type: 'paragraph', text: 'I was starting to hit panic mode.' },
+      ],
+      [
+        { type: 'paragraph', text: 'The teacher walks in and tells us to get to our computer terminals and start on yesterday’s project.' },
+        { type: 'paragraph', text: 'The teacher then proceeds to do what he always does, he goes to his desk and fires up Facebook.' },
+      ],
+    ],
+    question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What is Adam carrying into first period before instruction even begins?',
+        'What does the teacher see, and what does the teacher not see?',
+        'How does the news about police on Adam’s street change the meaning of his behavior?',
+      ],
+      writingPrompt:
+        'Write how a teacher could respond if a student appears distracted, panicked, or unwilling to begin classwork.',
+      insight: 'A student who seems disengaged may actually be in crisis.',
+      expandedInsight:
+        'Adam enters first period already carrying fear from home, guilt from the bus stop, missing materials, and now panic about police on his street. The adult sees a student not starting work. Adam is experiencing a possible family emergency.',
+      facilitatorLens:
+        'Ask participants what they would notice first: the missing work, the attitude, the distraction, or the fear.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    choices: [
+      {
+        id: 'tell_teacher_home',
+        label: 'Tell the teacher about your experience at home',
+        resultTitle: 'You decide to try the teacher.',
+        result: [
+          { type: 'paragraph', text: 'You look at the teacher sitting at his desk.' },
+          { type: 'paragraph', text: 'Facebook is already open.' },
+          { type: 'paragraph', text: 'You still need to know what happened on your street.' },
+          { type: 'thought', text: 'Maybe, just maybe, he will actually care.' },
+          { type: 'paragraph', text: 'You walk toward his desk.' },
+        ],
+        metrics: { sleep: 0, stress: -1, time: 0, care: 1 },
+        nextSceneId: 'scene_technology_teacher_help',
+      },
+      {
+        id: 'go_to_computer',
+        label: 'Go get on the computer',
+        resultTitle: 'You decide to handle it yourself.',
+        result: [
+          { type: 'paragraph', text: 'You go to your computer.' },
+          { type: 'paragraph', text: 'You need to know what is going on with your mom and baby sister.' },
+          { type: 'paragraph', text: 'You try to find a computer far away from the teacher.' },
+          { type: 'thought', text: 'No one in this school is going to help me.' },
+          { type: 'paragraph', text: 'You sit down and get ready to search for the news yourself.' },
+        ],
+        metrics: { sleep: 0, stress: -1, time: 0, care: -1 },
+        nextSceneId: 'scene_technology_computer_search',
+      },
     ],
   },
 ];
@@ -373,7 +451,7 @@ const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
-  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1 });
+  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
   const [showInsights, setShowInsights] = useState({});
 
@@ -417,7 +495,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     setSceneId('scene_2am_bedroom');
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
-    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1 });
+    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
     setShowInsights({});
   };
 
@@ -431,7 +509,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   };
 
   if (sceneId === 'scene_placeholder_end') {
-    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This prototype currently focuses on the first three scenes so we can perfect the experience before adding the rest of Adam’s day.</p></article></section></main>;
+    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue with Adam’s attempt to find out what happened on his street.</p></article></section></main>;
   }
 
   const changedMetrics = metricOrder
