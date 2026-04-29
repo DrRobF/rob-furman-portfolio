@@ -8,45 +8,56 @@ const urbanStudentScenes = [
     sceneNumber: 1,
     totalScenes: 10,
     time: '2:00 AM',
-    title: "Adam's Bedroom",
     heading: 'Bedroom at 2:00 AM',
-    intro: [
-      {
-        type: 'paragraph',
-        text: 'It’s 2:00 AM, and you’re still awake. Laughter keeps cutting through the floor from downstairs — your mom and her boyfriend. It has been going on for hours, ever since he showed up around 10:00.',
-      },
-      {
-        type: 'paragraph',
-        text: 'You keep your eyes closed, but it does not help. You are not even close to asleep. Beside you, your baby sister is curled into the blanket, somehow still sleeping through all of it.',
-      },
-      { type: 'thought', text: 'How is she still asleep? How do you not wake up to this?' },
-      {
-        type: 'paragraph',
-        text: 'You shift under the blanket. The mattress creaks. The laughter gets louder for a second, then drops back into muffled voices below you.',
-      },
-      { type: 'paragraph', text: 'You check the clock. 2:07. You have to be up at 6:00.' },
-      { type: 'thought', text: 'Four hours. No — less than that. I’m gonna be dead tomorrow.' },
-      {
-        type: 'paragraph',
-        text: 'You pull the blanket higher, trying to block out the sound. It barely changes anything. Another burst of laughter comes through the floor, and your jaw tightens.',
-      },
-      {
-        type: 'thought',
-        text: 'Why does this always happen on school nights? Why doesn’t she care? If I say something, it’s just gonna get worse.',
-      },
-      { type: 'paragraph', text: 'You turn toward your sister again. Still asleep. You stare at the ceiling, wide awake.' },
+    visualTone: 'late-night',
+    revealGroups: [
+      [
+        {
+          type: 'paragraph',
+          text: 'It’s 2:00 AM, and you’re still awake. Laughter keeps cutting through the floor from downstairs — your mom and her boyfriend. It has been going on for hours, ever since he showed up around 10:00.',
+        },
+        {
+          type: 'paragraph',
+          text: 'You keep your eyes closed, but it does not help. You are not even close to asleep. Beside you, your baby sister is curled into the blanket, somehow still sleeping through all of it.',
+        },
+        { type: 'thought', text: 'How is she still asleep? How do you not wake up to this?' },
+      ],
+      [
+        {
+          type: 'paragraph',
+          text: 'You shift under the blanket. The mattress creaks. The laughter gets louder for a second, then drops back into muffled voices below you.',
+        },
+        { type: 'paragraph', text: 'You check the clock. 2:07. You have to be up at 6:00.' },
+        { type: 'thought', text: 'Four hours. No — less than that. I’m gonna be dead tomorrow.' },
+      ],
+      [
+        {
+          type: 'paragraph',
+          text: 'You pull the blanket higher, trying to block out the sound. It barely changes anything. Another burst of laughter comes through the floor, and your jaw tightens.',
+        },
+        {
+          type: 'thought',
+          text: 'Why does this always happen on school nights? Why doesn’t she care? If I say something, it’s just gonna get worse.',
+        },
+        { type: 'paragraph', text: 'You turn toward your sister again. Still asleep. You stare at the ceiling, wide awake.' },
+      ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What assumptions might an adult make about Adam if he seems tired or disengaged later?',
+        'How might disrupted sleep affect his patience, focus, or tone at school?',
+        'What would a teacher need to know before interpreting his behavior?',
+      ],
+      writingPrompt: 'In 2–3 sentences, describe how you would respond if Adam appears disengaged in first period.',
+      insight:
+        'A student’s visible behavior may be the last part of a much longer night. Fatigue can look like defiance, disinterest, or poor motivation when the real issue is exhaustion and emotional overload.',
+    },
     choices: [
       {
-        id: 'ignore_noise',
-        label: 'Put the pillow over your head and try to block it out',
-        resultTitle: 'You try to shut the world out.',
+        id: 'ignore_noise', label: 'Put the pillow over your head and try to block it out', resultTitle: 'You try to shut the world out.', metrics: { sleep: -1, stress: 1, time: 0, trust: 0 },
         result: [
-          {
-            type: 'paragraph',
-            text: 'You press the pillow over your ears and turn your face toward the wall. For a few seconds, the room feels smaller and darker, like maybe you can disappear into it.',
-          },
+          { type: 'paragraph', text: 'You press the pillow over your ears and turn your face toward the wall. For a few seconds, the room feels smaller and darker, like maybe you can disappear into it.' },
           { type: 'paragraph', text: 'The noise still gets through. Not clearly, but enough. A laugh. A chair moving. A voice rising and falling.' },
           { type: 'thought', text: 'Just stop. Just for one night.' },
           { type: 'paragraph', text: 'Your neck starts to ache from the way you are curled up. You stay there anyway.' },
@@ -54,9 +65,7 @@ const urbanStudentScenes = [
         nextSceneId: 'scene_625am_bedroom',
       },
       {
-        id: 'confront_mom',
-        label: 'Get up and ask them to be quiet',
-        resultTitle: 'You step into the hallway.',
+        id: 'confront_mom', label: 'Get up and ask them to be quiet', resultTitle: 'You step into the hallway.', metrics: { sleep: -1, stress: 2, time: -1, trust: -1 },
         result: [
           { type: 'paragraph', text: 'You sit up slowly and listen. For a second, you almost talk yourself out of it. Then another laugh comes from downstairs, and you swing your feet onto the floor.' },
           { type: 'paragraph', text: 'The hallway feels colder than your room. You stand at the top of the stairs and look down into the dim light.' },
@@ -68,9 +77,7 @@ const urbanStudentScenes = [
         nextSceneId: 'scene_625am_bedroom',
       },
       {
-        id: 'check_sister',
-        label: 'Check on your sister',
-        resultTitle: 'You check on your sister.',
+        id: 'check_sister', label: 'Check on your sister', resultTitle: 'You check on your sister.', metrics: { sleep: -1, stress: 1, time: 0, trust: 1 },
         result: [
           { type: 'paragraph', text: 'You turn carefully so you do not wake her. Her face is half-buried in the blanket, one hand tucked under her cheek.' },
           { type: 'paragraph', text: 'You watch her breathe for a moment. Slow. Even. Somehow safe inside sleep.' },
@@ -80,9 +87,7 @@ const urbanStudentScenes = [
         nextSceneId: 'scene_625am_bedroom',
       },
       {
-        id: 'phone_distraction',
-        label: 'Grab your phone and distract yourself',
-        resultTitle: 'You reach for your phone.',
+        id: 'phone_distraction', label: 'Grab your phone and distract yourself', resultTitle: 'You reach for your phone.', metrics: { sleep: -2, stress: 1, time: -1, trust: 0 },
         result: [
           { type: 'paragraph', text: 'The screen lights up your face. It is too bright, but you do not turn it down right away.' },
           { type: 'paragraph', text: 'You scroll without really reading. Videos. Messages. Random posts. Anything that is not the noise downstairs.' },
@@ -94,12 +99,7 @@ const urbanStudentScenes = [
     ],
   },
   {
-    id: 'scene_625am_bedroom',
-    sceneNumber: 2,
-    totalScenes: 10,
-    time: '6:25 AM',
-    title: "Adam's Bedroom",
-    heading: 'Bedroom at 6:25 AM',
+    id: 'scene_625am_bedroom', sceneNumber: 2, totalScenes: 10, time: '6:25 AM', heading: 'Bedroom at 6:25 AM', visualTone: 'morning',
     introByPreviousChoice: {
       ignore_noise: [
         { type: 'paragraph', text: 'The alarm cuts through the room. Sharp. Repeating. Your eyes open, but your body does not move.' },
@@ -127,35 +127,49 @@ const urbanStudentScenes = [
         { type: 'thought', text: 'No way it’s already morning.' },
       ],
     },
-    core: [
-      { type: 'paragraph', text: 'You reach for your phone and stare at the time. 6:25.' },
-      { type: 'thought', text: 'I just closed my eyes.' },
-      { type: 'paragraph', text: 'The room feels colder now. The house is quiet, of course. Quiet now, when it no longer helps you.' },
-      { type: 'paragraph', text: 'You sit up slowly. Your head throbs. You try to think through what you have today, but nothing lands clearly.' },
-      { type: 'paragraph', text: 'You swing your feet to the floor and stand there for a second, trying to wake up.' },
-      { type: 'thought', text: 'It’s not working.' },
+    coreRevealGroups: [
+      [
+        { type: 'paragraph', text: 'You reach for your phone and stare at the time. 6:25.' },
+        { type: 'thought', text: 'I just closed my eyes.' },
+        { type: 'paragraph', text: 'The room feels colder now. The house is quiet, of course. Quiet now, when it no longer helps you.' },
+      ],
+      [
+        { type: 'paragraph', text: 'You sit up slowly. Your head throbs. You try to think through what you have today, but nothing lands clearly.' },
+        { type: 'paragraph', text: 'You swing your feet to the floor and stand there for a second, trying to wake up.' },
+        { type: 'thought', text: 'It’s not working.' },
+      ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What might Adam’s morning choices reveal about exhaustion, responsibility, and stress?',
+        'How could being late or unprepared be connected to what happened before school?',
+        'How should an adult respond differently if they understand the night-before context?',
+      ],
+      writingPrompt: 'Write one supportive adult response that addresses the behavior without ignoring the context.',
+      insight:
+        'Morning behavior is often shaped before the school day begins. Rushing, lateness, irritability, or shutdown may be connected to sleep disruption, caregiving stress, and emotional load.',
+    },
     choices: [
-      { id: 'snooze', label: 'Hit snooze and lie back down', resultTitle: 'You lie back down.', result: [
+      { id: 'snooze', label: 'Hit snooze and lie back down', resultTitle: 'You lie back down.', metrics: { sleep: 1, stress: 1, time: -2, trust: 0 }, result: [
         { type: 'paragraph', text: 'You tap the screen and let the alarm go quiet. The silence feels too good for one second.' },
         { type: 'paragraph', text: 'You lie back down, telling yourself you only need five minutes. Your eyes close before you finish the thought.' },
         { type: 'thought', text: 'Just five. I can still make it.' },
         { type: 'paragraph', text: 'But the morning is already moving without you.' },
       ], nextSceneId: 'scene_640am_getting_ready' },
-      { id: 'get_ready', label: 'Get up and start getting ready', resultTitle: 'You force yourself up.', result: [
+      { id: 'get_ready', label: 'Get up and start getting ready', resultTitle: 'You force yourself up.', metrics: { sleep: 0, stress: 1, time: 0, trust: 0 }, result: [
         { type: 'paragraph', text: 'You stand before your body feels ready. Your legs are heavy, but you move anyway.' },
         { type: 'paragraph', text: 'You look around the room for what you need: clothes, shoes, backpack, something clean enough to wear.' },
         { type: 'thought', text: 'Move. Just move.' },
         { type: 'paragraph', text: 'You are awake now, but not clear. Every small thing feels like it takes longer than it should.' },
       ], nextSceneId: 'scene_640am_getting_ready' },
-      { id: 'check_phone', label: 'Check your phone first', resultTitle: 'You check your phone.', result: [
+      { id: 'check_phone', label: 'Check your phone first', resultTitle: 'You check your phone.', metrics: { sleep: 0, stress: 1, time: -1, trust: 0 }, result: [
         { type: 'paragraph', text: 'You unlock the phone before you stand up. Notifications stack over each other. A few messages. A few things you do not need to see right now.' },
         { type: 'paragraph', text: 'You tell yourself you are just checking the time, but your thumb keeps moving.' },
         { type: 'thought', text: 'One second. Then I’ll get up.' },
         { type: 'paragraph', text: 'The room stays still around you, but the clock does not.' },
       ], nextSceneId: 'scene_640am_getting_ready' },
-      { id: 'wake_sister', label: 'Wake your sister up', resultTitle: 'You wake your sister.', result: [
+      { id: 'wake_sister', label: 'Wake your sister up', resultTitle: 'You wake your sister.', metrics: { sleep: 0, stress: 2, time: -1, trust: 1 }, result: [
         { type: 'paragraph', text: 'You touch her shoulder gently. She shifts but does not open her eyes.' },
         { type: 'paragraph', text: 'You say her name quietly. Then again. She makes a small sound and turns away from the light.' },
         { type: 'thought', text: 'Come on. I can’t be late again.' },
@@ -171,7 +185,7 @@ const renderBlocks = (blocks) =>
   blocks.map((block, index) =>
     block.type === 'thought' ? (
       <aside key={`${block.type}-${index}`} className="thought-wrap">
-        <p className="thought-label">Adam’s thoughts</p>
+        <p className="thought-label">ADAM’S THOUGHTS</p>
         <div className="thought-card">{block.text}</div>
       </aside>
     ) : (
@@ -179,64 +193,84 @@ const renderBlocks = (blocks) =>
     )
   );
 
+const metricConfig = { sleep: 'Sleep', stress: 'Stress', time: 'Time', trust: 'Trust' };
+
 export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
+  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1 });
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
   const selectedChoiceId = selectedChoices[scene.id];
   const selectedChoice = scene.choices.find((choice) => choice.id === selectedChoiceId);
 
-  const introBlocks = useMemo(() => {
-    if (scene.id !== 'scene_625am_bedroom') {
-      return scene.intro ?? [];
+  const revealGroups = useMemo(() => {
+    if (scene.id === 'scene_625am_bedroom') {
+      const previousChoiceId = selectedChoices.scene_2am_bedroom;
+      const introSet = scene.introByPreviousChoice?.[previousChoiceId] ?? scene.introByPreviousChoice?.default ?? [];
+      return [introSet, ...(scene.coreRevealGroups ?? [])];
     }
-    const previousChoiceId = selectedChoices.scene_2am_bedroom;
-    const introSet = scene.introByPreviousChoice?.[previousChoiceId] ?? scene.introByPreviousChoice?.default ?? [];
-    return [...introSet, ...(scene.core ?? [])];
+    return scene.revealGroups ?? [];
   }, [scene, selectedChoices.scene_2am_bedroom]);
 
-  const handleChoose = (choiceId) => {
-    setSelectedChoices((prev) => ({ ...prev, [scene.id]: choiceId }));
+  const visibleGroupCount = Math.min(revealedGroupCounts[scene.id] ?? 1, revealGroups.length || 1);
+  const visibleGroups = revealGroups.slice(0, visibleGroupCount);
+  const isFullyRevealed = visibleGroupCount >= revealGroups.length;
+
+  const handleRevealMore = () => {
+    setRevealedGroupCounts((prev) => ({ ...prev, [scene.id]: Math.min((prev[scene.id] ?? 1) + 1, revealGroups.length) }));
   };
+
+  const handleChoose = (choiceId) => setSelectedChoices((prev) => ({ ...prev, [scene.id]: choiceId }));
 
   const handleContinue = () => {
     if (selectedChoice?.nextSceneId && sceneById[selectedChoice.nextSceneId]) {
       setSceneId(selectedChoice.nextSceneId);
+      setRevealedGroupCounts((prev) => ({ ...prev, [selectedChoice.nextSceneId]: prev[selectedChoice.nextSceneId] ?? 1 }));
+      return;
     }
+    setSceneId('scene_placeholder_end');
   };
+
+  if (sceneId === 'scene_placeholder_end') {
+    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This prototype currently focuses on the first two scenes so we can perfect the experience before adding the rest of Adam’s day.</p></article></section></main>;
+  }
+
+  const changedMetrics = Object.entries(selectedChoice?.metrics ?? {}).filter(([, value]) => value !== 0);
 
   return (
     <main className="urban-student-page">
       <section className="experience-shell">
         <article className="scene-card">
           <header className="scene-header">
+            <div className="tone-band" />
             <p>{scene.time}</p>
             <h1>{scene.heading}</h1>
             <p>Scene {scene.sceneNumber} of {scene.totalScenes}</p>
           </header>
 
-          <p className="section-label">The Moment</p>
-          <div className="scene-content">{renderBlocks(introBlocks)}</div>
+          <p className="section-label">THE MOMENT</p>
+          <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`}>{renderBlocks(group)}</div>)}</div>
+          {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>Continue the moment</button>}
 
-          {!selectedChoice ? (
+          {isFullyRevealed && !selectedChoice && (
             <div className="choices-section">
-              <p className="section-label">Your Choice</p>
+              <p className="section-label">YOUR CHOICE</p>
               <h2>{scene.question}</h2>
               <div className="button-group">
-                {scene.choices.map((choice) => (
-                  <button key={choice.id} type="button" onClick={() => handleChoose(choice.id)}>{choice.label}</button>
-                ))}
+                {scene.choices.map((choice) => <button key={choice.id} type="button" onClick={() => handleChoose(choice.id)}>{choice.label}</button>)}
               </div>
             </div>
-          ) : (
+          )}
+
+          {selectedChoice && (
             <section className="result-section">
-              <p className="section-label">Your Choice</p>
+              <p className="section-label">YOUR CHOICE</p>
               <p className="selected-pill">You chose: {selectedChoice.label}</p>
-              <div className="result-card">
-                <h2>{selectedChoice.resultTitle}</h2>
-                {renderBlocks(selectedChoice.result)}
-              </div>
+              <p className="section-label">CONSEQUENCE</p>
+              <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
+              {changedMetrics.length > 0 && <div><p className="impact-title">Immediate Impact</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className="impact-chip">{metricConfig[key]} {value > 0 ? '↑' : '↓'}</span>)}</div></div>}
+              <details className="reflect-panel"><summary>Pause & Reflect</summary><p className="section-label">PAUSE & REFLECT</p><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt:</strong> {scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><p className="insight"><strong>Manuscript Insight:</strong> {scene.reflection.insight}</p></details>
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
             </section>
           )}
@@ -245,23 +279,27 @@ export default function DayInTheLifeUrbanStudentPage() {
 
       <style jsx>{`
         .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
-        .experience-shell { max-width: 860px; margin: 0 auto; }
-        .scene-card { background: #f8fafc; color: #0f172a; border-radius: 24px; padding: 32px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.5rem; }
+        .experience-shell { max-width: 900px; margin: 0 auto; }
+        .scene-card { background: #f8fafc; color: #0f172a; border-radius: 24px; padding: 32px; max-width: 900px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
+        .tone-band { height: 10px; border-radius: 999px; margin-bottom: 12px; background: linear-gradient(90deg, #1e293b, #334155); }
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0; font-size: clamp(1.5rem, 2.8vw, 2.2rem); }
-        .scene-content { display: grid; }
         .section-label { margin: 0 0 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
         .paragraph-card { margin: 0 0 16px; color: #1e293b; font-size: 1.05rem; line-height: 1.8; }
         .thought-wrap { margin: 18px 0; }
         .thought-label { margin: 0 0 6px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-style: normal; font-weight: 800; }
-        .thought-card { background: #e8eef6; border-left: 5px solid #1e3a5f; color: #102033; font-style: italic; font-weight: 600; border-radius: 14px; padding: 14px 18px; margin: 0; line-height: 1.7; }
-        .choices-section h2, .result-card h2 { margin: 0 0 0.75rem; font-size: 1.2rem; }
-        .button-group { display: grid; gap: 0; }
-        button { display: block; width: 100%; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
-        button:hover { background: #f1f5f9; border-color: #64748b; }
-        .selected-pill { margin: 0 0 14px; display: inline-block; background: #334155; color: #ffffff; border-radius: 999px; padding: 8px 12px; }
-        .result-card { margin-top: 18px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); }
-        .continue-button { margin-top: 20px; text-align: center; background: #0f172a; color: #ffffff; border-radius: 14px; padding: 14px 18px; font-weight: 700; }
+        .thought-card { background: #e8eef6; border-left: 5px solid #1e3a5f; color: #102033; font-style: italic; font-weight: 600; border-radius: 14px; padding: 14px 18px; margin: 0; line-height: 1.65; }
+        button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
+        .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; }
+        .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
+        .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
+        .impact-title { margin: 14px 0 8px; font-weight: 700; color: #334155; }
+        .impact-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .impact-chip { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 999px; color: #0f172a; padding: 6px 12px; font-size: 0.88rem; }
+        .reflect-panel { margin-top: 14px; background: #fff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; }
+        .reflect-panel summary { cursor: pointer; font-weight: 700; }
+        .reflect-panel ul { margin: 8px 0 10px 18px; color: #1e293b; }
+        textarea { width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 10px; font-family: inherit; }
       `}</style>
     </main>
   );
