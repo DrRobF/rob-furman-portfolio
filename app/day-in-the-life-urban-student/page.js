@@ -52,8 +52,8 @@ const urbanStudentScenes = [
       writingPrompt: 'In 2–3 sentences, describe how you would respond if Adam appears disengaged in first period.',
       insight:
         'A student’s visible behavior may be the last part of a much longer night. Fatigue can look like defiance, disinterest, or poor motivation when the real issue is exhaustion and emotional overload.',
-      expandedInsight:
-        'Adam has not even entered school yet, but the school day is already being shaped. Sleep disruption affects patience, memory, focus, impulse control, and the ability to respond calmly to adult direction. If an educator only sees the tired student in class, they may miss the night that produced the behavior.',
+      manuscriptExcerpt:
+        '[PASTE MANUSCRIPT EXCERPT HERE]\n\nThis space is designed for a longer excerpt from the Urban Student manuscript. It can hold a full section, chapter passage, or facilitator reading connected to this moment in Adam’s day.\n\nUse this area for the original manuscript language, not a summary.',
       facilitatorLens:
         'Ask participants what they would normally assume if a student put his head down, snapped back, or failed to engage during first period.',
     },
@@ -153,8 +153,8 @@ const urbanStudentScenes = [
       writingPrompt: 'Write one supportive adult response that addresses the behavior without ignoring the context.',
       insight:
         'Morning behavior is often shaped before the school day begins. Rushing, lateness, irritability, or shutdown may be connected to sleep disruption, caregiving stress, and emotional load.',
-      expandedInsight:
-        'By the time Adam wakes up, he is already making decisions under pressure. Choices that look irresponsible from the outside may actually be attempts to manage exhaustion, family responsibility, and limited control. This is where educators can begin separating behavior from character.',
+      manuscriptExcerpt:
+        '[PASTE MANUSCRIPT EXCERPT HERE]\n\nThis space is designed for a longer excerpt from the Urban Student manuscript. It can hold a full section, chapter passage, or facilitator reading connected to this moment in Adam’s day.\n\nUse this area for the original manuscript language, not a summary.',
       facilitatorLens:
         'Ask participants how their response would change if they knew the student’s morning began this way.',
     },
@@ -201,7 +201,11 @@ const renderBlocks = (blocks) =>
     )
   );
 
-const metricConfig = { sleep: { label: 'Sleep', color: '#3b82f6' }, stress: { label: 'Stress', color: '#ef4444' }, time: { label: 'Time', color: '#f59e0b' } };
+const metricConfig = {
+  sleep: { label: 'Sleep Reserve', color: '#2563eb', help: 'Higher is better; lower means depletion.' },
+  stress: { label: 'Stress Load', color: '#dc2626', help: 'Higher means more emotional load.' },
+  time: { label: 'Time Pressure', color: '#d97706', help: 'Higher means more room; lower means slipping time.' },
+};
 const metricOrder = ['sleep', 'stress', 'time'];
 const initialMetrics = { sleep: 6, stress: 2, time: 5 };
 const clampMetric = (value) => Math.max(0, Math.min(10, value));
@@ -282,20 +286,6 @@ export default function DayInTheLifeUrbanStudentPage() {
             <h1>{scene.heading}</h1>
             <p>Scene {scene.sceneNumber} of {scene.totalScenes}</p>
           </header>
-          <div className="metrics-stack">
-            {metricOrder.map((metric) => (
-              <div className="metric-row" key={metric}>
-                <div className="metric-row-meta">
-                  <span>{metricConfig[metric].label}</span>
-                  <span>{sceneMetrics[metric]}/10</span>
-                </div>
-                <div className="metric-track">
-                  <div className="metric-fill" style={{ width: `${(sceneMetrics[metric] / 10) * 100}%`, background: metricConfig[metric].color }} />
-                </div>
-              </div>
-            ))}
-          </div>
-
           <p className="section-label">THE MOMENT</p>
           <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`}>{renderBlocks(group)}</div>)}</div>
           {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>Continue the moment</button>}
@@ -317,7 +307,25 @@ export default function DayInTheLifeUrbanStudentPage() {
               <p className="section-label">CONSEQUENCE</p>
               <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
               {changedMetrics.length > 0 && <div><p className="section-label">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className="impact-pill" style={{ borderColor: metricConfig[key].color, color: metricConfig[key].color }}>{metricConfig[key].label} {value > 0 ? `↑${Math.abs(value) >= 2 ? '↑' : ''}` : `↓${Math.abs(value) >= 2 ? '↓' : ''}`}</span>)}</div></div>}
-              <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>View Deeper Insight</button>{showInsights[scene.id] && <div className="insight-panel"><p><strong>Manuscript Insight:</strong> {scene.reflection.insight}</p><p>{scene.reflection.expandedInsight}</p><p><strong>Facilitator lens:</strong> {scene.reflection.facilitatorLens}</p></div>}</div></details>
+              <div className="metrics-stack">
+                <p className="section-label">CUMULATIVE LOAD</p>
+                <p className="metric-subtitle">How this day is building inside Adam</p>
+                {metricOrder.map((metric) => (
+                  <div className="metric-row" key={metric}>
+                    <div className="metric-row-meta">
+                      <div>
+                        <span>{metricConfig[metric].label}</span>
+                        <p className="metric-help">{metricConfig[metric].help}</p>
+                      </div>
+                      <span>{sceneMetrics[metric]}/10</span>
+                    </div>
+                    <div className="metric-track">
+                      <div className="metric-fill" style={{ width: `${(sceneMetrics[metric] / 10) * 100}%`, background: metricConfig[metric].color }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p><p className="lens-prompt">{scene.reflection.facilitatorLens}</p></div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
             </section>
           )}
@@ -327,27 +335,30 @@ export default function DayInTheLifeUrbanStudentPage() {
       <style jsx>{`
         .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
         .experience-shell { max-width: 900px; margin: 0 auto; }
-        .scene-card { background: #f8fafc; color: #0f172a; border-radius: 24px; padding: 32px; max-width: 900px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
-        .metrics-stack { display: grid; gap: 10px; }
-        .metric-row { border: 1px solid #cbd5e1; background: #fff; border-radius: 12px; padding: 10px 12px; }
+        .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
+        .metrics-stack { display: grid; gap: 10px; background: #ffffff; border: 1px solid #d8e0ea; border-radius: 18px; padding: 18px; margin-top: 18px; }
+        .metric-subtitle { margin: -4px 0 6px; color: #334155; font-size: 0.92rem; }
+        .metric-row { border: 1px solid #d8e0ea; background: #fff; border-radius: 12px; padding: 10px 12px; }
         .metric-row-meta { display: flex; align-items: center; justify-content: space-between; font-weight: 700; color: #1e293b; font-size: 0.92rem; }
-        .metric-track { margin-top: 6px; background: #e2e8f0; height: 10px; border-radius: 999px; overflow: hidden; }
+        .metric-help { margin: 4px 0 0; font-size: 0.8rem; color: #475569; font-weight: 500; }
+        .metric-track { margin-top: 8px; background: #edf2f7; height: 14px; border-radius: 999px; overflow: hidden; }
         .metric-fill { height: 100%; border-radius: 999px; transition: width 0.35s ease; }
         .tone-band { height: 10px; border-radius: 999px; margin-bottom: 12px; background: linear-gradient(90deg, #1e293b, #334155); }
         .scene-header p { margin: 0; color: #334155; }
-        .scene-header h1 { margin: 0.35rem 0; font-size: clamp(1.5rem, 2.8vw, 2.2rem); }
+        .scene-header h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem); color: #071228; }
         .section-label { margin: 0 0 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
-        .paragraph-card { margin: 0 0 16px; color: #1e293b; font-size: 1.05rem; line-height: 1.8; }
-        .thought-wrap { margin: 18px 0; }
-        .thought-label { margin: 0 0 6px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-style: normal; font-weight: 800; }
-        .thought-card { background: #e8eef6; border-left: 5px solid #1e3a5f; color: #102033; font-style: italic; font-weight: 600; border-radius: 14px; padding: 14px 18px; margin: 0; line-height: 1.65; }
+        .scene-content { max-width: 720px; }
+        .paragraph-card { margin: 0 0 18px; color: #24324a; font-size: 1.08rem; line-height: 1.9; letter-spacing: 0.005em; }
+        .thought-wrap { margin: 22px 0; max-width: 720px; }
+        .thought-label { margin: 0 0 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.09em; color: #334155; font-style: normal; font-weight: 900; }
+        .thought-card { background: #eef4ff; border-left: 6px solid #1e3a8a; color: #111827; font-style: italic; font-weight: 650; border-radius: 16px; padding: 16px 20px; margin: 0; line-height: 1.65; }
         button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
         .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
         .impact-row { display: flex; flex-wrap: wrap; gap: 10px; }
         .impact-pill { background: #f8fafc; border: 1px solid; border-radius: 999px; padding: 8px 13px; font-size: 0.9rem; font-weight: 800; }
-        .reflect-panel { margin-top: 20px; background: #fff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 18px; }
+        .reflect-panel { margin-top: 22px; background: #f8fafc; border: 1px solid #d8e0ea; border-radius: 20px; padding: 22px; }
         .reflect-panel summary { cursor: pointer; font-weight: 700; list-style: none; display: flex; align-items: center; justify-content: space-between; }
         .reflect-panel summary::-webkit-details-marker { display: none; }
         .reflect-title { margin: 0; font-size: 1rem; color: #0f172a; }
@@ -355,11 +366,17 @@ export default function DayInTheLifeUrbanStudentPage() {
         .reflect-indicator { font-size: 1.2rem; font-weight: 800; color: #475569; }
         .reflect-panel[open] .reflect-indicator { transform: rotate(45deg); }
         .reflect-content { margin-top: 14px; }
-        .reflect-panel ul { margin: 0 0 12px 18px; color: #1e293b; display: grid; gap: 10px; }
+        .reflect-panel ul { margin: 0 0 16px; padding-left: 20px; color: #1e293b; display: grid; gap: 16px; line-height: 1.8; }
         .writing-prompt { margin: 10px 0 4px; color: #0f172a; }
         textarea { min-height: 110px; width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; font-size: 1rem; color: #0f172a; background: #fff; font-family: inherit; }
         .insight-toggle { margin-top: 14px; width: auto; border: 1px solid #cbd5e1; background: #fff; color: #0f172a; border-radius: 12px; padding: 10px 14px; font-weight: 700; }
-        .insight-panel { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px; margin-top: 10px; line-height: 1.65; color: #1e293b; }
+        .facilitator-lens { margin-top: 14px; background: #fff; border: 1px solid #d8e0ea; border-radius: 14px; padding: 14px; color: #0f172a; }
+        .lens-prompt { margin-top: 8px; }
+        .insight-panel { max-height: 420px; overflow-y: auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 22px; margin-top: 14px; line-height: 1.85; font-size: 1.02rem; color: #1e293b; }
+        .insight-heading { margin: 0; font-size: 1.08rem; font-weight: 800; color: #0f172a; }
+        .insight-subheading { margin: 4px 0 8px; color: #475569; font-size: 0.9rem; }
+        .insight-note { margin: 0 0 12px; color: #64748b; font-size: 0.9rem; }
+        .manuscript-text { white-space: pre-line; margin: 0; }
       `}</style>
     </main>
   );
