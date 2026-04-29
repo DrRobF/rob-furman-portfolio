@@ -59,7 +59,7 @@ const urbanStudentScenes = [
     },
     choices: [
       {
-        id: 'ignore_noise', label: 'Put the pillow over your head and try to block it out', resultTitle: 'You try to shut the world out.', metrics: { sleep: -1, stress: 1, time: 0 },
+        id: 'ignore_noise', label: 'Put the pillow over your head and try to block it out', resultTitle: 'You try to shut the world out.', metrics: { sleep: -1, stress: -1, time: 0 },
         result: [
           { type: 'paragraph', text: 'You press the pillow over your ears and turn your face toward the wall. For a few seconds, the room feels smaller and darker, like maybe you can disappear into it.' },
           { type: 'paragraph', text: 'The noise still gets through. Not clearly, but enough. A laugh. A chair moving. A voice rising and falling.' },
@@ -69,7 +69,7 @@ const urbanStudentScenes = [
         nextSceneId: 'scene_625am_bedroom',
       },
       {
-        id: 'confront_mom', label: 'Get up and ask them to be quiet', resultTitle: 'You step into the hallway.', metrics: { sleep: -1, stress: 2, time: -1 },
+        id: 'confront_mom', label: 'Get up and ask them to be quiet', resultTitle: 'You step into the hallway.', metrics: { sleep: -1, stress: -2, time: -1 },
         result: [
           { type: 'paragraph', text: 'You sit up slowly and listen. For a second, you almost talk yourself out of it. Then another laugh comes from downstairs, and you swing your feet onto the floor.' },
           { type: 'paragraph', text: 'The hallway feels colder than your room. You stand at the top of the stairs and look down into the dim light.' },
@@ -81,7 +81,7 @@ const urbanStudentScenes = [
         nextSceneId: 'scene_625am_bedroom',
       },
       {
-        id: 'check_sister', label: 'Check on your sister', resultTitle: 'You check on your sister.', metrics: { sleep: -1, stress: 1, time: 0 },
+        id: 'check_sister', label: 'Check on your sister', resultTitle: 'You check on your sister.', metrics: { sleep: -1, stress: -1, time: 0 },
         result: [
           { type: 'paragraph', text: 'You turn carefully so you do not wake her. Her face is half-buried in the blanket, one hand tucked under her cheek.' },
           { type: 'paragraph', text: 'You watch her breathe for a moment. Slow. Even. Somehow safe inside sleep.' },
@@ -91,7 +91,7 @@ const urbanStudentScenes = [
         nextSceneId: 'scene_625am_bedroom',
       },
       {
-        id: 'phone_distraction', label: 'Grab your phone and distract yourself', resultTitle: 'You reach for your phone.', metrics: { sleep: -2, stress: 1, time: -1 },
+        id: 'phone_distraction', label: 'Grab your phone and distract yourself', resultTitle: 'You reach for your phone.', metrics: { sleep: -2, stress: -1, time: -1 },
         result: [
           { type: 'paragraph', text: 'The screen lights up your face. It is too bright, but you do not turn it down right away.' },
           { type: 'paragraph', text: 'You scroll without really reading. Videos. Messages. Random posts. Anything that is not the noise downstairs.' },
@@ -159,25 +159,25 @@ const urbanStudentScenes = [
         'Ask participants how their response would change if they knew the student’s morning began this way.',
     },
     choices: [
-      { id: 'snooze', label: 'Hit snooze and lie back down', resultTitle: 'You lie back down.', metrics: { sleep: 1, stress: 1, time: -2 }, result: [
+      { id: 'snooze', label: 'Hit snooze and lie back down', resultTitle: 'You lie back down.', metrics: { sleep: 1, stress: -1, time: -2 }, result: [
         { type: 'paragraph', text: 'You tap the screen and let the alarm go quiet. The silence feels too good for one second.' },
         { type: 'paragraph', text: 'You lie back down, telling yourself you only need five minutes. Your eyes close before you finish the thought.' },
         { type: 'thought', text: 'Just five. I can still make it.' },
         { type: 'paragraph', text: 'But the morning is already moving without you.' },
       ], nextSceneId: 'scene_640am_getting_ready' },
-      { id: 'get_ready', label: 'Get up and start getting ready', resultTitle: 'You force yourself up.', metrics: { sleep: 0, stress: 1, time: 0 }, result: [
+      { id: 'get_ready', label: 'Get up and start getting ready', resultTitle: 'You force yourself up.', metrics: { sleep: 0, stress: -1, time: 0 }, result: [
         { type: 'paragraph', text: 'You stand before your body feels ready. Your legs are heavy, but you move anyway.' },
         { type: 'paragraph', text: 'You look around the room for what you need: clothes, shoes, backpack, something clean enough to wear.' },
         { type: 'thought', text: 'Move. Just move.' },
         { type: 'paragraph', text: 'You are awake now, but not clear. Every small thing feels like it takes longer than it should.' },
       ], nextSceneId: 'scene_640am_getting_ready' },
-      { id: 'check_phone', label: 'Check your phone first', resultTitle: 'You check your phone.', metrics: { sleep: 0, stress: 1, time: -1 }, result: [
+      { id: 'check_phone', label: 'Check your phone first', resultTitle: 'You check your phone.', metrics: { sleep: 0, stress: -1, time: -1 }, result: [
         { type: 'paragraph', text: 'You unlock the phone before you stand up. Notifications stack over each other. A few messages. A few things you do not need to see right now.' },
         { type: 'paragraph', text: 'You tell yourself you are just checking the time, but your thumb keeps moving.' },
         { type: 'thought', text: 'One second. Then I’ll get up.' },
         { type: 'paragraph', text: 'The room stays still around you, but the clock does not.' },
       ], nextSceneId: 'scene_640am_getting_ready' },
-      { id: 'wake_sister', label: 'Wake your sister up', resultTitle: 'You wake your sister.', metrics: { sleep: 0, stress: 2, time: -1 }, result: [
+      { id: 'wake_sister', label: 'Wake your sister up', resultTitle: 'You wake your sister.', metrics: { sleep: 0, stress: -2, time: -1 }, result: [
         { type: 'paragraph', text: 'You touch her shoulder gently. She shifts but does not open her eyes.' },
         { type: 'paragraph', text: 'You say her name quietly. Then again. She makes a small sound and turns away from the light.' },
         { type: 'thought', text: 'Come on. I can’t be late again.' },
@@ -202,13 +202,13 @@ const renderBlocks = (blocks) =>
   );
 
 const metricConfig = {
-  sleep: { label: 'Sleep Reserve', color: '#2563eb', help: 'Higher is better; lower means depletion.' },
-  stress: { label: 'Stress Load', color: '#dc2626', help: 'Higher means more emotional load.' },
-  time: { label: 'Time Pressure', color: '#d97706', help: 'Higher means more room; lower means slipping time.' },
+  sleep: { label: 'Sleep Reserve', help: 'negative = deficit · positive = recovery' },
+  stress: { label: 'Stress Load', help: 'negative = load building · positive = relief' },
+  time: { label: 'Time Pressure', help: 'negative = slipping · positive = room gained' },
 };
 const metricOrder = ['sleep', 'stress', 'time'];
-const initialMetrics = { sleep: 6, stress: 2, time: 5 };
-const clampMetric = (value) => Math.max(0, Math.min(10, value));
+const initialMetrics = { sleep: 0, stress: 0, time: 0 };
+const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 
 export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
@@ -306,10 +306,10 @@ export default function DayInTheLifeUrbanStudentPage() {
               <p className="selected-pill">You chose: {selectedChoice.label}</p>
               <p className="section-label">CONSEQUENCE</p>
               <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
-              {changedMetrics.length > 0 && <div><p className="section-label">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className="impact-pill" style={{ borderColor: metricConfig[key].color, color: metricConfig[key].color }}>{metricConfig[key].label} {value > 0 ? `↑${Math.abs(value) >= 2 ? '↑' : ''}` : `↓${Math.abs(value) >= 2 ? '↓' : ''}`}</span>)}</div></div>}
+              {changedMetrics.length > 0 && <div><p className="section-label">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? 'impact-positive' : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
               <div className="metrics-stack">
                 <p className="section-label">CUMULATIVE LOAD</p>
-                <p className="metric-subtitle">How this day is building inside Adam</p>
+                <p className="metric-subtitle">How far Adam has moved from baseline</p>
                 {metricOrder.map((metric) => (
                   <div className="metric-row" key={metric}>
                     <div className="metric-row-meta">
@@ -317,10 +317,17 @@ export default function DayInTheLifeUrbanStudentPage() {
                         <span>{metricConfig[metric].label}</span>
                         <p className="metric-help">{metricConfig[metric].help}</p>
                       </div>
-                      <span>{sceneMetrics[metric]}/10</span>
+                      <span>{sceneMetrics[metric] > 0 ? `+${sceneMetrics[metric]}` : sceneMetrics[metric]}</span>
                     </div>
                     <div className="metric-track">
-                      <div className="metric-fill" style={{ width: `${(sceneMetrics[metric] / 10) * 100}%`, background: metricConfig[metric].color }} />
+                      <span className="metric-center-marker">0</span>
+                      <div
+                        className={`metric-fill ${sceneMetrics[metric] >= 0 ? 'metric-fill-positive' : 'metric-fill-negative'}`}
+                        style={{
+                          width: `${Math.abs((sceneMetrics[metric] / 10) * 50)}%`,
+                          left: sceneMetrics[metric] >= 0 ? '50%' : `${50 - Math.abs((sceneMetrics[metric] / 10) * 50)}%`,
+                        }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -341,8 +348,12 @@ export default function DayInTheLifeUrbanStudentPage() {
         .metric-row { border: 1px solid #d8e0ea; background: #fff; border-radius: 12px; padding: 10px 12px; }
         .metric-row-meta { display: flex; align-items: center; justify-content: space-between; font-weight: 700; color: #1e293b; font-size: 0.92rem; }
         .metric-help { margin: 4px 0 0; font-size: 0.8rem; color: #475569; font-weight: 500; }
-        .metric-track { margin-top: 8px; background: #edf2f7; height: 14px; border-radius: 999px; overflow: hidden; }
-        .metric-fill { height: 100%; border-radius: 999px; transition: width 0.35s ease; }
+        .metric-track { margin-top: 8px; background: #e2e8f0; height: 14px; border-radius: 999px; overflow: hidden; position: relative; }
+        .metric-track::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 2px; height: 100%; background: #334155; z-index: 2; }
+        .metric-center-marker { position: absolute; left: 50%; top: -16px; transform: translateX(-50%); font-size: 0.72rem; color: #334155; font-weight: 700; }
+        .metric-fill { position: absolute; top: 0; height: 100%; transition: all 0.35s ease; z-index: 1; }
+        .metric-fill-negative { background: #dc2626; }
+        .metric-fill-positive { background: #2563eb; }
         .tone-band { height: 10px; border-radius: 999px; margin-bottom: 12px; background: linear-gradient(90deg, #1e293b, #334155); }
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem); color: #071228; }
@@ -350,14 +361,16 @@ export default function DayInTheLifeUrbanStudentPage() {
         .scene-content { max-width: 720px; }
         .paragraph-card { margin: 0 0 18px; color: #24324a; font-size: 1.08rem; line-height: 1.9; letter-spacing: 0.005em; }
         .thought-wrap { margin: 22px 0; max-width: 720px; }
-        .thought-label { margin: 0 0 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.09em; color: #334155; font-style: normal; font-weight: 900; }
-        .thought-card { background: #eef4ff; border-left: 6px solid #1e3a8a; color: #111827; font-style: italic; font-weight: 650; border-radius: 16px; padding: 16px 20px; margin: 0; line-height: 1.65; }
+        .thought-label { margin: 0 0 8px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: #334155; font-style: normal !important; font-weight: 900; }
+        .thought-card { background: #eef4ff; border-left: 7px solid #1e3a8a; color: #0f172a; font-style: italic !important; font-size: 1.08rem; font-weight: 700; border-radius: 16px; padding: 18px 22px; margin: 24px 0; line-height: 1.65; box-shadow: 0 8px 24px rgba(30, 58, 138, 0.08); }
         button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
         .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
         .impact-row { display: flex; flex-wrap: wrap; gap: 10px; }
-        .impact-pill { background: #f8fafc; border: 1px solid; border-radius: 999px; padding: 8px 13px; font-size: 0.9rem; font-weight: 800; }
+        .impact-pill { border: 1px solid; border-radius: 999px; padding: 8px 13px; font-size: 0.9rem; font-weight: 800; }
+        .impact-negative { background: #fff1f2; border-color: #dc2626; color: #b91c1c; }
+        .impact-positive { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
         .reflect-panel { margin-top: 22px; background: #f8fafc; border: 1px solid #d8e0ea; border-radius: 20px; padding: 22px; }
         .reflect-panel summary { cursor: pointer; font-weight: 700; list-style: none; display: flex; align-items: center; justify-content: space-between; }
         .reflect-panel summary::-webkit-details-marker { display: none; }
