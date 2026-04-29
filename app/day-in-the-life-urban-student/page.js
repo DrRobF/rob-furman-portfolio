@@ -239,20 +239,20 @@ export default function DayInTheLifeUrbanStudentPage() {
 
       <style jsx>{`
         .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
-        .experience-shell { max-width: 900px; margin: 0 auto; }
-        .scene-card { background: #111827; border: 1px solid #1f2937; border-radius: 16px; padding: 2rem; display: grid; gap: 1.5rem; }
-        .scene-header p { margin: 0; color: #cbd5e1; }
+        .experience-shell { max-width: 860px; margin: 0 auto; }
+        .scene-card { background: #f8fafc; color: #0f172a; border-radius: 24px; padding: 32px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.5rem; }
+        .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0; font-size: clamp(1.5rem, 2.8vw, 2.2rem); }
-        .scene-content { display: grid; gap: 0.75rem; }
-        .paragraph-card { margin: 0; line-height: 1.75; color: #e5e7eb; background: rgba(15, 23, 42, 0.25); border-radius: 12px; padding: 14px 16px; }
-        .thought-card { margin: 16px 0; background: rgba(15, 23, 42, 0.06); border-left: 4px solid #334155; font-style: italic; border-radius: 12px; padding: 14px 16px; color: #dbeafe; }
+        .scene-content { display: grid; }
+        .paragraph-card { margin: 0 0 18px; color: #1e293b; font-size: 1.05rem; line-height: 1.75; }
+        .thought-card { background: #e2e8f0; color: #0f172a; border-left: 5px solid #334155; font-style: italic; border-radius: 14px; padding: 16px 18px; margin: 20px 0; line-height: 1.65; }
         .choices-section h2, .result-card h2 { margin: 0 0 0.75rem; font-size: 1.2rem; }
-        .button-group { display: grid; gap: 0.75rem; }
-        button { width: 100%; text-align: left; border: 1px solid #374151; background: #1f2937; color: #fff; border-radius: 12px; padding: 0.85rem 1rem; cursor: pointer; }
-        button:hover { background: #374151; }
-        .selected-pill { margin: 0; display: inline-block; background: #1e293b; border: 1px solid #475569; color: #e2e8f0; border-radius: 999px; padding: 0.45rem 0.9rem; }
-        .result-card { margin-top: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 1rem; }
-        .continue-button { margin-top: 1rem; text-align: center; background: #2563eb; border-color: #1d4ed8; }
+        .button-group { display: grid; gap: 0; }
+        button { display: block; width: 100%; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
+        button:hover { background: #f1f5f9; border-color: #64748b; }
+        .selected-pill { margin: 0 0 14px; display: inline-block; background: #334155; color: #ffffff; border-radius: 999px; padding: 8px 12px; }
+        .result-card { margin-top: 18px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
+        .continue-button { margin-top: 20px; text-align: center; background: #0f172a; color: #ffffff; border-radius: 14px; padding: 14px 18px; font-weight: 700; }
       `}</style>
     </main>
   );
