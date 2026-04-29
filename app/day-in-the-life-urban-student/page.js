@@ -159,18 +159,30 @@ const urbanStudentScenes = [
         'Ask participants how their response would change if they knew the student’s morning began this way.',
     },
     choices: [
-      { id: 'snooze', label: 'Hit snooze and lie back down', resultTitle: 'You lie back down.', metrics: { sleep: 1, stress: -1, time: -2, care: 0 }, result: [
-        { type: 'paragraph', text: 'You tap the screen and let the alarm go quiet. The silence feels too good for one second.' },
-        { type: 'paragraph', text: 'You lie back down, telling yourself you only need five minutes. Your eyes close before you finish the thought.' },
-        { type: 'thought', text: 'Just five. I can still make it.' },
-        { type: 'paragraph', text: 'But the morning is already moving without you.' },
-      ], nextSceneId: 'scene_640am_getting_ready' },
-      { id: 'get_ready', label: 'Get up and start getting ready', resultTitle: 'You force yourself up.', metrics: { sleep: 0, stress: 1, time: 1, care: 0 }, result: [
-        { type: 'paragraph', text: 'You stand before your body feels ready. Your legs are heavy, but you move anyway.' },
-        { type: 'paragraph', text: 'You look around the room for what you need: clothes, shoes, backpack, something clean enough to wear.' },
-        { type: 'thought', text: 'Move. Just move.' },
-        { type: 'paragraph', text: 'You are awake now, but not clear. Every small thing feels like it takes longer than it should.' },
-      ], nextSceneId: 'scene_640am_getting_ready' },
+      { id: 'snooze', label: 'Hit snooze and lie back down', resultTitle: 'The alarm costs you.', metrics: { sleep: -1, stress: -3, time: -1, care: -1 }, result: [
+        { type: 'paragraph', text: 'The alarm goes off again.\n\nYou reach for it, but not fast enough.' },
+        { type: 'paragraph', text: 'Movement downstairs.\n\nNot calm this time.\n\nLouder. Faster.\n\nVoices.' },
+        { type: 'paragraph', text: 'Your body locks before your brain catches up.\n\nThat’s not just noise.\n\nThat’s arguing.' },
+        { type: 'thought', text: 'I shouldn’t have hit snooze.' },
+        { type: 'paragraph', text: 'The voices get closer.\n\nYour name cuts through the shouting.\n\nNot now.' },
+        { type: 'paragraph', text: 'The door bursts open.\n\nHe’s already moving before you can react.\n\nYour arm is yanked hard—too hard—and you’re pulled off the bed.\n\nYour head cracks against the bed post as you hit the floor.' },
+        { type: 'thought', text: 'Don’t say anything.' },
+        { type: 'paragraph', text: 'Your sister starts to cry, but it’s swallowed by yelling.\n\nYour mom is shouting. He’s shouting louder.\n\nSomething about the alarm. About waking him up.' },
+        { type: 'paragraph', text: 'You stay down.\n\nYou’ve learned this part.\n\nWait it out.\n\nDon’t make it worse.' },
+        { type: 'paragraph', text: 'They leave as fast as they came in.\n\nThe noise moves away.\n\nBut your chest is still tight.' },
+        { type: 'thought', text: 'I’m not making that mistake again.' },
+        { type: 'paragraph', text: 'You move fast now.\n\nFaster than before.\n\nYou just need to get out of the house.' },
+      ], nextSceneId: 'scene_bus_stop' },
+      { id: 'get_ready', label: 'Get up and start getting ready', resultTitle: 'You force yourself up.', metrics: { sleep: 0, stress: -2, time: 1, care: -1 }, result: [
+        { type: 'paragraph', text: 'You stand before your body feels ready.\n\nYour legs are heavy, but you move anyway.' },
+        { type: 'paragraph', text: 'You find clothes, grab what you can, and start getting dressed as quickly as possible.\n\nThe house is not calm anymore.' },
+        { type: 'paragraph', text: 'You hear his voice from another room.\n\nLoud.\n\nAngry.\n\nSomething about the alarm.' },
+        { type: 'thought', text: 'Just keep moving.' },
+        { type: 'paragraph', text: 'Then you hear it clearly.\n\n“That little asshole needs to turn off his damn alarm.”' },
+        { type: 'paragraph', text: 'Your stomach tightens.\n\nYou do not wait to hear what comes next.' },
+        { type: 'paragraph', text: 'You grab what you can and move toward the door.\n\nYou hope your mom and baby sister will be okay.\n\nBut right now, you need to get out.' },
+        { type: 'thought', text: 'Just get out of the house.' },
+      ], nextSceneId: 'scene_bus_stop' },
       { id: 'check_phone', label: 'Check your phone first', resultTitle: 'You check your phone.', metrics: { sleep: 0, stress: -1, time: -1, care: 0 }, result: [
         { type: 'paragraph', text: 'You unlock the phone before you stand up. Notifications stack over each other. A few messages. A few things you do not need to see right now.' },
         { type: 'paragraph', text: 'You tell yourself you are just checking the time, but your thumb keeps moving.' },
@@ -183,6 +195,75 @@ const urbanStudentScenes = [
         { type: 'thought', text: 'Come on. I can’t be late again.' },
         { type: 'paragraph', text: 'You are trying to be patient, but you can already feel the morning getting away from you.' },
       ], nextSceneId: 'scene_640am_getting_ready' },
+    ],
+  },
+  {
+    id: 'scene_bus_stop',
+    sceneNumber: 3,
+    totalScenes: 10,
+    time: 'Bus Stop',
+    heading: 'On the Way to School',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: 'You step outside and the air hits different.\n\nCold. Quiet. No yelling.\n\nBut your body is still moving like the yelling followed you.' },
+        { type: 'paragraph', text: 'You move fast down the street.\n\nFaster than you need to.\n\nYou don’t look back.' },
+        { type: 'thought', text: 'Just get to the bus.' },
+      ],
+      [
+        { type: 'paragraph', text: 'You see the bus coming up the street.\n\nAlready.\n\nToo soon.' },
+        { type: 'paragraph', text: 'You reach for your backpack—\n\nNothing.\n\nYou stop.' },
+        { type: 'thought', text: 'No. No way.' },
+        { type: 'paragraph', text: 'You ran out of the house without it.\n\nNo bag.\n\nNo bus pass.\n\nNothing.' },
+        { type: 'paragraph', text: 'The bus is still coming.\n\nYou don’t have time to think.' },
+      ],
+      [
+        { type: 'paragraph', text: 'A younger kid is standing at the stop.\n\nYou’ve seen him before.\n\nSmaller.\n\nAlone.' },
+        { type: 'paragraph', text: 'The bus gets closer.\n\nYou feel it in your chest.\n\nNo bag.\n\nNo pass.\n\nNo time.' },
+        { type: 'thought', text: 'I need that pass.' },
+      ],
+    ],
+    question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What might an adult assume if Adam shows up aggressive or withdrawn?',
+        'What happened before this moment that influenced this decision?',
+        'How does urgency affect moral decision-making?',
+      ],
+      writingPrompt: 'Describe how stress and urgency changed Adam’s decision-making in this moment.',
+      insight: 'Behavior is often the result of accumulated pressure, not a single choice.',
+      expandedInsight:
+        'By the time Adam reaches the bus stop, he is not making decisions from a calm or neutral state. His actions are shaped by lack of sleep, emotional stress, fear, and urgency. When students act aggressively or impulsively, it is often the visible result of invisible buildup.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+      facilitatorLens:
+        'Ask participants whether Adam’s behavior should be judged in isolation or as part of a larger chain of events.',
+    },
+    choices: [
+      { id: 'ask_for_help', label: 'Ask him for help', resultTitle: 'You ask.', metrics: { sleep: 0, stress: -2, time: -1, care: 0 }, result: [
+        { type: 'paragraph', text: 'You walk up to him, trying to keep your voice steady.\n\nYou ask if you can use his pass.' },
+        { type: 'paragraph', text: 'He looks unsure.\n\nNervous.\n\nHe shakes his head.' },
+        { type: 'thought', text: 'Of course.' },
+        { type: 'paragraph', text: 'The bus is almost there.\n\nYou feel the pressure spike.' },
+      ] },
+      { id: 'take_pass', label: 'Take the bus pass', resultTitle: 'You take it.', metrics: { sleep: 0, stress: -1, time: 1, care: -2 }, result: [
+        { type: 'paragraph', text: 'You step into him before he can react.\n\nYou shove him harder than you meant to.\n\nHe stumbles back.' },
+        { type: 'paragraph', text: '“Give it to me,” you snap.\n\nYour voice doesn’t sound like you.' },
+        { type: 'paragraph', text: 'He freezes.\n\nHands shaking.\n\nHe gives it to you.' },
+        { type: 'thought', text: 'Just take it.' },
+        { type: 'paragraph', text: 'The bus pulls up.\n\nYou don’t look at him again.' },
+        { type: 'paragraph', text: 'As you step on, something tight sits in your chest.\n\nYou ignore it.' },
+      ] },
+      { id: 'skip_bus', label: 'Skip the bus', resultTitle: 'You miss it.', metrics: { sleep: 0, stress: -2, time: -2, care: 0 }, result: [
+        { type: 'paragraph', text: 'You step back.\n\nYou don’t move toward him.\n\nYou don’t move at all.' },
+        { type: 'paragraph', text: 'The bus pulls up.\n\nThen leaves.\n\nWithout you.' },
+        { type: 'thought', text: 'Great.' },
+        { type: 'paragraph', text: 'Now you’re stuck.\n\nAnd late.' },
+      ] },
+      { id: 'walk_away', label: 'Walk away from the situation', resultTitle: 'You walk away.', metrics: { sleep: 0, stress: 1, time: -2, care: 0 }, result: [
+        { type: 'paragraph', text: 'You turn away from the stop.\n\nFrom the kid.\n\nFrom the bus.' },
+        { type: 'paragraph', text: 'You keep walking.\n\nYou don’t know where you’re going yet.' },
+        { type: 'thought', text: 'I just need a second.' },
+        { type: 'paragraph', text: 'The bus drives off behind you.\n\nYou don’t turn around.' },
+      ] },
     ],
   },
 ];
@@ -214,7 +295,7 @@ const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
-  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1 });
+  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
   const [showInsights, setShowInsights] = useState({});
 
@@ -258,7 +339,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     setSceneId('scene_2am_bedroom');
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
-    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1 });
+    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1 });
     setShowInsights({});
   };
 
@@ -272,7 +353,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   };
 
   if (sceneId === 'scene_placeholder_end') {
-    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This prototype currently focuses on the first two scenes so we can perfect the experience before adding the rest of Adam’s day.</p></article></section></main>;
+    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This prototype currently focuses on the first three scenes so we can perfect the experience before adding the rest of Adam’s day.</p></article></section></main>;
   }
 
   const changedMetrics = metricOrder
@@ -336,7 +417,7 @@ export default function DayInTheLifeUrbanStudentPage() {
                   </div>
                 ))}
               </div>}
-              <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p><p className="lens-prompt">{scene.reflection.facilitatorLens}</p></div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
+              <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}<p className="lens-prompt">{scene.reflection.facilitatorLens}</p></div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
               <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
             </section>
