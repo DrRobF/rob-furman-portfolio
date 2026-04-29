@@ -42,7 +42,7 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'You turn toward your sister again. Still asleep. You stare at the ceiling, wide awake.' },
       ],
     ],
-    question: 'What do you do?',
+    question: 'What do you try to do?',
     reflection: {
       questions: [
         'What assumptions might an adult make about Adam if he seems tired or disengaged later?',
@@ -143,7 +143,7 @@ const urbanStudentScenes = [
         { type: 'thought', text: 'It’s not working.' },
       ],
     ],
-    question: 'What do you do?',
+    question: 'What do you try to do?',
     reflection: {
       questions: [
         'What might Adam’s morning choices reveal about exhaustion, responsibility, and stress?',
@@ -222,7 +222,7 @@ const urbanStudentScenes = [
         { type: 'thought', text: 'I need that pass.' },
       ],
     ],
-    question: 'What do you do?',
+    question: 'What do you try to do?',
     reflection: {
       questions: [
         'What might an adult assume if Adam shows up aggressive or withdrawn?',
@@ -238,31 +238,42 @@ const urbanStudentScenes = [
         'Ask participants whether Adam’s behavior should be judged in isolation or as part of a larger chain of events.',
     },
     choices: [
-      { id: 'ask_for_help', label: 'Ask him for help', resultTitle: 'You ask.', metrics: { sleep: 0, stress: -2, time: -1, care: 0 }, result: [
+      { id: 'try_ask_first', label: 'Ask him for help first', resultTitle: 'You try to ask.', metrics: { sleep: 0, stress: -1, time: 1, care: -1 }, result: [
         { type: 'paragraph', text: 'You walk up to him, trying to keep your voice steady.\n\nYou ask if you can use his pass.' },
-        { type: 'paragraph', text: 'He looks unsure.\n\nNervous.\n\nHe shakes his head.' },
+        { type: 'paragraph', text: 'He hesitates.\n\nThen shakes his head.\n\n“No.”' },
         { type: 'thought', text: 'Of course.' },
-        { type: 'paragraph', text: 'The bus is almost there.\n\nYou feel the pressure spike.' },
+        { type: 'paragraph', text: 'The bus is almost there.\n\nYour chest tightens.\n\nNo bag. No pass. No time.' },
+        { type: 'paragraph', text: 'You step closer.\n\nToo close.\n\nYour hand moves before you fully decide.' },
+        { type: 'paragraph', text: 'You shove him.\n\nHe stumbles.\n\nYou grab the pass.' },
+        { type: 'thought', text: 'Just get on the bus.' },
+        { type: 'paragraph', text: 'You don’t look back.' },
       ] },
-      { id: 'take_pass', label: 'Take the bus pass', resultTitle: 'You take it.', metrics: { sleep: 0, stress: -1, time: 1, care: -2 }, result: [
-        { type: 'paragraph', text: 'You step into him before he can react.\n\nYou shove him harder than you meant to.\n\nHe stumbles back.' },
-        { type: 'paragraph', text: '“Give it to me,” you snap.\n\nYour voice doesn’t sound like you.' },
-        { type: 'paragraph', text: 'He freezes.\n\nHands shaking.\n\nHe gives it to you.' },
-        { type: 'thought', text: 'Just take it.' },
-        { type: 'paragraph', text: 'The bus pulls up.\n\nYou don’t look at him again.' },
-        { type: 'paragraph', text: 'As you step on, something tight sits in your chest.\n\nYou ignore it.' },
+      { id: 'hesitate_then_take', label: 'Hesitate and try to think', resultTitle: 'You hesitate.', metrics: { sleep: 0, stress: -2, time: 1, care: -2 }, result: [
+        { type: 'paragraph', text: 'You stand there for a second too long.\n\nThinking.\n\nTrying to find another way.' },
+        { type: 'paragraph', text: 'The bus gets closer.\n\nCloser.\n\nYou feel it slipping.' },
+        { type: 'thought', text: 'Do something.' },
+        { type: 'paragraph', text: 'You step forward suddenly.\n\nToo fast.\n\nYour shoulder hits him.' },
+        { type: 'paragraph', text: 'He stumbles.\n\nYou grab the pass.\n\nYou don’t even remember deciding to do it.' },
+        { type: 'thought', text: 'I didn’t mean to—' },
+        { type: 'paragraph', text: 'But you’re already moving.' },
       ] },
-      { id: 'skip_bus', label: 'Skip the bus', resultTitle: 'You miss it.', metrics: { sleep: 0, stress: -2, time: -2, care: 0 }, result: [
-        { type: 'paragraph', text: 'You step back.\n\nYou don’t move toward him.\n\nYou don’t move at all.' },
-        { type: 'paragraph', text: 'The bus pulls up.\n\nThen leaves.\n\nWithout you.' },
-        { type: 'thought', text: 'Great.' },
-        { type: 'paragraph', text: 'Now you’re stuck.\n\nAnd late.' },
+      { id: 'look_around', label: 'Look around for another option', resultTitle: 'You look for another way.', metrics: { sleep: 0, stress: -1, time: 1, care: -2 }, result: [
+        { type: 'paragraph', text: 'You glance around.\n\nMaybe someone else.\n\nMaybe another option.' },
+        { type: 'paragraph', text: 'There isn’t one.\n\nJust him.\n\nJust the bus.' },
+        { type: 'paragraph', text: 'The doors are about to open.\n\nPanic hits your chest.' },
+        { type: 'thought', text: 'There’s no other way.' },
+        { type: 'paragraph', text: 'You step in.\n\nHarder than you meant to.\n\nYou take the pass.' },
+        { type: 'paragraph', text: 'He doesn’t fight back.\n\nThat almost makes it worse.' },
+        { type: 'thought', text: 'Don’t think about it.' },
       ] },
-      { id: 'walk_away', label: 'Walk away from the situation', resultTitle: 'You walk away.', metrics: { sleep: 0, stress: 1, time: -2, care: 0 }, result: [
-        { type: 'paragraph', text: 'You turn away from the stop.\n\nFrom the kid.\n\nFrom the bus.' },
-        { type: 'paragraph', text: 'You keep walking.\n\nYou don’t know where you’re going yet.' },
-        { type: 'thought', text: 'I just need a second.' },
-        { type: 'paragraph', text: 'The bus drives off behind you.\n\nYou don’t turn around.' },
+      { id: 'freeze_then_take', label: 'Freeze for a second', resultTitle: 'You freeze.', metrics: { sleep: 0, stress: -2, time: 1, care: -2 }, result: [
+        { type: 'paragraph', text: 'You don’t move.\n\nYour body just… stops.' },
+        { type: 'paragraph', text: 'The bus is right there now.\n\nYou feel stuck.' },
+        { type: 'thought', text: 'Move.' },
+        { type: 'paragraph', text: 'You force yourself forward.\n\nToo late to think.\n\nToo late to decide.' },
+        { type: 'paragraph', text: 'You push him aside and take the pass.\n\nYou get on the bus.' },
+        { type: 'paragraph', text: 'Your chest is tight.\n\nYour hands feel off.' },
+        { type: 'thought', text: 'What did I just do?' },
       ] },
     ],
   },
