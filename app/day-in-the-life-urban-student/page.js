@@ -170,7 +170,10 @@ const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id
 const renderBlocks = (blocks) =>
   blocks.map((block, index) =>
     block.type === 'thought' ? (
-      <aside key={`${block.type}-${index}`} className="thought-card">{block.text}</aside>
+      <aside key={`${block.type}-${index}`} className="thought-wrap">
+        <p className="thought-label">Adam’s thoughts</p>
+        <div className="thought-card">{block.text}</div>
+      </aside>
     ) : (
       <p key={`${block.type}-${index}`} className="paragraph-card">{block.text}</p>
     )
@@ -213,10 +216,12 @@ export default function DayInTheLifeUrbanStudentPage() {
             <p>Scene {scene.sceneNumber} of {scene.totalScenes}</p>
           </header>
 
+          <p className="section-label">The Moment</p>
           <div className="scene-content">{renderBlocks(introBlocks)}</div>
 
           {!selectedChoice ? (
             <div className="choices-section">
+              <p className="section-label">Your Choice</p>
               <h2>{scene.question}</h2>
               <div className="button-group">
                 {scene.choices.map((choice) => (
@@ -226,6 +231,7 @@ export default function DayInTheLifeUrbanStudentPage() {
             </div>
           ) : (
             <section className="result-section">
+              <p className="section-label">Your Choice</p>
               <p className="selected-pill">You chose: {selectedChoice.label}</p>
               <div className="result-card">
                 <h2>{selectedChoice.resultTitle}</h2>
@@ -244,14 +250,17 @@ export default function DayInTheLifeUrbanStudentPage() {
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0; font-size: clamp(1.5rem, 2.8vw, 2.2rem); }
         .scene-content { display: grid; }
-        .paragraph-card { margin: 0 0 18px; color: #1e293b; font-size: 1.05rem; line-height: 1.75; }
-        .thought-card { background: #e2e8f0; color: #0f172a; border-left: 5px solid #334155; font-style: italic; border-radius: 14px; padding: 16px 18px; margin: 20px 0; line-height: 1.65; }
+        .section-label { margin: 0 0 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
+        .paragraph-card { margin: 0 0 16px; color: #1e293b; font-size: 1.05rem; line-height: 1.8; }
+        .thought-wrap { margin: 18px 0; }
+        .thought-label { margin: 0 0 6px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-style: normal; font-weight: 800; }
+        .thought-card { background: #e8eef6; border-left: 5px solid #1e3a5f; color: #102033; font-style: italic; font-weight: 600; border-radius: 14px; padding: 14px 18px; margin: 0; line-height: 1.7; }
         .choices-section h2, .result-card h2 { margin: 0 0 0.75rem; font-size: 1.2rem; }
         .button-group { display: grid; gap: 0; }
         button { display: block; width: 100%; background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
         button:hover { background: #f1f5f9; border-color: #64748b; }
         .selected-pill { margin: 0 0 14px; display: inline-block; background: #334155; color: #ffffff; border-radius: 999px; padding: 8px 12px; }
-        .result-card { margin-top: 18px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
+        .result-card { margin-top: 18px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); }
         .continue-button { margin-top: 20px; text-align: center; background: #0f172a; color: #ffffff; border-radius: 14px; padding: 14px 18px; font-weight: 700; }
       `}</style>
     </main>
