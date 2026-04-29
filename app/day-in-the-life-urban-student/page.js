@@ -215,7 +215,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
   const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1 });
-  const [sceneMetrics, setSceneMetrics] = useState(initialMetrics);
+  const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
   const [showInsights, setShowInsights] = useState({});
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
@@ -240,24 +240,26 @@ export default function DayInTheLifeUrbanStudentPage() {
   };
 
   const handleChoose = (choiceId) => {
+    if (selectedChoices[scene.id]) return;
     const nextChoice = scene.choices.find((choice) => choice.id === choiceId);
     if (!nextChoice) return;
-    const previousChoiceId = selectedChoices[scene.id];
-    const previousChoice = scene.choices.find((choice) => choice.id === previousChoiceId);
-    setSceneMetrics((prev) => {
-      const withRevertedPrior = { ...prev };
-      if (previousChoice) {
-        metricOrder.forEach((metric) => {
-          withRevertedPrior[metric] = clampMetric((withRevertedPrior[metric] ?? 0) - (previousChoice.metrics?.[metric] ?? 0));
-        });
-      }
-      const nextMetrics = { ...withRevertedPrior };
+
+    setCumulativeMetrics((prev) => {
+      const nextMetrics = { ...prev };
       metricOrder.forEach((metric) => {
         nextMetrics[metric] = clampMetric((nextMetrics[metric] ?? 0) + (nextChoice.metrics?.[metric] ?? 0));
       });
       return nextMetrics;
     });
     setSelectedChoices((prev) => ({ ...prev, [scene.id]: choiceId }));
+  };
+
+  const handleReset = () => {
+    setSceneId('scene_2am_bedroom');
+    setSelectedChoices({});
+    setCumulativeMetrics(initialMetrics);
+    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1 });
+    setShowInsights({});
   };
 
   const handleContinue = () => {
@@ -276,6 +278,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const changedMetrics = metricOrder
     .map((metric) => [metric, selectedChoice?.metrics?.[metric] ?? 0])
     .filter(([, value]) => value !== 0);
+  const hasAnyChoiceSelected = Object.keys(selectedChoices).length > 0;
 
   return (
     <main className="urban-student-page">
@@ -308,7 +311,7 @@ export default function DayInTheLifeUrbanStudentPage() {
               <p className="section-label">CONSEQUENCE</p>
               <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
               {changedMetrics.length > 0 && <div><p className="section-label">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
-              <div className="metrics-stack">
+              {hasAnyChoiceSelected && <div className="metrics-stack">
                 <p className="section-label">CUMULATIVE LOAD</p>
                 <p className="metric-subtitle">How far Adam has moved from baseline</p>
                 {metricOrder.map((metric) => (
@@ -318,23 +321,24 @@ export default function DayInTheLifeUrbanStudentPage() {
                         <span>{metricConfig[metric].label}</span>
                         <p className="metric-help">{metricConfig[metric].help}</p>
                       </div>
-                      <span>{sceneMetrics[metric] > 0 ? `+${sceneMetrics[metric]}` : sceneMetrics[metric]}</span>
+                      <span>{cumulativeMetrics[metric] > 0 ? `+${cumulativeMetrics[metric]}` : cumulativeMetrics[metric]}</span>
                     </div>
                     <div className="metric-track">
                       <span className="metric-center-marker">0</span>
                       <div
-                        className={`metric-fill ${sceneMetrics[metric] >= 0 ? (metric === 'care' ? 'metric-fill-care-positive' : 'metric-fill-positive') : 'metric-fill-negative'}`}
+                        className={`metric-fill ${cumulativeMetrics[metric] >= 0 ? (metric === 'care' ? 'metric-fill-care-positive' : 'metric-fill-positive') : 'metric-fill-negative'}`}
                         style={{
-                          width: `${Math.abs((sceneMetrics[metric] / 10) * 50)}%`,
-                          left: sceneMetrics[metric] >= 0 ? '50%' : `${50 - Math.abs((sceneMetrics[metric] / 10) * 50)}%`,
+                          width: `${Math.abs((cumulativeMetrics[metric] / 10) * 50)}%`,
+                          left: cumulativeMetrics[metric] >= 0 ? '50%' : `${50 - Math.abs((cumulativeMetrics[metric] / 10) * 50)}%`,
                         }}
                       />
                     </div>
                   </div>
                 ))}
-              </div>
+              </div>}
               <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p><p className="lens-prompt">{scene.reflection.facilitatorLens}</p></div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
+              <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
             </section>
           )}
         </article>
@@ -367,6 +371,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .thought-card { background: #eef4ff; border-left: 7px solid #1e3a8a; color: #0f172a; font-style: italic !important; font-size: 1.08rem; font-weight: 700; border-radius: 16px; padding: 18px 22px; margin: 24px 0; line-height: 1.65; box-shadow: 0 8px 24px rgba(30, 58, 138, 0.08); }
         button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
         .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; }
+        .reset-button { text-align: center; background: #334155; color: #fff; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
         .impact-row { display: flex; flex-wrap: wrap; gap: 10px; }
