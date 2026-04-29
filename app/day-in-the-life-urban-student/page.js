@@ -247,7 +247,7 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'You shove him.\n\nHe stumbles.\n\nYou grab the pass.' },
         { type: 'thought', text: 'Just get on the bus.' },
         { type: 'paragraph', text: 'You don’t look back.' },
-      ] },
+      ], nextSceneId: 'scene_school_entrance' },
       { id: 'hesitate_then_take', label: 'Hesitate and try to think', resultTitle: 'You hesitate.', metrics: { sleep: 0, stress: -2, time: 1, care: -2 }, result: [
         { type: 'paragraph', text: 'You stand there for a second too long.\n\nThinking.\n\nTrying to find another way.' },
         { type: 'paragraph', text: 'The bus gets closer.\n\nCloser.\n\nYou feel it slipping.' },
@@ -256,7 +256,7 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'He stumbles.\n\nYou grab the pass.\n\nYou don’t even remember deciding to do it.' },
         { type: 'thought', text: 'I didn’t mean to—' },
         { type: 'paragraph', text: 'But you’re already moving.' },
-      ] },
+      ], nextSceneId: 'scene_school_entrance' },
       { id: 'look_around', label: 'Look around for another option', resultTitle: 'You look for another way.', metrics: { sleep: 0, stress: -1, time: 1, care: -2 }, result: [
         { type: 'paragraph', text: 'You glance around.\n\nMaybe someone else.\n\nMaybe another option.' },
         { type: 'paragraph', text: 'There isn’t one.\n\nJust him.\n\nJust the bus.' },
@@ -265,7 +265,7 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'You step in.\n\nHarder than you meant to.\n\nYou take the pass.' },
         { type: 'paragraph', text: 'He doesn’t fight back.\n\nThat almost makes it worse.' },
         { type: 'thought', text: 'Don’t think about it.' },
-      ] },
+      ], nextSceneId: 'scene_school_entrance' },
       { id: 'freeze_then_take', label: 'Freeze for a second', resultTitle: 'You freeze.', metrics: { sleep: 0, stress: -2, time: 1, care: -2 }, result: [
         { type: 'paragraph', text: 'You don’t move.\n\nYour body just… stops.' },
         { type: 'paragraph', text: 'The bus is right there now.\n\nYou feel stuck.' },
@@ -274,6 +274,71 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'You push him aside and take the pass.\n\nYou get on the bus.' },
         { type: 'paragraph', text: 'Your chest is tight.\n\nYour hands feel off.' },
         { type: 'thought', text: 'What did I just do?' },
+      ], nextSceneId: 'scene_school_entrance' },
+    ],
+  },
+  {
+    id: 'scene_school_entrance',
+    sceneNumber: 4,
+    totalScenes: 10,
+    time: 'School Entrance',
+    heading: 'Entering the Building',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: 'You rush into school and through the metal detectors.\n\nThe building feels loud.\n\nToo loud.\n\nToo fast.' },
+        { type: 'paragraph', text: 'You’re still thinking about the house.\n\nAbout your mom.\n\nAbout your sister.\n\nAbout the bus.' },
+        { type: 'thought', text: 'Just get to class.' },
+      ],
+      [
+        { type: 'paragraph', text: 'Security stops you.\n\nThey point at your bag.' },
+        { type: 'paragraph', text: 'You look down.\n\nNothing.' },
+        { type: 'thought', text: 'Damn.' },
+        { type: 'paragraph', text: 'You forgot it.\n\nYour book bag is still at home.' },
+      ],
+      [
+        { type: 'paragraph', text: 'That new boyfriend.\n\nYou ran out so fast you forgot everything.\n\nBus pass.\n\nBag.\n\nEverything.' },
+        { type: 'paragraph', text: 'You feel it now.\n\nThis is going to follow you all day.' },
+        { type: 'thought', text: 'I’m not telling them why.' },
+      ],
+    ],
+    question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What might staff assume about Adam in this moment?',
+        'What context is completely invisible to them?',
+        'How quickly do adults form judgments here?',
+      ],
+      writingPrompt: 'Write how a staff member might interpret Adam—and how that interpretation could be wrong.',
+      insight: 'Adults respond to what they see, not what caused it.',
+      expandedInsight:
+        'By the time Adam enters school, he is already carrying stress, lack of sleep, fear, and urgency. Without that context, adults interpret only what they observe—missing materials, tone, and behavior—often leading to incorrect conclusions.',
+      facilitatorLens:
+        'Ask participants what they would assume—and what they would need to know before deciding.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    choices: [
+      { id: 'tell_truth', label: 'Tell them what happened at home', resultTitle: 'You try to explain.', metrics: { sleep: 0, stress: -1, time: 0, care: -1 }, result: [
+        { type: 'paragraph', text: 'You start to explain.\n\nAbout your house.\n\nAbout the morning.\n\nAbout why you rushed out.' },
+        { type: 'paragraph', text: 'They listen.\n\nBut not really.' },
+        { type: 'thought', text: 'They don’t get it.' },
+        { type: 'paragraph', text: '“Just get to class.”\n\nThat’s it.' },
+      ] },
+      { id: 'say_forgot', label: 'Say you forgot your bag', resultTitle: 'You keep it simple.', metrics: { sleep: 0, stress: 1, time: 1, care: 0 }, result: [
+        { type: 'paragraph', text: '“I forgot it.”\n\nYou keep it short.' },
+        { type: 'paragraph', text: 'They look at you.\n\nThen wave you through.' },
+        { type: 'thought', text: 'Good.' },
+        { type: 'paragraph', text: 'No questions.' },
+      ] },
+      { id: 'get_defensive', label: 'Push back a little', resultTitle: 'You push back.', metrics: { sleep: 0, stress: -2, time: -1, care: -1 }, result: [
+        { type: 'paragraph', text: '“It’s not a big deal.”\n\nYou say it sharp.' },
+        { type: 'paragraph', text: 'Security pauses.\n\nThat’s enough.' },
+        { type: 'thought', text: 'Now they’re watching me.' },
+      ] },
+      { id: 'say_nothing', label: 'Say nothing', resultTitle: 'You stay quiet.', metrics: { sleep: 0, stress: -1, time: 0, care: -1 }, result: [
+        { type: 'paragraph', text: 'You don’t answer.\n\nYou just stand there.' },
+        { type: 'paragraph', text: 'They look at you longer.\n\nTrying to figure you out.' },
+        { type: 'thought', text: 'Say something.' },
+        { type: 'paragraph', text: 'They wave you through.\n\nBut not before making up their mind about you.' },
       ] },
     ],
   },
@@ -306,7 +371,7 @@ const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
-  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1 });
+  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
   const [showInsights, setShowInsights] = useState({});
 
@@ -350,7 +415,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     setSceneId('scene_2am_bedroom');
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
-    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1 });
+    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1 });
     setShowInsights({});
   };
 
