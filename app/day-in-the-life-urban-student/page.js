@@ -188,13 +188,13 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'You tell yourself you are just checking the time, but your thumb keeps moving.' },
         { type: 'thought', text: 'One second. Then I’ll get up.' },
         { type: 'paragraph', text: 'The room stays still around you, but the clock does not.' },
-      ], nextSceneId: 'scene_640am_getting_ready' },
+      ], nextSceneId: 'scene_bus_stop' },
       { id: 'wake_sister', label: 'Wake your sister up', resultTitle: 'You wake your sister.', metrics: { sleep: 0, stress: -1, time: -1, care: 1 }, result: [
         { type: 'paragraph', text: 'You touch her shoulder gently. She shifts but does not open her eyes.' },
         { type: 'paragraph', text: 'You say her name quietly. Then again. She makes a small sound and turns away from the light.' },
         { type: 'thought', text: 'Come on. I can’t be late again.' },
         { type: 'paragraph', text: 'You are trying to be patient, but you can already feel the morning getting away from you.' },
-      ], nextSceneId: 'scene_640am_getting_ready' },
+      ], nextSceneId: 'scene_bus_stop' },
     ],
   },
   {
