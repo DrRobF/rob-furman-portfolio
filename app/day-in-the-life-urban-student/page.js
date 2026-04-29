@@ -323,25 +323,25 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'No explanation.\n\nNo details.\n\nNo way.' },
         { type: 'thought', text: 'That’s enough.' },
         { type: 'paragraph', text: 'You move on toward first period.' },
-      ], nextSceneId: 'scene_not_built' },
+      ], nextSceneId: 'scene_technology_class' },
       { id: 'make_excuse', label: 'Think of a quick excuse', resultTitle: 'You search for a reason.', metrics: { sleep: 0, stress: -1, time: 0, care: 0 }, result: [
         { type: 'paragraph', text: 'You try to come up with something fast.\n\nSomething normal.\n\nSomething that does not involve your house.' },
         { type: 'paragraph', text: 'Nothing sounds right.' },
         { type: 'thought', text: 'Just say anything.' },
         { type: 'paragraph', text: 'You mumble that you left it at home and keep moving before anyone asks more.' },
-      ], nextSceneId: 'scene_not_built' },
+      ], nextSceneId: 'scene_technology_class' },
       { id: 'get_guarded', label: 'Shut the conversation down', resultTitle: 'You put the wall up.', metrics: { sleep: 0, stress: -1, time: 0, care: -1 }, result: [
         { type: 'paragraph', text: 'You feel the question coming before it lands.\n\nYou already hate it.' },
         { type: 'paragraph', text: 'Your face changes.\n\nYour voice gets flat.' },
         { type: 'thought', text: 'Don’t ask me.' },
         { type: 'paragraph', text: 'You make it clear there is nothing else to say.\n\nThen you head toward first period.' },
-      ], nextSceneId: 'scene_not_built' },
+      ], nextSceneId: 'scene_technology_class' },
       { id: 'none_business', label: 'Decide it is none of their business', resultTitle: 'You decide it is not their business.', metrics: { sleep: 0, stress: 1, time: 1, care: -1 }, result: [
         { type: 'paragraph', text: 'You make the decision before anyone can press you.\n\nYou forgot it.\n\nThat is the story.' },
         { type: 'paragraph', text: 'Not the boyfriend.\n\nNot the yelling.\n\nNot your mom.\n\nNot your sister.' },
         { type: 'thought', text: 'It’s none of their business.' },
         { type: 'paragraph', text: 'You head off to first period.' },
-      ], nextSceneId: 'scene_not_built' },
+      ], nextSceneId: 'scene_technology_class' },
     ],
   },
   {
@@ -352,7 +352,8 @@ const urbanStudentScenes = [
     heading: 'Technology Class',
     revealGroups: [
       [
-        { type: 'paragraph', text: 'My first period is technology. I always found this subject so damn dumb.' },
+        { type: 'paragraph', text: 'My first period is technology.' },
+        { type: 'paragraph', text: 'I always found this subject so damn dumb.' },
         { type: 'thought', text: 'Seriously, do these teachers actually think that my mom will buy me a computer that actually can run the internet?' },
         { type: 'paragraph', text: 'This subject is such a waste of my time!' },
       ],
@@ -360,19 +361,20 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'When I roll into class I see a few kids talking.' },
         { type: 'paragraph', text: 'When I go to sit down one of them says to me, “Are you OK bro?”' },
         { type: 'paragraph', text: 'I look at him like he was a freak.' },
-        { type: 'thought', text: "What the hell are you talkin' 'bout?" },
+        { type: 'thought', text: "What the hell are you talkin’ ’bout?" },
       ],
       [
         { type: 'paragraph', text: 'He begins to explain to me that he heard that there was police called to my street for a fight in one of the homes.' },
         { type: 'paragraph', text: 'He heard that a female got beat up by some dude.' },
         { type: 'paragraph', text: 'My heart stopped.' },
         { type: 'paragraph', text: 'He continued, “Bro, I was worried that maybe it was you and your mom. I am glad you’re here. Must not have been you then.”' },
-        { type: 'paragraph', text: "I didn't say anything to him." },
+        { type: 'paragraph', text: 'I didn’t say anything to him.' },
         { type: 'paragraph', text: 'I was starting to hit panic mode.' },
       ],
       [
         { type: 'paragraph', text: 'The teacher walks in and tells us to get to our computer terminals and start on yesterday’s project.' },
-        { type: 'paragraph', text: 'The teacher then proceeds to do what he always does, he goes to his desk and fires up Facebook.' },
+        { type: 'paragraph', text: 'The teacher then proceeds to do what he always does.' },
+        { type: 'paragraph', text: 'He goes to his desk and fires up Facebook.' },
       ],
     ],
     question: 'What do you do?',
@@ -397,31 +399,189 @@ const urbanStudentScenes = [
         label: 'Tell the teacher about your experience at home',
         resultTitle: 'You decide to try the teacher.',
         result: [
-          { type: 'paragraph', text: 'You look at the teacher sitting at his desk.' },
-          { type: 'paragraph', text: 'Facebook is already open.' },
-          { type: 'paragraph', text: 'You still need to know what happened on your street.' },
+          { type: 'paragraph', text: 'You walk up to the teacher and try to get his attention.' },
+          { type: 'paragraph', text: 'When he finally pays attention to you, he slams on his keyboard trying to get Facebook off the screen.' },
+          { type: 'paragraph', text: 'He acts as if every student in the whole school doesn’t know he plays on the computer all day long.' },
           { type: 'thought', text: 'Maybe, just maybe, he will actually care.' },
-          { type: 'paragraph', text: 'You walk toward his desk.' },
         ],
         metrics: { sleep: 0, stress: -1, time: 0, care: 1 },
-        nextSceneId: 'scene_technology_teacher_help',
+        nextSceneId: 'scene_technology_teacher_refusal',
       },
       {
         id: 'go_to_computer',
         label: 'Go get on the computer',
         resultTitle: 'You decide to handle it yourself.',
         result: [
-          { type: 'paragraph', text: 'You go to your computer.' },
+          { type: 'paragraph', text: 'What a waste this teacher is.' },
           { type: 'paragraph', text: 'You need to know what is going on with your mom and baby sister.' },
-          { type: 'paragraph', text: 'You try to find a computer far away from the teacher.' },
+          { type: 'paragraph', text: 'You go get on your computer.' },
           { type: 'thought', text: 'No one in this school is going to help me.' },
-          { type: 'paragraph', text: 'You sit down and get ready to search for the news yourself.' },
         ],
         metrics: { sleep: 0, stress: -1, time: 0, care: -1 },
         nextSceneId: 'scene_technology_computer_search',
       },
     ],
   },
+  {
+    id: 'scene_technology_teacher_refusal',
+    sceneNumber: 6,
+    totalScenes: 10,
+    time: 'First Period',
+    heading: 'Technology Class',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: '“Why aren’t you at your computer?” he says, obviously irritated.' },
+        { type: 'thought', text: 'What a nice way to start this conversation.' },
+        { type: 'paragraph', text: 'You debate about telling him.' },
+        { type: 'paragraph', text: 'Really, this is none of his business.' },
+      ],
+      [
+        { type: 'paragraph', text: 'The last time you tried to get help from a teacher, he blew you off entirely.' },
+        { type: 'thought', text: 'What the hell am I doing? There is no way he is going to care.' },
+        { type: 'paragraph', text: 'You decide to give it one final try with this teacher.' },
+        { type: 'paragraph', text: 'Maybe, just maybe, he will actually care.' },
+      ],
+      [
+        { type: 'paragraph', text: '“I heard from one of my buddies that there were some police called to my street after I left for school. Can I look it up on the internet to see what happened?”' },
+        { type: 'paragraph', text: 'The teacher looks at you suspiciously.' },
+        { type: 'paragraph', text: '“Look, you know the rules of the computer lab. You are only allowed to use the internet for work on your school assignments. If the principal would come in with you on some gaming site I would be in serious trouble. I am sure everything is fine. Go do your work.”' },
+      ],
+      [
+        { type: 'paragraph', text: 'Let me tell you how many things were wrong with this statement.' },
+        { type: 'paragraph', text: 'First, he doesn’t care about the principal.' },
+        { type: 'paragraph', text: 'Hello, Facebook.' },
+        { type: 'paragraph', text: 'Second, what rules for this room?' },
+        { type: 'paragraph', text: 'The only good thing about this conversation was that you once again learned that the teachers in this building suck and could care less about the students.' },
+        { type: 'thought', text: 'They don’t get me. They don’t get any of us. This was the last time I ever ask for help.' },
+        { type: 'paragraph', text: 'Worthless teachers.' },
+      ],
+    ],
+    question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What opportunity did the teacher have to break the chain of Adam’s day?',
+        'How does the teacher’s own rule-breaking change Adam’s reaction?',
+        'What does Adam learn from this failed attempt to ask for help?',
+      ],
+      writingPrompt: 'Write one teacher response that would have helped Adam without ignoring classroom expectations.',
+      insight: 'This is the moment where Adam reaches for adult help and gets pushed back into compliance instead.',
+      expandedInsight:
+        'The teacher’s refusal does more than deny a request. It confirms Adam’s belief that adults in school will not help him. The teacher also models the very rule-breaking he demands Adam avoid.',
+      facilitatorLens:
+        'Ask participants how often students stop asking for help after one adult dismisses them.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    choices: [
+      {
+        id: 'go_back_computer',
+        label: 'Go back to your computer',
+        resultTitle: 'You go back to your computer.',
+        result: [
+          { type: 'paragraph', text: 'You go back to your computer.' },
+          { type: 'paragraph', text: 'He would not help you, so you are going to help yourself.' },
+          { type: 'thought', text: 'I need to know what happened.' },
+        ],
+        metrics: { sleep: 0, stress: -2, time: 0, care: -1 },
+        nextSceneId: 'scene_technology_computer_search',
+      },
+      {
+        id: 'enough_quit',
+        label: 'This is enough. I need to quit.',
+        resultTitle: 'You want out.',
+        result: [
+          { type: 'paragraph', text: 'You feel yourself hit the wall.' },
+          { type: 'paragraph', text: 'This is enough.' },
+          { type: 'paragraph', text: 'You do not want to do this anymore.' },
+          { type: 'thought', text: 'I need to quit.' },
+        ],
+        metrics: { sleep: 0, stress: -2, time: -1, care: -1 },
+        nextSceneId: 'scene_technology_computer_search',
+      },
+    ],
+  },
+  {
+    id: 'scene_technology_computer_search',
+    sceneNumber: 7,
+    totalScenes: 10,
+    time: 'First Period',
+    heading: 'Technology Class',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: 'What a waste this teacher is.' },
+        { type: 'paragraph', text: 'You need to know what is going on with your mom and baby sister.' },
+        { type: 'paragraph', text: 'You try to find a computer that is far away from the Facebook-happy teacher.' },
+        { type: 'paragraph', text: 'You get on the internet immediately and start to look up the local news.' },
+      ],
+      [
+        { type: 'paragraph', text: 'You get on the local newspaper site and start to fish through the breaking news section.' },
+        { type: 'paragraph', text: 'You find the article heading.' },
+        { type: 'paragraph', text: '“Police called to 3rd street for disturbance and find two seriously injured.”' },
+        { type: 'thought', text: 'Oh god, not my little sister.' },
+        { type: 'paragraph', text: 'You need to read more, so you click to the full article.' },
+      ],
+      [
+        { type: 'paragraph', text: 'As soon as you see the full article start to come into view, you hear the teacher shout your name.' },
+        { type: 'thought', text: 'Screw him. He wouldn’t help me, so I am helping myself.' },
+        { type: 'paragraph', text: 'You ignore him and start to read the first line of the full article.' },
+        { type: 'paragraph', text: '“Police were called this morning to a house in the 3rd street district...”' },
+      ],
+      [
+        { type: 'paragraph', text: 'You feel a hand grab your shoulder and swing you around on the swivel chair.' },
+        { type: 'paragraph', text: '“You know the rules! What is your problem?”' },
+        { type: 'paragraph', text: 'You know where this is going, so why even bother to argue with him.' },
+        { type: 'paragraph', text: '“Yea, I know the rules. They are stupid ass rules, just like you!”' },
+      ],
+      [
+        { type: 'paragraph', text: 'The teacher proceeds to shout a few things at you, but you don’t hear him.' },
+        { type: 'paragraph', text: 'You are still thinking of how to get back to that article.' },
+        { type: 'paragraph', text: 'God knows no one in this school will help you.' },
+        { type: 'paragraph', text: 'You spin around to go back to the computer while he is still yelling.' },
+        { type: 'paragraph', text: '“Go to the office!”' },
+      ],
+    ],
+    question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What rule did Adam break, and what need was he trying to meet?',
+        'How did the teacher’s response escalate the situation?',
+        'What would a restorative response look like here?',
+      ],
+      writingPrompt: 'Write how an administrator should respond if Adam is sent to the office after this incident.',
+      insight: 'Adam’s defiance is real, but it is connected to fear and failed help-seeking.',
+      expandedInsight:
+        'This moment should not be reduced to “student used computer incorrectly.” Adam tried to ask for help, was dismissed, and then attempted to meet the need himself. His behavior escalated when the adult treated the rule violation as more important than the possible emergency.',
+      facilitatorLens:
+        'Ask participants how policy can be enforced without ignoring student crisis.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    choices: [
+      {
+        id: 'go_office',
+        label: 'Go to the office',
+        resultTitle: 'You go to the office.',
+        result: [
+          { type: 'paragraph', text: 'You get up from the computer.' },
+          { type: 'paragraph', text: 'You still do not know what happened at home.' },
+          { type: 'thought', text: 'This place is useless.' },
+        ],
+        metrics: { sleep: 0, stress: -2, time: -1, care: -1 },
+        nextSceneId: 'scene_main_office',
+      },
+      {
+        id: 'go_cool_teacher',
+        label: 'Go see the only cool teacher in the school. Maybe she will help me.',
+        resultTitle: 'You think of the one teacher who might help.',
+        result: [
+          { type: 'paragraph', text: 'You are done with this teacher.' },
+          { type: 'paragraph', text: 'Maybe there is still one adult in the building who will actually care.' },
+          { type: 'thought', text: 'Maybe she will help me.' },
+        ],
+        metrics: { sleep: 0, stress: -1, time: -1, care: 1 },
+        nextSceneId: 'scene_cool_teacher',
+      },
+    ],
+  },
+
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
@@ -509,7 +669,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   };
 
   if (sceneId === 'scene_placeholder_end') {
-    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue with Adam’s attempt to find out what happened on his street.</p></article></section></main>;
+    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
   }
 
   const changedMetrics = metricOrder
