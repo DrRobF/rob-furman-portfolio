@@ -581,6 +581,188 @@ const urbanStudentScenes = [
     ],
   },
 
+  {
+    id: 'scene_main_office',
+    sceneNumber: 8,
+    totalScenes: 10,
+    time: 'Main Office',
+    heading: 'The Main Office',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: 'I end up at the office and sit down in the front part of the office.' },
+        { type: 'paragraph', text: "I didn't say anything to anyone coming in." },
+        { type: 'paragraph', text: "Why should I, I don't want to be here so why do I need to say anything?" },
+        { type: 'thought', text: 'You can make me come in here, but you can’t make me say anything.' },
+      ],
+      [
+        { type: 'paragraph', text: 'I sit there quietly stewing over this very shitty morning.' },
+        { type: 'paragraph', text: 'I am confident it is going to get worse once the principal calls me into his office.' },
+        { type: 'paragraph', text: 'He sort of has a mixed reputation in the school.' },
+        { type: 'paragraph', text: "He is basically OK, he doesn't really bother any of us kids so we don't bother him back." },
+      ],
+      [
+        { type: 'paragraph', text: 'Every once in a while he gets on the PA and shouts at us about no fighting in the halls or smoking or whatever he feels like yelling about that week.' },
+        { type: 'paragraph', text: 'Really it seems to us that those PA announcements come at just about the same time you see all these white guys in suits walking the halls for three or four days.' },
+      ],
+      [
+        { type: 'paragraph', text: '10 minutes have passed and I am getting really bored so I shout over the counter to the secretary.' },
+        { type: 'paragraph', text: '"Is he going to see me or what? This is boring!"' },
+        { type: 'paragraph', text: 'The secretary looked over her counter and you could swear she saw a ghost.' },
+        { type: 'paragraph', text: '“What are you doing there?"' },
+      ],
+      [
+        { type: 'paragraph', text: 'This is stupid, what the hell does she think I am doing here.' },
+        { type: 'paragraph', text: "\"I don't know?\" I reply." },
+        { type: 'paragraph', text: 'The secretary looks perplexed, "Why are you here?"' },
+        { type: 'paragraph', text: "Again I reply a bit louder, “I don't know.”" },
+        { type: 'paragraph', text: '“Then get back to class."' },
+      ],
+      [
+        { type: 'paragraph', text: 'I look at her with a full smile and politely say, “Thank you I will."' },
+        { type: 'paragraph', text: 'Apparently no one told the office I was coming.' },
+        { type: 'paragraph', text: 'Some good luck finally.' },
+        { type: 'thought', text: 'Seriously, how dumb do these people think we really are.' },
+        { type: 'paragraph', text: 'Fine, I will leave. No problem.' },
+        { type: 'paragraph', text: "If the teacher asks me, yes I went to the principal's office and yes I most definitely learned a valuable lesson, don't offer any more info then what they ask for." },
+        { type: 'thought', text: 'Check!' },
+        { type: 'paragraph', text: 'By now it is second period.' },
+      ],
+    ],
+    question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What adult systems failed Adam in this office scene?',
+        'What does the secretary’s response communicate to him?',
+        'How does disorganization reinforce Adam’s belief that adults do not care?',
+      ],
+      writingPrompt: 'Write how the office could have responded differently once Adam arrived.',
+      insight: 'A missed communication between adults becomes another missed opportunity for the student.',
+      expandedInsight:
+        'Adam is sent to the office after a serious classroom escalation, but the office does not appear prepared for him. No one asks why he is there, what happened, or whether he is okay. The system failure confirms Adam’s belief that adults are disorganized and unavailable.',
+      facilitatorLens:
+        'Ask participants how referral systems can either interrupt or intensify a student’s bad day.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    choices: [
+      {
+        id: 'go_second_period',
+        label: 'Go to 2nd Period',
+        resultTitle: 'You head to second period.',
+        result: [
+          { type: 'paragraph', text: 'You leave the office before anyone changes their mind.' },
+          { type: 'paragraph', text: `No one helped.
+
+No one asked.
+
+No one even seemed to know why you were there.` },
+          { type: 'thought', text: 'Some good luck finally.' },
+        ],
+        metrics: { sleep: 0, stress: 1, time: 1, care: -1 },
+        nextSceneId: 'scene_second_period_math',
+      },
+      {
+        id: 'office_quit',
+        label: 'I have had enough. I need to quit.',
+        resultTitle: 'You hit the wall.',
+        result: [
+          { type: 'paragraph', text: 'You sit with the feeling that this whole place is a joke.' },
+          { type: 'paragraph', text: `No one knows what they are doing.
+
+No one knows what happened to you.
+
+No one asks.` },
+          { type: 'thought', text: 'I have had enough.' },
+        ],
+        metrics: { sleep: 0, stress: -2, time: -1, care: -2 },
+        nextSceneId: 'scene_second_period_math',
+      },
+    ],
+  },
+  {
+    id: 'scene_cool_teacher',
+    sceneNumber: 8,
+    totalScenes: 10,
+    time: 'Second Period',
+    heading: 'Looking for the One Teacher Who Cares',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: 'I decided to go try the only teacher in the entire school that we kids actually trust.' },
+        { type: 'paragraph', text: 'She is known as the "cool teacher" because she actually gives a shit about us.' },
+        { type: 'paragraph', text: 'She teaches math to the grade below me so I have not seen her in a while.' },
+        { type: 'thought', text: 'I am sure she will take 2 minutes to look up the article on the internet so I can stop worrying about this.' },
+      ],
+      [
+        { type: 'paragraph', text: 'I knocked on the door to her class room sort of excited to see her again.' },
+        { type: 'paragraph', text: 'My friend said he stopped by to see her last week and she remembered every name in his family.' },
+        { type: 'paragraph', text: 'When the door opened there was this guy teacher staring at me.' },
+        { type: 'paragraph', text: 'My first reaction was who in the hell are you.' },
+        { type: 'thought', text: 'Just what I need, a damn substitute?' },
+      ],
+      [
+        { type: 'paragraph', text: "\"What do you want and why aren't you in class young man?\"" },
+        { type: 'paragraph', text: 'Seriously did he just call me young man?' },
+        { type: 'paragraph', text: '“Who in the hell are you and where is Ms. Blankenship?"' },
+        { type: 'paragraph', text: 'He looked at me while his face was slowing turning red from the neck up.' },
+        { type: 'paragraph', text: '“What is your name young man? The previous teacher took a better job away from the city. You need to check your manners.”' },
+      ],
+      [
+        { type: 'paragraph', text: 'For the record, this dumb ass will not survive a week in this school.' },
+        { type: 'paragraph', text: 'I lost my mind!' },
+        { type: 'paragraph', text: 'I ran down the hall just enough for the teacher to not want to follow me and I stopped and went into the bathroom.' },
+        { type: 'paragraph', text: 'I sat down in the stall and grabbed a cigarette.' },
+      ],
+      [
+        { type: 'paragraph', text: 'She is gone.' },
+        { type: 'thought', text: 'Why am I surprised?' },
+        { type: 'paragraph', text: 'All the great teachers leave.' },
+        { type: 'paragraph', text: 'The reason this one hurts the most I think is because she told me she would be here for me.' },
+        { type: 'paragraph', text: "I didn't realize that it meant until she got a better offer." },
+        { type: 'thought', text: "Screw her. I don't need her. I don't need any of them." },
+      ],
+    ],
+    question: 'What do you do?',
+    reflection: {
+      questions: [
+        'Why does Ms. Blankenship being gone hit Adam so hard?',
+        'How does teacher turnover affect student trust?',
+        'What does Adam learn when the one adult he trusted is no longer there?',
+      ],
+      writingPrompt: 'Write how a school could protect student trust during teacher transitions.',
+      insight: 'For students with unstable adult relationships, losing one trusted teacher can feel like another abandonment.',
+      expandedInsight:
+        'Adam is not simply upset that a teacher changed jobs. He believed this teacher when she said she would not forget him. Her absence confirms a larger pattern in his life: adults leave, promises break, and trusting people is dangerous.',
+      facilitatorLens:
+        'Ask participants how schools can make sure students do not experience staffing changes as personal abandonment.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    choices: [
+      {
+        id: 'go_principal_office',
+        label: "Go to the principal's Office",
+        resultTitle: 'You head toward the office.',
+        result: [
+          { type: 'paragraph', text: 'You collect yourself enough to move.' },
+          { type: 'paragraph', text: 'There is nowhere else to go now except the office.' },
+          { type: 'thought', text: 'They all leave.' },
+        ],
+        metrics: { sleep: 0, stress: -2, time: -1, care: -2 },
+        nextSceneId: 'scene_main_office',
+      },
+      {
+        id: 'try_leave_school',
+        label: 'Try to get out of school and go home to see if mom and sis are OK',
+        resultTitle: 'You decide to leave.',
+        result: [
+          { type: 'paragraph', text: 'You are done waiting for someone in this building to help.' },
+          { type: 'paragraph', text: 'If no one here will help you find out what happened, maybe you need to leave and find out yourself.' },
+          { type: 'thought', text: 'I need to know if they’re OK.' },
+        ],
+        metrics: { sleep: 0, stress: -1, time: -1, care: -1 },
+        nextSceneId: 'scene_back_door_exit',
+      },
+    ],
+  },
+
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
