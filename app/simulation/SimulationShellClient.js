@@ -77,6 +77,7 @@ const postResponseFolderItems = {
 };
 
 const simulationProgressStorageKey = 'rob-furman-school-leader-simulation-v1';
+const simulationEvaluationStorageKey = 'rob-furman-school-leader-evaluation-v1';
 
 const lensNames = [
   'Judgment Under Pressure',
@@ -1890,6 +1891,9 @@ export default function SimulationShellClient() {
   const [snapshotPreviewMessage, setSnapshotPreviewMessage] = useState('');
   const [snapshotValidationMessage, setSnapshotValidationMessage] = useState('');
   const [saveProgressMessage, setSaveProgressMessage] = useState('');
+  const [evaluationResult, setEvaluationResult] = useState(null);
+  const [isGeneratingEvaluation, setIsGeneratingEvaluation] = useState(false);
+  const [evaluationErrorMessage, setEvaluationErrorMessage] = useState('');
   const [lastSavedLabel, setLastSavedLabel] = useState('');
   const [savedSnapshot, setSavedSnapshot] = useState(null);
   const [hasReachedEndOfDay, setHasReachedEndOfDay] = useState(false);
@@ -3043,6 +3047,15 @@ export default function SimulationShellClient() {
       studentRemovalResponse,
     ],
   );
+  const responseQualityFlags = useMemo(() => fullSimulationWrittenResponses.map((entry) => {
+    const response = `${entry.response || ''}`.trim();
+    const wordCount = response ? response.split(/\s+/).filter(Boolean).length : 0;
+    const isBlank = !response;
+    const isPlaceholder = /^(idk|ok|done|yada yada|n\/a|none|call parent)$/i.test(response);
+    const repeatedNonsense = /(asdf|blah blah|lorem ipsum|test test)/i.test(response);
+    const isExtremelyShort = wordCount > 0 && wordCount <= 5;
+    return { module: entry.module, label: entry.label, wordCount, isBlank, isPlaceholder, repeatedNonsense, isExtremelyShort };
+  }), [fullSimulationWrittenResponses]);
   const fullSimulationWritingAssessments = useMemo(
     () => ([
       { module: 'Parent Concern — Final Response', assessment: parentFinalWritingAssessment || liveParentFinalWritingAssessment },
@@ -3276,6 +3289,27 @@ export default function SimulationShellClient() {
       : overallReadinessScore >= 66
         ? 'Proceed with Caution'
         : 'Not Recommended';
+  const reportData = evaluationResult || {
+    overallReadinessScore,
+    readinessLevel: overallReadinessLabel,
+    candidateProfile: candidateTypeLabel,
+    primaryLeadershipStyle: primaryLeadershipStyleLabel,
+    snapshot: {
+      trustBuilder: (writingCategoryTrends.Empathy?.strong || 0) >= 3 ? 'Strong' : 'Developing',
+      decisionSpeed: decisionEffectiveness.delayedPct <= 12 ? 'Strong' : decisionEffectiveness.delayedPct <= 24 ? 'Developing' : 'Concern',
+      authorityUnderPressure: weightedScenarioScore.criticalScore >= 80 ? 'Strong' : weightedScenarioScore.criticalScore >= 70 ? 'Developing' : 'Concern',
+      operationalExecution: reportDomainScores[5]?.score >= 80 ? 'Strong' : reportDomainScores[5]?.score >= 70 ? 'Developing' : 'Concern',
+    },
+    strengths: fullSimulationStrengths,
+    growthAreas: fullSimulationGrowthAreas,
+    signatureLeadershipInsight: `Leadership profile indicates ${candidateTypeLabel} with a growth edge in ${growthEdge}.`,
+    communicationLeadershipVoice: 'Communication is professional, with growth needed in decisiveness and ownership language under pressure.',
+    schoolClimateCultureImpact: [{ label: 'Student Belonging', rating: 'Developing', insight: 'Student-centered language appears in several responses.' }],
+    crisisRiskLeadership: 'Risk awareness is present with room for faster escalation clarity.',
+    leadershipReadinessSummary: `Heuristic report generated from decisions and responses. Hiring recommendation: ${hiringRecommendation}.`,
+    predictedFirst90DaysImpact: 'Likely to establish relational trust quickly, with growth needed in operational closure and execution precision.',
+    recommendedFollowUpQuestions: ['How do you assign ownership and deadlines in high-stakes situations?'],
+  };
 
   useEffect(() => {
     if (scene === 'report') return;
@@ -3283,6 +3317,54 @@ export default function SimulationShellClient() {
     if (!canCloseDeskStackDay) return;
     handleCloseDeskStackDay();
   }, [scene, currentModule, currentDeskStackItem, canCloseDeskStackDay]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const cached = window.localStorage.getItem(simulationEvaluationStorageKey);
+    if (cached) {
+      try {
+        setEvaluationResult(JSON.parse(cached));
+      } catch (error) {
+        window.localStorage.removeItem(simulationEvaluationStorageKey);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (scene !== 'report' || isGeneratingEvaluation || evaluationResult) return;
+    const evaluate = async () => {
+      setIsGeneratingEvaluation(true);
+      setEvaluationErrorMessage('');
+      try {
+        const payload = {
+          completedScenarios: requiredDayModules.filter((module) => timelineStatuses[module.id] === moduleStatuses.completed).map((module) => module.label),
+          selectedDecisions: fullSimulationFirstMoveDecisions,
+          writtenResponses: fullSimulationWrittenResponses,
+          scenarioTitles: requiredDayModules.map((module) => module.label),
+          timestamps: { completedAt: new Date().toISOString() },
+          qualityFlags: responseQualityFlags,
+          primaryLeadershipStyle: primaryLeadershipStyleLabel,
+        };
+        const response = await fetch('/api/simulation/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error('Evaluation request failed');
+        const result = await response.json();
+        setEvaluationResult(result);
+        window.localStorage.setItem(simulationEvaluationStorageKey, JSON.stringify(result));
+        if (result.evaluationSource === 'heuristic-fallback') {
+          setEvaluationErrorMessage('We could not complete the AI evaluation, so a basic report was generated from local scoring.');
+        }
+      } catch (error) {
+        setEvaluationErrorMessage('We could not complete the AI evaluation, so a basic report was generated from local scoring.');
+      } finally {
+        setIsGeneratingEvaluation(false);
+      }
+    };
+    evaluate();
+  }, [scene, isGeneratingEvaluation, evaluationResult, fullSimulationFirstMoveDecisions, fullSimulationWrittenResponses, responseQualityFlags, primaryLeadershipStyleLabel, timelineStatuses]);
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -3433,6 +3515,11 @@ export default function SimulationShellClient() {
   };
 
   const handleStartOver = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(simulationEvaluationStorageKey);
+    }
+    setEvaluationResult(null);
+    setEvaluationErrorMessage('');
     resetSimulationState({ clearSavedProgress: true, confirmationMessage: 'Simulation restarted.' });
     scrollToTop();
   };
@@ -5387,31 +5474,33 @@ export default function SimulationShellClient() {
                   <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
                   <button type="button" className="button secondary" onClick={handleStartOver}>Start New Simulation</button>
                 </div>
+                {isGeneratingEvaluation ? <article className="report-card"><p>Generating your leadership evaluation report…</p></article> : null}
+                {evaluationErrorMessage ? <article className="report-card"><p>{evaluationErrorMessage}</p></article> : null}
                 <section className="report-scorecard-grid">
-                  <article className="report-card tone-blue"><h3>Overall Readiness</h3><p className="score-big">{overallReadinessScore}/100</p></article>
-                  <article className="report-card tone-amber"><h3>Readiness Level</h3><p>{overallReadinessLabel}</p></article>
-                  <article className="report-card tone-blue"><h3>Candidate Profile</h3><p>Emerging Principal / Assistant Principal Candidate</p></article>
+                  <article className="report-card tone-blue"><h3>Overall Readiness</h3><p className="score-big">{reportData.overallReadinessScore}/100</p></article>
+                  <article className="report-card tone-amber"><h3>Readiness Level</h3><p>{reportData.readinessLevel}</p></article>
+                  <article className="report-card tone-blue"><h3>Candidate Profile</h3><p>{reportData.candidateProfile}</p></article>
                   <article className="report-card tone-green"><h3>Completed Scenarios</h3><p>{fullSimulationFirstMoveDecisions.length}</p></article>
                   <article className="report-card tone-blue"><h3>Written Responses Analyzed</h3><p>{totalWrittenResponses}</p></article>
-                  <article className="report-card tone-blue"><h3>Primary Leadership Style</h3><p>{primaryLeadershipStyleLabel}</p></article>
+                  <article className="report-card tone-blue"><h3>Primary Leadership Style</h3><p>{reportData.primaryLeadershipStyle}</p></article>
                 </section>
                 <section className="report-scorecard-grid">
-                  <article className="report-card tone-green"><h3>Trust Builder</h3><p>{(writingCategoryTrends.Empathy?.strong || 0) >= 3 ? 'Strong' : 'Developing'}</p></article>
-                  <article className="report-card tone-amber"><h3>Decision Speed</h3><p>{decisionEffectiveness.delayedPct <= 12 ? 'Strong' : decisionEffectiveness.delayedPct <= 24 ? 'Developing' : 'Concern'}</p></article>
-                  <article className="report-card tone-red"><h3>Authority Under Pressure</h3><p>{weightedScenarioScore.criticalScore >= 80 ? 'Strong' : weightedScenarioScore.criticalScore >= 70 ? 'Developing' : 'Concern'}</p></article>
-                  <article className="report-card tone-blue"><h3>Operational Execution</h3><p>{reportDomainScores[5]?.score >= 80 ? 'Strong' : reportDomainScores[5]?.score >= 70 ? 'Developing' : 'Concern'}</p></article>
+                  <article className="report-card tone-green"><h3>Trust Builder</h3><p>{reportData.snapshot?.trustBuilder}</p></article>
+                  <article className="report-card tone-amber"><h3>Decision Speed</h3><p>{reportData.snapshot?.decisionSpeed}</p></article>
+                  <article className="report-card tone-red"><h3>Authority Under Pressure</h3><p>{reportData.snapshot?.authorityUnderPressure}</p></article>
+                  <article className="report-card tone-blue"><h3>Operational Execution</h3><p>{reportData.snapshot?.operationalExecution}</p></article>
                 </section>
-                <article className="report-card report-intro"><h3>Signature Leadership Insight</h3><p>This candidate demonstrates strong relational instincts and a consistent commitment to dignity, fairness, and process. Their leadership approach prioritizes maintaining trust with students, families, and staff, particularly in high-emotion situations.</p><p>The key developmental edge is translating that care-centered leadership into clearer authority and decisive execution under pressure. While decisions are generally sound, the candidate will benefit from strengthening command language, explicitly naming ownership, and closing accountability loops more consistently.</p><p>In practice, this profile is likely to build a positive school culture quickly, with the next level of growth focused on leading with clarity and decisiveness when stakes are high.</p></article>
+                <article className="report-card report-intro"><h3>Signature Leadership Insight</h3><p>{reportData.signatureLeadershipInsight}</p></article>
                 <section className="report-scorecard-grid">
-                  <article className="report-card"><h3>Strengths</h3><ul className="strong-response-list"><li>Demonstrates strong judgment by prioritizing fact-finding before making decisions.</li><li>Consistently protects student dignity and promotes inclusive, equitable practices.</li><li>Builds trust through calm, professional, and relationship-centered communication.</li><li>Avoids impulsive or reactive leadership moves, especially in conflict situations.</li><li>Maintains composure and clarity in high-emotion interactions.</li></ul></article>
-                  <article className="report-card"><h3>Growth Areas</h3><ul className="strong-response-list"><li>Needs more direct and confident command language in high-risk or urgent situations.</li><li>Should consistently identify who is responsible and by when in follow-through.</li><li>May rely too heavily on collaboration when decisive leadership is required.</li><li>Needs tighter alignment between scenario facts and final communication responses.</li><li>Should elevate instructional leadership by more directly addressing teaching and learning outcomes.</li></ul></article>
+                  <article className="report-card"><h3>Strengths</h3><ul className="strong-response-list">{(reportData.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
+                  <article className="report-card"><h3>Growth Areas</h3><ul className="strong-response-list">{(reportData.growthAreas || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
                 </section>
-                <article className="report-card"><h3>Communication & Leadership Voice</h3><p>This candidate&apos;s communication style is professional, empathetic, and relationship-focused. They demonstrate a clear ability to acknowledge concerns and maintain tone under pressure.</p><p>At times, responses become too procedural or indirect, particularly when the situation requires firm leadership direction. Increasing clarity around expectations, ownership, and timelines will strengthen overall leadership presence.</p><p>Overall, the candidate&apos;s voice is trust-building and principal-like, with continued growth needed in assertiveness and execution clarity.</p></article>
-                <article className="report-card"><h3>School Climate & Culture Impact</h3><ul className="strong-response-list"><li><strong>Student Belonging — Strong:</strong> Responses consistently protect student dignity and reduce exclusionary risk.</li><li><strong>Family Confidence — Strong:</strong> Communication reflects transparency, empathy, and process credibility.</li><li><strong>Psychological Safety — Strong:</strong> Calm de-escalation language supports stable adult and student interactions.</li><li><strong>Staff Trust — Developing:</strong> Relational tone is positive, with room for clearer accountability statements.</li><li><strong>Operational Clarity — Developing:</strong> Follow-through intent is present; ownership and deadlines need tighter precision.</li></ul></article>
-                <article className="report-card"><h3>Crisis & Risk Leadership</h3><p>The candidate demonstrates solid awareness of risk and avoids minimizing safety concerns. Decision-making reflects a balanced approach between care and process.</p><p>Growth is needed in speed and clarity of escalation, particularly in ambiguous or emerging situations. Stronger use of direct language—naming immediate actions, responsible parties, and timelines—will increase effectiveness in high-risk scenarios.</p><p>Overall, this candidate is reliable in judgment, with development needed in decisive execution under pressure.</p></article>
-                <article className="report-card"><h3>Leadership Readiness Summary</h3><p>This candidate demonstrates developing readiness for school leadership, with clear strengths in relational leadership, student-centered decision making, and school climate awareness.</p><p>The next level of growth is focused on strengthening decisive execution, ownership clarity, and command presence under pressure.</p><p>This profile is well-aligned for continued growth in leadership roles such as assistant principal or team leadership positions, with a clear pathway toward full principal readiness as these execution skills are strengthened.</p></article>
-                <article className="report-card"><h3>Predicted First 90 Days Impact</h3><p>In the first 90 days, this leader is likely to establish strong relational trust with staff, students, and families, creating a stable and positive school climate.</p><p>Early success will come from effective communication, de-escalation of conflict, and consistent attention to student experience.</p><p>The primary growth opportunity will be operational execution—ensuring that expectations are clearly defined, responsibilities are assigned, and follow-through is consistently monitored.</p><p>With targeted coaching in these areas, this candidate has a clear pathway toward principal-level effectiveness.</p></article>
-                <article className="report-card"><h3>Recommended Follow-Up Questions</h3><ul className="strong-response-list"><li>Describe a time you had to balance family concern with staff accountability.</li><li>How do you ensure student-centered discipline remains consistent across classrooms?</li><li>When do you move from coaching a teacher to formal accountability?</li><li>How do you communicate urgency without escalating conflict?</li></ul></article></>
+                <article className="report-card"><h3>Communication & Leadership Voice</h3><p>{reportData.communicationLeadershipVoice}</p></article>
+                <article className="report-card"><h3>School Climate & Culture Impact</h3><ul className="strong-response-list">{(reportData.schoolClimateCultureImpact || []).map((item) => <li key={item.label}><strong>{item.label} — {item.rating}:</strong> {item.insight}</li>)}</ul></article>
+                <article className="report-card"><h3>Crisis & Risk Leadership</h3><p>{reportData.crisisRiskLeadership}</p></article>
+                <article className="report-card"><h3>Leadership Readiness Summary</h3><p>{reportData.leadershipReadinessSummary}</p></article>
+                <article className="report-card"><h3>Predicted First 90 Days Impact</h3><p>{reportData.predictedFirst90DaysImpact}</p></article>
+                <article className="report-card"><h3>Recommended Follow-Up Questions</h3><ul className="strong-response-list">{(reportData.recommendedFollowUpQuestions || []).map((item) => <li key={item}>{item}</li>)}</ul></article></>
               ) : isReportScene ? (
               <>
                 <p className="eyebrow">End-of-Day Review Locked</p>
