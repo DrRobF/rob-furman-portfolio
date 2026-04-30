@@ -77,6 +77,7 @@ const postResponseFolderItems = {
 };
 
 const simulationProgressStorageKey = 'rob-furman-school-leader-simulation-v1';
+const isDevelopmentEnvironment = process.env.NODE_ENV !== 'production';
 
 const lensNames = [
   'Judgment Under Pressure',
@@ -3144,6 +3145,77 @@ export default function SimulationShellClient() {
     }
     return growth.slice(0, 4);
   }, [writingCategoryTrends]);
+  const reportDomainScores = useMemo(() => {
+    const scoreFromCategory = (name) => {
+      const totals = writingCategoryTrends[name] || { strong: 0, needsAttention: 0 };
+      const total = totals.strong + totals.needsAttention;
+      if (!total) return 70;
+      return Math.max(45, Math.min(96, Math.round(((totals.strong + 1) / (total + 2)) * 100)));
+    };
+    return [
+      { label: 'Judgment Under Pressure', score: Math.max(55, 65 + (decisionPatternSummary[0]?.includes(' 0 ') ? 0 : 18)) },
+      { label: 'Communication & Tone', score: scoreFromCategory('Tone & Professionalism') },
+      { label: 'Student-Centered Leadership', score: scoreFromCategory('Empathy') },
+      { label: 'Equity & Fairness', score: scoreFromCategory('Equity & Bias Awareness') },
+      { label: 'Safety & Risk Awareness', score: scoreFromCategory('Risk/Safety Framing') },
+      { label: 'Operational Follow-Through', score: scoreFromCategory('Actionability & Follow-Through') },
+      { label: 'Professional Judgment', score: scoreFromCategory('Specificity & Clarity') },
+    ];
+  }, [decisionPatternSummary, writingCategoryTrends]);
+  const overallReadinessScore = useMemo(
+    () => Math.round(reportDomainScores.reduce((acc, item) => acc + item.score, 0) / reportDomainScores.length),
+    [reportDomainScores],
+  );
+  const overallReadinessLabel = overallReadinessScore >= 85
+    ? 'Highly Ready'
+    : overallReadinessScore >= 75
+      ? 'Ready with Focused Coaching'
+      : 'Developing Readiness';
+
+  const handleLoadSampleCompletedReport = () => {
+    restoreSimulationProgress({
+      version: 'simulation-snapshot-v1',
+      savedAt: new Date().toISOString(),
+      currentModule: 'endOfDayEmail',
+      scene: 'report',
+      timelineStatuses: dayModules.reduce((acc, module) => ({ ...acc, [module.id]: moduleStatuses.completed }), {}),
+      folders: { red: [], orange: [], green: [] },
+      completedTasks: [],
+      decisions: {
+        firstDecision: 'Acknowledge the parent and begin a fact-check before final response',
+        investigationDecision: 'Discuss the situation with the teacher',
+        iepDecision: 'Center supports and clear accountability in the IEP conversation',
+        announcementsDecision: 'Use announcements to reinforce safety, belonging, and expectations',
+        voicemailDecisions: { parentHelp: 'Call parent first with clear plan', teacherCall: 'Coach teacher and document follow-up' },
+        lunchClimateDecision: 'Address supervision pressure immediately and assign next-step owners',
+        parentEscalationDecision: 'Respond promptly with empathy, facts, and timeline',
+        cafeteriaBoundaryDecision: 'Separate concerns, investigate, and re-teach adult boundaries',
+        teacherConflictDecision: 'Facilitate restorative conference with clear norms',
+        studentThreatDecision: 'Treat as potential safety risk and investigate immediately',
+        academicDeclineDecision: 'Launch student support review with family partnership',
+        ptoTalentShowDecision: 'Revise criteria to protect inclusion and fairness',
+        recessInjuryDecision: 'Call parent, document incident, and review supervision',
+        studentRemovalDecision: 'Decline immediate removal and apply progressive supports',
+      },
+      responses: {
+        initialParentResponse: 'Thank you for reaching out. I understand why this felt upsetting, and I will review the details with staff today before I follow up.',
+        finalParentResponse: 'I appreciate your advocacy for your child. We confirmed the sequence of events, addressed the classroom practice, and will monitor for student dignity and instructional equity. I will follow up by Friday with next steps.',
+        voicemailResponses: { parentHelp: 'I can meet today, share what we know, and map support options.', teacherCall: 'Let us meet after dismissal to align expectations and communication.' },
+        lunchMonitorDirectionNote: 'Please increase active supervision in the bottleneck area and radio concerns immediately.',
+        parentEscalationResponse: 'I hear your concern and I am taking it seriously. I will review records, speak with staff, and call you by 3:30 PM with an update.',
+        cafeteriaBoundaryResponse: 'Student safety and staff tone both matter; we will investigate and reset expectations.',
+        teacherConflictResponse: 'Thank you both for meeting. We will focus on student impact, clear agreements, and follow-through.',
+        studentThreatResponse: 'We are treating this as a safety matter, interviewing involved students, and coordinating support.',
+        academicDeclineResponse: 'The student needs a coordinated plan with progress checks, family communication, and targeted interventions.',
+        ptoTalentShowResponse: 'We can celebrate effort while ensuring criteria do not exclude students needing support services.',
+        recessInjuryResponse: 'I am sorry this occurred. We documented the incident, reviewed supervision, and will share prevention steps.',
+        studentRemovalResponse: 'At this stage, removal is not the first intervention; we will implement supports, monitor, and review outcomes.',
+        walkthroughResponses: walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: 'Observation captured and aligned to coaching follow-through.' }), {}),
+      },
+      records: {},
+      uiProgress: { hasReachedEndOfDay: true, hasCompletedFinalStep: true },
+    });
+  };
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -3368,6 +3440,13 @@ export default function SimulationShellClient() {
           })}
         </div>
         {builderMode ? <p className="builder-mode-badge">Builder Mode Active</p> : null}
+        {isDevelopmentEnvironment ? (
+          <div className="button-row no-print">
+            <button type="button" className="button secondary" onClick={handleLoadSampleCompletedReport}>
+              Load Sample Completed Report (DEV)
+            </button>
+          </div>
+        ) : null}
       </section>
 
       <div className="simulation-layout-grid">
@@ -5234,10 +5313,21 @@ export default function SimulationShellClient() {
               ) : isReportScene && allRequiredModulesComplete ? (
               <>
                 <p className="eyebrow">End-of-Day Leadership Review</p>
-                <h2>Final Leadership Simulation Report</h2>
+                <h2>School Leader Simulation Performance Report</h2>
                 <p className="report-subtitle">
                   Summary of your decisions, written responses, leadership tendencies, and growth areas across the full simulation.
                 </p>
+                <div className="button-row no-print">
+                  <button type="button" className="button primary" onClick={() => window.print()}>
+                    Download / Print Report
+                  </button>
+                </div>
+                <article className="report-card">
+                  <h3>Candidate / Session Information</h3>
+                  <p><strong>Candidate:</strong> School Leader Candidate</p>
+                  <p><strong>Session Date:</strong> {new Date().toLocaleDateString()}</p>
+                  <p><strong>Completed Scenarios:</strong> {fullSimulationFirstMoveDecisions.length}</p>
+                </article>
 
                 <article className="report-card report-intro">
                   <p>
@@ -5247,7 +5337,7 @@ export default function SimulationShellClient() {
                 </article>
 
                 <article className="report-card">
-                  <h3>1. Executive Summary</h3>
+                  <h3>Executive Summary</h3>
                   <p>
                     Across {fullSimulationFirstMoveDecisions.length} captured decision points and{' '}
                     {fullSimulationWrittenResponses.length} written responses, your leadership approach showed a blend of
@@ -5260,6 +5350,18 @@ export default function SimulationShellClient() {
                     <strong>{leadershipStyleProfile.primaryStyle?.style || 'an emerging style pattern'}</strong>, with
                     secondary tendencies that shift based on pressure, risk, and audience.
                   </p>
+                </article>
+                <article className="report-card">
+                  <h3>Overall Readiness Rating</h3>
+                  <p><span className="timeline-module-badge">{overallReadinessLabel}</span> ({overallReadinessScore}/100)</p>
+                </article>
+                <article className="report-card">
+                  <h3>Domain Scores</h3>
+                  <ul className="report-path-list">
+                    {reportDomainScores.map((domain) => (
+                      <li key={domain.label}><span className="report-path-label">{domain.label}:</span> {domain.score}/100</li>
+                    ))}
+                  </ul>
                 </article>
 
                 <article className="report-card" aria-live="polite">
