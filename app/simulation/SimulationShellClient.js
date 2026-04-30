@@ -77,7 +77,6 @@ const postResponseFolderItems = {
 };
 
 const simulationProgressStorageKey = 'rob-furman-school-leader-simulation-v1';
-const isDevelopmentEnvironment = process.env.NODE_ENV !== 'production';
 
 const lensNames = [
   'Judgment Under Pressure',
@@ -3440,13 +3439,11 @@ export default function SimulationShellClient() {
           })}
         </div>
         {builderMode ? <p className="builder-mode-badge">Builder Mode Active</p> : null}
-        {isDevelopmentEnvironment ? (
-          <div className="button-row no-print">
-            <button type="button" className="button secondary" onClick={handleLoadSampleCompletedReport}>
-              Load Sample Completed Report (DEV)
-            </button>
-          </div>
-        ) : null}
+        <div className="button-row no-print">
+          <button type="button" className="button secondary" onClick={handleLoadSampleCompletedReport}>
+            Preview Sample Final Report
+          </button>
+        </div>
       </section>
 
       <div className="simulation-layout-grid">
