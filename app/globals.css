@@ -1178,6 +1178,46 @@ p {
 .report-card h3 {
   margin-bottom: 0.45rem;
 }
+.vic-report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.vic-badge {
+  border: 1px solid #b7d8df;
+  background: #f2fbfc;
+  color: #0d4f5b;
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  min-width: 230px;
+}
+.vic-badge p { margin: 0; font-weight: 700; }
+.vic-badge small { color: #2e6271; }
+.report-scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+.tone-blue { border-left: 5px solid #2f6ea8; }
+.tone-green { border-left: 5px solid #2e7d4d; }
+.tone-amber { border-left: 5px solid #af7a1a; }
+.tone-red { border-left: 5px solid #a13a3a; }
+.score-big { font-size: 1.9rem; font-weight: 800; color: #103a63; margin: 0.2rem 0; }
+.report-table { width: 100%; border-collapse: collapse; margin-top: 0.65rem; font-size: 0.92rem; }
+.report-table th, .report-table td { border: 1px solid #d5deea; padding: 0.4rem 0.45rem; vertical-align: top; }
+.domain-bar-list { display: grid; gap: 0.6rem; }
+.domain-bar-head { display: flex; justify-content: space-between; gap: 1rem; font-weight: 600; }
+.domain-bar-track { height: 11px; border-radius: 999px; background: #e7edf6; overflow: hidden; margin-top: 0.25rem; }
+.domain-bar-fill { height: 100%; }
+.domain-bar-fill.strong { background: #2f8b51; }
+.domain-bar-fill.developing { background: #c58a2d; }
+.domain-bar-fill.concern { background: #b04141; }
+.leadership-wheel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+.wheel-item { border: 1px solid #d6e1ef; border-radius: 10px; padding: 0.5rem; background: #fbfdff; }
+.wheel-meter { margin: 0.35rem 0; height: 9px; background: #e6edf7; border-radius: 999px; overflow: hidden; }
+.wheel-meter div { height: 100%; background: #2f6ea8; }
+.appendix-break { break-before: page; page-break-before: always; }
 
 .report-intro {
   border-left: 5px solid #5478b4;
@@ -1398,6 +1438,12 @@ p {
   .day-timeline-card {
     display: none !important;
   }
+  .timeline-controls,
+  .utility-panel,
+  .leadership-dashboard,
+  .return-to-desk-stack {
+    display: none !important;
+  }
 
   .simulation-layout-grid,
   .scenario-column.card,
@@ -1415,5 +1461,10 @@ p {
     border: 1px solid #d7dce5 !important;
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+  .domain-bar-fill,
+  .wheel-meter div {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }

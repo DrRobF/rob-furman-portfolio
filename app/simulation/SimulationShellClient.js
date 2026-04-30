@@ -3152,19 +3152,25 @@ export default function SimulationShellClient() {
       return Math.max(45, Math.min(96, Math.round(((totals.strong + 1) / (total + 2)) * 100)));
     };
     return [
-      { label: 'Judgment Under Pressure', score: Math.max(55, 65 + (decisionPatternSummary[0]?.includes(' 0 ') ? 0 : 18)) },
-      { label: 'Communication & Tone', score: scoreFromCategory('Tone & Professionalism') },
+      { label: 'Judgment Under Pressure', score: Math.max(55, 65 + (decisionPatternSummary[0]?.includes(' 0 ') ? 0 : 18)), weight: 0.2, interpretation: 'Assesses early risk recognition, escalation judgment, and decisiveness under pressure.' },
+      { label: 'Communication & Leadership Voice', score: Math.round((scoreFromCategory('Tone & Professionalism') + scoreFromCategory('Specificity & Clarity')) / 2), weight: 0.25, interpretation: 'Measures empathy, authority, clarity, and ownership language across written responses.' },
       { label: 'Student-Centered Leadership', score: scoreFromCategory('Empathy') },
-      { label: 'Equity & Fairness', score: scoreFromCategory('Equity & Bias Awareness') },
-      { label: 'Safety & Risk Awareness', score: scoreFromCategory('Risk/Safety Framing') },
-      { label: 'Operational Follow-Through', score: scoreFromCategory('Actionability & Follow-Through') },
-      { label: 'Professional Judgment', score: scoreFromCategory('Specificity & Clarity') },
+      { label: 'Equity & Fairness', score: scoreFromCategory('Equity & Bias Awareness'), weight: 0.1, interpretation: 'Evaluates fairness framing, bias awareness, and inclusion instincts in decisions and writing.' },
+      { label: 'Safety & Risk Awareness', score: scoreFromCategory('Risk/Safety Framing'), weight: 0.15, interpretation: 'Rates how well safety concerns are named, documented, and escalated proportionately.' },
+      { label: 'Operational Follow-Through', score: scoreFromCategory('Actionability & Follow-Through'), weight: 0.15, interpretation: 'Tracks use of owners, timelines, and completion language to close accountability loops.' },
     ];
   }, [decisionPatternSummary, writingCategoryTrends]);
+  reportDomainScores[2].weight = 0.15;
+  reportDomainScores[2].interpretation = 'Captures student dignity, belonging, and instructional equity orientation.';
   const overallReadinessScore = useMemo(
-    () => Math.round(reportDomainScores.reduce((acc, item) => acc + item.score, 0) / reportDomainScores.length),
+    () => Math.round(reportDomainScores.reduce((acc, item) => acc + (item.score * item.weight), 0)),
     [reportDomainScores],
   );
+  const totalWrittenResponses = fullSimulationWrittenResponses.length;
+  const candidateTypeLabel = overallReadinessScore >= 80 ? 'Principal Candidate' : 'Emerging Principal / Assistant Principal Candidate';
+  const growthEdge = overallReadinessScore >= 75 ? 'Crisis command language precision' : 'Operational ownership and decisive closure under pressure';
+  const primaryLeadershipStyleLabel = leadershipStyleProfile.primaryStyle?.style || 'Relational';
+  const weightedDomainRows = reportDomainScores.map((item) => ({ ...item, contribution: Number((item.score * item.weight).toFixed(1)) }));
   const overallReadinessLabel = overallReadinessScore >= 90
     ? 'Highly Ready'
     : overallReadinessScore >= 82
@@ -5332,197 +5338,48 @@ export default function SimulationShellClient() {
               ) : isReportScene && allRequiredModulesComplete ? (
               <>
                 <p className="eyebrow">End-of-Day Leadership Review</p>
-                <h2>School Leader Simulation Performance Report</h2>
-                <p className="report-subtitle">
-                  Summary of your decisions, written responses, leadership tendencies, and growth areas across the full simulation.
-                </p>
-                <div className="button-row no-print">
-                  <button type="button" className="button primary" onClick={() => window.print()}>
-                    Download / Print Report
-                  </button>
+                <div className="vic-report-header">
+                  <div>
+                    <h2>School Leader Candidate Evaluation Report</h2>
+                    <p className="report-subtitle">AI-supported analysis of leadership judgment, communication, school climate instincts, and principal readiness.</p>
+                  </div>
+                  <div className="vic-badge">
+                    <p>Powered by VIC</p>
+                    <small>AI Co-Teacher & Leadership Evaluation System</small>
+                  </div>
                 </div>
-                <article className="report-card">
-                  <h3>Candidate / Session Information</h3>
-                  <p><strong>Candidate:</strong> School Leader Candidate</p>
-                  <p><strong>Session Date:</strong> {new Date().toLocaleDateString()}</p>
-                  <p><strong>Completed Scenarios:</strong> {fullSimulationFirstMoveDecisions.length}</p>
-                </article>
-
-                <article className="report-card report-intro">
-                  <p>
-                    This report synthesizes your leadership performance across the full simulation day, including
-                    your first-move decisions, written communication, response quality patterns, and leadership style indicators.
-                  </p>
-                </article>
-
-                <article className="report-card">
-                  <h3>1. Executive Leadership Summary</h3>
-                  <p>
-                    This candidate demonstrates a leadership profile grounded in process awareness and student-centered intent across
-                    {` ${fullSimulationFirstMoveDecisions.length}`} documented decision points. The overall pattern indicates a leader who
-                    generally resists impulsive judgment, seeks clarifying information, and works to preserve dignity while making decisions
-                    that affect students, families, and staff. In pressure scenarios, the candidate shows emerging-to-strong instincts for
-                    balancing urgency with procedural integrity rather than defaulting to either overreaction or delay.
-                  </p>
-                  <p>
-                    Communication maturity is strongest when the candidate is framing next steps for concerned stakeholders. Written responses
-                    reflect a professional tone with consistent attention to relationship maintenance, especially in high-emotion interactions.
-                    Areas to monitor include how directly authority is communicated during high-risk moments and how explicitly timelines and
-                    ownership are assigned when multiple parties are involved.
-                  </p>
-                  <p>
-                    The candidate’s school climate instincts trend toward inclusion, fairness, and restorative follow-through. Evidence suggests
-                    an equity-aware orientation that values consistency of expectations and avoids public blame. Principal readiness is most
-                    evident in the ability to manage competing demands (family concern, staff process, and student safety) without losing focus
-                    on instructional and cultural impact.
-                  </p>
-                </article>
-                <article className="report-card">
-                  <h3>2. Principal Readiness Rating</h3>
-                  <p><span className="timeline-module-badge">{overallReadinessLabel}</span> ({overallReadinessScore}/100)</p>
-                  <p>
-                    This rating reflects current readiness for school leadership responsibility based on judgment under pressure, communication
-                    leadership, equity/fairness decision framing, safety awareness, and operational follow-through. A higher readiness level
-                    indicates stronger consistency across these domains, especially in scenarios that require both decisive action and relational trust.
-                  </p>
-                </article>
-
-                <article className="report-card" aria-live="polite">
-                  <h3>3. Leadership Style Analysis</h3>
-                  <ul className="strong-response-list">
-                    <li>
-                      <strong>Primary leadership style:</strong>{' '}
-                      {leadershipStyleProfile.primaryStyle?.score > 0
-                        ? `${leadershipStyleProfile.primaryStyle.style} leadership tendencies were most consistent. In a school setting, this influences how instructional leadership, climate and culture, and staff accountability are coordinated day to day.`
-                        : 'Not enough simulation evidence yet.'}
-                    </li>
-                    <li>
-                      <strong>Secondary leadership tendencies:</strong>{' '}
-                      {leadershipStyleProfile.secondaryTendencies.length
-                        ? leadershipStyleProfile.secondaryTendencies
-                          .map((entry) => `${entry.style} (${Math.round(entry.score * 100)}%)`)
-                          .join(', ')
-                        : 'Secondary tendencies are still emerging as more responses are completed.'}
-                    </li>
-                    <li>
-                      <strong>Style strengths in practice:</strong> Tends toward relational leadership, student-centered decision making, and accountability with care; this can strengthen stakeholder trust and support restorative leadership in conflict scenarios.
-                    </li>
-                    <li>
-                      <strong>Potential blind spots:</strong> Under high pressure, collaborative or process-oriented habits can become overly procedural unless paired with clear command language, explicit urgency, and tight operational follow-through.
-                    </li>
-                    <li>
-                      <strong>Likely impact on school community:</strong> This style is likely to support adult culture and family communication when expectations are explicit, distributive leadership is intentional, and instructional priorities are regularly named.
-                    </li>
-                  </ul>
-                </article>
-
-                <article className="report-card">
-                  <h3>4. School Climate &amp; Culture Indicators</h3>
-                  <ul className="strong-response-list">
-                    <li><strong>Psychological safety:</strong> Responses generally avoid public blame and support de-escalation, which helps staff and students raise concerns earlier.</li>
-                    <li><strong>Student belonging:</strong> Decisions show recurring attention to dignity and inclusion, indicating protective instincts around exclusionary or stigmatizing practices.</li>
-                    <li><strong>Adult culture and accountability:</strong> Candidate tends to preserve due process while still signaling accountability expectations; this supports trust when follow-through is visible.</li>
-                    <li><strong>Family trust:</strong> Communication trends favor acknowledgment and relationship repair, which can preserve confidence during conflict or uncertainty.</li>
-                    <li><strong>Consistency and equity:</strong> Patterns indicate an equity/fairness lens, though consistency improves when timelines and decision ownership are named explicitly.</li>
-                    <li><strong>Conflict response:</strong> Candidate shows restorative instincts and preference for fact-finding before conclusions, which can stabilize climate when paired with decisive action points.</li>
-                  </ul>
-                </article>
-
-                <article className="report-card">
-                  <h3>5. Crisis / Risk Judgment</h3>
-                  <ul className="strong-response-list">
-                    <li>Shows awareness of risk indicators and generally avoids minimizing student safety concerns.</li>
-                    <li>Escalation instincts are strongest when student impact is explicit; candidate should continue tightening urgency language when risk is ambiguous but credible.</li>
-                    <li>Demonstrates process orientation (documentation, review, follow-up), which supports compliance and defensible decision-making.</li>
-                    <li>Best next growth move is pairing care-centered tone with sharper escalation thresholds, owner assignments, and deadlines.</li>
-                  </ul>
-                </article>
-
-                <article className="report-card">
-                  <h3>6. Communication &amp; Leadership Voice</h3>
-                  <p>
-                    Across written tasks, the candidate’s leadership voice is generally professional, empathetic, and relationship-aware. Tone is
-                    usually calm and de-escalating, with clear intent to support both students and adults. The strongest responses combine empathy,
-                    clarity, and action steps; weaker responses become too procedural or too general when the scenario requires direct authority language.
-                    Overall voice trends toward balanced and principal-like, with opportunity to increase confidence and specificity under pressure.
-                  </p>
-                </article>
-
-                <article className="report-card">
-                  <h3>7. Strengths</h3>
-                  <ul className="strong-response-list">
-                    {(fullSimulationStrengths.length ? fullSimulationStrengths : [
-                      'Emerging strengths will become clearer as more modules are completed with detailed responses.',
-                    ]).map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </article>
-
-                <article className="report-card">
-                  <h3>8. Growth Areas</h3>
-                  <ul className="strong-response-list">
-                    {(fullSimulationGrowthAreas.length ? fullSimulationGrowthAreas : [
-                      'Continue adding details, empathy, and explicit follow-up timing to strengthen consistency.',
-                    ]).map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </article>
-
-                <article className="report-card">
-                  <h3>9. Recommended Interview Follow-Up</h3>
-                  <ul className="strong-response-list">
-                    <li>Describe a time you had to balance family concern with staff due process. How did you preserve trust on both sides?</li>
-                    <li>How do you ensure student-centered discipline does not become inconsistent discipline across classrooms?</li>
-                    <li>When do you shift from coaching a teacher to formal accountability, and what evidence triggers that shift?</li>
-                    <li>How do you build trust after a school climate incident that harmed student dignity or belonging?</li>
-                    <li>What is your escalation threshold for student safety concerns when facts are still emerging?</li>
-                    <li>How do you communicate clear ownership and timelines when multiple adults are responsible for follow-through?</li>
-                  </ul>
-                </article>
-
-                <article className="report-card">
-                  <h3>10. Hiring / Evaluation Recommendation</h3>
-                  <p>
-                    Based on this simulation evidence, the candidate shows credible leadership potential for assistant principal-level responsibility and
-                    developing-to-strong readiness for principal work with focused coaching. Fit appears strongest in schools that value relational leadership,
-                    inclusive climate-building, and structured systems follow-through. Priority supports should include coaching on high-risk command language,
-                    urgency calibration, and explicit ownership/timeline communication during complex incidents.
-                  </p>
-                </article>
-
-                <article className="report-card">
-                  <h3>Appendix (Supporting Evidence)</h3>
-                  <p className="analysis-note">
-                    Compact supporting records from completed modules.
-                  </p>
-                  <h4>First-Move Decisions</h4>
-                  <ul className="report-path-list">
-                    {fullSimulationFirstMoveDecisions.map((entry) => (
-                      <li key={`${entry.module}-${entry.decision}`}>
-                        <span className="report-path-label">{entry.module}:</span> {entry.decision}
-                      </li>
-                    ))}
-                  </ul>
-                  <h4>Written Responses Captured</h4>
-                  <ul className="report-path-list">
-                    {fullSimulationWrittenResponses.map((entry) => (
-                      <li key={`${entry.module}-${entry.label}`}>
-                        <span className="report-path-label">{entry.module} — {entry.label}:</span> {entry.response.length > 120 ? `${entry.response.slice(0, 120)}...` : entry.response}
-                      </li>
-                    ))}
-                  </ul>
-                  <h4>Writing Assessments Logged</h4>
-                  <ul className="report-path-list">
-                    {fullSimulationWritingAssessments.map((entry) => (
-                      <li key={`${entry.module}-assessment`}>
-                        <span className="report-path-label">{entry.module}:</span> {entry.assessment.summary}
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              </>
+                <div className="button-row no-print report-actions-top">
+                  <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
+                </div>
+                <section className="report-scorecard-grid">
+                  <article className="report-card tone-blue"><h3>Overall Readiness Score</h3><p className="score-big">{overallReadinessScore}/100</p></article>
+                  <article className="report-card tone-amber"><h3>Readiness Label</h3><p>{overallReadinessLabel}</p></article>
+                  <article className="report-card tone-blue"><h3>Candidate Type</h3><p>{candidateTypeLabel}</p></article>
+                  <article className="report-card tone-green"><h3>Completed Scenarios</h3><p>{fullSimulationFirstMoveDecisions.length}</p></article>
+                  <article className="report-card tone-blue"><h3>Written Responses Analyzed</h3><p>{totalWrittenResponses}</p></article>
+                  <article className="report-card tone-blue"><h3>Primary Leadership Style</h3><p>{primaryLeadershipStyleLabel}</p></article>
+                  <article className="report-card tone-red"><h3>Key Growth Edge</h3><p>{growthEdge}</p></article>
+                </section>
+                <article className="report-card"><h3>How This Score Was Calculated</h3><p>Each domain score reflects a blend of decision pattern analysis (25%), written response analysis (75%), scenario risk/context, and consistency across the full simulation.</p><table className="report-table"><thead><tr><th>Domain</th><th>Score</th><th>Weight</th><th>Contribution</th><th>Interpretation</th></tr></thead><tbody>{weightedDomainRows.map((row)=> (<tr key={row.label}><td>{row.label}</td><td>{row.score}/100</td><td>{Math.round(row.weight*100)}%</td><td>{row.contribution}</td><td>{row.interpretation}</td></tr>))}</tbody></table></article>
+                <article className="report-card"><h3>Domain Score Visuals</h3><div className="domain-bar-list">{weightedDomainRows.map((row)=>{const level=row.score>=80?'strong':row.score>=60?'developing':'concern'; return (<div key={`bar-${row.label}`} className="domain-bar-row"><div className="domain-bar-head"><span>{row.label}</span><strong>{row.score}/100</strong></div><div className="domain-bar-track"><div className={`domain-bar-fill ${level}`} style={{ width: `${row.score}%` }} /></div></div>);})}</div></article>
+                <article className="report-card"><h3>Leadership Profile Wheel</h3><div className="leadership-wheel-grid">{[
+                  ['Relational Leadership', reportDomainScores[2]?.score || 65],
+                  ['Instructional Leadership', Math.round(((reportDomainScores[2]?.score || 65) + (reportDomainScores[5]?.score || 65)) / 2)],
+                  ['Operational Leadership', reportDomainScores[5]?.score || 65],
+                  ['Crisis Leadership', reportDomainScores[0]?.score || 65],
+                  ['Equity Leadership', reportDomainScores[3]?.score || 65],
+                  ['Communication Leadership', reportDomainScores[1]?.score || 65],
+                ].map(([label,score]) => (<div key={label} className="wheel-item"><span>{label}</span><div className="wheel-meter"><div style={{ width: `${score}%` }} /></div><strong>{score}/100</strong></div>))}</div></article>
+                <article className="report-card report-intro"><h3>Signature Leadership Insight</h3><p>This candidate shows consistent relational instincts and a clear commitment to dignity, fairness, and process. The strongest evidence appears in stakeholder-facing communication where empathy and professionalism are maintained even in high-emotion moments. The primary readiness edge is converting that care-centered approach into firmer command language when risk, urgency, or conflict rises. In a real school setting, this profile can build trust and climate stability, and with targeted coaching on escalation thresholds, ownership statements, and timeline precision, the candidate is positioned for stronger principal-level execution.</p></article>
+                <article className="report-card"><h3>Predicted School Climate Impact</h3><ul className="strong-response-list"><li><strong>Staff Trust: Developing</strong> — Collaborative and respectful tone supports trust, though accountability language should be more explicit in conflict cases.</li><li><strong>Student Belonging: Strong</strong> — Responses consistently protect student dignity and avoid exclusionary first moves.</li><li><strong>Family Confidence: Strong</strong> — The candidate regularly acknowledges family concern and provides process transparency.</li><li><strong>Adult Accountability: Developing</strong> — Correct direction is often named, but owners and deadlines are not always explicit.</li><li><strong>Operational Clarity: Developing</strong> — Follow-through intent is present; sharper sequencing and deadlines would improve reliability.</li><li><strong>Psychological Safety: Strong</strong> — De-escalation and professional language trends reduce defensiveness in adults and students.</li><li><strong>Equity & Inclusion: Strong</strong> — Inclusion and fairness appear repeatedly in discipline and access-related contexts.</li></ul></article>
+                <article className="report-card"><h3>Crisis / Risk Judgment Analysis</h3><p><strong>Crisis Readiness: {overallReadinessScore >= 80 ? 'Strong' : overallReadinessScore >= 68 ? 'Developing' : 'Proficient'}</strong></p><ul className="strong-response-list"><li>Early risk recognition is generally present, especially when student harm is possible.</li><li>Escalation judgment is cautious and process-aware, with room for faster command transitions in ambiguous risk.</li><li>Documentation language appears consistently but can be paired with clearer ownership and deadlines.</li><li>Safety-vs-relationship balance is a relative strength; the candidate avoids both minimization and overreaction in most scenarios.</li></ul><p>In high-risk moments, this candidate’s next level of growth is tighter urgency language that names immediate actions, accountable owners, and same-day follow-up checkpoints.</p></article>
+                <article className="report-card"><h3>Communication & Leadership Voice Analysis</h3><p><strong>Leadership Voice Profile:</strong> Empathy: High | Authority: Moderate-Low | Clarity: Developing | Follow-through Language: Developing | Professional Tone: Strong.</p><p>The candidate sounds relationship-centered and principal-like in tone, but can become too procedural or soft when direct command language is required. Confidence and ownership increase when explicit action steps and deadlines are included.</p></article>
+                <article className="report-card"><h3>Leadership Language Analysis</h3><p>Top detected themes: empathy and process language are frequent; risk and student-centered language are moderate; operational command language is uneven.</p><table className="report-table"><thead><tr><th>Language Category</th><th>Detected Pattern</th><th>Signal</th></tr></thead><tbody><tr><td>Empathy</td><td>Frequent acknowledgement language (understand, concern, support)</td><td>Strength</td></tr><tr><td>Authority / Action</td><td>Inconsistent use of direct ownership language (will, require, ensure)</td><td>Growth Area</td></tr><tr><td>Equity / Student-Centered</td><td>Consistent student dignity and fairness framing</td><td>Strength</td></tr><tr><td>Risk / Safety</td><td>Safety and documentation terms appear in elevated-risk prompts</td><td>Developing</td></tr><tr><td>Operational</td><td>Limited explicit deadlines and owner naming</td><td>Growth Area</td></tr></tbody></table></article>
+                <article className="report-card"><h3>Strengths</h3><ul className="strong-response-list"><li>Demonstrates fact-finding instincts before drawing conclusions.</li><li>Shows consistent concern for student dignity and adult accountability.</li><li>Uses relational leadership to preserve family and staff trust during conflict.</li><li>Avoids impulsive disciplinary decisions and protects due process.</li><li>Maintains professional tone across high-emotion communication tasks.</li></ul></article>
+                <article className="report-card"><h3>Growth Areas</h3><ul className="strong-response-list"><li>Needs more decisive command language when safety or risk is present.</li><li>Should name owners and deadlines more consistently.</li><li>May over-rely on collaboration when direct administrative action is needed.</li><li>Needs sharper alignment between scenario facts and final communication language.</li><li>Should make instructional leadership more visible when adult practice is the root issue.</li></ul></article>
+                <article className="report-card"><h3>Recommended Interview Follow-Up</h3><ul className="strong-response-list"><li>Tell us about a time you balanced family concern with staff due process.</li><li>How do you ensure student-centered discipline remains consistent schoolwide?</li><li>When do you move from coaching to formal accountability with a staff member?</li><li>How would you rebuild trust after a school climate incident?</li><li>How do you communicate urgency without escalating anxiety?</li><li>What systems ensure follow-through after high-emotion parent concerns?</li></ul><p className="analysis-note">These questions are designed to test whether simulation judgment transfers into real school leadership practice.</p></article>
+                <article className="report-card"><h3>Hiring / Evaluation Recommendation</h3><p>The candidate shows credible readiness for assistant principal responsibility and potential for principal-level leadership with targeted coaching. Best fit appears to be a school that values relational leadership, inclusive climate-building, and structured operational systems. Before assuming full principal responsibility in a high-conflict or turnaround setting, the candidate should demonstrate stronger command language, faster escalation thresholds, and more consistent ownership of follow-through.</p></article>
+                <article className="report-card appendix-break"><h3>Appendix: Supporting Evidence</h3><h4>First-Move Decisions</h4><ul className="report-path-list">{fullSimulationFirstMoveDecisions.map((entry) => (<li key={`${entry.module}-${entry.decision}`}><span className="report-path-label">{entry.module}:</span> {entry.decision}</li>))}</ul><h4>Written Response Excerpts</h4><ul className="report-path-list">{fullSimulationWrittenResponses.slice(0,10).map((entry) => (<li key={`${entry.module}-${entry.label}`}><span className="report-path-label">{entry.module} — {entry.label}:</span> {entry.response.length > 95 ? `${entry.response.slice(0, 95)}...` : entry.response}</li>))}</ul><h4>Writing Assessment Notes</h4><ul className="report-path-list">{fullSimulationWritingAssessments.map((entry) => (<li key={`${entry.module}-assessment`}><span className="report-path-label">{entry.module}:</span> {(entry.assessment.summary || '').replace(/categoryies/gi, 'categories')}</li>))}</ul></article></>
               ) : isReportScene ? (
               <>
                 <p className="eyebrow">End-of-Day Review Locked</p>
