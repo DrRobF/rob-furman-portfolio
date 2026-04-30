@@ -1659,7 +1659,7 @@ function analyzeLeadershipWriting(responseText, contextType) {
   const situationFitCategory = categories.find((category) => category.name === 'Situation Fit / Accuracy');
   const summary = situationFitCategory?.status === 'Needs Attention'
     ? unrelatedScenario
-      ? 'This response needs attention because it does not clearly address the situation. This response does not appear to address the actual voicemail scenario. Before tone or next steps can be evaluated, the response needs to connect clearly to the concern.'
+      ? `This ${contextLabel} needs attention because it does not clearly address the scenario prompt. Before tone or next steps can be evaluated, the response should connect directly to the stated concern.`
       : `This ${contextLabel} needs attention because it does not clearly address the situation.`
     : needsAttentionCount > 0
       ? `This ${contextLabel} has strengths, but ${needsAttentionCount} category${needsAttentionCount > 1 ? 'ies need' : ' needs'} attention.`
@@ -3165,11 +3165,15 @@ export default function SimulationShellClient() {
     () => Math.round(reportDomainScores.reduce((acc, item) => acc + item.score, 0) / reportDomainScores.length),
     [reportDomainScores],
   );
-  const overallReadinessLabel = overallReadinessScore >= 85
+  const overallReadinessLabel = overallReadinessScore >= 90
     ? 'Highly Ready'
-    : overallReadinessScore >= 75
-      ? 'Ready with Focused Coaching'
-      : 'Developing Readiness';
+    : overallReadinessScore >= 82
+      ? 'Strong Readiness'
+      : overallReadinessScore >= 74
+        ? 'Proficient Readiness'
+        : overallReadinessScore >= 66
+          ? 'Developing Readiness'
+          : 'Emerging Readiness';
 
   const handleLoadSampleCompletedReport = () => {
     restoreSimulationProgress({
@@ -5352,47 +5356,48 @@ export default function SimulationShellClient() {
                 </article>
 
                 <article className="report-card">
-                  <h3>Executive Summary</h3>
+                  <h3>1. Executive Leadership Summary</h3>
                   <p>
-                    Across {fullSimulationFirstMoveDecisions.length} captured decision points and{' '}
-                    {fullSimulationWrittenResponses.length} written responses, your leadership approach showed a blend of
-                    structured problem-solving and stakeholder communication. Decision patterns suggest how you balance
-                    investigation, acknowledgement, urgency, and collaboration. Writing patterns show how consistently your
-                    tone, empathy, clarity, and follow-through translated into actionable leadership communication.
+                    This candidate demonstrates a leadership profile grounded in process awareness and student-centered intent across
+                    {` ${fullSimulationFirstMoveDecisions.length}`} documented decision points. The overall pattern indicates a leader who
+                    generally resists impulsive judgment, seeks clarifying information, and works to preserve dignity while making decisions
+                    that affect students, families, and staff. In pressure scenarios, the candidate shows emerging-to-strong instincts for
+                    balancing urgency with procedural integrity rather than defaulting to either overreaction or delay.
                   </p>
                   <p>
-                    Your current style profile points most strongly to{' '}
-                    <strong>{leadershipStyleProfile.primaryStyle?.style || 'an emerging style pattern'}</strong>, with
-                    secondary tendencies that shift based on pressure, risk, and audience.
+                    Communication maturity is strongest when the candidate is framing next steps for concerned stakeholders. Written responses
+                    reflect a professional tone with consistent attention to relationship maintenance, especially in high-emotion interactions.
+                    Areas to monitor include how directly authority is communicated during high-risk moments and how explicitly timelines and
+                    ownership are assigned when multiple parties are involved.
+                  </p>
+                  <p>
+                    The candidate’s school climate instincts trend toward inclusion, fairness, and restorative follow-through. Evidence suggests
+                    an equity-aware orientation that values consistency of expectations and avoids public blame. Principal readiness is most
+                    evident in the ability to manage competing demands (family concern, staff process, and student safety) without losing focus
+                    on instructional and cultural impact.
                   </p>
                 </article>
                 <article className="report-card">
-                  <h3>Overall Readiness Rating</h3>
+                  <h3>2. Principal Readiness Rating</h3>
                   <p><span className="timeline-module-badge">{overallReadinessLabel}</span> ({overallReadinessScore}/100)</p>
-                </article>
-                <article className="report-card">
-                  <h3>Domain Scores</h3>
-                  <ul className="report-path-list">
-                    {reportDomainScores.map((domain) => (
-                      <li key={domain.label}><span className="report-path-label">{domain.label}:</span> {domain.score}/100</li>
-                    ))}
-                  </ul>
+                  <p>
+                    This rating reflects current readiness for school leadership responsibility based on judgment under pressure, communication
+                    leadership, equity/fairness decision framing, safety awareness, and operational follow-through. A higher readiness level
+                    indicates stronger consistency across these domains, especially in scenarios that require both decisive action and relational trust.
+                  </p>
                 </article>
 
                 <article className="report-card" aria-live="polite">
-                  <h3>2. Leadership Style Profile</h3>
-                  <p className="analysis-note">
-                    This profile reflects your full-simulation data using the existing style engine (75% writing patterns / 25% decision patterns).
-                  </p>
+                  <h3>3. Leadership Style Analysis</h3>
                   <ul className="strong-response-list">
                     <li>
-                      <strong>Primary Leadership Style:</strong>{' '}
+                      <strong>Primary leadership style:</strong>{' '}
                       {leadershipStyleProfile.primaryStyle?.score > 0
-                        ? `${leadershipStyleProfile.primaryStyle.style} tendencies appeared most often across the full simulation.`
+                        ? `${leadershipStyleProfile.primaryStyle.style} leadership tendencies were most consistent. In a school setting, this influences how instructional leadership, climate and culture, and staff accountability are coordinated day to day.`
                         : 'Not enough simulation evidence yet.'}
                     </li>
                     <li>
-                      <strong>Secondary Leadership Tendencies:</strong>{' '}
+                      <strong>Secondary leadership tendencies:</strong>{' '}
                       {leadershipStyleProfile.secondaryTendencies.length
                         ? leadershipStyleProfile.secondaryTendencies
                           .map((entry) => `${entry.style} (${Math.round(entry.score * 100)}%)`)
@@ -5400,41 +5405,51 @@ export default function SimulationShellClient() {
                         : 'Secondary tendencies are still emerging as more responses are completed.'}
                     </li>
                     <li>
-                      <strong>Situational Watch Areas:</strong>{' '}
-                      {leadershipStyleProfile.situationalWatchAreas.length
-                        ? leadershipStyleProfile.situationalWatchAreas
-                          .map((entry) => `${entry.style} (${Math.round(entry.score * 100)}%)`)
-                          .join(', ')
-                        : 'No clear watch areas identified yet from available evidence.'}
+                      <strong>Style strengths in practice:</strong> Tends toward relational leadership, student-centered decision making, and accountability with care; this can strengthen stakeholder trust and support restorative leadership in conflict scenarios.
+                    </li>
+                    <li>
+                      <strong>Potential blind spots:</strong> Under high pressure, collaborative or process-oriented habits can become overly procedural unless paired with clear command language, explicit urgency, and tight operational follow-through.
+                    </li>
+                    <li>
+                      <strong>Likely impact on school community:</strong> This style is likely to support adult culture and family communication when expectations are explicit, distributive leadership is intentional, and instructional priorities are regularly named.
                     </li>
                   </ul>
                 </article>
 
                 <article className="report-card">
-                  <h3>3. Decision-Making Patterns</h3>
+                  <h3>4. School Climate &amp; Culture Indicators</h3>
                   <ul className="strong-response-list">
-                    {decisionPatternSummary.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
+                    <li><strong>Psychological safety:</strong> Responses generally avoid public blame and support de-escalation, which helps staff and students raise concerns earlier.</li>
+                    <li><strong>Student belonging:</strong> Decisions show recurring attention to dignity and inclusion, indicating protective instincts around exclusionary or stigmatizing practices.</li>
+                    <li><strong>Adult culture and accountability:</strong> Candidate tends to preserve due process while still signaling accountability expectations; this supports trust when follow-through is visible.</li>
+                    <li><strong>Family trust:</strong> Communication trends favor acknowledgment and relationship repair, which can preserve confidence during conflict or uncertainty.</li>
+                    <li><strong>Consistency and equity:</strong> Patterns indicate an equity/fairness lens, though consistency improves when timelines and decision ownership are named explicitly.</li>
+                    <li><strong>Conflict response:</strong> Candidate shows restorative instincts and preference for fact-finding before conclusions, which can stabilize climate when paired with decisive action points.</li>
                   </ul>
                 </article>
 
                 <article className="report-card">
-                  <h3>4. Communication &amp; Writing Analysis</h3>
-                  <p className="analysis-note">
-                    Writing analysis below is aggregated across all completed writing tasks and highlights trends instead of module-by-module ratings.
+                  <h3>5. Crisis / Risk Judgment</h3>
+                  <ul className="strong-response-list">
+                    <li>Shows awareness of risk indicators and generally avoids minimizing student safety concerns.</li>
+                    <li>Escalation instincts are strongest when student impact is explicit; candidate should continue tightening urgency language when risk is ambiguous but credible.</li>
+                    <li>Demonstrates process orientation (documentation, review, follow-up), which supports compliance and defensible decision-making.</li>
+                    <li>Best next growth move is pairing care-centered tone with sharper escalation thresholds, owner assignments, and deadlines.</li>
+                  </ul>
+                </article>
+
+                <article className="report-card">
+                  <h3>6. Communication &amp; Leadership Voice</h3>
+                  <p>
+                    Across written tasks, the candidate’s leadership voice is generally professional, empathetic, and relationship-aware. Tone is
+                    usually calm and de-escalating, with clear intent to support both students and adults. The strongest responses combine empathy,
+                    clarity, and action steps; weaker responses become too procedural or too general when the scenario requires direct authority language.
+                    Overall voice trends toward balanced and principal-like, with opportunity to increase confidence and specificity under pressure.
                   </p>
-                  <ul className="strong-response-list">
-                    {Object.entries(writingCategoryTrends).map(([name, totals]) => (
-                      <li key={name}>
-                        <strong>{name}:</strong> Strong in {totals.strong} task(s); Needs Attention in {totals.needsAttention} task(s).
-                      </li>
-                    ))}
-                  </ul>
                 </article>
 
                 <article className="report-card">
-                  <h3>5. Leadership Strengths</h3>
+                  <h3>7. Strengths</h3>
                   <ul className="strong-response-list">
                     {(fullSimulationStrengths.length ? fullSimulationStrengths : [
                       'Emerging strengths will become clearer as more modules are completed with detailed responses.',
@@ -5445,7 +5460,7 @@ export default function SimulationShellClient() {
                 </article>
 
                 <article className="report-card">
-                  <h3>6. Growth Areas</h3>
+                  <h3>8. Growth Areas</h3>
                   <ul className="strong-response-list">
                     {(fullSimulationGrowthAreas.length ? fullSimulationGrowthAreas : [
                       'Continue adding details, empathy, and explicit follow-up timing to strengthen consistency.',
@@ -5456,18 +5471,31 @@ export default function SimulationShellClient() {
                 </article>
 
                 <article className="report-card">
-                  <h3>7. Recommended Next Steps</h3>
+                  <h3>9. Recommended Interview Follow-Up</h3>
                   <ul className="strong-response-list">
-                    <li>Use a repeatable response structure: acknowledge concern, share known facts, name next steps, and give timeline.</li>
-                    <li>During high-risk scenarios, add one explicit risk-check sentence to clarify student safety, process, and documentation.</li>
-                    <li>Schedule short reflection reviews after each major interaction to track pattern shifts across decisions and writing.</li>
+                    <li>Describe a time you had to balance family concern with staff due process. How did you preserve trust on both sides?</li>
+                    <li>How do you ensure student-centered discipline does not become inconsistent discipline across classrooms?</li>
+                    <li>When do you shift from coaching a teacher to formal accountability, and what evidence triggers that shift?</li>
+                    <li>How do you build trust after a school climate incident that harmed student dignity or belonging?</li>
+                    <li>What is your escalation threshold for student safety concerns when facts are still emerging?</li>
+                    <li>How do you communicate clear ownership and timelines when multiple adults are responsible for follow-through?</li>
                   </ul>
                 </article>
 
                 <article className="report-card">
-                  <h3>8. Scenario Records / Appendix</h3>
+                  <h3>10. Hiring / Evaluation Recommendation</h3>
+                  <p>
+                    Based on this simulation evidence, the candidate shows credible leadership potential for assistant principal-level responsibility and
+                    developing-to-strong readiness for principal work with focused coaching. Fit appears strongest in schools that value relational leadership,
+                    inclusive climate-building, and structured systems follow-through. Priority supports should include coaching on high-risk command language,
+                    urgency calibration, and explicit ownership/timeline communication during complex incidents.
+                  </p>
+                </article>
+
+                <article className="report-card">
+                  <h3>Appendix (Supporting Evidence)</h3>
                   <p className="analysis-note">
-                    The items below are supporting records from individual modules. They do not replace the full-simulation summary above.
+                    Compact supporting records from completed modules.
                   </p>
                   <h4>First-Move Decisions</h4>
                   <ul className="report-path-list">
@@ -5481,7 +5509,7 @@ export default function SimulationShellClient() {
                   <ul className="report-path-list">
                     {fullSimulationWrittenResponses.map((entry) => (
                       <li key={`${entry.module}-${entry.label}`}>
-                        <span className="report-path-label">{entry.module} — {entry.label}:</span> Recorded
+                        <span className="report-path-label">{entry.module} — {entry.label}:</span> {entry.response.length > 120 ? `${entry.response.slice(0, 120)}...` : entry.response}
                       </li>
                     ))}
                   </ul>
