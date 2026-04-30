@@ -3180,6 +3180,102 @@ export default function SimulationShellClient() {
         : overallReadinessScore >= 66
           ? 'Developing Readiness'
           : 'Emerging Readiness';
+  const scenarioWeights = useMemo(() => {
+    const mapping = {
+      'Student Threat Report': { band: 'Critical', weight: 2.0 },
+      'Cafeteria Boundary Incident': { band: 'Critical', weight: 2.0 },
+      'Recess Injury Parent Concern': { band: 'High-Stakes', weight: 1.5 },
+      'Parent Escalation': { band: 'High-Stakes', weight: 1.5 },
+    };
+    return fullSimulationFirstMoveDecisions.map((entry) => ({
+      ...entry,
+      ...(mapping[entry.module] || { band: 'Routine', weight: 1.0 }),
+    }));
+  }, [fullSimulationFirstMoveDecisions]);
+  const decisionEffectiveness = useMemo(() => {
+    const text = fullSimulationFirstMoveDecisions.map((entry) => entry.decision.toLowerCase());
+    const strongFirstMoves = text.filter((value) => /(investigate|review|fact|immediate|safety|support|follow[- ]?up|document|plan)/.test(value)).length;
+    const delayedDecisions = text.filter((value) => /(wait|later|postpone|next week|defer)/.test(value)).length;
+    const missedEscalations = text.filter((value) => /(handle quietly|no escalation|own their own|ignore|do nothing)/.test(value)).length;
+    const total = text.length || 1;
+    const asPct = (count) => Math.round((count / total) * 100);
+    return {
+      total,
+      strongFirstMoves,
+      delayedDecisions,
+      missedEscalations,
+      strongPct: asPct(strongFirstMoves),
+      delayedPct: asPct(delayedDecisions),
+      missedPct: asPct(missedEscalations),
+    };
+  }, [fullSimulationFirstMoveDecisions]);
+  const weightedScenarioScore = useMemo(() => {
+    const scoreFromDecision = (decision) => {
+      const text = decision.toLowerCase();
+      if (/(investigate|safety|immediate|plan|document|follow[- ]?up)/.test(text)) return 85;
+      if (/(meet|discuss|review|support)/.test(text)) return 74;
+      if (/(wait|later|postpone|defer)/.test(text)) return 58;
+      return 68;
+    };
+    let weightedTotal = 0;
+    let totalWeight = 0;
+    let criticalTotal = 0;
+    let criticalWeight = 0;
+    let nonCriticalTotal = 0;
+    let nonCriticalWeight = 0;
+    scenarioWeights.forEach((entry) => {
+      const score = scoreFromDecision(entry.decision);
+      weightedTotal += score * entry.weight;
+      totalWeight += entry.weight;
+      if (entry.band === 'Critical') {
+        criticalTotal += score * entry.weight;
+        criticalWeight += entry.weight;
+      } else {
+        nonCriticalTotal += score * entry.weight;
+        nonCriticalWeight += entry.weight;
+      }
+    });
+    return {
+      weightedScore: Math.round(weightedTotal / (totalWeight || 1)),
+      criticalScore: Math.round(criticalTotal / (criticalWeight || 1)),
+      nonCriticalScore: Math.round(nonCriticalTotal / (nonCriticalWeight || 1)),
+    };
+  }, [scenarioWeights]);
+  const leadershipConsistencyIndex = useMemo(() => {
+    const scores = weightedDomainRows.map((row) => row.score);
+    const mean = scores.reduce((sum, value) => sum + value, 0) / (scores.length || 1);
+    const variance = scores.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / (scores.length || 1);
+    const consistency = Math.max(40, Math.min(98, Math.round(100 - Math.sqrt(variance))));
+    return consistency;
+  }, [weightedDomainRows]);
+  const instructionalLeadershipScore = useMemo(() => {
+    const teachingScenarios = fullSimulationWrittenResponses.filter((entry) => (
+      /(academic|student support|walkthrough|teacher|instruction|iep|removal)/i.test(`${entry.module} ${entry.label}`)
+    ));
+    const mentions = teachingScenarios.reduce((count, entry) => {
+      const text = entry.response.toLowerCase();
+      if (/(instruction|learning|feedback|intervention|progress|coaching|data|support plan)/.test(text)) return count + 1;
+      return count;
+    }, 0);
+    const base = reportDomainScores.find((row) => row.label === 'Student-Centered Leadership')?.score || 68;
+    return Math.min(97, Math.round((base * 0.6) + ((mentions / (teachingScenarios.length || 1)) * 40)));
+  }, [fullSimulationWrittenResponses, reportDomainScores]);
+  const leadershipRiskFlags = useMemo(() => {
+    const flags = [];
+    if (decisionEffectiveness.delayedPct >= 20) flags.push('Delay risk: multiple first moves postpone action in time-sensitive moments.');
+    if (weightedScenarioScore.criticalScore < weightedScenarioScore.nonCriticalScore - 8) flags.push('Critical-scenario drop: performance dips when stakes are highest.');
+    if ((writingCategoryTrends['Actionability & Follow-Through']?.needsAttention || 0) >= 2) flags.push('Execution gap: follow-through language does not consistently name owners and deadlines.');
+    if ((writingCategoryTrends['Specificity & Clarity']?.needsAttention || 0) >= 2) flags.push('Clarity risk: some responses are values-aligned but still too general for staff execution.');
+    if (leadershipConsistencyIndex < 72) flags.push('Consistency volatility: leadership quality shifts across decisions and communication tasks.');
+    return flags.slice(0, 5);
+  }, [decisionEffectiveness, weightedScenarioScore, writingCategoryTrends, leadershipConsistencyIndex]);
+  const hiringRecommendation = overallReadinessScore >= 85
+    ? 'Strong Hire'
+    : overallReadinessScore >= 76
+      ? 'Hire with Coaching'
+      : overallReadinessScore >= 66
+        ? 'Proceed with Caution'
+        : 'Not Recommended';
 
   const handleLoadSampleCompletedReport = () => {
     restoreSimulationProgress({
@@ -5352,6 +5448,10 @@ export default function SimulationShellClient() {
                   <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
                 </div>
                 <section className="report-scorecard-grid">
+                  <article className="report-card tone-green"><h3>Trust Builder</h3><p>{(writingCategoryTrends.Empathy?.strong || 0) >= 3 ? 'Strong' : 'Developing'}</p></article>
+                  <article className="report-card tone-amber"><h3>Decision Speed</h3><p>{decisionEffectiveness.delayedPct <= 12 ? 'Fast' : decisionEffectiveness.delayedPct <= 24 ? 'Moderate' : 'Cautious'}</p></article>
+                  <article className="report-card tone-red"><h3>Authority Under Pressure</h3><p>{weightedScenarioScore.criticalScore >= 80 ? 'Strong' : weightedScenarioScore.criticalScore >= 70 ? 'Developing' : 'At Risk'}</p></article>
+                  <article className="report-card tone-blue"><h3>Operational Execution</h3><p>{reportDomainScores[5]?.score >= 80 ? 'Strong' : reportDomainScores[5]?.score >= 70 ? 'Developing' : 'Needs Precision'}</p></article>
                   <article className="report-card tone-blue"><h3>Overall Readiness Score</h3><p className="score-big">{overallReadinessScore}/100</p></article>
                   <article className="report-card tone-amber"><h3>Readiness Label</h3><p>{overallReadinessLabel}</p></article>
                   <article className="report-card tone-blue"><h3>Candidate Type</h3><p>{candidateTypeLabel}</p></article>
@@ -5362,6 +5462,10 @@ export default function SimulationShellClient() {
                 </section>
                 <article className="report-card"><h3>How This Score Was Calculated</h3><p>Each domain score reflects a blend of decision pattern analysis (25%), written response analysis (75%), scenario risk/context, and consistency across the full simulation.</p><table className="report-table"><thead><tr><th>Domain</th><th>Score</th><th>Weight</th><th>Contribution</th><th>Interpretation</th></tr></thead><tbody>{weightedDomainRows.map((row)=> (<tr key={row.label}><td>{row.label}</td><td>{row.score}/100</td><td>{Math.round(row.weight*100)}%</td><td>{row.contribution}</td><td>{row.interpretation}</td></tr>))}</tbody></table></article>
                 <article className="report-card"><h3>Domain Score Visuals</h3><div className="domain-bar-list">{weightedDomainRows.map((row)=>{const level=row.score>=80?'strong':row.score>=60?'developing':'concern'; return (<div key={`bar-${row.label}`} className="domain-bar-row"><div className="domain-bar-head"><span>{row.label}</span><strong>{row.score}/100</strong></div><div className="domain-bar-track"><div className={`domain-bar-fill ${level}`} style={{ width: `${row.score}%` }} /></div></div>);})}</div></article>
+                <article className="report-card"><h3>Decision Effectiveness Index</h3><p><strong>Strong first moves:</strong> {decisionEffectiveness.strongFirstMoves}/{decisionEffectiveness.total} ({decisionEffectiveness.strongPct}%) | <strong>Delayed decisions:</strong> {decisionEffectiveness.delayedDecisions}/{decisionEffectiveness.total} ({decisionEffectiveness.delayedPct}%) | <strong>Missed escalations:</strong> {decisionEffectiveness.missedEscalations}/{decisionEffectiveness.total} ({decisionEffectiveness.missedPct}%).</p><p className="analysis-note">Evaluator insight: the candidate&apos;s first-move quality is strongest when the response includes immediate containment plus a named follow-through path. Continued growth is reducing hesitation language in higher-pressure moments.</p></article>
+                <article className="report-card"><h3>Scenario Weighting</h3><p><strong>Weighted leadership score:</strong> {weightedScenarioScore.weightedScore}/100 using Critical (2.0), High-Stakes (1.5), and Routine (1.0) scenario multipliers.</p><p><strong>Critical performance:</strong> {weightedScenarioScore.criticalScore}/100 | <strong>Non-critical performance:</strong> {weightedScenarioScore.nonCriticalScore}/100.</p><table className="report-table"><thead><tr><th>Scenario</th><th>Weight Band</th><th>Multiplier</th></tr></thead><tbody>{scenarioWeights.map((entry)=>(<tr key={`weight-${entry.module}`}><td>{entry.module}</td><td>{entry.band}</td><td>{entry.weight.toFixed(1)}</td></tr>))}</tbody></table></article>
+                <article className="report-card"><h3>Leadership Consistency Index</h3><p><strong>{leadershipConsistencyIndex}% consistency</strong> across decision quality and leadership writing signals.</p><p className="analysis-note">Evaluator insight: this profile becomes more reliable when urgency rises and execution language remains as explicit as the relational tone.</p></article>
+                <article className="report-card"><h3>Instructional Leadership Score</h3><p><strong>{instructionalLeadershipScore}/100</strong> based on teaching-and-learning scenario responses, coaching language, and student support planning signals.</p><p className="analysis-note">Evaluator insight: instructional instincts are present; the next lift is anchoring every adult action to observable learning outcomes and progress checkpoints.</p></article>
                 <article className="report-card"><h3>Leadership Profile Wheel</h3><div className="leadership-wheel-grid">{[
                   ['Relational Leadership', reportDomainScores[2]?.score || 65],
                   ['Instructional Leadership', Math.round(((reportDomainScores[2]?.score || 65) + (reportDomainScores[5]?.score || 65)) / 2)],
@@ -5377,9 +5481,12 @@ export default function SimulationShellClient() {
                 <article className="report-card"><h3>Leadership Language Analysis</h3><p>Top detected themes: empathy and process language are frequent; risk and student-centered language are moderate; operational command language is uneven.</p><table className="report-table"><thead><tr><th>Language Category</th><th>Detected Pattern</th><th>Signal</th></tr></thead><tbody><tr><td>Empathy</td><td>Frequent acknowledgement language (understand, concern, support)</td><td>Strength</td></tr><tr><td>Authority / Action</td><td>Inconsistent use of direct ownership language (will, require, ensure)</td><td>Growth Area</td></tr><tr><td>Equity / Student-Centered</td><td>Consistent student dignity and fairness framing</td><td>Strength</td></tr><tr><td>Risk / Safety</td><td>Safety and documentation terms appear in elevated-risk prompts</td><td>Developing</td></tr><tr><td>Operational</td><td>Limited explicit deadlines and owner naming</td><td>Growth Area</td></tr></tbody></table></article>
                 <article className="report-card"><h3>Strengths</h3><ul className="strong-response-list"><li>Demonstrates fact-finding instincts before drawing conclusions.</li><li>Shows consistent concern for student dignity and adult accountability.</li><li>Uses relational leadership to preserve family and staff trust during conflict.</li><li>Avoids impulsive disciplinary decisions and protects due process.</li><li>Maintains professional tone across high-emotion communication tasks.</li></ul></article>
                 <article className="report-card"><h3>Growth Areas</h3><ul className="strong-response-list"><li>Needs more decisive command language when safety or risk is present.</li><li>Should name owners and deadlines more consistently.</li><li>May over-rely on collaboration when direct administrative action is needed.</li><li>Needs sharper alignment between scenario facts and final communication language.</li><li>Should make instructional leadership more visible when adult practice is the root issue.</li></ul></article>
+                <article className="report-card tone-red"><h3>Leadership Risk Flags</h3><ul className="strong-response-list">{leadershipRiskFlags.map((flag) => (<li key={flag}>{flag}</li>))}</ul></article>
+                <article className="report-card"><h3>Benchmark Comparison</h3><p><strong>Assistant Principal benchmark range:</strong> 60–75 | <strong>Principal-ready benchmark range:</strong> 80+.</p><p>Candidate score: <strong>{overallReadinessScore}/100</strong> — {overallReadinessScore >= 80 ? 'positioned in the principal-ready band.' : overallReadinessScore >= 60 ? 'currently in the AP-to-principal transition band.' : 'currently below common AP benchmark range.'}</p></article>
                 <article className="report-card"><h3>Recommended Interview Follow-Up</h3><ul className="strong-response-list"><li>Tell us about a time you balanced family concern with staff due process.</li><li>How do you ensure student-centered discipline remains consistent schoolwide?</li><li>When do you move from coaching to formal accountability with a staff member?</li><li>How would you rebuild trust after a school climate incident?</li><li>How do you communicate urgency without escalating anxiety?</li><li>What systems ensure follow-through after high-emotion parent concerns?</li></ul><p className="analysis-note">These questions are designed to test whether simulation judgment transfers into real school leadership practice.</p></article>
-                <article className="report-card"><h3>Hiring / Evaluation Recommendation</h3><p>The candidate shows credible readiness for assistant principal responsibility and potential for principal-level leadership with targeted coaching. Best fit appears to be a school that values relational leadership, inclusive climate-building, and structured operational systems. Before assuming full principal responsibility in a high-conflict or turnaround setting, the candidate should demonstrate stronger command language, faster escalation thresholds, and more consistent ownership of follow-through.</p></article>
-                <article className="report-card appendix-break"><h3>Appendix: Supporting Evidence</h3><h4>First-Move Decisions</h4><ul className="report-path-list">{fullSimulationFirstMoveDecisions.map((entry) => (<li key={`${entry.module}-${entry.decision}`}><span className="report-path-label">{entry.module}:</span> {entry.decision}</li>))}</ul><h4>Written Response Excerpts</h4><ul className="report-path-list">{fullSimulationWrittenResponses.slice(0,10).map((entry) => (<li key={`${entry.module}-${entry.label}`}><span className="report-path-label">{entry.module} — {entry.label}:</span> {entry.response.length > 95 ? `${entry.response.slice(0, 95)}...` : entry.response}</li>))}</ul><h4>Writing Assessment Notes</h4><ul className="report-path-list">{fullSimulationWritingAssessments.map((entry) => (<li key={`${entry.module}-assessment`}><span className="report-path-label">{entry.module}:</span> {(entry.assessment.summary || '').replace(/categoryies/gi, 'categories')}</li>))}</ul></article></>
+                <article className="report-card"><h3>Final Hiring Recommendation</h3><p><strong>{hiringRecommendation}</strong></p><p>Evaluator voice: this candidate is likely to build early relational trust and climate stability. The 90-day success threshold will depend on consistent urgency moves, explicit ownership language, and faster escalation calls in high-risk situations.</p></article>
+                <article className="report-card"><h3>Predicted 90-Day Impact</h3><p>In the first 90 days, expect visible gains in family communication confidence and student-centered climate routines. The highest-leverage coaching priority is operational consistency: naming who owns each action, by when, and how progress will be monitored in weekly leadership cycles.</p></article>
+                <article className="report-card appendix-break"><h3>Appendix: Supporting Evidence (Compact)</h3><h4>First-Move Decisions</h4><ul className="report-path-list">{fullSimulationFirstMoveDecisions.slice(0,8).map((entry) => (<li key={`${entry.module}-${entry.decision}`}><span className="report-path-label">{entry.module}:</span> {entry.decision}</li>))}</ul><h4>Written Response Excerpts</h4><ul className="report-path-list">{fullSimulationWrittenResponses.slice(0,6).map((entry) => (<li key={`${entry.module}-${entry.label}`}><span className="report-path-label">{entry.module} — {entry.label}:</span> {entry.response.length > 80 ? `${entry.response.slice(0, 80)}...` : entry.response}</li>))}</ul><h4>Writing Notes</h4><ul className="report-path-list">{fullSimulationWritingAssessments.slice(0,6).map((entry) => (<li key={`${entry.module}-assessment`}><span className="report-path-label">{entry.module}:</span> {(entry.assessment.summary || '').replace(/categoryies/gi, 'categories')}</li>))}</ul></article></>
               ) : isReportScene ? (
               <>
                 <p className="eyebrow">End-of-Day Review Locked</p>
