@@ -3495,6 +3495,19 @@ export default function SimulationShellClient() {
 
   return (
     <div className="simulation-product-shell">
+      <section className="simulation-sample-report-card no-print" aria-label="Sample leadership report">
+        <p className="eyebrow">Leadership Report Preview</p>
+        <h2>See the Final Leadership Report</h2>
+        <p>
+          After completing the simulation, participants receive a professional leadership evaluation report summarizing decision-making, communication, school climate instincts, crisis judgment, and readiness for school leadership.
+        </p>
+        <div className="button-row">
+          <button type="button" className="button secondary" onClick={handleLoadSampleCompletedReport}>
+            View Sample Leadership Report
+          </button>
+        </div>
+      </section>
+
       <section className="day-timeline-card timeline-full-width" aria-label="Simulation day modules">
         <p className="eyebrow">Simulation Day Timeline</p>
         <h2>A Day in the Life of a School Leader</h2>
@@ -3563,11 +3576,6 @@ export default function SimulationShellClient() {
           })}
         </div>
         {builderMode ? <p className="builder-mode-badge">Builder Mode Active</p> : null}
-        <div className="button-row no-print">
-          <button type="button" className="button secondary" onClick={handleLoadSampleCompletedReport}>
-            Preview Sample Final Report
-          </button>
-        </div>
       </section>
 
       <div className="simulation-layout-grid">
@@ -5446,7 +5454,11 @@ export default function SimulationShellClient() {
                 </div>
                 <div className="button-row no-print report-actions-top">
                   <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
+                  <button type="button" className="button secondary" onClick={handleStartOver}>Start Full Simulation</button>
                 </div>
+                <p className="analysis-note report-sample-note">
+                  Sample report shown for demonstration purposes. Actual reports are generated from the participant&apos;s decisions and written responses throughout the simulation.
+                </p>
                 <section className="report-scorecard-grid">
                   <article className="report-card tone-blue"><h3>Overall Readiness</h3><p className="score-big">{overallReadinessScore}/100</p></article>
                   <article className="report-card tone-amber"><h3>Readiness Level</h3><p>{overallReadinessLabel}</p></article>
