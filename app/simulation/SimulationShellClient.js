@@ -3277,68 +3277,12 @@ export default function SimulationShellClient() {
         ? 'Proceed with Caution'
         : 'Not Recommended';
 
-  const handleLoadSampleCompletedReport = () => {
-    restoreSimulationProgress({
-      version: 'simulation-snapshot-v1',
-      savedAt: new Date().toISOString(),
-      currentModule: 'endOfDayEmail',
-      scene: 'report',
-      timelineStatuses: dayModules.reduce((acc, module) => ({ ...acc, [module.id]: moduleStatuses.completed }), {}),
-      folders: { red: [], orange: [], green: [] },
-      completedTasks: [],
-      decisions: {
-        firstDecision: 'Acknowledge the parent and begin a fact-check before final response',
-        investigationDecision: 'Discuss the situation with the teacher',
-        iepDecision: 'Center supports and clear accountability in the IEP conversation',
-        announcementsDecision: 'Use announcements to reinforce safety, belonging, and expectations',
-        voicemailDecisions: { parentHelp: 'Call parent first with clear plan', teacherCall: 'Coach teacher and document follow-up' },
-        lunchClimateDecision: 'Address supervision pressure immediately and assign next-step owners',
-        parentEscalationDecision: 'Respond promptly with empathy, facts, and timeline',
-        cafeteriaBoundaryDecision: 'Separate concerns, investigate, and re-teach adult boundaries',
-        teacherConflictDecision: 'Facilitate restorative conference with clear norms',
-        studentThreatDecision: 'Treat as potential safety risk and investigate immediately',
-        academicDeclineDecision: 'Launch student support review with family partnership',
-        ptoTalentShowDecision: 'Revise criteria to protect inclusion and fairness',
-        recessInjuryDecision: 'Call parent, document incident, and review supervision',
-        studentRemovalDecision: 'Decline immediate removal and apply progressive supports',
-      },
-      responses: {
-        initialParentResponse: 'Thank you for reaching out. I understand why this felt upsetting, and I will review the details with staff today before I follow up.',
-        finalParentResponse: 'I appreciate your advocacy for your child. We confirmed the sequence of events, addressed the classroom practice, and will monitor for student dignity and instructional equity. I will follow up by Friday with next steps.',
-        voicemailResponses: { parentHelp: 'I can meet today, share what we know, and map support options.', teacherCall: 'Let us meet after dismissal to align expectations and communication.' },
-        lunchMonitorDirectionNote: 'Please increase active supervision in the bottleneck area and radio concerns immediately.',
-        parentEscalationResponse: 'I hear your concern and I am taking it seriously. I will review records, speak with staff, and call you by 3:30 PM with an update.',
-        cafeteriaBoundaryResponse: 'Student safety and staff tone both matter; we will investigate and reset expectations.',
-        teacherConflictResponse: 'Thank you both for meeting. We will focus on student impact, clear agreements, and follow-through.',
-        studentThreatResponse: 'We are treating this as a safety matter, interviewing involved students, and coordinating support.',
-        academicDeclineResponse: 'The student needs a coordinated plan with progress checks, family communication, and targeted interventions.',
-        ptoTalentShowResponse: 'We can celebrate effort while ensuring criteria do not exclude students needing support services.',
-        recessInjuryResponse: 'I am sorry this occurred. We documented the incident, reviewed supervision, and will share prevention steps.',
-        studentRemovalResponse: 'At this stage, removal is not the first intervention; we will implement supports, monitor, and review outcomes.',
-        walkthroughResponses: walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: 'Observation captured and aligned to coaching follow-through.' }), {}),
-      },
-      records: {
-        deskStackStatuses: {
-          rewardConcern: deskStackItemStatuses.complete,
-          studentThreatEmail: deskStackItemStatuses.complete,
-          academicDeclineEmail: deskStackItemStatuses.complete,
-          ptoTalentShowEmail: deskStackItemStatuses.complete,
-          recessInjuryEmail: deskStackItemStatuses.complete,
-          studentRemovalRequest: deskStackItemStatuses.complete,
-        },
-      },
-      uiProgress: {
-        hasReachedEndOfDay: true,
-        hasCompletedFinalStep: true,
-        arrivalCompleted: true,
-        voicemailTaskClosed: true,
-        lunchClimateInsightUnlocked: true,
-        parentEscalationVoicemailPlayed: true,
-        cafeteriaBoundaryVoicemailPlayed: true,
-        currentDeskStackItem: 'rewardConcern',
-      },
-    });
-  };
+  useEffect(() => {
+    if (scene === 'report') return;
+    if (currentModule !== 'endOfDayEmail' || currentDeskStackItem !== null) return;
+    if (!canCloseDeskStackDay) return;
+    handleCloseDeskStackDay();
+  }, [scene, currentModule, currentDeskStackItem, canCloseDeskStackDay]);
 
   const investigationGuidanceCopy = {
     'Discuss the situation with the teacher':
@@ -3495,19 +3439,6 @@ export default function SimulationShellClient() {
 
   return (
     <div className="simulation-product-shell">
-      <section className="simulation-sample-report-card no-print" aria-label="Sample leadership report">
-        <p className="eyebrow">Leadership Report Preview</p>
-        <h2>See the Final Leadership Report</h2>
-        <p>
-          After completing the simulation, participants receive a professional leadership evaluation report summarizing decision-making, communication, school climate instincts, crisis judgment, and readiness for school leadership.
-        </p>
-        <div className="button-row">
-          <button type="button" className="button secondary" onClick={handleLoadSampleCompletedReport}>
-            View Sample Leadership Report
-          </button>
-        </div>
-      </section>
-
       <section className="day-timeline-card timeline-full-width" aria-label="Simulation day modules">
         <p className="eyebrow">Simulation Day Timeline</p>
         <h2>A Day in the Life of a School Leader</h2>
@@ -5444,8 +5375,8 @@ export default function SimulationShellClient() {
                 <p className="eyebrow">End-of-Day Leadership Review</p>
                 <div className="vic-report-header">
                   <div>
-                    <h2>School Leader Candidate Evaluation Report</h2>
-                    <p className="report-subtitle">AI-supported analysis of leadership judgment, communication, school climate instincts, and principal readiness.</p>
+                    <h2>Your Leadership Evaluation Report</h2>
+                    <p className="report-subtitle">Generated from your decisions and responses during the simulation.</p>
                   </div>
                   <div className="vic-badge">
                     <p>Powered by VIC</p>
@@ -5454,11 +5385,8 @@ export default function SimulationShellClient() {
                 </div>
                 <div className="button-row no-print report-actions-top">
                   <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
-                  <button type="button" className="button secondary" onClick={handleStartOver}>Start Full Simulation</button>
+                  <button type="button" className="button secondary" onClick={handleStartOver}>Start New Simulation</button>
                 </div>
-                <p className="analysis-note report-sample-note">
-                  Sample report shown for demonstration purposes. Actual reports are generated from the participant&apos;s decisions and written responses throughout the simulation.
-                </p>
                 <section className="report-scorecard-grid">
                   <article className="report-card tone-blue"><h3>Overall Readiness</h3><p className="score-big">{overallReadinessScore}/100</p></article>
                   <article className="report-card tone-amber"><h3>Readiness Level</h3><p>{overallReadinessLabel}</p></article>
