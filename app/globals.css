@@ -594,6 +594,23 @@ p {
   align-items: start;
 }
 
+
+.simulation-sample-report-card {
+  background: linear-gradient(145deg, #f9fbff, #eef3fb);
+  border: 1px solid #cfdbf0;
+  border-radius: 14px;
+  padding: 0.9rem;
+}
+
+.simulation-sample-report-card h2 {
+  margin: 0.2rem 0 0.5rem;
+  font-size: 1.12rem;
+}
+
+.report-sample-note {
+  margin-top: 0.2rem;
+}
+
 .timeline-full-width {
   width: 100%;
 }
