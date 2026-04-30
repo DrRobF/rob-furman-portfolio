@@ -1381,3 +1381,39 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  .no-print,
+  .button-row,
+  header,
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  .day-timeline-card {
+    display: none !important;
+  }
+
+  .simulation-layout-grid,
+  .scenario-column.card,
+  .scenario-content {
+    display: block !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .report-card {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: 1px solid #d7dce5 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
