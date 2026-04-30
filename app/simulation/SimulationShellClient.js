@@ -3211,8 +3211,26 @@ export default function SimulationShellClient() {
         studentRemovalResponse: 'At this stage, removal is not the first intervention; we will implement supports, monitor, and review outcomes.',
         walkthroughResponses: walkthroughFormFields.reduce((acc, field) => ({ ...acc, [field.id]: 'Observation captured and aligned to coaching follow-through.' }), {}),
       },
-      records: {},
-      uiProgress: { hasReachedEndOfDay: true, hasCompletedFinalStep: true },
+      records: {
+        deskStackStatuses: {
+          rewardConcern: deskStackItemStatuses.complete,
+          studentThreatEmail: deskStackItemStatuses.complete,
+          academicDeclineEmail: deskStackItemStatuses.complete,
+          ptoTalentShowEmail: deskStackItemStatuses.complete,
+          recessInjuryEmail: deskStackItemStatuses.complete,
+          studentRemovalRequest: deskStackItemStatuses.complete,
+        },
+      },
+      uiProgress: {
+        hasReachedEndOfDay: true,
+        hasCompletedFinalStep: true,
+        arrivalCompleted: true,
+        voicemailTaskClosed: true,
+        lunchClimateInsightUnlocked: true,
+        parentEscalationVoicemailPlayed: true,
+        cafeteriaBoundaryVoicemailPlayed: true,
+        currentDeskStackItem: 'rewardConcern',
+      },
     });
   };
 
