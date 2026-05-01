@@ -3290,6 +3290,9 @@ export default function SimulationShellClient() {
         ? 'Proceed with Caution'
         : 'Not Recommended';
   const reportData = evaluationResult || {
+    evaluationSource: 'heuristic-fallback',
+    evaluationConfidence: 'Moderate',
+    apiStatus: 'fallback',
     overallReadinessScore,
     readinessLevel: overallReadinessLabel,
     candidateProfile: candidateTypeLabel,
@@ -3345,13 +3348,16 @@ export default function SimulationShellClient() {
           qualityFlags: responseQualityFlags,
           primaryLeadershipStyle: primaryLeadershipStyleLabel,
         };
+        console.log('[simulation/report] Calling AI evaluation route');
         const response = await fetch('/api/simulation/evaluate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+        console.log(`[simulation/report] Evaluation response status: ${response.status}`);
         if (!response.ok) throw new Error('Evaluation request failed');
         const result = await response.json();
+        console.log(`[simulation/report] Evaluation source: ${result?.evaluationSource || 'unknown'}`);
         setEvaluationResult(result);
         window.localStorage.setItem(simulationEvaluationStorageKey, JSON.stringify(result));
         if (result.evaluationSource === 'heuristic-fallback') {
@@ -5476,6 +5482,12 @@ export default function SimulationShellClient() {
                 </div>
                 {isGeneratingEvaluation ? <article className="report-card"><p>Generating your leadership evaluation report…</p></article> : null}
                 {evaluationErrorMessage ? <article className="report-card"><p>{evaluationErrorMessage}</p></article> : null}
+                <article className="report-card no-print">
+                  <h3>Diagnostics</h3>
+                  <p><strong>Evaluation Source:</strong> {reportData.evaluationSource || 'unknown'}</p>
+                  <p><strong>Evaluation Confidence:</strong> {reportData.evaluationConfidence || 'unknown'}</p>
+                  <p><strong>API Status:</strong> {reportData.apiStatus || 'error'}</p>
+                </article>
                 <section className="report-scorecard-grid">
                   <article className="report-card tone-blue"><h3>Overall Readiness</h3><p className="score-big">{reportData.overallReadinessScore}/100</p></article>
                   <article className="report-card tone-amber"><h3>Readiness Level</h3><p>{reportData.readinessLevel}</p></article>

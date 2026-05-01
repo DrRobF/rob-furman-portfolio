@@ -108,10 +108,16 @@ function sanitizeEvaluation(output, fallback) {
 }
 
 export async function POST(request) {
+  console.log('[simulation/evaluate] Simulation evaluate route hit');
   const payload = await request.json().catch(() => ({}));
   const fallback = heuristicEvaluation(payload);
+  const hasApiKey = Boolean(process.env.OPENAI_API_KEY);
+  console.log(`[simulation/evaluate] OPENAI_API_KEY exists: ${hasApiKey}`);
 
-  if (!process.env.OPENAI_API_KEY) return NextResponse.json(fallback);
+  if (!hasApiKey) {
+    console.log('[simulation/evaluate] Using fallback: missing OPENAI_API_KEY');
+    return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'missing-api-key' });
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 18000);
@@ -143,9 +149,13 @@ export async function POST(request) {
     if (!content) throw new Error('Missing model content');
     const parsed = JSON.parse(content);
     const evaluation = sanitizeEvaluation(parsed, fallback);
+    console.log('[simulation/evaluate] OpenAI call succeeded');
+    evaluation.apiStatus = 'success';
     return NextResponse.json(evaluation);
   } catch (error) {
-    return NextResponse.json({ ...fallback, fallbackReason: error?.name === 'AbortError' ? 'timeout' : 'api-error' });
+    const fallbackReason = error?.name === 'AbortError' ? 'timeout' : 'api-error';
+    console.log(`[simulation/evaluate] Using fallback: ${fallbackReason}`);
+    return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason });
   } finally {
     clearTimeout(timeout);
   }
