@@ -1249,9 +1249,11 @@ p {
 .core-competencies-card { grid-column: span 6; }
 .overall-readiness-card { border: 0; display: grid; gap: 0.75rem; background: transparent; box-shadow: none; padding: 0; }
 .score-hero-card { position: relative; border-radius: 14px; background: linear-gradient(160deg, #102643, #1b365f); color: #eef4ff; padding: 1rem; border: 1px solid rgba(151, 188, 235, 0.35); box-shadow: 0 14px 34px rgba(14, 37, 67, 0.32); }
-.score-hero-value { font-size: 3rem; line-height: 1; margin: 0.2rem 0; font-weight: 800; text-align: center; color: #fff; }
-.score-hero-label { margin: 0; text-align: center; font-size: 1rem; color: #cbdcf8; font-weight: 600; }
-.hero-confidence { position: absolute; right: 1rem; top: 1rem; }
+.score-hero-card-compact { display: grid; grid-template-columns: minmax(150px, 210px) 1fr; align-items: center; gap: 1rem; min-height: 180px; max-height: 220px; }
+.score-hero-left { display: grid; gap: 0.35rem; }
+.score-hero-right { display: grid; gap: 0.55rem; }
+.score-hero-value { font-size: 3rem; line-height: 1; margin: 0.2rem 0; font-weight: 800; color: #fff; }
+.score-hero-label { margin: 0; font-size: 1rem; color: #cbdcf8; font-weight: 600; }
 .score-hero-meta { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid rgba(207, 223, 248, 0.28); display: flex; flex-wrap: wrap; gap: 0.5rem 0.8rem; font-size: 0.82rem; color: #d9e8ff; }
 .segmented-readiness-meter { --meter-value: 0; margin-top: 0.9rem; position: relative; display: grid; grid-template-columns: 54fr 10fr 15fr 21fr; gap: 0.15rem; background: rgba(9, 20, 37, 0.55); border-radius: 999px; padding: 0.2rem; }
 .segmented-readiness-meter .seg { height: 14px; border-radius: 999px; }
@@ -1270,6 +1272,7 @@ p {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.85rem;
 }
+.dashboard-impact-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); justify-items: stretch; }
 .dashboard-split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .competency-gauge-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
 .competency-gauge-card { border: 1px solid #d6e0ef; border-radius: 12px; padding: 0.6rem; background: #fff; }
@@ -1287,11 +1290,13 @@ p {
 .band-amber { background: #c58a2d; }
 .band-limited { background: #cc6f2e; }
 .band-concern { background: #b54545; }
-.impact-visual-card h3 { margin-top: 0.2rem; }
+.impact-visual-card { padding: 0.7rem; min-height: 180px; max-width: 240px; width: 100%; }
+.impact-visual-card h3 { margin-top: 0.15rem; margin-bottom: 0.35rem; font-size: 0.95rem; }
 .impact-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
 .impact-rating-badge { margin: 0.15rem 0 0.45rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px; background: #edf3fa; }
 .impact-score { margin: 0.15rem 0 0.3rem; font-weight: 700; }
-.impact-meter { margin-top: 0.2rem; grid-template-columns: 54fr 10fr 15fr 21fr; }
+.impact-mini-progress { height: 8px; border-radius: 999px; overflow: hidden; background: #e5edf8; margin: 0.15rem 0 0.3rem; }
+.impact-mini-progress span { display: block; height: 100%; }
 .readiness-gauge { --gauge-zone-red: #ba5d5d; --gauge-zone-orange: #cf7a3d; --gauge-zone-amber: #cc9b41; --gauge-zone-green: #2f8b57; background: conic-gradient(from 180deg, var(--gauge-zone-red) 0 45deg, var(--gauge-zone-orange) 45deg 80deg, var(--gauge-zone-amber) 80deg 120deg, var(--gauge-zone-green) 120deg 180deg, #dce5f3 180deg 360deg); border-radius: 100% 100% 0 0 / 100% 100% 0 0; height: 140px; width: 280px; max-width: 100%; margin: 0.2rem auto; position: relative; overflow: hidden; }
 .readiness-gauge-inner { position: absolute; left: 12%; right: 12%; bottom: 0; height: 76%; background: #fff; border-radius: 100% 100% 0 0 / 100% 100% 0 0; display: grid; place-items: center; text-align: center; }
 .readiness-needle { position: absolute; width: 45%; height: 3px; background: #143a63; left: 50%; bottom: 8px; transform-origin: left center; transform: rotate(calc(-180deg + (var(--gauge-value, 0) * 1.8deg))); border-radius: 999px; box-shadow: 0 0 0 1px rgba(20, 58, 99, 0.05); }
@@ -1563,6 +1568,8 @@ p {
   .overall-readiness-card {
     grid-column: 1 / -1;
   }
+  .score-hero-card-compact { grid-template-columns: 1fr; min-height: unset; max-height: unset; }
+  .impact-visual-card { max-width: none; }
   .question-card-grid { grid-template-columns: 1fr; }
 }
 
