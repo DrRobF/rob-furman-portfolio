@@ -3530,6 +3530,56 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const reportDashboard = (
+    <div className="leadership-dashboard">
+      <header className="dashboard-topbar no-print">
+        <h2>Your Leadership Evaluation</h2>
+        <div className="button-row report-actions-top">
+          <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
+          <button type="button" className="button secondary" onClick={handleStartOver}>Start New Simulation</button>
+        </div>
+      </header>
+      {isGeneratingEvaluation ? <article className="report-card"><p>Generating your leadership evaluation report…</p></article> : null}
+      {evaluationErrorMessage ? <article className="report-card"><p>{evaluationErrorMessage}</p></article> : null}
+      {!allRequiredModulesComplete ? <article className="report-card"><p>Some required scenarios were not completed before entering report mode.</p></article> : null}
+      <div className="dashboard-grid">
+        <article className="report-card dashboard-card overall-readiness-card"><h3>Overall Readiness</h3><p className="score-big">{reportData.overallReadinessScore}/100</p><p>{reportData.readinessLevel}</p></article>
+        <article className="report-card dashboard-card"><h3>Candidate Profile</h3><p>{reportData.candidateProfile}</p></article>
+        <article className="report-card dashboard-card"><h3>At a Glance</h3><p><strong>Primary Style:</strong> {reportData.primaryLeadershipStyle}</p><p><strong>Scenarios:</strong> {fullSimulationFirstMoveDecisions.length}</p><p><strong>Written Responses:</strong> {totalWrittenResponses}</p></article>
+        <section className="dashboard-snapshot-strip">
+          <article className="report-card dashboard-card"><h3>Trust Builder</h3><p>{reportData.snapshot?.trustBuilder}</p></article>
+          <article className="report-card dashboard-card"><h3>Decision Speed</h3><p>{reportData.snapshot?.decisionSpeed}</p></article>
+          <article className="report-card dashboard-card"><h3>Authority Under Pressure</h3><p>{reportData.snapshot?.authorityUnderPressure}</p></article>
+          <article className="report-card dashboard-card"><h3>Operational Execution</h3><p>{reportData.snapshot?.operationalExecution}</p></article>
+        </section>
+        <article className="report-card dashboard-card dashboard-full"><h3>Signature Leadership Insight</h3><p>{reportData.signatureLeadershipInsight}</p></article>
+        <article className="report-card dashboard-card dashboard-full">
+          <h3>Core Competency Scores</h3>
+          <div className="domain-score-list">{reportDomainScores.map((item) => <div key={item.label}><div className="domain-score-head"><span>{item.label}</span><strong>{item.score}</strong></div><div className="domain-score-track"><span style={{ width: `${item.score}%` }} /></div></div>)}</div>
+        </article>
+        <section className="dashboard-impact-grid">
+          <article className="report-card dashboard-card"><h3>Communication & Leadership Voice</h3><p>{reportData.communicationLeadershipVoice}</p></article>
+          <article className="report-card dashboard-card"><h3>School Climate & Culture Impact</h3><ul className="strong-response-list">{(reportData.schoolClimateCultureImpact || []).slice(0, 2).map((item) => <li key={item.label}><strong>{item.label}:</strong> {item.rating}</li>)}</ul></article>
+          <article className="report-card dashboard-card"><h3>Crisis & Risk Leadership</h3><p>{reportData.crisisRiskLeadership}</p></article>
+          <article className="report-card dashboard-card"><h3>Leadership Consistency</h3><p>{leadershipConsistencyIndex}/100</p></article>
+        </section>
+        <section className="dashboard-split">
+          <article className="report-card dashboard-card"><h3>Strengths</h3><ul className="strong-response-list">{(reportData.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
+          <article className="report-card dashboard-card"><h3>Growth Areas</h3><ul className="strong-response-list">{(reportData.growthAreas || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
+        </section>
+        <section className="dashboard-split">
+          <article className="report-card dashboard-card"><h3>Leadership Readiness Summary</h3><p>{reportData.leadershipReadinessSummary}</p></article>
+          <article className="report-card dashboard-card"><h3>Predicted 90 Days Impact</h3><p>{reportData.predictedFirst90DaysImpact}</p></article>
+        </section>
+        <article className="report-card dashboard-card dashboard-full"><h3>Recommended Follow-up Questions</h3><ul className="strong-response-list">{(reportData.recommendedFollowUpQuestions || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
+      </div>
+    </div>
+  );
+
+  if (isReportScene) {
+    return <div className="simulation-product-shell report-only-shell">{reportDashboard}</div>;
+  }
+
   return (
     <div className="simulation-product-shell">
       <section className="day-timeline-card timeline-full-width" aria-label="Simulation day modules">
