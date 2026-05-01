@@ -78,6 +78,13 @@ const postResponseFolderItems = {
 
 const simulationProgressStorageKey = 'rob-furman-school-leader-simulation-v1';
 const simulationEvaluationStorageKey = 'rob-furman-school-leader-evaluation-v1';
+const reportTestLabel = 'mock-report-test';
+const reportTestPayloads = {
+  weak: { overallReadinessScore: 58, readinessLevel: 'Emerging Readiness', candidateProfile: 'Weak Candidate', evaluationConfidence: 'High', primaryLeadershipStyle: 'Reactive / Compliance-First', snapshot: { trustBuilder: 'Concern', decisionSpeed: 'Concern', authorityUnderPressure: 'Concern', operationalExecution: 'Concern' }, domainScores: { judgmentUnderPressure: 54, communicationLeadershipVoice: 56, studentCenteredLeadership: 61, equityFairness: 58, safetyRiskAwareness: 57, operationalFollowThrough: 55 }, strengths: ['Shows baseline concern for student and family voice.', 'Demonstrates willingness to acknowledge issues once prompted.'], growthAreas: ['Needs faster escalation and clearer first-move prioritization.', 'Needs concrete ownership, deadlines, and closure language.', 'Needs more consistent professional tone under pressure.'], signatureLeadershipInsight: 'Leadership instincts are present, but execution drops in high-stakes ambiguity.', communicationLeadershipVoice: 'Tone can become vague and defensive; clarity and ownership are inconsistent.', schoolClimateCultureImpact: [{ label: 'Student Belonging', rating: 'Developing', insight: 'Intent to support students is visible but not reliably operationalized.' }], crisisRiskLeadership: 'Risk is often recognized late, creating avoidable escalation windows.', leadershipReadinessSummary: 'Not yet ready for independent principal-level leadership without close coaching.', predictedFirst90DaysImpact: 'Relationships may start positively, but unresolved follow-through will reduce trust.', recommendedFollowUpQuestions: ['Describe your exact first 30 minutes in a parent crisis.', 'How do you define ownership and deadlines for staff follow-through?'], evaluationSource: reportTestLabel, apiStatus: 'test-mode' },
+  developing: { overallReadinessScore: 74, readinessLevel: 'Developing Readiness', candidateProfile: 'Developing Candidate', evaluationConfidence: 'High', primaryLeadershipStyle: 'Relational / Process-Balanced', snapshot: { trustBuilder: 'Strong', decisionSpeed: 'Developing', authorityUnderPressure: 'Developing', operationalExecution: 'Developing' }, domainScores: { judgmentUnderPressure: 71, communicationLeadershipVoice: 76, studentCenteredLeadership: 79, equityFairness: 73, safetyRiskAwareness: 72, operationalFollowThrough: 70 }, strengths: ['Builds trust with calm, respectful communication.', 'Shows student-centered framing in most written responses.'], growthAreas: ['Increase urgency signals in safety and conflict scenarios.', 'Tighten operational closure with explicit owners and checkpoints.'], signatureLeadershipInsight: 'Strong relational leadership with an emerging need for sharper crisis command.', communicationLeadershipVoice: 'Consistently respectful and empathetic, with moderate need for crisper decisive language.', schoolClimateCultureImpact: [{ label: 'Staff Trust', rating: 'Strong', insight: 'Language supports fairness and dignity in most interactions.' }], crisisRiskLeadership: 'Generally sound risk framing, with occasional delays in escalation decisions.', leadershipReadinessSummary: 'Viable principal pipeline candidate with targeted coaching on urgency and execution.', predictedFirst90DaysImpact: 'Likely to improve climate quickly while building stronger systems for follow-through.', recommendedFollowUpQuestions: ['How do you decide when to escalate immediately?', 'What is your protocol for closing communication loops in 24 hours?'], evaluationSource: reportTestLabel, apiStatus: 'test-mode' },
+  strong: { overallReadinessScore: 91, readinessLevel: 'Highly Ready', candidateProfile: 'Strong Candidate', evaluationConfidence: 'High', primaryLeadershipStyle: 'Decisive / Student-Centered Systems Leader', snapshot: { trustBuilder: 'Strong', decisionSpeed: 'Strong', authorityUnderPressure: 'Strong', operationalExecution: 'Strong' }, domainScores: { judgmentUnderPressure: 92, communicationLeadershipVoice: 90, studentCenteredLeadership: 93, equityFairness: 89, safetyRiskAwareness: 92, operationalFollowThrough: 91 }, strengths: ['Makes timely, evidence-based first moves in complex scenarios.', 'Pairs empathy with clear process, ownership, and timelines.', 'Maintains calm authority without sacrificing fairness.'], growthAreas: ['Continue stretching instructional coaching language in low-stakes settings.'], signatureLeadershipInsight: 'High-trust, high-clarity leadership with consistent execution under pressure.', communicationLeadershipVoice: 'Voice is direct, steady, and confidence-building across stakeholder groups.', schoolClimateCultureImpact: [{ label: 'School Climate Stability', rating: 'Strong', insight: 'Balanced accountability and care reinforce student and staff trust.' }], crisisRiskLeadership: 'Proactively identifies risk, escalates appropriately, and communicates clear next steps.', leadershipReadinessSummary: 'Strong principal-readiness profile with immediate leadership capacity.', predictedFirst90DaysImpact: 'Likely to establish clear expectations, psychological safety, and reliable execution.', recommendedFollowUpQuestions: ['How do you coach aspiring leaders to replicate your crisis protocol?', 'Which early wins would you prioritize in the first six weeks?'], evaluationSource: reportTestLabel, apiStatus: 'test-mode' },
+  mixed: { overallReadinessScore: 81, readinessLevel: 'Strong Readiness', candidateProfile: 'Mixed Candidate', evaluationConfidence: 'High', primaryLeadershipStyle: 'Adaptive / Inconsistent Under Peak Stress', snapshot: { trustBuilder: 'Strong', decisionSpeed: 'Developing', authorityUnderPressure: 'Strong', operationalExecution: 'Developing' }, domainScores: { judgmentUnderPressure: 84, communicationLeadershipVoice: 86, studentCenteredLeadership: 88, equityFairness: 80, safetyRiskAwareness: 83, operationalFollowThrough: 74 }, strengths: ['Strong communication and relational credibility.', 'Solid judgment in many high-stakes parent and staff scenarios.'], growthAreas: ['Improve consistency of execution when multiple urgent tasks stack.', 'Reduce variability between relational language and operational closure.'], signatureLeadershipInsight: 'Leadership quality is high overall, with volatility in execution under workload spikes.', communicationLeadershipVoice: 'Professional and empathetic with occasional loss of concise action framing.', schoolClimateCultureImpact: [{ label: 'Team Confidence', rating: 'Developing', insight: 'Teams feel heard, but need more consistent clarity on ownership.' }], crisisRiskLeadership: 'Risk awareness is strong, but escalation speed is not yet fully consistent.', leadershipReadinessSummary: 'Promising readiness with a clear need for consistency coaching.', predictedFirst90DaysImpact: 'Climate and trust improve quickly; execution reliability strengthens with systems support.', recommendedFollowUpQuestions: ['Where does your execution break down during peak-load days?', 'How do you sequence urgent issues without losing follow-through?'], evaluationSource: reportTestLabel, apiStatus: 'test-mode' },
+};
 
 const lensNames = [
   'Judgment Under Pressure',
@@ -1894,6 +1901,8 @@ export default function SimulationShellClient() {
   const [evaluationResult, setEvaluationResult] = useState(null);
   const [isGeneratingEvaluation, setIsGeneratingEvaluation] = useState(false);
   const [evaluationErrorMessage, setEvaluationErrorMessage] = useState('');
+  const [isReportTestMode, setIsReportTestMode] = useState(false);
+  const [reportTestNotice, setReportTestNotice] = useState('');
   const [lastSavedLabel, setLastSavedLabel] = useState('');
   const [savedSnapshot, setSavedSnapshot] = useState(null);
   const [hasReachedEndOfDay, setHasReachedEndOfDay] = useState(false);
@@ -1999,6 +2008,29 @@ export default function SimulationShellClient() {
       );
     } catch (error) {
       setSavedSnapshot(null);
+    }
+  }, []);
+
+  const applyReportTestPayload = (typeKey) => {
+    const payload = reportTestPayloads[typeKey];
+    if (!payload) return;
+    setEvaluationResult(payload);
+    setEvaluationErrorMessage('');
+    setScene('report');
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(simulationEvaluationStorageKey);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const reportTestEnabled = params.get('reportTest') === '1';
+    setIsReportTestMode(reportTestEnabled);
+    if (!reportTestEnabled) return;
+    const type = params.get('type');
+    if (type && reportTestPayloads[type]) {
+      applyReportTestPayload(type);
     }
   }, []);
 
@@ -3334,7 +3366,7 @@ export default function SimulationShellClient() {
   }, []);
 
   useEffect(() => {
-    if (scene !== 'report' || isGeneratingEvaluation || evaluationResult) return;
+    if (scene !== 'report' || isGeneratingEvaluation || evaluationResult || isReportTestMode) return;
     const evaluate = async () => {
       setIsGeneratingEvaluation(true);
       setEvaluationErrorMessage('');
@@ -3530,6 +3562,15 @@ export default function SimulationShellClient() {
     scrollToTop();
   };
 
+  const handleExitReportTestMode = () => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    setIsReportTestMode(false);
+    setEvaluationResult(null);
+    resetSimulationState({ confirmationMessage: 'Exited Report Test Mode.' });
+  };
+
   const reportDashboard = (
     <div className="leadership-dashboard">
       <header className="dashboard-topbar no-print">
@@ -3576,12 +3617,29 @@ export default function SimulationShellClient() {
     </div>
   );
 
+  const reportTestPanel = isReportTestMode ? (
+    <article className="report-card no-print" style={{ border: '3px solid #1d4ed8', marginBottom: '1rem' }}>
+      <h2>Report Test Mode</h2>
+      <p>Use this panel to preview report dashboard layouts without completing the full simulation.</p>
+      <div className="button-row">
+        <button type="button" className="button secondary" onClick={() => applyReportTestPayload('weak')}>Weak Candidate</button>
+        <button type="button" className="button secondary" onClick={() => applyReportTestPayload('developing')}>Developing Candidate</button>
+        <button type="button" className="button secondary" onClick={() => applyReportTestPayload('strong')}>Strong Candidate</button>
+        <button type="button" className="button secondary" onClick={() => applyReportTestPayload('mixed')}>Mixed Candidate</button>
+        <button type="button" className="button secondary" onClick={() => { if (typeof window !== 'undefined') window.localStorage.removeItem(simulationEvaluationStorageKey); setEvaluationResult(null); setReportTestNotice('Evaluation cache cleared.'); }}>Clear Evaluation Cache</button>
+        <button type="button" className="button primary" onClick={handleExitReportTestMode}>Exit Test Mode</button>
+      </div>
+      {reportTestNotice ? <p>{reportTestNotice}</p> : null}
+    </article>
+  ) : null;
+
   if (isReportScene) {
-    return <div className="simulation-product-shell report-only-shell">{reportDashboard}</div>;
+    return <div className="simulation-product-shell report-only-shell">{reportTestPanel}{isReportTestMode ? <article className="report-card no-print"><p>TEST MODE — {reportTestLabel}</p></article> : null}{reportDashboard}</div>;
   }
 
   return (
     <div className="simulation-product-shell">
+      {reportTestPanel}
       <section className="day-timeline-card timeline-full-width" aria-label="Simulation day modules">
         <p className="eyebrow">Simulation Day Timeline</p>
         <h2>A Day in the Life of a School Leader</h2>
