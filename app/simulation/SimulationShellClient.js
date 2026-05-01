@@ -3215,7 +3215,6 @@ export default function SimulationShellClient() {
   const candidateTypeLabel = overallReadinessScore >= 80 ? 'Principal Candidate' : 'Emerging Principal / Assistant Principal Candidate';
   const growthEdge = overallReadinessScore >= 75 ? 'Crisis command language precision' : 'Operational ownership and decisive closure under pressure';
   const primaryLeadershipStyleLabel = leadershipStyleProfile.primaryStyle?.style || 'Relational';
-  const weightedDomainRows = dashboardDomainScores.map((item) => ({ ...item, contribution: Number((item.score * item.weight).toFixed(1)) }));
   const overallReadinessLabel = overallReadinessScore >= 90
     ? 'Highly Ready'
     : overallReadinessScore >= 82
@@ -3286,13 +3285,6 @@ export default function SimulationShellClient() {
       nonCriticalScore: Math.round(nonCriticalTotal / (nonCriticalWeight || 1)),
     };
   }, [scenarioWeights]);
-  const leadershipConsistencyIndex = useMemo(() => {
-    const scores = weightedDomainRows.map((row) => row.score);
-    const mean = scores.reduce((sum, value) => sum + value, 0) / (scores.length || 1);
-    const variance = scores.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / (scores.length || 1);
-    const consistency = Math.max(40, Math.min(98, Math.round(100 - Math.sqrt(variance))));
-    return consistency;
-  }, [weightedDomainRows]);
   const instructionalLeadershipScore = useMemo(() => {
     const teachingScenarios = fullSimulationWrittenResponses.filter((entry) => (
       /(academic|student support|walkthrough|teacher|instruction|iep|removal)/i.test(`${entry.module} ${entry.label}`)
@@ -3305,15 +3297,6 @@ export default function SimulationShellClient() {
     const base = reportDomainScores.find((row) => row.label === 'Student-Centered Leadership')?.score || 68;
     return Math.min(97, Math.round((base * 0.6) + ((mentions / (teachingScenarios.length || 1)) * 40)));
   }, [fullSimulationWrittenResponses, reportDomainScores]);
-  const leadershipRiskFlags = useMemo(() => {
-    const flags = [];
-    if (decisionEffectiveness.delayedPct >= 20) flags.push('Delay risk: multiple first moves postpone action in time-sensitive moments.');
-    if (weightedScenarioScore.criticalScore < weightedScenarioScore.nonCriticalScore - 8) flags.push('Critical-scenario drop: performance dips when stakes are highest.');
-    if ((writingCategoryTrends['Actionability & Follow-Through']?.needsAttention || 0) >= 2) flags.push('Execution gap: follow-through language does not consistently name owners and deadlines.');
-    if ((writingCategoryTrends['Specificity & Clarity']?.needsAttention || 0) >= 2) flags.push('Clarity risk: some responses are values-aligned but still too general for staff execution.');
-    if (leadershipConsistencyIndex < 72) flags.push('Consistency volatility: leadership quality shifts across decisions and communication tasks.');
-    return flags.slice(0, 5);
-  }, [decisionEffectiveness, weightedScenarioScore, writingCategoryTrends, leadershipConsistencyIndex]);
   const hiringRecommendation = overallReadinessScore >= 85
     ? 'Strong Hire'
     : overallReadinessScore >= 76
@@ -3354,6 +3337,23 @@ export default function SimulationShellClient() {
     { label: 'Operational Follow-Through', score: reportData.domainScores?.operationalFollowThrough ?? reportDomainScores[5]?.score ?? 70 },
     { label: 'Instructional Leadership', score: reportData.domainScores?.instructionalLeadership ?? instructionalLeadershipScore ?? 70 },
   ];
+  const weightedDomainRows = dashboardDomainScores.map((item) => ({ ...item, contribution: Number((item.score * item.weight).toFixed(1)) }));
+  const leadershipConsistencyIndex = useMemo(() => {
+    const scores = weightedDomainRows.map((row) => row.score);
+    const mean = scores.reduce((sum, value) => sum + value, 0) / (scores.length || 1);
+    const variance = scores.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / (scores.length || 1);
+    const consistency = Math.max(40, Math.min(98, Math.round(100 - Math.sqrt(variance))));
+    return consistency;
+  }, [weightedDomainRows]);
+  const leadershipRiskFlags = useMemo(() => {
+    const flags = [];
+    if (decisionEffectiveness.delayedPct >= 20) flags.push('Delay risk: multiple first moves postpone action in time-sensitive moments.');
+    if (weightedScenarioScore.criticalScore < weightedScenarioScore.nonCriticalScore - 8) flags.push('Critical-scenario drop: performance dips when stakes are highest.');
+    if ((writingCategoryTrends['Actionability & Follow-Through']?.needsAttention || 0) >= 2) flags.push('Execution gap: follow-through language does not consistently name owners and deadlines.');
+    if ((writingCategoryTrends['Specificity & Clarity']?.needsAttention || 0) >= 2) flags.push('Clarity risk: some responses are values-aligned but still too general for staff execution.');
+    if (leadershipConsistencyIndex < 72) flags.push('Consistency volatility: leadership quality shifts across decisions and communication tasks.');
+    return flags.slice(0, 5);
+  }, [decisionEffectiveness, weightedScenarioScore, writingCategoryTrends, leadershipConsistencyIndex]);
 
   useEffect(() => {
     if (scene === 'report') return;
