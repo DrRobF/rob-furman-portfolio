@@ -104,7 +104,14 @@ function heuristicEvaluation(payload = {}) {
 
 function sanitizeEvaluation(output, fallback) {
   if (!output || typeof output !== 'object') return fallback;
-  return { ...fallback, ...output, evaluationSource: 'ai-evaluation' };
+
+  const evaluation = { ...fallback, ...output, evaluationSource: 'ai-evaluation' };
+
+  if (evaluation.evaluationSource !== 'heuristic-fallback' && evaluation.leadershipReadinessSummary === fallback.leadershipReadinessSummary) {
+    delete evaluation.leadershipReadinessSummary;
+  }
+
+  return evaluation;
 }
 
 export async function POST(request) {
