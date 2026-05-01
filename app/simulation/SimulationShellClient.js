@@ -3622,7 +3622,7 @@ export default function SimulationShellClient() {
   };
 
   const reportDashboard = (
-    <div className="leadership-dashboard">
+    <div className="leadership-dashboard report-dashboard-shell">
       <header className="dashboard-header">
         <div>
           <p className="dashboard-header-kicker">◆ Leadership Evaluation</p>
@@ -3632,8 +3632,8 @@ export default function SimulationShellClient() {
         <div className="dashboard-header-right">
           <p><strong>VIC</strong> | AI Co-Teacher & Leadership Evaluation System</p>
           <div className="button-row report-actions-top no-print">
-          <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
-          <button type="button" className="button secondary" onClick={handleStartOver}>Start New Simulation</button>
+            <button type="button" className="button primary" onClick={() => window.print()}>Download / Print Report</button>
+            <button type="button" className="button secondary" onClick={handleStartOver}>Start New Simulation</button>
           </div>
         </div>
       </header>
@@ -3648,97 +3648,54 @@ export default function SimulationShellClient() {
           ? <span><strong>Source:</strong> {reportData.evaluationSource || 'n/a'} · {reportData.apiStatus || 'n/a'}</span>
           : null}
       </div>
-      <div className="dashboard-workspace">
-        <aside className="dashboard-sidebar">
-          <h3>Leadership Snapshot</h3>
-          <div className="sidebar-snapshot-pills">
-            {['trustBuilder', 'decisionSpeed', 'authorityUnderPressure', 'operationalExecution'].map((key) => {
-              const snapshotRating = reportData.snapshot?.[key] || 'Developing';
-              const snapshotTone = getRatingTone(snapshotRating);
-              return (
-                <div key={key} className={`snapshot-pill snapshot-${snapshotTone}`}>
-                  <span>{formatDashboardLabel(key)}</span>
-                  <strong className={`status-${snapshotTone}`}>{snapshotRating}</strong>
-                </div>
-              );
-            })}
-          </div>
-          <blockquote>“Leadership is not about being in charge. It is about taking care of those in your charge.”<span>— Simon Sinek</span></blockquote>
-        </aside>
-      <main className="dashboard-main">
-        <section className="dashboard-top-grid">
-        <article id="executive-summary" className="report-card dashboard-card overall-readiness-card">
-          <h3>Overall Readiness</h3>
-          <div className="score-hero-card score-hero-card-compact">
-            <div className="score-hero-left">
-              <p className="score-hero-value">{reportData.overallReadinessScore}/100</p>
-              <p className="score-hero-label">{reportData.readinessLevel}</p>
-              <span className="confidence-badge">{reportData.evaluationConfidence} confidence</span>
+
+      <main className="report-dashboard-main">
+        <section className="report-section summary-grid">
+          <article className="report-card summary-card">
+            <h3>Overall Readiness</h3>
+            <p className="score-hero-value">{reportData.overallReadinessScore}/100</p>
+            <p className="score-hero-label">{reportData.readinessLevel}</p>
+            <span className="confidence-badge">{reportData.evaluationConfidence} confidence</span>
+            <div className="segmented-readiness-meter" style={{ '--meter-value': `${reportData.overallReadinessScore || 0}` }}>
+              <span className="seg red" /><span className="seg orange" /><span className="seg amber" /><span className="seg green" /><span className="meter-marker" />
             </div>
-            <div className="score-hero-right">
-              <div className="segmented-readiness-meter" style={{ '--meter-value': `${reportData.overallReadinessScore || 0}` }}>
-                <span className="seg red" />
-                <span className="seg orange" />
-                <span className="seg amber" />
-                <span className="seg green" />
-                <span className="meter-marker" />
-              </div>
-              <div className="score-hero-meta">
-                <span><strong>Profile:</strong> {reportData.candidateProfile}</span>
-                <span><strong>Style:</strong> {reportData.primaryLeadershipStyle}</span>
-                <span><strong>Consistency:</strong> {leadershipConsistencyIndex}/100</span>
-              </div>
-            </div>
-          </div>
-        </article>
-        <article id="core-competencies" className="report-card dashboard-card core-competencies-card">
-          <h3>Core Competency Scores</h3>
-          <div className="competency-gauge-grid">{dashboardDomainScores.map((item) => { const rating = getCompetencyRating(item.score); const noteMap = { Judgment: 'Decision quality needs stronger scenario-specific reasoning.', Communication: 'Written leadership voice needs clearer ownership and timelines.', Safety: 'Escalation language is not yet consistent enough for high-risk incidents.', Operations: 'Follow-through systems need clearer owners and deadlines.' }; return <article key={item.label} className="competency-gauge-card"><h4>{item.label}</h4><div className="domain-score-head"><strong>{item.score}/100</strong><span className={`status-${rating.tone}`}>{rating.label}</span></div><div className="domain-score-track"><span className={rating.tone} style={{ width: `${item.score}%` }} /></div><p>{item.score < 70 ? (noteMap[item.label] || 'This area needs sharper execution routines and consistency under pressure.') : item.score >= 85 ? 'Clear evidence of dependable execution in this domain.' : 'Solid leadership evidence with opportunities to tighten consistency.'}</p></article>; })}</div>
-        </article>
-        </section>
-        <section className="insight-grid">
-          <article className="report-card dashboard-card"><h3>Signature Leadership Insight</h3><p>{reportData.signatureLeadershipInsight}</p><p><strong>Communication & Leadership Voice:</strong> {reportData.communicationLeadershipVoice}</p></article>
-          <article id="strengths-growth" className="report-card dashboard-card strengths-growth-card">
-            <h3>Strengths & Growth Areas</h3>
-            <div className="strength-growth-stack">
-              <div>
-                <h4>Strengths</h4>
-                <ul className="strong-response-list status-list">{(reportData.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul>
-              </div>
-              <div>
-                <h4>Growth Areas</h4>
-                <ul className="strong-response-list status-list growth">{(reportData.growthAreas || []).map((item) => <li key={item}>{item}</li>)}</ul>
-              </div>
+          </article>
+          <article className="report-card summary-card">
+            <h3>Candidate Profile</h3>
+            <p><strong>Candidate profile:</strong> {reportData.candidateProfile}</p>
+            <p><strong>Leadership style:</strong> {reportData.primaryLeadershipStyle}</p>
+            <p><strong>Leadership consistency:</strong> {leadershipConsistencyIndex}/100</p>
+            <p><strong>Completion quality:</strong> {reportData.evaluationConfidence}</p>
+          </article>
+          <article className="report-card summary-card">
+            <h3>Leadership Snapshot</h3>
+            <div className="sidebar-snapshot-pills">
+              {['trustBuilder', 'decisionSpeed', 'authorityUnderPressure', 'operationalExecution'].map((key) => {
+                const snapshotRating = reportData.snapshot?.[key] || 'Developing';
+                const snapshotTone = getRatingTone(snapshotRating);
+                return <div key={key} className={`snapshot-pill snapshot-${snapshotTone}`}><span>{formatDashboardLabel(key)}</span><strong className={`status-${snapshotTone}`}>{snapshotRating}</strong></div>;
+              })}
             </div>
           </article>
         </section>
-        <section id="leadership-impact" className="impact-section report-card dashboard-card">
-          <h3>Leadership Impact</h3>
-          <div className="impact-grid">
-          
-          {(reportData.leadershipImpact || reportData.schoolClimateCultureImpact || []).slice(0, 4).map((item) => {
-            const score = Number.isFinite(item.score) ? item.score : getRatingFallbackScore(item.rating);
-            const rating = getCompetencyRating(score);
-            const ringSize = 82;
-            const stroke = 8;
-            const radius = (ringSize - stroke) / 2;
-            const circumference = 2 * Math.PI * radius;
-            const dashOffset = circumference * (1 - (Math.max(0, Math.min(100, score)) / 100));
-            return <article key={item.label} className="impact-tile"><h4>{item.label}</h4><div className="impact-tile-main"><div className="ring-score"><svg className={`impact-ring-svg ring-${rating.tone}`} width={ringSize} height={ringSize} viewBox={`0 0 ${ringSize} ${ringSize}`} role="img" aria-label={`${item.label} scored ${score} out of 100`}><circle className="impact-ring-track" cx={ringSize / 2} cy={ringSize / 2} r={radius} strokeWidth={stroke} /><circle className="impact-ring-progress" cx={ringSize / 2} cy={ringSize / 2} r={radius} strokeWidth={stroke} style={{ strokeDasharray: circumference, strokeDashoffset: dashOffset }} /></svg><p className="impact-ring-score">{score}</p></div><p className={`impact-rating-badge status-${getRatingTone(item.rating)}`}>{item.rating}</p></div><p>{item.insight}</p></article>;
-          })}
-        </div>
+
+        <section className="report-section">
+          <article id="core-competencies" className="report-card">
+            <h3>Core Competency Scores</h3>
+            <div className="competency-grid">{dashboardDomainScores.map((item) => { const rating = getCompetencyRating(item.score); const noteMap = { Judgment: 'Decision quality needs stronger scenario-specific reasoning.', Communication: 'Written leadership voice needs clearer ownership and timelines.', Safety: 'Escalation language is not yet consistent enough for high-risk incidents.', Operations: 'Follow-through systems need clearer owners and deadlines.' }; return <article key={item.label} className="competency-card"><h4>{item.label}</h4><div className="domain-score-head"><strong>{item.score}/100</strong><span className={`status-${rating.tone}`}>{rating.label}</span></div><div className="domain-score-track"><span className={rating.tone} style={{ width: `${item.score}%` }} /></div><p>{item.score < 70 ? (noteMap[item.label] || 'This area needs sharper execution routines and consistency under pressure.') : item.score >= 85 ? 'Clear evidence of dependable execution in this domain.' : 'Solid leadership evidence with opportunities to tighten consistency.'}</p></article>; })}</div>
+          </article>
         </section>
-        <section className="narrative-grid">
-          <article className="report-card dashboard-card pressure-card"><h3>How You Lead Under Pressure</h3><p>{reportData.howYouLeadUnderPressure || reportData.crisisRiskLeadership}</p><p><strong>Crisis & Risk Leadership:</strong> {reportData.crisisRiskLeadership}</p></article>
-          <article className="report-card dashboard-card"><h3>Leadership Readiness Summary</h3><p>{reportData.leadershipReadinessSummary}</p></article>
-          <article className="report-card dashboard-card"><h3>Predicted First 90 Days Impact</h3><p>{reportData.predictedFirst90DaysImpact}</p></article>
+
+        <section className="report-section"><article className="report-card insight-card"><h3>Signature Leadership Insight</h3><p>{reportData.signatureLeadershipInsight}</p></article></section>
+        <section className="report-section strength-growth-grid">
+          <article className="report-card"><h3>Strengths</h3><ul className="strong-response-list status-list">{(reportData.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
+          <article className="report-card"><h3>Growth Areas</h3><ul className="strong-response-list status-list growth">{(reportData.growthAreas || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
         </section>
-        <section className="followup-grid">
-          <article id="detailed-analysis" className="report-card dashboard-card evaluator-notes-card"><h3>Evaluator Notes</h3><div className="note-block"><h4>Overall Readiness</h4><p>{reportData.leadershipReadinessSummary}</p></div><div className="note-block"><h4>Communication</h4><p>{reportData.communicationLeadershipVoice}</p></div><div className="note-block"><h4>Operational Execution</h4><p>{reportData.snapshot?.operationalExecution || 'Developing'} readiness indicates how consistently this candidate turns decisions into owned, time-bound actions across scenarios.</p></div><div className="note-block"><h4>Crisis & Risk</h4><p>{reportData.crisisRiskLeadership}</p></div></article>
-          <article id="follow-up-questions" className="report-card dashboard-card"><h3>Recommended Follow-Up Questions</h3><div className="question-card-grid">{(reportData.recommendedFollowUpQuestions || []).map((item, index) => <article key={item} className="question-card"><span>Question {index + 1}</span><p>{item}</p></article>)}</div></article>
-        </section>
+        <section className="report-section"><article id="leadership-impact" className="report-card"><h3>Leadership Impact</h3><div className="impact-grid">{(reportData.leadershipImpact || reportData.schoolClimateCultureImpact || []).slice(0, 4).map((item) => { const score = Number.isFinite(item.score) ? item.score : getRatingFallbackScore(item.rating); const rating = getCompetencyRating(score); const ringSize = 64; const stroke = 7; const radius = (ringSize - stroke) / 2; const circumference = 2 * Math.PI * radius; const dashOffset = circumference * (1 - (Math.max(0, Math.min(100, score)) / 100)); return <article key={item.label} className="impact-card"><h4>{item.label}</h4><div className="impact-tile-main"><div className="ring-score"><svg className={`impact-ring-svg ring-${rating.tone}`} width={ringSize} height={ringSize} viewBox={`0 0 ${ringSize} ${ringSize}`} role="img" aria-label={`${item.label} scored ${score} out of 100`}><circle className="impact-ring-track" cx={ringSize / 2} cy={ringSize / 2} r={radius} strokeWidth={stroke} /><circle className="impact-ring-progress" cx={ringSize / 2} cy={ringSize / 2} r={radius} strokeWidth={stroke} style={{ strokeDasharray: circumference, strokeDashoffset: dashOffset }} /></svg><p className="impact-ring-score">{score}</p></div><p className={`impact-rating-badge status-${getRatingTone(item.rating)}`}>{item.rating}</p></div><p>{item.insight}</p></article>; })}</div></article></section>
+        <section className="report-section pressure-grid"><article className="report-card"><h3>How You Lead Under Pressure</h3><p>{reportData.howYouLeadUnderPressure || reportData.crisisRiskLeadership}</p></article><article className="report-card"><h3>Leadership Readiness Summary</h3><p>{reportData.leadershipReadinessSummary}</p></article><article className="report-card"><h3>Predicted First 90 Days Impact</h3><p>{reportData.predictedFirst90DaysImpact}</p></article></section>
+        <section className="report-section"><article id="detailed-analysis" className="report-card evaluator-notes-card"><h3>Evaluator Notes</h3><div className="note-block"><h4>Overall Readiness</h4><p>{reportData.leadershipReadinessSummary}</p></div><div className="note-block"><h4>Communication</h4><p>{reportData.communicationLeadershipVoice}</p></div><div className="note-block"><h4>Operational Execution</h4><p>{reportData.snapshot?.operationalExecution || 'Developing'} readiness indicates how consistently this candidate turns decisions into owned, time-bound actions across scenarios.</p></div><div className="note-block"><h4>Crisis & Risk</h4><p>{reportData.crisisRiskLeadership}</p></div></article></section>
+        <section className="report-section"><article id="follow-up-questions" className="report-card"><h3>Recommended Follow-Up Questions</h3><div className="followup-grid">{(reportData.recommendedFollowUpQuestions || []).slice(0, 3).map((item, index) => <article key={item} className="question-card"><span>Question {index + 1}</span><p>{item}</p></article>)}</div></article></section>
       </main>
-      </div>
     </div>
   );
 
