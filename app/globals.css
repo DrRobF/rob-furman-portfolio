@@ -1231,6 +1231,8 @@ p {
 }
 .dashboard-card { grid-column: span 4; }
 .overall-readiness-card { grid-column: span 6; }
+.overall-readiness-card { border: 2px solid #95b5e6; }
+.pressure-card { border-left: 6px solid #365f9c; }
 .dashboard-full { grid-column: 1 / -1; }
 .dashboard-snapshot-strip,
 .dashboard-impact-grid,
@@ -1248,7 +1250,12 @@ p {
 .band-strong { background: #2e8b57; }
 .band-good { background: #2f6ea8; }
 .band-amber { background: #c58a2d; }
+.band-limited { background: #cc6f2e; }
 .band-concern { background: #b54545; }
+.leadership-impact-cards { display: grid; gap: 0.55rem; }
+.impact-card { border: 1px solid #d6e0ef; border-radius: 10px; background: #fff; padding: 0.6rem 0.7rem; }
+.impact-card p { margin: 0; }
+.impact-card p + p { margin-top: 0.25rem; }
 .readiness-gauge { --gauge-color: #2e8b57; background: conic-gradient(from 180deg, var(--gauge-color) calc((var(--gauge-value, 0) / 100) * 180deg), #dce5f3 0); border-radius: 100% 100% 0 0 / 100% 100% 0 0; height: 140px; width: 280px; max-width: 100%; margin: 0.5rem auto; position: relative; overflow: hidden; }
 .readiness-gauge-inner { position: absolute; left: 12%; right: 12%; bottom: 0; height: 76%; background: #fff; border-radius: 100% 100% 0 0 / 100% 100% 0 0; display: grid; place-items: center; text-align: center; }
 .vic-report-header {
