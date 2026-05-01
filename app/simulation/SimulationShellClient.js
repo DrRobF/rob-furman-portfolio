@@ -1925,7 +1925,6 @@ export default function SimulationShellClient() {
   const [evaluationErrorMessage, setEvaluationErrorMessage] = useState('');
   const [isReportTestMode, setIsReportTestMode] = useState(false);
   const [reportTestNotice, setReportTestNotice] = useState('');
-  const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
   const [lastSavedLabel, setLastSavedLabel] = useState('');
   const [savedSnapshot, setSavedSnapshot] = useState(null);
   const [hasReachedEndOfDay, setHasReachedEndOfDay] = useState(false);
@@ -3624,38 +3623,58 @@ export default function SimulationShellClient() {
       {isGeneratingEvaluation ? <article className="report-card"><p>Generating your leadership evaluation report…</p></article> : null}
       {evaluationErrorMessage ? <article className="report-card"><p>{evaluationErrorMessage}</p></article> : null}
       {!allRequiredModulesComplete && !isReportTestMode ? <article className="report-card"><p>Some required scenarios were not completed before entering report mode.</p></article> : null}
+      <div className="dashboard-meta-strip">
+        <span><strong>Completed Scenarios:</strong> {fullSimulationFirstMoveDecisions.length}</span>
+        <span><strong>Written Responses:</strong> {totalWrittenResponses}</span>
+        <span><strong>Evaluation Period:</strong> Simulation Day 1</span>
+        {(isReportTestMode || process.env.NODE_ENV === 'development')
+          ? <span><strong>Source:</strong> {reportData.evaluationSource || 'n/a'} · {reportData.apiStatus || 'n/a'}</span>
+          : null}
+      </div>
       <div className="dashboard-workspace">
         <aside className="dashboard-sidebar">
-          <h3>Report Navigation</h3><ul><li>Executive Summary</li><li>Core Competencies</li><li>Leadership Impact</li><li>Strengths & Growth</li><li>Follow-Up Questions</li></ul>
+          <h3>Report Navigation</h3>
+          <ul>
+            <li><a href="#executive-summary">Executive Summary</a></li>
+            <li><a href="#core-competencies">Core Competencies</a></li>
+            <li><a href="#leadership-impact">Leadership Impact</a></li>
+            <li><a href="#strengths-growth">Strengths & Growth</a></li>
+            <li><a href="#detailed-analysis">Detailed Analysis</a></li>
+            <li><a href="#follow-up-questions">Follow-Up Questions</a></li>
+          </ul>
+          <div className="sidebar-snapshot-pills">
+            {['trustBuilder', 'decisionSpeed', 'authorityUnderPressure', 'operationalExecution'].map((key) => (
+              <div key={key} className="snapshot-pill">
+                <span>{formatDashboardLabel(key)}</span>
+                <strong>{reportData.snapshot?.[key] || 'Developing'}</strong>
+              </div>
+            ))}
+          </div>
           <blockquote>“Leadership is not about being in charge. It is about taking care of those in your charge.”<span>— Simon Sinek</span></blockquote>
         </aside>
       <div className="dashboard-grid">
-        <article className="report-card dashboard-card overall-readiness-card"><h3>Overall Readiness</h3><div className="readiness-gauge" style={{ '--gauge-value': `${reportData.overallReadinessScore || 0}` }}><div className="readiness-gauge-inner"><p className="score-big">{reportData.overallReadinessScore}/100</p><p>{reportData.readinessLevel}</p></div></div><p><strong>Confidence:</strong> {reportData.evaluationConfidence}</p><p><strong>Candidate Profile:</strong> {reportData.candidateProfile}</p><p><strong>Leadership Style:</strong> {reportData.primaryLeadershipStyle}</p></article>
-        <article className="report-card dashboard-card"><h3>At a Glance</h3><p><strong>Completed Scenarios:</strong> {fullSimulationFirstMoveDecisions.length}</p><p><strong>Written Responses:</strong> {totalWrittenResponses}</p><p><strong>Completion Quality:</strong> {leadershipConsistencyIndex >= 80 ? 'Strong' : leadershipConsistencyIndex >= 68 ? 'Developing' : 'Concern'}</p>{(isReportTestMode || process.env.NODE_ENV === 'development') ? <p><strong>Source:</strong> {reportData.evaluationSource || 'n/a'} · {reportData.apiStatus || 'n/a'}</p> : null}</article>
-        <article className="report-card dashboard-card"><h3>Snapshot Assessment</h3>{['trustBuilder', 'decisionSpeed', 'authorityUnderPressure', 'operationalExecution'].map((key) => <p key={key}><strong>{formatDashboardLabel(key)}:</strong> <span>{reportData.snapshot?.[key] || 'Developing'}</span></p>)}</article>
-        <article className="report-card dashboard-card dashboard-full"><h3>Signature Leadership Insight</h3><p>{reportData.signatureLeadershipInsight}</p></article>
-        <article className="report-card dashboard-card dashboard-full pressure-card"><h3>How You Lead Under Pressure</h3><p>{reportData.howYouLeadUnderPressure || reportData.crisisRiskLeadership}</p></article>
-        <article className="report-card dashboard-card dashboard-full">
+        <article id="executive-summary" className="report-card dashboard-card overall-readiness-card"><h3>Overall Readiness</h3><div className="readiness-gauge hero-readiness-gauge" style={{ '--gauge-value': `${reportData.overallReadinessScore || 0}` }}><div className="readiness-gauge-inner"><p className="score-big">{reportData.overallReadinessScore}/100</p><p>{reportData.readinessLevel}</p><span className="confidence-badge">{reportData.evaluationConfidence} confidence</span></div></div><div className="profile-chip-grid"><p><strong>Candidate Profile:</strong> {reportData.candidateProfile}</p><p><strong>Leadership Style:</strong> {reportData.primaryLeadershipStyle}</p><p><strong>Leadership Consistency:</strong> {leadershipConsistencyIndex}/100</p></div></article>
+        <article id="core-competencies" className="report-card dashboard-card core-competencies-card">
           <h3>Core Competency Scores</h3>
-          <div className="domain-score-list">{dashboardDomainScores.map((item) => { const rating = getCompetencyRating(item.score); return <div key={item.label}><div className="domain-score-head"><span>{item.label}</span><strong>{item.score}/100 — {rating.label}</strong></div><div className="domain-score-track"><span className={rating.tone} style={{ width: `${item.score}%` }} /></div></div>; })}</div>
+          <div className="competency-gauge-grid">{dashboardDomainScores.map((item) => { const rating = getCompetencyRating(item.score); return <article key={item.label} className="competency-gauge-card"><h4>{item.label}</h4><div className="domain-score-head"><strong>{item.score}/100</strong><span className={`status-${rating.tone}`}>{rating.label}</span></div><div className="domain-score-track"><span className={rating.tone} style={{ width: `${item.score}%` }} /></div><p>{item.score >= 85 ? 'Clear evidence of dependable execution in this domain.' : item.score >= 70 ? 'Solid leadership evidence with opportunities to tighten consistency.' : item.score >= 55 ? 'Developing performance with visible growth opportunities.' : 'Priority coaching area requiring immediate focus and support.'}</p></article>; })}</div>
         </article>
-        <section className="dashboard-impact-grid">
-          <article className="report-card dashboard-card"><h3>Communication & Leadership Voice</h3><p>{reportData.communicationLeadershipVoice}</p></article>
-          <article className="report-card dashboard-card"><h3>Leadership Impact</h3><div className="leadership-impact-cards">{(reportData.leadershipImpact || reportData.schoolClimateCultureImpact || []).slice(0, 4).map((item) => <div key={item.label} className="impact-card"><p><strong>{item.label}</strong> — {item.rating}</p><p>{item.insight}</p></div>)}</div></article>
-          <article className="report-card dashboard-card"><h3>Crisis & Risk Leadership</h3><p>{reportData.crisisRiskLeadership}</p></article>
-          <article className="report-card dashboard-card"><h3>Leadership Consistency</h3><p>{leadershipConsistencyIndex}/100</p></article>
+        <section className="dashboard-split dashboard-feature-row">
+          <article className="report-card dashboard-card"><h3>Signature Leadership Insight</h3><p>{reportData.signatureLeadershipInsight}</p><p><strong>Communication & Leadership Voice:</strong> {reportData.communicationLeadershipVoice}</p></article>
+          <article className="report-card dashboard-card pressure-card"><h3>How You Lead Under Pressure</h3><p>{reportData.howYouLeadUnderPressure || reportData.crisisRiskLeadership}</p><p><strong>Crisis & Risk Leadership:</strong> {reportData.crisisRiskLeadership}</p></article>
         </section>
-        <section className="dashboard-split">
-          <article className="report-card dashboard-card"><h3>Strengths</h3><ul className="strong-response-list">{(reportData.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
-          <article className="report-card dashboard-card"><h3>Growth Areas</h3><ul className="strong-response-list">{(reportData.growthAreas || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
+        <section id="leadership-impact" className="dashboard-impact-grid">
+          {(reportData.leadershipImpact || reportData.schoolClimateCultureImpact || []).slice(0, 4).map((item) => <article key={item.label} className="report-card dashboard-card impact-visual-card"><div className="impact-icon" /><h3>{item.label}</h3><p className="impact-rating">{item.rating}</p><div className="impact-meter"><span className={getCompetencyRating(item.rating === 'Exceptional' ? 93 : item.rating === 'Strong' ? 84 : item.rating === 'Developing' ? 72 : item.rating === 'Limited' ? 60 : 45).tone} /></div><p>{item.insight}</p></article>)}
+        </section>
+        <section id="strengths-growth" className="dashboard-split">
+          <article className="report-card dashboard-card"><h3>Strengths</h3><ul className="strong-response-list status-list">{(reportData.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
+          <article className="report-card dashboard-card"><h3>Growth Areas</h3><ul className="strong-response-list status-list growth">{(reportData.growthAreas || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
         </section>
         <section className="dashboard-split">
           <article className="report-card dashboard-card"><h3>Leadership Readiness Summary</h3><p>{reportData.leadershipReadinessSummary}</p></article>
           <article className="report-card dashboard-card"><h3>Predicted First 90 Days Impact</h3><p>{reportData.predictedFirst90DaysImpact}</p></article>
         </section>
-        <article className="report-card dashboard-card dashboard-full"><h3>Recommended Follow-Up Questions</h3><ul className="strong-response-list">{(reportData.recommendedFollowUpQuestions || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
-        <article className="report-card dashboard-card dashboard-full no-print"><button type="button" className="button secondary" onClick={() => setShowDetailedAnalysis((prev) => !prev)}>{showDetailedAnalysis ? 'Hide Detailed Analysis' : 'View Detailed Analysis'}</button></article>
-        {showDetailedAnalysis ? <article className="report-card dashboard-card dashboard-full no-print"><h3>Detailed Analysis</h3><p><strong>Overall Readiness:</strong> {reportData.leadershipReadinessSummary}</p><p><strong>Communication & Leadership Voice:</strong> {reportData.communicationLeadershipVoice}</p><p><strong>Operational Execution:</strong> {reportData.snapshot?.operationalExecution || 'Developing'} readiness indicates how consistently this candidate turns decisions into owned, time-bound actions across scenarios.</p><p><strong>Crisis & Risk Leadership:</strong> {reportData.crisisRiskLeadership}</p></article> : null}
+        <article id="detailed-analysis" className="report-card dashboard-card dashboard-full"><h3>Evaluator Notes</h3><p><strong>Overall Readiness:</strong> {reportData.leadershipReadinessSummary}</p><p><strong>Communication & Leadership Voice:</strong> {reportData.communicationLeadershipVoice}</p><p><strong>Operational Execution:</strong> {reportData.snapshot?.operationalExecution || 'Developing'} readiness indicates how consistently this candidate turns decisions into owned, time-bound actions across scenarios.</p><p><strong>Crisis & Risk Leadership:</strong> {reportData.crisisRiskLeadership}</p></article>
+        <article id="follow-up-questions" className="report-card dashboard-card dashboard-full"><h3>Recommended Follow-Up Questions</h3><ul className="strong-response-list">{(reportData.recommendedFollowUpQuestions || []).map((item) => <li key={item}>{item}</li>)}</ul></article>
       </div>
       </div>
     </div>
