@@ -3676,21 +3676,25 @@ export default function SimulationShellClient() {
       <div className="dashboard-grid">
         <article id="executive-summary" className="report-card dashboard-card overall-readiness-card">
           <h3>Overall Readiness</h3>
-          <div className="score-hero-card">
-            <span className="confidence-badge hero-confidence">{reportData.evaluationConfidence} confidence</span>
-            <p className="score-hero-value">{reportData.overallReadinessScore}/100</p>
-            <p className="score-hero-label">{reportData.readinessLevel}</p>
-            <div className="segmented-readiness-meter" style={{ '--meter-value': `${reportData.overallReadinessScore || 0}` }}>
-              <span className="seg red" />
-              <span className="seg orange" />
-              <span className="seg amber" />
-              <span className="seg green" />
-              <span className="meter-marker" />
+          <div className="score-hero-card score-hero-card-compact">
+            <div className="score-hero-left">
+              <p className="score-hero-value">{reportData.overallReadinessScore}/100</p>
+              <p className="score-hero-label">{reportData.readinessLevel}</p>
+              <span className="confidence-badge">{reportData.evaluationConfidence} confidence</span>
             </div>
-            <div className="score-hero-meta">
-              <span><strong>Profile:</strong> {reportData.candidateProfile}</span>
-              <span><strong>Style:</strong> {reportData.primaryLeadershipStyle}</span>
-              <span><strong>Consistency:</strong> {leadershipConsistencyIndex}/100</span>
+            <div className="score-hero-right">
+              <div className="segmented-readiness-meter" style={{ '--meter-value': `${reportData.overallReadinessScore || 0}` }}>
+                <span className="seg red" />
+                <span className="seg orange" />
+                <span className="seg amber" />
+                <span className="seg green" />
+                <span className="meter-marker" />
+              </div>
+              <div className="score-hero-meta">
+                <span><strong>Profile:</strong> {reportData.candidateProfile}</span>
+                <span><strong>Style:</strong> {reportData.primaryLeadershipStyle}</span>
+                <span><strong>Consistency:</strong> {leadershipConsistencyIndex}/100</span>
+              </div>
             </div>
           </div>
         </article>
@@ -3710,7 +3714,7 @@ export default function SimulationShellClient() {
           <article className="report-card dashboard-card"><h3>Leadership Readiness Summary</h3><p>{reportData.leadershipReadinessSummary}</p></article>
         </section>
         <section id="leadership-impact" className="dashboard-impact-grid">
-          {(reportData.leadershipImpact || reportData.schoolClimateCultureImpact || []).slice(0, 4).map((item) => { const score = Number.isFinite(item.score) ? item.score : getRatingFallbackScore(item.rating); const rating = getCompetencyRating(score); return <article key={item.label} className="report-card dashboard-card impact-visual-card"><h3>{item.label}</h3><div className="impact-head"><p className={`impact-rating-badge status-${getRatingTone(item.rating)}`}>{item.rating}</p><p className={`impact-score status-${rating.tone}`}>{score}/100</p></div><div className="segmented-readiness-meter impact-meter" style={{ '--meter-value': `${score}` }}><span className="seg red" /><span className="seg orange" /><span className="seg amber" /><span className="seg green" /><span className="meter-marker" /></div><p>{item.insight}</p></article>; })}
+          {(reportData.leadershipImpact || reportData.schoolClimateCultureImpact || []).slice(0, 4).map((item) => { const score = Number.isFinite(item.score) ? item.score : getRatingFallbackScore(item.rating); const rating = getCompetencyRating(score); return <article key={item.label} className="report-card dashboard-card impact-visual-card"><h3>{item.label}</h3><div className="impact-head"><p className={`impact-rating-badge status-${getRatingTone(item.rating)}`}>{item.rating}</p><p className={`impact-score status-${rating.tone}`}>{score}/100</p></div><div className="impact-mini-progress" role="img" aria-label={`${item.label} scored ${score} out of 100`}><span className={rating.tone} style={{ width: `${score}%` }} /></div><p>{item.insight}</p></article>; })}
         </section>
         <section className="dashboard-split">
           <article className="report-card dashboard-card"><h3>Predicted First 90 Days Impact</h3><p>{reportData.predictedFirst90DaysImpact}</p></article>
