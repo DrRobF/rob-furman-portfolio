@@ -3,403 +3,238 @@
 import { useEffect, useMemo, useState } from "react";
 
 const EXERCISE_DURATION = 30;
+const BREAK_DURATION = 30;
+const DAILY_ROUTINE_KEY = "fitnessDailyRoutineV2";
 const HISTORY_KEY = "fitnessWorkoutHistory";
+const TARGET_WORK_EXERCISES = 10;
 
-const exercises = [
-  { name: "Seated Fast March", cue: "Drive knees up quickly, stay tall", icon: "🏃‍♂️", type: "work" },
-  { name: "Wall Push-Ups", cue: "Chest to wall, push strong", icon: "🧱", type: "work" },
-  { name: "Seated Windmills", cue: "Reach across body, twist gently", icon: "🌪️", type: "work" },
-  { name: "Chair Tricep Presses", cue: "Hands on chair, press up slightly", icon: "💪", type: "work" },
-  { name: "Break", cue: "Breathe. Relax shoulders. Reset.", icon: "🧘‍♂️", type: "rest" },
-  { name: "Seated Torso Twists", cue: "Rotate side to side with control", icon: "🔄", type: "work" },
-  {
-    name: "Wall Angels",
-    cue: "Stand with your back to the wall. Slide arms up and down like a snow angel.",
-    icon: "🙆‍♂️",
-    type: "work"
-  },
-  { name: "Chair Sit-to-Stands", cue: "Stand up, sit down with control", icon: "⬆️", type: "work" },
-  { name: "Seated Punches", cue: "Fast punches, engage core", icon: "🥊", type: "work" },
-  { name: "Break", cue: "Deep breath in... slow out.", icon: "🌬️", type: "rest" },
-  { name: "Seated Knee Lifts", cue: "Lift knees toward chest", icon: "🦵", type: "work" },
-  { name: "Shoulder Blade Squeezes", cue: "Pull shoulders back tight", icon: "🧍‍♂️", type: "work" },
-  { name: "Calf Raises + Arm Raises", cue: "Raise heels + arms together", icon: "⚖️", type: "work" },
-  { name: "Deep Breathing Reset", cue: "Slow inhale, slow exhale", icon: "🫁", type: "work" }
+const exerciseBank = [
+  { name: "Seated Windmills", cue: "Reach across your body and rotate gently.", icon: "🌪️", target: "core", difficulty: "easy" },
+  { name: "Seated Side Reaches", cue: "Reach one arm overhead and bend side to side.", icon: "↔️", target: "mobility", difficulty: "easy" },
+  { name: "Seated Overhead Reach", cue: "Interlace fingers and press up tall.", icon: "🙌", target: "shoulders", difficulty: "easy" },
+  { name: "Seated Torso Twists", cue: "Turn left and right with a long spine.", icon: "🔄", target: "core", difficulty: "easy" },
+  { name: "Seated Marching", cue: "Alternate knees up with quick rhythm.", icon: "🥁", target: "legs", difficulty: "moderate" },
+  { name: "Seated Knee Lifts", cue: "Lift knees toward chest with control.", icon: "🦵", target: "core", difficulty: "moderate" },
+  { name: "Seated Leg Extensions", cue: "Extend one leg at a time and squeeze quads.", icon: "🦿", target: "legs", difficulty: "easy" },
+  { name: "Seated Toe Taps", cue: "Tap toes quickly while keeping heels down.", icon: "👣", target: "legs", difficulty: "easy" },
+  { name: "Seated Heel Raises", cue: "Lift heels, then lower with control.", icon: "⬆️", target: "legs", difficulty: "easy" },
+  { name: "Seated Arm Circles", cue: "Draw small then bigger circles with both arms.", icon: "⭕", target: "shoulders", difficulty: "easy" },
+  { name: "Seated Shoulder Rolls", cue: "Roll shoulders up, back, and down smoothly.", icon: "🌀", target: "shoulders", difficulty: "easy" },
+  { name: "Seated Chest Openers", cue: "Open arms wide and squeeze shoulder blades.", icon: "🪽", target: "chest", difficulty: "easy" },
+  { name: "Seated Forward Fold", cue: "Hinge forward gently and relax neck.", icon: "🧘", target: "back", difficulty: "easy" },
+  { name: "Seated Back Stretch", cue: "Round upper back and reach hands forward.", icon: "🫶", target: "back", difficulty: "easy" },
+  { name: "Seated Oblique Crunch", cue: "Lift knee toward elbow, alternating sides.", icon: "⚡", target: "core", difficulty: "moderate" },
+  { name: "Seated Punches", cue: "Punch forward quickly and brace your core.", icon: "🥊", target: "arms", difficulty: "moderate" },
+  { name: "Seated Desk Push-Ups", cue: "Hands on desk edge, bend and press away.", icon: "🧱", target: "chest", difficulty: "moderate" },
+  { name: "Desk Incline Push-Ups", cue: "Straight body line, lower chest to desk.", icon: "📐", target: "chest", difficulty: "challenging" },
+  { name: "Standing Chair Squats", cue: "Stand and sit slowly with control.", icon: "🪑", target: "legs", difficulty: "moderate" },
+  { name: "Chair-Assisted Calf Raises", cue: "Hold chair for balance, rise onto toes.", icon: "🦶", target: "legs", difficulty: "easy" },
+  { name: "Chair-Assisted Hamstring Stretch", cue: "Extend one leg and hinge from hips gently.", icon: "🤸", target: "mobility", difficulty: "easy" },
+  { name: "Chair-Assisted Quad Stretch", cue: "Hold chair and gently pull heel toward glute.", icon: "🧍", target: "legs", difficulty: "easy" },
+  { name: "Seated Prayer Stretch", cue: "Press palms together and lift elbows slightly.", icon: "🙏", target: "mobility", difficulty: "easy" },
+  { name: "Seated Tricep Reach", cue: "Reach one arm overhead and bend at elbow.", icon: "💪", target: "arms", difficulty: "easy" },
+  { name: "Seated Chair Angels", cue: "Slide arms up and down like snow angels.", icon: "😇", target: "shoulders", difficulty: "easy" },
+  { name: "Seated Scapular Squeezes", cue: "Pinch shoulder blades together, then relax.", icon: "🧍‍♂️", target: "back", difficulty: "easy" },
+  { name: "Seated Side Bends", cue: "Slide one hand toward floor, alternating sides.", icon: "🌈", target: "core", difficulty: "easy" },
+  { name: "Seated Ankle Circles", cue: "Lift foot and circle ankle both directions.", icon: "🔁", target: "mobility", difficulty: "easy" },
+  { name: "Seated Figure-Four Stretch", cue: "Cross ankle over knee and lean forward gently.", icon: "4️⃣", target: "mobility", difficulty: "easy" },
+  { name: "Seated Chest Press Motion", cue: "Press arms forward and return with control.", icon: "➡️", target: "chest", difficulty: "easy" }
 ];
-
-const workExercises = exercises.filter((exercise) => exercise.type === "work");
 
 function getTodayString() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function parseHistory() {
-  if (typeof window === "undefined") return {};
+function seededShuffle(list, seedString) {
+  const seeded = [...list];
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i += 1) {
+    seed = (seed * 31 + seedString.charCodeAt(i)) >>> 0;
+  }
+
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+
+  for (let i = seeded.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [seeded[i], seeded[j]] = [seeded[j], seeded[i]];
+  }
+
+  return seeded;
+}
+
+function parseJSONStorage(key, fallback = {}) {
+  if (typeof window === "undefined") return fallback;
 
   try {
-    const raw = window.localStorage.getItem(HISTORY_KEY);
-    if (!raw) return {};
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return fallback;
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : {};
+    return parsed && typeof parsed === "object" ? parsed : fallback;
   } catch {
-    return {};
+    return fallback;
   }
 }
 
-function saveHistory(history) {
+function saveJSONStorage(key, value) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  window.localStorage.setItem(key, JSON.stringify(value));
 }
 
-function markDateComplete(history, dateString) {
-  if (history[dateString]) return history;
-  return { ...history, [dateString]: true };
+function buildTimeline(workExercises) {
+  const midpoint = Math.floor(workExercises.length / 2);
+  const first = workExercises.slice(0, midpoint);
+  const second = workExercises.slice(midpoint);
+
+  return [
+    ...first.map((exercise) => ({ ...exercise, type: "work", duration: EXERCISE_DURATION })),
+    { name: "Break", cue: "Breathe, relax shoulders, sip water.", icon: "🧘", target: "recovery", type: "rest", duration: BREAK_DURATION },
+    ...second.map((exercise) => ({ ...exercise, type: "work", duration: EXERCISE_DURATION })),
+    { name: "Break", cue: "Final reset before finish.", icon: "🌬️", target: "recovery", type: "rest", duration: BREAK_DURATION }
+  ];
 }
 
-function formatLocalDate(date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function getWeekDates() {
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + mondayOffset);
-
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + index);
-    return date;
-  });
-}
-
-function calculateStreak(history) {
-  const today = new Date();
-  let pointer = new Date(today);
-  const todayKey = formatLocalDate(today);
-
-  if (!history[todayKey]) {
-    pointer.setDate(pointer.getDate() - 1);
+function getDailyRoutine(forceNew = false) {
+  const today = getTodayString();
+  const stored = parseJSONStorage(DAILY_ROUTINE_KEY, null);
+  if (!forceNew && stored?.date === today && Array.isArray(stored.routine) && stored.routine.length) {
+    return stored.routine;
   }
 
-  let streak = 0;
-  while (history[formatLocalDate(pointer)]) {
-    streak += 1;
-    pointer.setDate(pointer.getDate() - 1);
-  }
-
-  return streak;
+  const seed = forceNew ? `${today}-${Date.now()}` : today;
+  const shuffled = seededShuffle(exerciseBank, seed).slice(0, TARGET_WORK_EXERCISES);
+  const routine = buildTimeline(shuffled);
+  saveJSONStorage(DAILY_ROUTINE_KEY, { date: today, routine });
+  return routine;
 }
+
+function formatLocalDate(date) { const y = date.getFullYear(); const m = `${date.getMonth() + 1}`.padStart(2, "0"); const d = `${date.getDate()}`.padStart(2, "0"); return `${y}-${m}-${d}`; }
+function getWeekDates() { const t = new Date(); const dow = t.getDay(); const offset = dow === 0 ? -6 : 1 - dow; const m = new Date(t); m.setDate(t.getDate() + offset); return Array.from({ length: 7 }, (_, i) => { const d = new Date(m); d.setDate(m.getDate() + i); return d; }); }
+function calculateStreak(history) { const today = new Date(); let p = new Date(today); if (!history[formatLocalDate(today)]) p.setDate(p.getDate() - 1); let s = 0; while (history[formatLocalDate(p)]) { s += 1; p.setDate(p.getDate() - 1); } return s; }
 
 function playBeep() {
   if (typeof window === "undefined") return;
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
-
   const ctx = new AudioContext();
   const oscillator = ctx.createOscillator();
   const gain = ctx.createGain();
-
   oscillator.type = "sine";
   oscillator.frequency.setValueAtTime(800, ctx.currentTime);
   gain.gain.setValueAtTime(0.2, ctx.currentTime);
-
   oscillator.connect(gain);
   gain.connect(ctx.destination);
-
   oscillator.start();
   oscillator.stop(ctx.currentTime + 0.2);
 }
 
 export default function FitnessPage() {
+  const [timeline, setTimeline] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(EXERCISE_DURATION);
   const [isRunning, setIsRunning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [history, setHistory] = useState({});
 
-  const currentExercise = exercises[currentIndex];
-  const isRestScreen = currentExercise.type === "rest";
-  const workExerciseIndex = useMemo(
-    () => exercises.slice(0, currentIndex + 1).filter((exercise) => exercise.type === "work").length,
-    [currentIndex]
-  );
-
-  const progressText = isRestScreen ? "Recovery Break" : `Exercise ${workExerciseIndex} of ${workExercises.length}`;
-
   useEffect(() => {
-    setHistory(parseHistory());
+    const daily = getDailyRoutine(false);
+    setTimeline(daily);
+    setTimeLeft(daily[0]?.duration ?? EXERCISE_DURATION);
+    setHistory(parseJSONStorage(HISTORY_KEY, {}));
   }, []);
+
+  const currentExercise = timeline[currentIndex];
+  const nextExercise = timeline[currentIndex + 1];
+  const workCount = timeline.filter((item) => item.type === "work").length;
+  const workExerciseIndex = useMemo(() => timeline.slice(0, currentIndex + 1).filter((item) => item.type === "work").length, [timeline, currentIndex]);
+  const isRestScreen = currentExercise?.type === "rest";
 
   const markTodayComplete = () => {
     const today = getTodayString();
     setHistory((prev) => {
-      const updated = markDateComplete(prev, today);
-      saveHistory(updated);
+      if (prev[today]) return prev;
+      const updated = { ...prev, [today]: true };
+      saveJSONStorage(HISTORY_KEY, updated);
       return updated;
     });
   };
 
   useEffect(() => {
-    if (!isRunning || isComplete) {
-      return;
-    }
-
+    if (!isRunning || isComplete || !currentExercise) return;
     const intervalId = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           playBeep();
           setCurrentIndex((index) => {
-            if (index >= exercises.length - 1) {
+            if (index >= timeline.length - 1) {
               setIsComplete(true);
               setIsRunning(false);
               markTodayComplete();
               return index;
             }
+            const nextDuration = timeline[index + 1]?.duration ?? EXERCISE_DURATION;
+            setTimeLeft(nextDuration);
             return index + 1;
           });
-          return EXERCISE_DURATION;
+          return prev;
         }
-
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(intervalId);
-  }, [isRunning, isComplete]);
+  }, [isRunning, isComplete, timeline, currentExercise]);
 
-  const handleStart = () => {
-    if (isComplete) {
-      return;
-    }
-    setIsRunning(true);
+  const handleRestart = () => { setCurrentIndex(0); setTimeLeft(timeline[0]?.duration ?? EXERCISE_DURATION); setIsComplete(false); setIsRunning(false); };
+  const handleSkip = () => {
+    if (isComplete || !timeline.length) return;
+    playBeep();
+    setCurrentIndex((index) => {
+      if (index >= timeline.length - 1) { setIsComplete(true); setIsRunning(false); markTodayComplete(); return index; }
+      const next = index + 1;
+      setTimeLeft(timeline[next]?.duration ?? EXERCISE_DURATION);
+      return next;
+    });
   };
-
-  const handlePauseResume = () => {
-    if (isComplete) {
-      return;
-    }
-    setIsRunning((prev) => !prev);
-  };
-
-  const handleRestart = () => {
+  const handleGenerateNewRoutine = () => {
+    const reshuffled = getDailyRoutine(true);
+    setTimeline(reshuffled);
     setCurrentIndex(0);
-    setTimeLeft(EXERCISE_DURATION);
+    setTimeLeft(reshuffled[0]?.duration ?? EXERCISE_DURATION);
     setIsComplete(false);
     setIsRunning(false);
   };
 
-  const handleSkip = () => {
-    if (isComplete) {
-      return;
-    }
-
-    playBeep();
-    setTimeLeft(EXERCISE_DURATION);
-    setCurrentIndex((index) => {
-      if (index >= exercises.length - 1) {
-        setIsComplete(true);
-        setIsRunning(false);
-        markTodayComplete();
-        return index;
-      }
-      return index + 1;
-    });
-  };
-
   const completedToday = Boolean(history[getTodayString()]);
-  const completedDates = Object.keys(history).filter((date) => history[date]).sort();
+  const completedDates = Object.keys(history).filter((d) => history[d]).sort();
   const lastCompletedDate = completedDates.length ? completedDates[completedDates.length - 1] : "None yet";
   const currentStreak = calculateStreak(history);
-  const weekDates = getWeekDates();
-  const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  return (
-    <main style={styles.page}>
-      <section style={{ ...styles.card, ...(isRestScreen && !isComplete ? styles.restCard : {}) }}>
-        {isComplete ? (
-          <>
-            <div style={styles.icon}>✅</div>
-            <h1 style={styles.title}>Workout Complete</h1>
-            <p style={styles.cue}>Great job completing your 7-minute chair workout.</p>
-          </>
-        ) : (
-          <>
-            <div style={styles.icon}>{currentExercise.icon}</div>
-            <h1 style={styles.title}>{isRestScreen ? "Recovery Break" : currentExercise.name}</h1>
-            <p style={styles.cue}>{currentExercise.cue}</p>
-            {currentExercise.name === "Wall Angels" && (
-              <p style={styles.helperText}>
-                Wall Angels: stand with your back against a wall, arms bent like goalposts, then slowly slide your
-                arms up and down. Keep it gentle.
-              </p>
-            )}
-            <div style={styles.timer}>{timeLeft}</div>
-            <p style={styles.progress}>{progressText}</p>
-          </>
-        )}
+  if (!currentExercise) return <main style={styles.page}><p>Loading routine...</p></main>;
 
-        <div style={styles.buttonRow}>
-          <button type="button" style={styles.button} onClick={handleStart} disabled={isRunning || isComplete}>
-            Start
-          </button>
-          <button type="button" style={styles.button} onClick={handlePauseResume} disabled={isComplete}>
-            {isRunning ? "Pause" : "Resume"}
-          </button>
-          <button type="button" style={styles.button} onClick={handleRestart}>
-            Restart
-          </button>
-          <button type="button" style={styles.button} onClick={handleSkip} disabled={isComplete}>
-            Skip
-          </button>
-        </div>
-      </section>
-
-      <section style={styles.progressCard}>
-        <h2 style={styles.progressTitle}>Progress</h2>
-        <p style={styles.progressLine}>Completed Today: {completedToday ? "✅ Yes" : "⬜ No"}</p>
-        <p style={styles.progressLine}>Last completed: {lastCompletedDate}</p>
-        <p style={styles.progressLine}>Current streak: {currentStreak}</p>
-
-        <div style={styles.weekGrid}>
-          {weekDates.map((date, index) => {
-            const key = formatLocalDate(date);
-            const checked = Boolean(history[key]);
-            return (
-              <p style={styles.weekDay} key={key}>
-                {dayLabels[index]} {checked ? "✅" : "⬜"}
-              </p>
-            );
-          })}
-        </div>
-
-        <button type="button" style={styles.markButton} onClick={markTodayComplete}>
-          Mark Today Complete
-        </button>
-      </section>
-
-      <p style={styles.safety}>
-        Move gently. Stop if anything hurts. This is a light movement break, not medical advice.
-      </p>
-    </main>
-  );
+  return <main style={styles.page}><section style={{ ...styles.card, ...(isRestScreen && !isComplete ? styles.restCard : {}) }}>
+    {isComplete ? <><div style={styles.icon}>✅</div><h1 style={styles.title}>Workout Complete</h1><p style={styles.cue}>Great job completing your chair workout today.</p></> : <>
+      <div style={styles.icon}>{currentExercise.icon}</div>
+      <h1 style={styles.title}>{isRestScreen ? "Recovery Break" : currentExercise.name}</h1>
+      <p style={styles.cue}>{currentExercise.cue}</p>
+      <p style={styles.meta}>Target: {currentExercise.target} {currentExercise.difficulty ? `• Difficulty: ${currentExercise.difficulty}` : ""}</p>
+      <div style={styles.timer}>{timeLeft}</div>
+      <p style={styles.progress}>{isRestScreen ? "Recovery Break" : `Exercise ${workExerciseIndex} of ${workCount}`}</p>
+      {nextExercise && <p style={styles.next}>Next: {nextExercise.type === "rest" ? "Break" : nextExercise.name}</p>}
+    </>}
+    <div style={styles.buttonRow}>
+      <button type="button" style={styles.button} onClick={() => setIsRunning(true)} disabled={isRunning || isComplete}>Start</button>
+      <button type="button" style={styles.button} onClick={() => setIsRunning((p) => !p)} disabled={isComplete}>{isRunning ? "Pause" : "Resume"}</button>
+      <button type="button" style={styles.button} onClick={handleRestart}>Restart</button>
+      <button type="button" style={styles.button} onClick={handleSkip} disabled={isComplete}>Skip</button>
+      <button type="button" style={styles.generateButton} onClick={handleGenerateNewRoutine}>Generate New Routine</button>
+    </div>
+  </section>
+  <section style={styles.progressCard}><h2 style={styles.progressTitle}>Progress</h2><p style={styles.progressLine}>Completed Today: {completedToday ? "✅ Yes" : "⬜ No"}</p><p style={styles.progressLine}>Last completed: {lastCompletedDate}</p><p style={styles.progressLine}>Current streak: {currentStreak}</p>
+  <div style={styles.weekGrid}>{getWeekDates().map((date, index) => { const key = formatLocalDate(date); const checked = Boolean(history[key]); return <p style={styles.weekDay} key={key}>{["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][index]} {checked ? "✅" : "⬜"}</p>; })}</div>
+  <button type="button" style={styles.markButton} onClick={markTodayComplete}>I did it today</button></section>
+  </main>;
 }
 
-const styles = {
-  page: {
-    minHeight: "100vh",
-    background: "#F8F6F2",
-    color: "#1A1A1A",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "1.5rem"
-  },
-  card: {
-    width: "100%",
-    maxWidth: "30rem",
-    background: "#FFFFFF",
-    borderRadius: "1rem",
-    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
-    padding: "2rem 1.5rem",
-    textAlign: "center"
-  },
-  restCard: {
-    background: "#EEF6F4"
-  },
-  icon: {
-    fontSize: "3.5rem",
-    marginBottom: "0.75rem"
-  },
-  title: {
-    fontSize: "1.8rem",
-    marginBottom: "0.5rem"
-  },
-  cue: {
-    margin: "0 0 1.25rem",
-    fontSize: "1rem",
-    color: "#3A3A3A"
-  },
-  helperText: {
-    margin: "-0.5rem 0 1rem",
-    fontSize: "0.9rem",
-    color: "#374151",
-    background: "#F3F4F6",
-    borderRadius: "0.5rem",
-    padding: "0.6rem"
-  },
-  timer: {
-    fontSize: "4.5rem",
-    fontWeight: 700,
-    lineHeight: 1,
-    marginBottom: "0.75rem"
-  },
-  progress: {
-    fontSize: "0.95rem",
-    color: "#505050",
-    marginBottom: "1.5rem"
-  },
-  buttonRow: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: "0.75rem"
-  },
-  button: {
-    border: "none",
-    borderRadius: "0.65rem",
-    padding: "0.75rem",
-    fontWeight: 600,
-    fontSize: "0.95rem",
-    background: "#1f2937",
-    color: "#fff",
-    cursor: "pointer"
-  },
-  progressCard: {
-    marginTop: "1rem",
-    width: "100%",
-    maxWidth: "30rem",
-    background: "#FFFFFF",
-    borderRadius: "1rem",
-    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.06)",
-    padding: "1rem 1.25rem"
-  },
-  progressTitle: {
-    fontSize: "1.1rem",
-    marginBottom: "0.75rem"
-  },
-  progressLine: {
-    margin: "0.3rem 0",
-    fontSize: "0.95rem"
-  },
-  weekGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: "0.35rem",
-    margin: "0.8rem 0"
-  },
-  weekDay: {
-    margin: 0,
-    fontSize: "0.92rem"
-  },
-  markButton: {
-    border: "1px solid #9ca3af",
-    borderRadius: "0.5rem",
-    padding: "0.5rem 0.7rem",
-    background: "#f9fafb",
-    cursor: "pointer",
-    fontSize: "0.85rem",
-    fontWeight: 600
-  },
-  safety: {
-    marginTop: "1rem",
-    maxWidth: "30rem",
-    textAlign: "center",
-    fontSize: "0.85rem",
-    color: "#4b5563"
-  }
-};
+const styles = { page: { minHeight: "100vh", background: "#F8F6F2", color: "#1A1A1A", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1.5rem" }, card: { width: "100%", maxWidth: "32rem", background: "#FFFFFF", borderRadius: "1rem", boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)", padding: "2rem 1.5rem", textAlign: "center" }, restCard: { background: "#EEF6F4" }, icon: { fontSize: "3.5rem", marginBottom: "0.75rem" }, title: { fontSize: "1.8rem", marginBottom: "0.5rem" }, cue: { margin: "0 0 0.6rem", fontSize: "1rem", color: "#3A3A3A" }, meta: { margin: "0 0 1rem", fontSize: "0.9rem", color: "#4b5563" }, timer: { fontSize: "4.8rem", fontWeight: 700, lineHeight: 1, marginBottom: "0.75rem" }, progress: { fontSize: "0.95rem", color: "#505050", marginBottom: "0.45rem" }, next: { fontSize: "0.9rem", marginBottom: "1rem", color: "#1f2937" }, buttonRow: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "0.75rem" }, button: { border: "none", borderRadius: "0.65rem", padding: "0.75rem", fontWeight: 600, fontSize: "0.95rem", background: "#1f2937", color: "#fff", cursor: "pointer" }, generateButton: { gridColumn: "1 / -1", border: "none", borderRadius: "0.65rem", padding: "0.75rem", fontWeight: 700, fontSize: "0.95rem", background: "#2563eb", color: "#fff", cursor: "pointer" }, progressCard: { marginTop: "1rem", width: "100%", maxWidth: "32rem", background: "#FFFFFF", borderRadius: "1rem", boxShadow: "0 10px 25px rgba(0, 0, 0, 0.06)", padding: "1rem 1.25rem" }, progressTitle: { fontSize: "1.1rem", marginBottom: "0.75rem" }, progressLine: { margin: "0.3rem 0", fontSize: "0.95rem" }, weekGrid: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "0.35rem", margin: "0.8rem 0" }, weekDay: { margin: 0, fontSize: "0.92rem" }, markButton: { border: "1px solid #9ca3af", borderRadius: "0.5rem", padding: "0.5rem 0.7rem", background: "#f9fafb", cursor: "pointer", fontSize: "0.85rem", fontWeight: 600 } };
