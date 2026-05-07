@@ -699,7 +699,7 @@ No one asks.` },
       ],
       [
         { type: 'paragraph', text: 'Towards the end of class we start to cut up, but by then she must assume we had enough time to get the packet done.' },
-        { type: 'paragraph', text: 'The only problem is when we take the tests. If the teacher is not paying attention we copy but when she is walking around we don't do so well.' },
+        { type: 'paragraph', text: "The only problem is when we take the tests. If the teacher is not paying attention we copy but when she is walking around we don't do so well." },
         { type: 'paragraph', text: 'I remember one kid in our class. She was only in our school for a short time. She came from a "different" school. We all know that means one of the detention centers.' },
         { type: 'paragraph', text: 'Anyways, this girl was in our class and we told her beforehand the deal. She was cool with that.' },
       ],
