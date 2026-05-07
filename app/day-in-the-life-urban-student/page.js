@@ -820,7 +820,7 @@ No one asks.` },
   {
     id: 'scene_hallway_internal_reflection',
     sceneNumber: 10,
-    totalScenes: 11,
+    totalScenes: 13,
     time: 'Hallway',
     heading: 'HALLWAY/INTERNAL REFLECTION',
     revealGroups: [[{ type: 'paragraph', text: 'Scene 10 — Hallway/Internal Reflection continues next.' }]],
@@ -830,12 +830,73 @@ No one asks.` },
   {
     id: 'scene_third_period_reading_class',
     sceneNumber: 11,
-    totalScenes: 11,
+    totalScenes: 13,
     time: '3rd Period',
-    heading: '3RD PERIOD READING CLASS',
-    revealGroups: [[{ type: 'paragraph', text: 'Scene 11 — 3rd Period Reading Class continues next.' }]],
-    question: 'End of current build',
+    heading: '3rd Period Reading Class',
+    revealGroups: [
+      [
+        {
+          type: 'paragraph',
+          text: "Reading class is a great class. The teacher normally reads to us. We either listen if it is a good story or we put our heads down and sleep. Either way I like it.",
+        },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'go_to_sleep',
+        label: 'Go to sleep',
+        resultTitle: 'You put your head down.',
+        result: [{ type: 'paragraph', text: 'You decide to go to sleep.' }],
+        metrics: { sleep: 1, stress: -1, time: 0, care: -1 },
+        nextSceneId: 'scene_lunch_room',
+      },
+      {
+        id: 'listen_to_story',
+        label: 'Listen to the story',
+        resultTitle: 'You try to listen.',
+        result: [{ type: 'paragraph', text: 'You try to listen to the story.' }],
+        metrics: { sleep: -1, stress: 1, time: 0, care: 1 },
+        nextSceneId: 'scene_reading_class_trying_to_listen',
+      },
+    ],
+  },
+  {
+    id: 'scene_lunch_room',
+    sceneNumber: 12,
+    totalScenes: 13,
+    time: 'Lunch',
+    heading: 'Lunch Room',
+    revealGroups: [[{ type: 'paragraph', text: 'Scene 12 — Lunch Room continues next.' }]],
+    question: 'Continue',
     choices: [],
+  },
+  {
+    id: 'scene_reading_class_trying_to_listen',
+    sceneNumber: 13,
+    totalScenes: 13,
+    time: '3rd Period',
+    heading: 'Reading Class — Trying to Listen',
+    videoTitle: 'Reading Classroom — approximately 30 seconds',
+    revealGroups: [
+      [
+        {
+          type: 'paragraph',
+          text: "I try to stay awake during this book. It is about some boy who has magic. I don't remember the plot because I think I slept in this class yesterday. Besides I am worried about my mom and baby sis, I just came back from the principal's office and I am hungry since I didn't get any breakfast and dinner last night was awful. Do they seriously think I give one shit about some story that can't happen? Screw it, I am going to sleep.",
+        },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'fall_asleep',
+        label: 'No options here, you fall asleep',
+        resultTitle: 'You fall asleep.',
+        result: [{ type: 'paragraph', text: 'You fall asleep.' }],
+        metrics: { sleep: 1, stress: 1, time: 0, care: -1 },
+        nextSceneId: 'scene_lunch_room',
+      },
+    ],
   },
 
 
