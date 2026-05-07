@@ -1076,6 +1076,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     .map((metric) => [metric, selectedChoice?.metrics?.[metric] ?? 0])
     .filter(([, value]) => value !== 0);
   const hasAnyChoiceSelected = Object.keys(selectedChoices).length > 0;
+  const hasReflection = Boolean(scene.reflection?.questions?.length);
 
   return (
     <main className="urban-student-page">
@@ -1140,7 +1141,9 @@ export default function DayInTheLifeUrbanStudentPage() {
                   </div>
                 ))}
               </div>}
-              <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}<p className="lens-prompt">{scene.reflection.facilitatorLens}</p></div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
+              {hasReflection && (
+                <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
+              )}
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
               <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
             </section>
