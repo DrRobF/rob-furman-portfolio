@@ -795,6 +795,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
   const [showInsights, setShowInsights] = useState({});
+  const [showSceneMenu, setShowSceneMenu] = useState(false);
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
   const selectedChoiceId = selectedChoices[scene.id];
@@ -849,6 +850,20 @@ export default function DayInTheLifeUrbanStudentPage() {
     setSceneId('scene_placeholder_end');
   };
 
+  const handleJumpToScene = (targetSceneId) => {
+    if (!sceneById[targetSceneId]) return;
+    setSceneId(targetSceneId);
+    setSelectedChoices((prev) => {
+      const nextChoices = { ...prev };
+      delete nextChoices[targetSceneId];
+      return nextChoices;
+    });
+    setRevealedGroupCounts((prev) => ({ ...prev, [targetSceneId]: 1 }));
+    setShowInsights((prev) => ({ ...prev, [targetSceneId]: false }));
+    setCumulativeMetrics((prev) => ({ ...initialMetrics, ...prev }));
+    setShowSceneMenu(false);
+  };
+
   if (sceneId === 'scene_placeholder_end') {
     return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
   }
@@ -862,6 +877,13 @@ export default function DayInTheLifeUrbanStudentPage() {
     <main className="urban-student-page">
       <section className="experience-shell">
         <article className="scene-card">
+          <button
+            type="button"
+            className="dev-menu-trigger"
+            onClick={() => setShowSceneMenu((prev) => !prev)}
+          >
+            Jump to Scene
+          </button>
           <header className="scene-header">
             <div className="tone-band" />
             <p>{scene.time}</p>
@@ -922,10 +944,32 @@ export default function DayInTheLifeUrbanStudentPage() {
         </article>
       </section>
 
+      {showSceneMenu && (
+        <aside className="scene-menu-overlay" role="dialog" aria-modal="true" aria-label="Developer scene navigation menu">
+          <div className="scene-menu-panel">
+            <div className="scene-menu-header">
+              <p className="scene-menu-dev-label">DEV</p>
+              <h2>Scene Menu</h2>
+              <button type="button" className="scene-menu-close" onClick={() => setShowSceneMenu(false)}>Close</button>
+            </div>
+            <p className="scene-menu-help">Testing utility: jump directly to any implemented scene.</p>
+            <div className="scene-menu-list">
+              {urbanStudentScenes.map((entry, index) => (
+                <button key={entry.id} type="button" className="scene-menu-item" onClick={() => handleJumpToScene(entry.id)}>
+                  <span>Scene {index + 1}</span>
+                  <strong>{entry.heading}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
+      )}
+
       <style jsx>{`
         .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
         .experience-shell { max-width: 900px; margin: 0 auto; }
         .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
+        .dev-menu-trigger { position: sticky; top: 8px; z-index: 5; margin: 0 0 6px auto; width: auto; border: 1px solid #94a3b8; border-radius: 999px; padding: 8px 12px; font-size: 0.82rem; background: #f8fafc; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
         .metrics-stack { display: grid; gap: 10px; background: #ffffff; border: 1px solid #d8e0ea; border-radius: 18px; padding: 18px; margin-top: 18px; }
         .metric-subtitle { margin: -4px 0 6px; color: #334155; font-size: 0.92rem; }
         .metric-row { border: 1px solid #d8e0ea; background: #fff; border-radius: 12px; padding: 10px 12px; }
@@ -976,6 +1020,17 @@ export default function DayInTheLifeUrbanStudentPage() {
         .insight-subheading { margin: 4px 0 8px; color: #475569; font-size: 0.9rem; }
         .insight-note { margin: 0 0 12px; color: #64748b; font-size: 0.9rem; }
         .manuscript-text { white-space: pre-line; margin: 0; }
+        .scene-menu-overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.55); display: grid; place-items: center; padding: 1rem; z-index: 50; }
+        .scene-menu-panel { width: min(640px, 100%); max-height: 85vh; overflow: auto; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 18px; padding: 16px; color: #0f172a; }
+        .scene-menu-header { display: flex; align-items: center; gap: 10px; }
+        .scene-menu-header h2 { margin: 0; }
+        .scene-menu-dev-label { margin: 0; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; background: #fee2e2; color: #b91c1c; }
+        .scene-menu-close { margin: 0 0 0 auto; width: auto; text-align: center; }
+        .scene-menu-help { margin: 8px 0 12px; color: #475569; font-size: 0.9rem; }
+        .scene-menu-list { display: grid; gap: 8px; }
+        .scene-menu-item { margin: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; text-align: left; }
+        .scene-menu-item span { display: block; font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+        .scene-menu-item strong { font-size: 1rem; color: #0f172a; }
       `}</style>
     </main>
   );
