@@ -576,7 +576,7 @@ const urbanStudentScenes = [
           { type: 'thought', text: 'Maybe she will help me.' },
         ],
         metrics: { sleep: 0, stress: -1, time: -1, care: -1 },
-        nextSceneId: 'scene_cool_teacher',
+        nextSceneId: 'scene_third_period_reading_class',
       },
     ],
   },
@@ -854,7 +854,7 @@ No one asks.` },
         resultTitle: 'You look for the one teacher who might listen.',
         result: [{ type: 'paragraph', text: 'You turn and head down the hall, hoping to find the one teacher who still checks on you.' }],
         metrics: { sleep: 0, stress: 1, time: -1, care: 1 },
-        nextSceneId: 'scene_cool_teacher',
+        nextSceneId: 'scene_third_period_reading_class',
       },
       {
         id: 'forget_it_go_to_class',
@@ -908,7 +908,16 @@ No one asks.` },
     heading: 'Lunch Room',
     revealGroups: [[{ type: 'paragraph', text: 'Scene 12 — Lunch Room continues next.' }]],
     question: 'Continue',
-    choices: [],
+    choices: [
+      {
+        id: 'lunch_continue_next',
+        label: 'Continue',
+        resultTitle: 'This path continues next.',
+        result: [{ type: 'paragraph', text: 'This is the next section to build.' }],
+        metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
+        nextSceneId: 'scene_placeholder_end',
+      },
+    ],
   },
   {
     id: 'scene_reading_class_trying_to_listen',
@@ -916,7 +925,6 @@ No one asks.` },
     totalScenes: 13,
     time: '3rd Period',
     heading: 'Reading Class — Trying to Listen',
-    videoTitle: 'Reading Classroom — approximately 30 seconds',
     revealGroups: [
       [
         {
