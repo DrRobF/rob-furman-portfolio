@@ -699,7 +699,7 @@ No one asks.` },
         { type: 'thought', text: 'Just what I need, a damn substitute?' },
       ],
       [
-        { type: 'paragraph', text: "\"What do you want and why aren't you in class young man?\"" },
+        { type: 'paragraph', text: '"What do you want and why aren\'t you in class young man?"' },
         { type: 'paragraph', text: 'Seriously did he just call me young man?' },
         { type: 'paragraph', text: '“Who in the hell are you and where is Ms. Blankenship?"' },
         { type: 'paragraph', text: 'He looked at me while his face was slowing turning red from the neck up.' },
