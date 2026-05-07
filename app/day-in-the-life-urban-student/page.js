@@ -987,6 +987,62 @@ No one asks.` },
       },
     ],
   },
+  {
+    id: 'scene_science_class',
+    sceneNumber: 13,
+    totalScenes: 14,
+    time: '5th Period',
+    heading: 'Science Class',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "5th Period is Science. It can be a good class when the teacher does a cool experiment." },
+        { type: 'paragraph', text: "The crappy part is that my step brother, who goes to a suburban school outside the city, gets to actually do the experiments." },
+        { type: 'paragraph', text: "We only get to watch." },
+        { type: 'paragraph', text: "Of course, we are not dumb; we know why they won't let us use chemicals and glass beakers." },
+        { type: 'thought', text: "Someone would use it over someone else's head." },
+      ],
+      [
+        { type: 'paragraph', text: "After watching the teacher do this cool water coloring changing experiment he told us to write what we saw." },
+        { type: 'paragraph', text: "That's basically where he lost me." },
+        { type: 'paragraph', text: "It wasn't hard to write." },
+        { type: 'paragraph', text: "I saw water change colors." },
+        { type: 'paragraph', text: "I am sure he wanted more but I don't care why the water changed color and I don't care how to do it because I will never need to change the color of water." },
+      ],
+      [
+        { type: 'paragraph', text: "My boys and I were talking about the party that we had a few weeks ago." },
+        { type: 'paragraph', text: "My one buddy told us that this one girl got pregnant at the party." },
+        { type: 'paragraph', text: "They all laughed joking about which one of the guys at the party was dumb enough to not protect themselves." },
+        { type: 'thought', text: "I got dizzy and sick." },
+      ],
+      [
+        { type: 'thought', text: "Oh hell, this day needs to end." },
+        { type: 'paragraph', text: "I did protect myself. The condom was old. My step brother told me it was old but should be fine." },
+        { type: 'paragraph', text: "I'm not even sure if I had the thing on right." },
+        { type: 'paragraph', text: "I can't take much more." },
+        { type: 'paragraph', text: "I can only hope she was with someone else also." },
+      ],
+      [
+        { type: 'paragraph', text: "Last year when I was in 6th grade this girl in 8th grade had a baby." },
+        { type: 'paragraph', text: "I remember the guy that she thought was the baby's father ended up not being the dad." },
+        { type: 'paragraph', text: "I can only hope it wasn't me." },
+        { type: 'paragraph', text: "She will be in my next period class." },
+        { type: 'paragraph', text: "Maybe I should just ask her. Or maybe just ignore the whole thing." },
+        { type: 'paragraph', text: "If she doesn't tell anyone about us then it won't affect me at all." },
+        { type: 'thought', text: "Maybe just keep my mouth shut for now." },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'go_to_next_period',
+        label: 'I really think I am about out of options. Just go to next period and hope no more bad news today.',
+        resultTitle: 'You head to the next period.',
+        result: [{ type: 'paragraph', text: 'You decide to keep moving and hope no more bad news comes today.' }],
+        metrics: { sleep: 0, stress: -2, time: 1, care: -1 },
+        nextSceneId: 'scene_gym_class',
+      },
+    ],
+  },
 
 
 ];
