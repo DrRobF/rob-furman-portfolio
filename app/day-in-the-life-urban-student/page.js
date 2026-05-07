@@ -1020,17 +1020,20 @@ export default function DayInTheLifeUrbanStudentPage() {
   };
 
   const handleChoose = (choiceId) => {
-    if (selectedChoices[scene.id]) return;
     const nextChoice = scene.choices.find((choice) => choice.id === choiceId);
     if (!nextChoice) return;
 
-    setCumulativeMetrics((prev) => {
-      const nextMetrics = { ...prev };
-      metricOrder.forEach((metric) => {
-        nextMetrics[metric] = clampMetric((nextMetrics[metric] ?? 0) + (nextChoice.metrics?.[metric] ?? 0));
+    const hadPreviousChoice = !!selectedChoices[scene.id];
+    if (!hadPreviousChoice) {
+      setCumulativeMetrics((prev) => {
+        const nextMetrics = { ...prev };
+        metricOrder.forEach((metric) => {
+          nextMetrics[metric] = clampMetric((nextMetrics[metric] ?? 0) + (nextChoice.metrics?.[metric] ?? 0));
+        });
+        return nextMetrics;
       });
-      return nextMetrics;
-    });
+    }
+
     setSelectedChoices((prev) => ({ ...prev, [scene.id]: choiceId }));
   };
 
