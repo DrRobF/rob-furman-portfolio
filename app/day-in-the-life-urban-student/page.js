@@ -902,6 +902,23 @@ No one asks.` },
 
 ];
 
+
+const tocItems = [
+  { id: 'scene_2am_bedroom', label: 'Intro / Start' },
+  { id: 'scene_2am_bedroom', label: 'Bedroom — 2:00 AM' },
+  { id: 'scene_625am_bedroom', label: 'Morning Alarm' },
+  { id: 'scene_625am_bedroom', label: 'Bedroom Confrontation' },
+  { id: 'scene_bus_stop', label: 'Bus Stop' },
+  { id: 'scene_school_entrance', label: 'School Entrance' },
+  { id: 'scene_technology_class', label: 'Technology Class' },
+  { id: 'scene_main_office', label: 'Main Office' },
+  { id: 'scene_second_period_math', label: 'Second Period Math Class' },
+  { id: 'scene_hallway_internal_reflection', label: 'Hallway/Internal Reflection' },
+  { id: 'scene_third_period_reading_class', label: '3rd Period Reading Class' },
+  { id: 'scene_lunch_room', label: 'Lunch Room' },
+  { id: 'scene_reading_class_trying_to_listen', label: 'Reading Class — Trying to Listen' },
+];
+
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
 
 const renderBlocks = (blocks) =>
@@ -997,7 +1014,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     });
     setRevealedGroupCounts((prev) => ({ ...prev, [targetSceneId]: 1 }));
     setShowInsights((prev) => ({ ...prev, [targetSceneId]: false }));
-    setCumulativeMetrics((prev) => ({ ...initialMetrics, ...prev }));
+    setCumulativeMetrics((prev) => ({ ...initialMetrics, ...(prev ?? {}) }));
     setShowSceneMenu(false);
   };
 
@@ -1091,10 +1108,10 @@ export default function DayInTheLifeUrbanStudentPage() {
             </div>
             <p className="scene-menu-help">Testing utility: jump directly to any implemented scene.</p>
             <div className="scene-menu-list">
-              {urbanStudentScenes.map((entry, index) => (
-                <button key={entry.id} type="button" className="scene-menu-item" onClick={() => handleJumpToScene(entry.id)}>
+              {tocItems.map((entry, index) => (
+                <button key={`${entry.id}-${index}`} type="button" className="scene-menu-item" onClick={() => handleJumpToScene(entry.id)}>
                   <span>Scene {index + 1}</span>
-                  <strong>{entry.heading}</strong>
+                  <strong>{entry.label}</strong>
                 </button>
               ))}
             </div>
