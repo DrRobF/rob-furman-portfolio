@@ -20,10 +20,11 @@ const projects = [
     external: true,
   },
   {
-    title: 'Day in the Life of an Urban Student (In Development)',
+    title: 'A Day in the Life of an Urban Student',
     description:
-      'A simulation in development focused on helping educators understand the real conditions shaping student engagement, attendance, and performance. Part of a broader system of perspective-driven training environments.',
-    linkText: 'Coming Soon',
+      'An interactive professional learning simulation that follows one student through a school day and asks educators to examine trauma, assumptions, adult responses, and missed intervention points.',
+    href: '/day-in-the-life-urban-student',
+    linkText: 'Launch Simulation',
   },
 ];
 
