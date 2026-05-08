@@ -1729,6 +1729,7 @@ const initialMetrics = { sleep: 0, stress: 0, time: 0, care: 0 };
 const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 
 export default function DayInTheLifeUrbanStudentPage() {
+  const [hasStartedExperience, setHasStartedExperience] = useState(false);
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
   const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
@@ -1778,11 +1779,19 @@ export default function DayInTheLifeUrbanStudentPage() {
   };
 
   const handleReset = () => {
+    setHasStartedExperience(false);
     setSceneId('scene_2am_bedroom');
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
     setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
     setShowInsights({});
+  };
+
+
+
+  const handleBeginExperience = () => {
+    setHasStartedExperience(true);
+    setSceneId('scene_2am_bedroom');
   };
 
   const handleContinue = () => {
@@ -1899,6 +1908,48 @@ export default function DayInTheLifeUrbanStudentPage() {
     setQaReport({ errors, warnings, passedChecks, generatedAt: new Date().toISOString() });
   };
 
+
+  if (!hasStartedExperience) {
+    return (
+      <main className="urban-student-page">
+        <section className="experience-shell">
+          <article className="scene-card intro-card">
+            <p className="section-label">Introduction</p>
+            <h1>A Day in the Life of an Urban Student</h1>
+            <p className="paragraph-card">
+              This interactive experience follows one student through a single school day shaped by exhaustion, instability, adult assumptions, school systems, peer pressure, and survival decisions.
+            </p>
+            <p className="paragraph-card">
+              The purpose is not to judge the student’s choices in isolation, but to examine the chain of events, missed opportunities, and adult responses that shape what happens next.
+            </p>
+            <h2>How it works</h2>
+            <ul className="intro-list">
+              <li>Read each scene carefully.</li>
+              <li>Make choices when prompted.</li>
+              <li>Watch how stress, sleep, time pressure, and care connection shift throughout the day.</li>
+              <li>Use the reflection sections to think like an educator, leader, or support professional.</li>
+              <li>The experience is intentionally uncomfortable because many students carry invisible burdens into school every day.</li>
+            </ul>
+            <button type="button" className="continue-button" onClick={handleBeginExperience}>
+              Begin the Experience
+            </button>
+          </article>
+        </section>
+
+        <style jsx>{`
+          .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
+          .experience-shell { max-width: 900px; margin: 0 auto; }
+          .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
+          .intro-card h1 { margin: 0; }
+          .intro-card h2 { margin: 0.25rem 0 0; color: #0f172a; }
+          .paragraph-card { margin: 0; color: #24324a; font-size: 1.02rem; line-height: 1.8; }
+          .section-label { margin: 0; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
+          .intro-list { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.6rem; color: #1e293b; line-height: 1.6; }
+          button { display: block; width: 100%; background: #0f172a; color: #fff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: center; font-weight: 600; cursor: pointer; }
+        `}</style>
+      </main>
+    );
+  }
 
   if (sceneId === 'scene_placeholder_end') {
     return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
@@ -2065,7 +2116,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .tone-band { height: 10px; border-radius: 999px; margin-bottom: 12px; background: linear-gradient(90deg, #1e293b, #334155); }
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem); color: #071228; }
-        .scene-image-wrap { position: relative; width: 100%; border-radius: 18px; overflow: hidden; max-height: 320px; border: 1px solid #0f172a14; background: #0f172a; }
+        .scene-image-wrap { position: relative; width: 100%; border-radius: 18px; overflow: hidden; max-height: 320px; border: 1px solid #0f172a14; background: transparent; }
         .scene-image { width: 100%; max-height: 320px; min-height: 200px; object-fit: cover; display: block; filter: brightness(0.8) saturate(0.92) contrast(1.06); }
         .scene-image-overlay { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(15, 23, 42, 0.18) 0%, rgba(15, 23, 42, 0.08) 42%, rgba(15, 23, 42, 0.3) 100%); }
         .section-label { margin: 0 0 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
@@ -2077,7 +2128,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .thought-label { margin: 0 0 8px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: #334155; font-style: normal !important; font-weight: 900; }
         .thought-card { background: #eef4ff; border-left: 7px solid #1e3a8a; color: #0f172a; font-style: italic !important; font-size: 1.08rem; font-weight: 700; border-radius: 16px; padding: 18px 22px; margin: 24px 0; line-height: 1.65; box-shadow: 0 8px 24px rgba(30, 58, 138, 0.08); }
         button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
-        .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; }
+        .continue-moment, .continue-button { text-align: center; background: transparent; color: #fff; }
         .reset-button { text-align: center; background: #334155; color: #fff; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
