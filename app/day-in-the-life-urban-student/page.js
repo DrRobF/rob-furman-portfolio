@@ -1044,6 +1044,78 @@ No one asks.` },
     ],
   },
 
+  {
+    id: 'scene_gym_class',
+    sceneNumber: 14,
+    totalScenes: 15,
+    time: 'Gym Class',
+    heading: 'Gym Class',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "I walk into gym class. I am so tired." },
+        { type: 'paragraph', text: "Between having a very rough morning and the day I have had I am just about done." },
+        { type: 'paragraph', text: "I walk into gym class and I see the girl I was with at that party immediately." },
+        { type: 'thought', text: "I feel so sick." },
+      ],
+      [
+        { type: 'paragraph', text: "I see that she is sitting out of gym class which makes me think the story is true." },
+        { type: 'paragraph', text: "I want to talk to her but I just can't right now." },
+        { type: 'paragraph', text: "I don't even know what I would say." },
+      ],
+      [
+        { type: 'paragraph', text: "We start to play some variation of kick ball." },
+        { type: 'paragraph', text: "One person kicks but three or four run the bases at one time." },
+        { type: 'paragraph', text: "You also have to run the bases twice in order to score." },
+      ],
+      [
+        { type: 'paragraph', text: "I am waiting in line for my turn to kick and the guy behind me says, \"I see your baby momma is sitting out this game.\"" },
+        { type: 'paragraph', text: "I don't even look at him." },
+        { type: 'paragraph', text: "I just turn and shove him so hard he falls back into three other kids." },
+      ],
+      [
+        { type: 'paragraph', text: "He stays on his feet and cusses at me while he runs to shove me back." },
+        { type: 'paragraph', text: "I brace for him and we lock together." },
+        { type: 'paragraph', text: "We both go down on the floor." },
+        { type: 'paragraph', text: "I roll on top of him and shout at him to shut the hell up." },
+      ],
+      [
+        { type: 'paragraph', text: "By that time the gym teacher is dragging me off of him." },
+        { type: 'paragraph', text: "Good thing he did because I was about to knock his head against the gym floor." },
+        { type: 'paragraph', text: "I tried to tell the teacher why I shoved him." },
+        { type: 'paragraph', text: "Of course he didn't want to hear it." },
+      ],
+      [
+        { type: 'paragraph', text: "The gym teacher calls the security guard from the office." },
+        { type: 'paragraph', text: "As the security guard is escorting us to the main office I again try to explain what he said and why I shoved him." },
+        { type: 'paragraph', text: "He said that wasn't his job to decide what happened and to tell the principal." },
+        { type: 'thought', text: "Typical!" },
+      ],
+      [
+        { type: 'paragraph', text: "The whole way through the halls he and I are yelling back and forth." },
+        { type: 'paragraph', text: "One thing I hear him say is, \"You’re a dumb ass daddy with a whore for a baby momma.\"" },
+        { type: 'paragraph', text: "I get my arm away from the security guard and I hit him in the back of the head." },
+      ],
+      [
+        { type: 'paragraph', text: "He goes down and the security guard grabs me with both hands." },
+        { type: 'paragraph', text: "He is shouting, the kid is yelling on the ground, and I just want everyone to shut up and leave me alone." },
+        { type: 'thought', text: "Everyone is always against me and no one ever takes one damn second to listen to me." },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'no_options_office',
+        label: 'Seriously, options? What options?',
+        resultTitle: 'You are taken to the office.',
+        result: [{ type: 'paragraph', text: 'There are no options now. You are being taken back to the main office.' }],
+        metrics: { sleep: 0, stress: -3, time: -1, care: -2 },
+        nextSceneId: 'scene_office_after_gym',
+      },
+    ],
+  },
+
+
+
 
 ];
 
