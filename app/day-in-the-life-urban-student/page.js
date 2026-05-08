@@ -1198,6 +1198,42 @@ No one asks.` },
     heading: 'ISS — Breaking Point',
     revealGroups: [
       [
+        { type: 'paragraph', text: "The ISS room is a real joke. This is the room where the school puts you if they don't want to deal with you." },
+        { type: 'paragraph', text: "This is basically a holding tank until the end of school." },
+        { type: 'paragraph', text: "They don't try to teach us anything which is good." },
+        { type: 'paragraph', text: "They basically let us do what we want as long as we stay quiet and do not bother the teacher on duty in the room." },
+      ],
+      [
+        { type: 'paragraph', text: "The only down side of being in the ISS room is that you are in there with students that are usually pretty stupid." },
+        { type: 'paragraph', text: "Most of them are in there for fighting for no reason or mouthing off to one of the teachers." },
+        { type: 'paragraph', text: "Whatever, it’s none of my business as long as they leave me alone." },
+      ],
+      [
+        { type: 'paragraph', text: "I take a seat by the window and try to take a nap." },
+        { type: 'paragraph', text: "I am so damn tired and with only about an hour left in school I would like to get some sleep in case I need to deal with some crazy shit when I get home." },
+        { type: 'paragraph', text: "I can only hope that my baby sister will be there when I get home and that my mom is at work and that everything is ok." },
+      ],
+      [
+        { type: 'paragraph', text: "As I am starting to doze off this other kid comes up to me and sits beside me." },
+        { type: 'paragraph', text: "I recognize him from my street. He lives about 4 blocks away from me I think." },
+        { type: 'paragraph', text: "I give him the head bob and he says to me \"so I hear that you need your mommy to wake you up in the morning.\"" },
+      ],
+      [
+        { type: 'paragraph', text: "I was confused and tired and really didn't feel like dealing with stupid over here." },
+        { type: 'paragraph', text: "\"Whatever, shut up stupid.\"" },
+      ],
+      [
+        { type: 'paragraph', text: "\"Yea my daddy told me that your mom was good last night, but really turned into a bitch in the morning.\"" },
+        { type: 'paragraph', text: "He then began to laugh." },
+        { type: 'paragraph', text: "\"Dad told me that you can’t work an alarm clock.\"" },
+        { type: 'paragraph', text: "\"He told me that he had to come wake you up.\"" },
+        { type: 'paragraph', text: "\"He told me that your mom was all mad at him for waking you up.\"" },
+        { type: 'paragraph', text: "\"Your mom must be a real bitch.\"" },
+        { type: 'paragraph', text: "\"Dad told me that she broke up with him.\"" },
+        { type: 'paragraph', text: "\"He said that your mom will probably have another man in her bed by tonight cause she is nothing but a whore.\"" },
+        { type: 'paragraph', text: "\"Does your mom get paid?\"" },
+      ],
+      [
         { type: 'paragraph', text: "After not knowing what is going to happen to me if that girl in gym class is pregnant." },
         { type: 'paragraph', text: "After dealing with one stupid adult after another today, this idiot hit the last nerve I had." },
       ],
