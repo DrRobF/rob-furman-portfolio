@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 const urbanStudentScenes = [
   {
     id: 'scene_2am_bedroom',
+    image: '/urban-scenes/bedroom.jpg',
     sceneNumber: 1,
     totalScenes: 10,
     time: '2:00 AM',
@@ -103,7 +104,7 @@ const urbanStudentScenes = [
     ],
   },
   {
-    id: 'scene_625am_bedroom', sceneNumber: 2, totalScenes: 10, time: '6:25 AM', heading: 'Bedroom at 6:25 AM', visualTone: 'morning',
+    id: 'scene_625am_bedroom', sceneNumber: 2, totalScenes: 10, time: '6:25 AM', heading: 'Bedroom at 6:25 AM', image: '/urban-scenes/bedroom-dawn.jpg', visualTone: 'morning',
     introByPreviousChoice: {
       ignore_noise: [
         { type: 'paragraph', text: 'The alarm cuts through the room. Sharp. Repeating. Your eyes open, but your body does not move.' },
@@ -583,6 +584,7 @@ const urbanStudentScenes = [
 
   {
     id: 'scene_main_office',
+    image: '/urban-scenes/main-office.jpg',
     sceneNumber: 8,
     totalScenes: 10,
     time: 'Main Office',
@@ -681,6 +683,7 @@ No one asks.` },
 
   {
     id: 'scene_second_period_math',
+    image: '/urban-scenes/math-class.jpg',
     sceneNumber: 9,
     totalScenes: 11,
     time: 'Second Period',
@@ -944,6 +947,7 @@ No one asks.` },
   },
   {
     id: 'scene_lunch_room',
+    image: '/urban-scenes/lunch-room.jpg',
     sceneNumber: 12,
     totalScenes: 14,
     time: 'Lunch',
@@ -1059,6 +1063,7 @@ No one asks.` },
   },
   {
     id: 'scene_science_class',
+    image: '/urban-scenes/science-class.jpg',
     sceneNumber: 13,
     totalScenes: 14,
     time: '5th Period',
@@ -1130,6 +1135,7 @@ No one asks.` },
 
   {
     id: 'scene_gym_class',
+    image: '/urban-scenes/gym-class.jpg',
     sceneNumber: 14,
     totalScenes: 16,
     time: 'Gym Class',
@@ -1318,6 +1324,7 @@ No one asks.` },
   },
   {
     id: 'scene_iss_breaking_point',
+    image: '/urban-scenes/iss-room.jpg',
     sceneNumber: 17,
     totalScenes: 20,
     time: 'In-School Suspension',
@@ -1413,6 +1420,7 @@ No one asks.` },
 
   {
     id: 'scene_bus_stop',
+    image: '/urban-scenes/bus-stop-dusk.jpg',
     sceneNumber: 18,
     totalScenes: 20,
     time: 'After School',
@@ -1487,6 +1495,7 @@ No one asks.` },
   },
   {
     id: 'scene_back_in_bedroom',
+    image: '/urban-scenes/bedroom-night.jpg',
     sceneNumber: 19,
     totalScenes: 20,
     time: 'Bedroom',
@@ -1727,6 +1736,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [showInsights, setShowInsights] = useState({});
   const [showSceneMenu, setShowSceneMenu] = useState(false);
   const [qaReport, setQaReport] = useState(null);
+  const [hiddenSceneImages, setHiddenSceneImages] = useState({});
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
   const selectedChoiceId = selectedChoices[scene.id];
@@ -1899,6 +1909,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     .filter(([, value]) => value !== 0);
   const hasAnyChoiceSelected = Object.keys(selectedChoices).length > 0;
   const hasReflection = Boolean(scene.reflection?.questions?.length);
+  const shouldShowSceneImage = Boolean(scene.image) && !hiddenSceneImages[scene.id];
 
   return (
     <main className="urban-student-page">
@@ -1918,6 +1929,17 @@ export default function DayInTheLifeUrbanStudentPage() {
             <h1>{scene.heading}</h1>
             <p>Scene {scene.sceneNumber} of {scene.totalScenes}</p>
           </header>
+          {shouldShowSceneImage && (
+            <div className="scene-image-wrap">
+              <img
+                src={scene.image}
+                alt={`${scene.heading} atmospheric scene`}
+                className="scene-image"
+                onError={() => setHiddenSceneImages((prev) => ({ ...prev, [scene.id]: true }))}
+              />
+              <div className="scene-image-overlay" aria-hidden="true" />
+            </div>
+          )}
           {qaReport && (
             <section className="qa-panel" aria-live="polite">
               <p className="section-label">DEV QA REPORT</p>
@@ -2043,6 +2065,9 @@ export default function DayInTheLifeUrbanStudentPage() {
         .tone-band { height: 10px; border-radius: 999px; margin-bottom: 12px; background: linear-gradient(90deg, #1e293b, #334155); }
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem); color: #071228; }
+        .scene-image-wrap { position: relative; width: 100%; border-radius: 18px; overflow: hidden; max-height: 320px; border: 1px solid #0f172a14; background: #0f172a; }
+        .scene-image { width: 100%; max-height: 320px; min-height: 200px; object-fit: cover; display: block; filter: brightness(0.8) saturate(0.92) contrast(1.06); }
+        .scene-image-overlay { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(15, 23, 42, 0.18) 0%, rgba(15, 23, 42, 0.08) 42%, rgba(15, 23, 42, 0.3) 100%); }
         .section-label { margin: 0 0 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
         .scene-content { max-width: 720px; display: grid; gap: 0.35rem; }
         .scene-group { margin-bottom: 0.65rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(148, 163, 184, 0.22); }
