@@ -1384,6 +1384,16 @@ No one asks.` },
         metrics: { sleep: 0, stress: -3, time: -1, care: -3 },
         nextSceneId: 'scene_reflection_conference_room',
       },
+      {
+        id: 'go_to_no_exit_room',
+        label: 'I want to get out',
+        resultTitle: 'You try to escape the experience.',
+        result: [
+          { type: 'paragraph', text: 'You look for a way out.' },
+        ],
+        metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
+        nextSceneId: 'scene_no_exit_room',
+      },
     ],
   },
 
