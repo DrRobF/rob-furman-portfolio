@@ -714,6 +714,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What adult assumptions might form when a class is quiet but students are not learning?',
+        'Where are missed opportunities for checking understanding and student voice?',
+        'How can support replace passive compliance in this room?',
+      ],
+      writingPrompt: 'Name one routine this teacher could change tomorrow to surface real learning needs.',
+      insight: 'Compliance can hide disengagement, skill gaps, and survival-mode behavior.',
+      expandedInsight:
+        'When students are quiet, adults may assume learning is happening. In this scene, low demands and copying create a system where students avoid exposure but also miss growth. A brief check-in and authentic task could interrupt that cycle.',
+      facilitatorLens:
+        'Guide staff to distinguish calm classrooms from connected classrooms and identify one concrete intervention.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'go_third_period',
@@ -847,6 +861,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What trauma responses are visible in Adam’s hallway behavior?',
+        'How might hallway staff interpret this moment without context?',
+        'What would a safety-centered adult response sound like here?',
+      ],
+      writingPrompt: 'Write one brief hallway check-in that protects dignity and invites support.',
+      insight: 'Unstructured transitions can intensify dysregulation for students carrying fear and uncertainty.',
+      expandedInsight:
+        'Adam is scanning, bracing, and withdrawing at once. Adults who only enforce pace may miss a key intervention window. Small relational moves in transitions can prevent later escalation.',
+      facilitatorLens:
+        'Have participants practice 15-second hallway responses that prioritize regulation over compliance.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'try_find_teacher',
@@ -881,6 +909,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What basic needs are competing with learning in this scene?',
+        'How could a teacher read sleep as data instead of disrespect?',
+        'What student voice is missing before instruction begins?',
+      ],
+      writingPrompt: 'Describe one trauma-informed way to respond when a student puts their head down.',
+      insight: 'Sleep in class can be a stress response, not a motivation problem.',
+      expandedInsight:
+        'Adam’s body is asking for recovery while school asks for attention. If adults respond only with correction, they lose a chance to connect and assess need.',
+      facilitatorLens:
+        'Prompt teams to separate behavior management from need assessment in real time.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'go_to_sleep',
@@ -942,6 +984,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'How do hunger, rumors, and peer dynamics raise risk during lunch?',
+        'What adult moves could reduce escalation before a fight?',
+        'Where are opportunities to increase emotional and physical safety?',
+      ],
+      writingPrompt: 'List one supervision change and one relational strategy that could improve lunch safety.',
+      insight: 'Cafeteria behavior often reflects unmet needs and unstructured stress, not just misconduct.',
+      expandedInsight:
+        'Adam is managing hunger, fear for family, and social survival at once. In that state, conflict energy spreads quickly. Predictable adult presence and proactive support can lower harm.',
+      facilitatorLens:
+        'Ask staff to map how basic-needs stress shows up behaviorally in common spaces.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'go_to_fifth_period',
@@ -976,6 +1032,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What does Adam’s internal dialogue reveal about cognitive overload?',
+        'How might adults mislabel this as defiance or apathy?',
+        'What support would make listening possible here?',
+      ],
+      writingPrompt: 'Write a two-sentence teacher response that validates need and re-engages learning.',
+      insight: 'When basic needs are unmet, attention to instruction can collapse.',
+      expandedInsight:
+        'Adam is hungry, exhausted, and worried about safety at home. His shutdown is predictable under strain. Supportive responses should reduce load before demanding performance.',
+      facilitatorLens:
+        'Have participants identify what “ready to learn” requires beyond compliance.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'fall_asleep',
@@ -1032,6 +1102,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'How do low expectations communicate messages about student worth and trust?',
+        'What system-level assumptions are driving who gets hands-on learning?',
+        'How might disengagement be connected to belonging and relevance?',
+      ],
+      writingPrompt: 'Name one way to increase voice, rigor, and safety in this science setting.',
+      insight: 'Exclusion from meaningful participation can fuel disconnection and behavior risk.',
+      expandedInsight:
+        'Watching instead of doing reinforces a belief that students are seen as dangerous, not capable. That message compounds existing stress and reduces buy-in.',
+      facilitatorLens:
+        'Invite teams to examine how policy decisions can unintentionally escalate student alienation.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'go_to_next_period',
@@ -1102,6 +1186,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What warning signs of escalation appear before the conflict turns physical?',
+        'How might adult response choices increase or decrease harm?',
+        'What de-escalation strategy could have protected both students?',
+      ],
+      writingPrompt: 'Describe a step-by-step intervention an adult could use before security is needed.',
+      insight: 'Escalation is usually a process with multiple missed interruption points.',
+      expandedInsight:
+        'By the time Adam shoves a peer, stress and provocation have already stacked. Adults who notice early cues can redirect with regulation, distance, and respectful language.',
+      facilitatorLens:
+        'Practice identifying pre-incident cues and matching them with low-intensity interventions.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'no_options_office',
@@ -1145,6 +1243,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'How does inaccurate adult storytelling shape consequences?',
+        'What happens when students believe no one will hear their account?',
+        'What repair step could restore fairness in this moment?',
+      ],
+      writingPrompt: 'Write one protocol change to ensure student voice is captured before discipline.',
+      insight: 'When adults narrate without listening, trust and legitimacy break down quickly.',
+      expandedInsight:
+        'Adam experiences the office as a place where facts are replaced by assumptions. That pattern increases oppositional behavior and reduces future help-seeking.',
+      facilitatorLens:
+        'Challenge teams to define what procedural justice looks like in school discipline spaces.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'wait_for_principal',
@@ -1179,6 +1291,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What is the difference between consequences and support in this scene?',
+        'Which needs remain unaddressed before ISS placement?',
+        'How could leadership interrupt the punishment pipeline here?',
+      ],
+      writingPrompt: 'Propose one alternative response that includes accountability and support.',
+      insight: 'Consequences without assessment often recycle behavior instead of resolving causes.',
+      expandedInsight:
+        'Adam is moved through systems quickly, but no adult gathers context or need. Discipline becomes administrative flow rather than intervention.',
+      facilitatorLens:
+        'Ask participants to redesign this decision point using a support-first framework.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'go_to_iss',
@@ -1259,6 +1385,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'How do cumulative stress and humiliation shape the breaking point?',
+        'What supervision gaps in ISS increase danger for students?',
+        'What trauma-responsive response should follow this incident?',
+      ],
+      writingPrompt: 'Identify immediate and next-day supports Adam would need after this event.',
+      insight: 'Explosive behavior often follows prolonged exposure to threat, invalidation, and unmet needs.',
+      expandedInsight:
+        'The fight is severe, but it is not context-free. Adam reaches a crisis after repeated adult misses, sleep deprivation, and public provocation tied to family trauma.',
+      facilitatorLens:
+        'Focus discussion on prevention and post-crisis repair, not only punishment severity.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'leave_school',
@@ -1318,6 +1458,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'How does violence outside school connect to earlier school-day events?',
+        'What safety planning responsibilities does a school still hold after dismissal?',
+        'How might unresolved harm at school increase off-campus risk?',
+      ],
+      writingPrompt: 'Write one school-community safety action that could reduce retaliation risk.',
+      insight: 'Student risk does not end at the school door; systems must account for after-school vulnerability.',
+      expandedInsight:
+        'Adam’s bus-stop assault reflects a chain of earlier conflict and unmet intervention. Without coordinated safety supports, consequences can spill into community violence.',
+      facilitatorLens:
+        'Encourage teams to map cross-setting risk and identify shared accountability with families and partners.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'black_out',
@@ -1373,6 +1527,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What does Adam’s withdrawal signal about emotional safety and hopelessness?',
+        'Which adults or systems should be activated immediately after this return home?',
+        'How can student voice guide a safe next step?',
+      ],
+      writingPrompt: 'Draft a brief re-entry plan for the next school day centered on safety and connection.',
+      insight: 'Shutdown and isolation can be warning signs of acute distress, not simply avoidance.',
+      expandedInsight:
+        'After assault, exhaustion, and repeated invalidation, Adam retreats to bed as a survival strategy. This moment calls for coordinated care, not silence.',
+      facilitatorLens:
+        'Ask participants to identify protective actions when a student communicates “it is not worth being awake.”',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'go_to_reflection',
@@ -1426,6 +1594,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'Which adult actions caused the most harm, and which were missed opportunities?',
+        'Where could small relational moves have changed the trajectory?',
+        'What systems changes would prevent this pattern for other students?',
+      ],
+      writingPrompt: 'Write two commitments: one personal practice change and one systems-level change.',
+      insight: 'Sustainable improvement requires both individual adult reflection and structural redesign.',
+      expandedInsight:
+        'Adam’s day is not one bad choice; it is a network of adult assumptions, policy gaps, and unmet needs. Reflection should convert insight into concrete action.',
+      facilitatorLens:
+        'Use this scene to move from empathy to implementation with clear ownership and timelines.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'finish_reflection',
@@ -1457,6 +1639,20 @@ No one asks.` },
       ],
     ],
     question: 'What do you do?',
+    reflection: {
+      questions: [
+        'What does “no exit” reveal about how students experience chronic stress systems?',
+        'How can schools reduce despair and increase credible pathways to help?',
+        'What protective factors can adults build immediately?',
+      ],
+      writingPrompt: 'Name one prevention strategy and one crisis-response strategy your team can implement now.',
+      insight: 'When students feel trapped, safety planning and belonging interventions become urgent.',
+      expandedInsight:
+        'This scene highlights perceived entrapment—a major risk factor for harm. Adult teams must create visible, trusted exits through relationships, resources, and rapid response.',
+      facilitatorLens:
+        'Facilitate a concrete discussion on suicide prevention, connectedness, and follow-through.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
     choices: [
       {
         id: 'continue_only_option',
