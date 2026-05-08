@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 const urbanStudentScenes = [
   {
     id: 'scene_2am_bedroom',
-    image: '/urban-scenes/bedroom.jpg',
+    image: '/urban-scenes/bedroom-night.png',
     sceneNumber: 1,
     totalScenes: 10,
     time: '2:00 AM',
@@ -104,7 +104,7 @@ const urbanStudentScenes = [
     ],
   },
   {
-    id: 'scene_625am_bedroom', sceneNumber: 2, totalScenes: 10, time: '6:25 AM', heading: 'Bedroom at 6:25 AM', image: '/urban-scenes/bedroom-dawn.jpg', visualTone: 'morning',
+    id: 'scene_625am_bedroom', sceneNumber: 2, totalScenes: 10, time: '6:25 AM', heading: 'Bedroom at 6:25 AM', image: '/urban-scenes/bedroom-night.png', visualTone: 'morning',
     introByPreviousChoice: {
       ignore_noise: [
         { type: 'paragraph', text: 'The alarm cuts through the room. Sharp. Repeating. Your eyes open, but your body does not move.' },
@@ -280,6 +280,7 @@ const urbanStudentScenes = [
   },
   {
     id: 'scene_school_entrance',
+    image: '/urban-scenes/school-entrance.png',
     sceneNumber: 4,
     totalScenes: 10,
     time: 'School Entrance',
@@ -347,6 +348,7 @@ const urbanStudentScenes = [
   },
   {
     id: 'scene_technology_class',
+    image: '/urban-scenes/technology-class.png',
     sceneNumber: 5,
     totalScenes: 10,
     time: 'First Period',
@@ -424,6 +426,7 @@ const urbanStudentScenes = [
   },
   {
     id: 'scene_technology_teacher_refusal',
+    image: '/urban-scenes/technology-class.png',
     sceneNumber: 6,
     totalScenes: 10,
     time: 'First Period',
@@ -501,6 +504,7 @@ const urbanStudentScenes = [
   },
   {
     id: 'scene_technology_computer_search',
+    image: '/urban-scenes/technology-class.png',
     sceneNumber: 7,
     totalScenes: 10,
     time: 'First Period',
@@ -836,6 +840,7 @@ No one asks.` },
   },
   {
     id: 'scene_hallway_internal_reflection',
+    image: '/urban-scenes/street.png',
     sceneNumber: 10,
     totalScenes: 13,
     time: 'Hallway',
@@ -947,7 +952,7 @@ No one asks.` },
   },
   {
     id: 'scene_lunch_room',
-    image: '/urban-scenes/lunch-room.jpg',
+    image: '/urban-scenes/lunchroom.png',
     sceneNumber: 12,
     totalScenes: 14,
     time: 'Lunch',
@@ -1278,6 +1283,7 @@ No one asks.` },
 
   {
     id: 'scene_principal_consequence',
+    image: '/urban-scenes/iss-room.png',
     sceneNumber: 16,
     totalScenes: 17,
     time: 'Principal Office',
@@ -1324,7 +1330,7 @@ No one asks.` },
   },
   {
     id: 'scene_iss_breaking_point',
-    image: '/urban-scenes/iss-room.jpg',
+    image: '/urban-scenes/iss-room.png',
     sceneNumber: 17,
     totalScenes: 20,
     time: 'In-School Suspension',
@@ -1420,7 +1426,7 @@ No one asks.` },
 
   {
     id: 'scene_bus_stop',
-    image: '/urban-scenes/bus-stop-dusk.jpg',
+    image: '/urban-scenes/street.png',
     sceneNumber: 18,
     totalScenes: 20,
     time: 'After School',
@@ -1495,7 +1501,7 @@ No one asks.` },
   },
   {
     id: 'scene_back_in_bedroom',
-    image: '/urban-scenes/bedroom-night.jpg',
+    image: '/urban-scenes/bedroom-night.png',
     sceneNumber: 19,
     totalScenes: 20,
     time: 'Bedroom',
