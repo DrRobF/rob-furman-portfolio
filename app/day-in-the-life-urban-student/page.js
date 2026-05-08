@@ -1939,7 +1939,7 @@ export default function DayInTheLifeUrbanStudentPage() {
             </section>
           )}
           <p className="section-label">THE MOMENT</p>
-          <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`}>{renderBlocks(group)}</div>)}</div>
+          <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`} className="scene-group">{renderBlocks(group)}</div>)}</div>
           {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>Continue the moment</button>}
 
           {isFullyRevealed && !selectedChoice && (
@@ -1958,8 +1958,8 @@ export default function DayInTheLifeUrbanStudentPage() {
               <p className="selected-pill">You chose: {selectedChoice.label}</p>
               <p className="section-label">CONSEQUENCE</p>
               <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
-              {changedMetrics.length > 0 && <div><p className="section-label">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
-              {hasAnyChoiceSelected && <div className="metrics-stack">
+              {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
+              {hasAnyChoiceSelected && <div className="metrics-stack" aria-label="Cumulative load across all choices">
                 <p className="section-label">CUMULATIVE LOAD</p>
                 <p className="metric-subtitle">How far Adam has moved from baseline</p>
                 {metricOrder.map((metric) => (
@@ -1985,7 +1985,7 @@ export default function DayInTheLifeUrbanStudentPage() {
                 ))}
               </div>}
               {hasReflection && (
-                <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
+                <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><p className="reflect-content-label">Reflection Questions</p><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               )}
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
               <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
@@ -2003,11 +2003,12 @@ export default function DayInTheLifeUrbanStudentPage() {
               <button type="button" className="scene-menu-close" onClick={() => setShowSceneMenu(false)}>Close</button>
             </div>
             <p className="scene-menu-help">Testing utility: jump directly to any implemented scene.</p>
-            <div className="scene-menu-list">
+            <div className="scene-menu-list" role="list">
               {tocItems.map((entry, index) => (
-                <button key={`${entry.id}-${index}`} type="button" className="scene-menu-item" onClick={() => handleJumpToScene(entry.id)}>
+                <button key={`${entry.id}-${index}`} type="button" className="scene-menu-item" onClick={() => handleJumpToScene(entry.id)} role="listitem">
                   <span>Scene {index + 1}</span>
                   <strong>{entry.label}</strong>
+                  <small>{entry.id}</small>
                 </button>
               ))}
             </div>
@@ -2027,7 +2028,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .qa-grid h3 { margin: 0 0 6px; font-size: 0.95rem; }
         .qa-grid ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
-        .metrics-stack { display: grid; gap: 10px; background: #ffffff; border: 1px solid #d8e0ea; border-radius: 18px; padding: 18px; margin-top: 18px; }
+        .metrics-stack { display: grid; gap: 12px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #d8e0ea; border-radius: 18px; padding: 18px; margin-top: 18px; }
         .metric-subtitle { margin: -4px 0 6px; color: #334155; font-size: 0.92rem; }
         .metric-row { border: 1px solid #d8e0ea; background: #fff; border-radius: 12px; padding: 10px 12px; }
         .metric-row-meta { display: flex; align-items: center; justify-content: space-between; font-weight: 700; color: #1e293b; font-size: 0.92rem; }
@@ -2043,7 +2044,9 @@ export default function DayInTheLifeUrbanStudentPage() {
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem); color: #071228; }
         .section-label { margin: 0 0 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
-        .scene-content { max-width: 720px; }
+        .scene-content { max-width: 720px; display: grid; gap: 0.35rem; }
+        .scene-group { margin-bottom: 0.65rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(148, 163, 184, 0.22); }
+        .scene-group:last-child { border-bottom: none; margin-bottom: 0; }
         .paragraph-card { margin: 0 0 18px; color: #24324a; font-size: 1.08rem; line-height: 1.9; letter-spacing: 0.005em; }
         .thought-wrap { margin: 22px 0; max-width: 720px; }
         .thought-label { margin: 0 0 8px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: #334155; font-style: normal !important; font-weight: 900; }
@@ -2053,6 +2056,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .reset-button { text-align: center; background: #334155; color: #fff; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
+        .impact-section { margin-top: 16px; background: #f8fafc; border: 1px solid #d8e0ea; border-radius: 16px; padding: 14px; }
         .impact-row { display: flex; flex-wrap: wrap; gap: 10px; }
         .impact-pill { border: 1px solid; border-radius: 999px; padding: 8px 13px; font-size: 0.9rem; font-weight: 800; }
         .impact-negative { background: #fff1f2; border-color: #dc2626; color: #b91c1c; }
@@ -2065,7 +2069,8 @@ export default function DayInTheLifeUrbanStudentPage() {
         .reflect-subtitle { margin: 3px 0 0; color: #64748b; font-size: 0.86rem; font-weight: 600; }
         .reflect-indicator { font-size: 1.2rem; font-weight: 800; color: #475569; }
         .reflect-panel[open] .reflect-indicator { transform: rotate(45deg); }
-        .reflect-content { margin-top: 14px; }
+        .reflect-content { margin-top: 14px; border-top: 1px solid #d8e0ea; padding-top: 14px; }
+        .reflect-content-label { margin: 0 0 8px; color: #334155; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; }
         .reflect-panel ul { margin: 0 0 16px; padding-left: 20px; color: #1e293b; display: grid; gap: 16px; line-height: 1.8; }
         .writing-prompt { margin: 10px 0 4px; color: #0f172a; }
         textarea { min-height: 110px; width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; font-size: 1rem; color: #0f172a; background: #fff; font-family: inherit; }
@@ -2084,10 +2089,12 @@ export default function DayInTheLifeUrbanStudentPage() {
         .scene-menu-dev-label { margin: 0; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; background: #fee2e2; color: #b91c1c; }
         .scene-menu-close { margin: 0 0 0 auto; width: auto; text-align: center; }
         .scene-menu-help { margin: 8px 0 12px; color: #475569; font-size: 0.9rem; }
-        .scene-menu-list { display: grid; gap: 8px; }
-        .scene-menu-item { margin: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; text-align: left; }
+        .scene-menu-list { display: grid; gap: 8px; max-height: 60vh; overflow: auto; padding-right: 4px; }
+        .scene-menu-item { margin: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; text-align: left; padding: 12px 14px; display: grid; gap: 2px; }
+        .scene-menu-item:hover { border-color: #64748b; background: #f1f5f9; }
         .scene-menu-item span { display: block; font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
         .scene-menu-item strong { font-size: 1rem; color: #0f172a; }
+        .scene-menu-item small { font-size: 0.75rem; color: #64748b; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
       `}</style>
     </main>
   );
