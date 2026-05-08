@@ -200,7 +200,7 @@ const urbanStudentScenes = [
   },
   {
     id: 'scene_morning_bus_stop',
-    image: '/urban-scenes/street.png',
+    image: '/urban-scenes/street-corner.png',
     sceneNumber: 3,
     totalScenes: 10,
     time: 'Bus Stop',
@@ -1308,7 +1308,7 @@ No one asks.` },
 
   {
     id: 'scene_principal_consequence',
-    image: '/urban-scenes/iss-room.png',
+    image: '/urban-scenes/street.png',
     sceneNumber: 16,
     totalScenes: 17,
     time: 'Principal Office',
@@ -1358,7 +1358,7 @@ No one asks.` },
   },
   {
     id: 'scene_iss_breaking_point',
-    image: '/urban-scenes/iss-room.png',
+    image: '/urban-scenes/street.png',
     sceneNumber: 17,
     totalScenes: 20,
     time: 'In-School Suspension',
@@ -1457,7 +1457,7 @@ No one asks.` },
 
   {
     id: 'scene_bus_stop',
-    image: '/urban-scenes/iss-room.png',
+    image: '/urban-scenes/street-corner.png',
     sceneNumber: 18,
     totalScenes: 20,
     time: 'After School',
