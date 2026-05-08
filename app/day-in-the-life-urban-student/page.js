@@ -1387,6 +1387,79 @@ No one asks.` },
     ],
   },
 
+  {
+    id: 'scene_reflection_conference_room',
+    sceneNumber: 20,
+    totalScenes: 21,
+    time: 'Reflection',
+    heading: 'Conference Room for Discussion',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "This section is for reflection purposes." },
+        { type: 'paragraph', text: "There is no right or wrong answer, just an opportunity to think about this simulation experience." },
+      ],
+      [
+        { type: 'paragraph', text: "Questions" },
+        { type: 'paragraph', text: "How many adults failed this child throughout the day?" },
+        { type: 'paragraph', text: "Which adults failed him purely by accident or simply because they thought they were just doing their job?" },
+        { type: 'paragraph', text: "How do we fix those failures that were innocent in nature?" },
+      ],
+      [
+        { type: 'paragraph', text: "Do you feel the child's reactions to the adults were justified? Why or why not?" },
+        { type: 'paragraph', text: "Where in this simulation can the school do a better job?" },
+        { type: 'paragraph', text: "What were you thinking throughout the simulation in terms of the school?" },
+      ],
+      [
+        { type: 'paragraph', text: "What were your thoughts throughout the simulation in regards to the student?" },
+        { type: 'paragraph', text: "Where does parental responsibility come into this scenario?" },
+        { type: 'paragraph', text: "What do you see happening to this child the next day? Next month? 5 years from now?" },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'finish_reflection',
+        label: 'Finish the reflection',
+        resultTitle: 'Reflection complete.',
+        result: [
+          { type: 'paragraph', text: 'You have reached the end of Adam’s school day experience.' },
+        ],
+        metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
+        nextSceneId: 'scene_placeholder_end',
+      },
+    ],
+  },
+  {
+    id: 'scene_no_exit_room',
+    sceneNumber: 21,
+    totalScenes: 21,
+    time: 'No Exit',
+    heading: 'You Cannot Leave Yet',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "Many Urban children wish they could exit their lives in any way possible." },
+        { type: 'paragraph', text: "One teacher who worked in a city school for three years had 4 suicides in their Middle School during his tenure." },
+      ],
+      [
+        { type: 'paragraph', text: "A student once said that sometimes it would be better to be sent to jail just to get away from his current living conditions." },
+        { type: 'paragraph', text: "You will continue." },
+        { type: 'paragraph', text: "This is your only option because it is their only option." },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'continue_only_option',
+        label: 'Continue',
+        resultTitle: 'You continue.',
+        result: [
+          { type: 'paragraph', text: 'There is no exit here. The experience continues.' },
+        ],
+        metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
+        nextSceneId: 'scene_reflection_conference_room',
+      },
+    ],
+  },
 ];
 
 
@@ -1409,6 +1482,8 @@ const tocItems = [
   { id: 'scene_iss_breaking_point', label: 'ISS — Breaking Point' },
   { id: 'scene_bus_stop', label: 'Bus Stop' },
   { id: 'scene_back_in_bedroom', label: 'Back in His Bedroom' },
+  { id: 'scene_reflection_conference_room', label: 'Reflection / Conference Room' },
+  { id: 'scene_no_exit_room', label: 'No Exit Room' },
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
