@@ -813,7 +813,7 @@ No one asks.` },
           { type: 'thought', text: 'I need to know if they’re OK.' },
         ],
         metrics: { sleep: 0, stress: -1, time: -1, care: -1 },
-        nextSceneId: 'scene_back_door_exit',
+        nextSceneId: 'scene_hallway_internal_reflection',
       },
     ],
   },
@@ -1435,7 +1435,7 @@ No one asks.` },
           { type: 'paragraph', text: 'You have reached the end of Adam’s school day experience.' },
         ],
         metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
-        nextSceneId: 'scene_placeholder_end',
+        nextSceneId: 'scene_no_exit_room',
       },
     ],
   },
@@ -1475,18 +1475,21 @@ No one asks.` },
 
 const tocItems = [
   { id: 'scene_2am_bedroom', label: 'Intro / Start' },
-  { id: 'scene_2am_bedroom', label: 'Bedroom — 2:00 AM' },
   { id: 'scene_625am_bedroom', label: 'Morning Alarm' },
-  { id: 'scene_625am_bedroom', label: 'Bedroom Confrontation' },
   { id: 'scene_morning_bus_stop', label: 'Bus Stop' },
   { id: 'scene_school_entrance', label: 'School Entrance' },
   { id: 'scene_technology_class', label: 'Technology Class' },
+  { id: 'scene_technology_teacher_refusal', label: 'Technology Class — Teacher Refusal' },
+  { id: 'scene_technology_computer_search', label: 'Technology Class — Computer Search' },
   { id: 'scene_main_office', label: 'Main Office' },
   { id: 'scene_second_period_math', label: 'Second Period Math Class' },
+  { id: 'scene_cool_teacher', label: 'Looking for the One Teacher Who Cares' },
   { id: 'scene_hallway_internal_reflection', label: 'Hallway/Internal Reflection' },
   { id: 'scene_third_period_reading_class', label: '3rd Period Reading Class' },
   { id: 'scene_lunch_room', label: 'Lunch Room' },
   { id: 'scene_reading_class_trying_to_listen', label: 'Reading Class — Trying to Listen' },
+  { id: 'scene_science_class', label: 'Science Class' },
+  { id: 'scene_gym_class', label: 'Gym Class' },
   { id: 'scene_office_after_gym', label: 'Main Office — After Gym' },
   { id: 'scene_principal_consequence', label: 'In-School Suspension' },
   { id: 'scene_iss_breaking_point', label: 'ISS — Breaking Point' },
@@ -1614,7 +1617,13 @@ export default function DayInTheLifeUrbanStudentPage() {
     const invalidReflectionShape = [];
 
     urbanStudentScenes.forEach((currentScene) => {
-      if (!currentScene.id || !currentScene.heading || !Array.isArray(currentScene.revealGroups) || currentScene.revealGroups.length < 1 || !currentScene.question || !Array.isArray(currentScene.choices)) {
+      const hasStandardRevealGroups = Array.isArray(currentScene.revealGroups) && currentScene.revealGroups.length > 0;
+      const has625BedroomRevealShape = currentScene.id === 'scene_625am_bedroom'
+        && currentScene.introByPreviousChoice
+        && Array.isArray(currentScene.coreRevealGroups)
+        && currentScene.coreRevealGroups.length > 0;
+
+      if (!currentScene.id || !currentScene.heading || !(hasStandardRevealGroups || has625BedroomRevealShape) || !currentScene.question || !Array.isArray(currentScene.choices)) {
         invalidSceneShape.push(currentScene.id || '(missing id)');
       }
 
