@@ -200,6 +200,7 @@ const urbanStudentScenes = [
   },
   {
     id: 'scene_morning_bus_stop',
+    image: '/urban-scenes/street.png',
     sceneNumber: 3,
     totalScenes: 10,
     time: 'Bus Stop',
