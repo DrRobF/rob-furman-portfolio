@@ -957,7 +957,7 @@ No one asks.` },
         resultTitle: 'You want out.',
         result: [{ type: 'paragraph', text: 'You hit that familiar wall again. This is too much, and you want out.' }],
         metrics: { sleep: 0, stress: -2, time: -1, care: -1 },
-        nextSceneId: 'scene_placeholder_end',
+        nextSceneId: 'scene_principal_consequence',
       },
     ],
   },
@@ -1152,11 +1152,55 @@ No one asks.` },
         resultTitle: 'You wait in the office.',
         result: [{ type: 'paragraph', text: 'You sit there, angry and tired, waiting for whatever happens next.' }],
         metrics: { sleep: 0, stress: -2, time: -1, care: -2 },
-        nextSceneId: 'scene_placeholder_end',
+        nextSceneId: 'scene_principal_consequence',
       },
     ],
   },
 
+
+  {
+    id: 'scene_principal_consequence',
+    sceneNumber: 16,
+    totalScenes: 17,
+    time: 'Principal Office',
+    heading: 'The Principal',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "Eventually the principal comes out of his office looking annoyed before he even says a word." },
+        { type: 'paragraph', text: "He looks at both of us and immediately starts talking before asking either one of us what happened." },
+        { type: 'paragraph', text: "\"I am tired of seeing both of you in this office. Every single day it is something else with you kids.\"" },
+      ],
+      [
+        { type: 'paragraph', text: "I try to explain what happened in gym class and why I got upset." },
+        { type: 'paragraph', text: "\"He was talking about—\"" },
+        { type: 'paragraph', text: "\"I don't care what he said,\" the principal cuts me off." },
+        { type: 'paragraph', text: "\"You do not put your hands on people in this school.\"" },
+      ],
+      [
+        { type: 'paragraph', text: "The other kid starts trying to explain too." },
+        { type: 'paragraph', text: "The principal shuts him down also." },
+        { type: 'paragraph', text: "\"Both of you are going home for fighting. I don’t have time for this today.\"" },
+      ],
+      [
+        { type: 'thought', text: "Perfect." },
+        { type: 'paragraph', text: "I think about going home." },
+        { type: 'paragraph', text: "About my street." },
+        { type: 'paragraph', text: "About my mom." },
+        { type: 'paragraph', text: "About whether any of this day could possibly get worse." },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'accept_suspension',
+        label: 'Leave school',
+        resultTitle: 'You leave school for the day.',
+        result: [{ type: 'paragraph', text: 'You stop arguing. None of this feels fixable anymore.' }],
+        metrics: { sleep: 0, stress: 2, time: -2, care: -2 },
+        nextSceneId: 'scene_walk_home',
+      },
+    ],
+  },
 
 ];
 
@@ -1175,6 +1219,8 @@ const tocItems = [
   { id: 'scene_third_period_reading_class', label: '3rd Period Reading Class' },
   { id: 'scene_lunch_room', label: 'Lunch Room' },
   { id: 'scene_reading_class_trying_to_listen', label: 'Reading Class — Trying to Listen' },
+  { id: 'scene_office_after_gym', label: 'Main Office — After Gym' },
+  { id: 'scene_principal_consequence', label: 'The Principal' },
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
