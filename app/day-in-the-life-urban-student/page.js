@@ -1047,7 +1047,7 @@ No one asks.` },
   {
     id: 'scene_gym_class',
     sceneNumber: 14,
-    totalScenes: 15,
+    totalScenes: 16,
     time: 'Gym Class',
     heading: 'Gym Class',
     revealGroups: [
@@ -1115,6 +1115,47 @@ No one asks.` },
   },
 
 
+
+  {
+    id: 'scene_office_after_gym',
+    sceneNumber: 15,
+    totalScenes: 16,
+    time: 'Main Office',
+    heading: 'Main Office — After Gym',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "As the security guard sets us both in the office he explains to the secretary what happened." },
+        { type: 'paragraph', text: "I hear him say, “These two thugs decided to start wrestling in the middle of gym class. They were mouthing off to each other about who was a better kick baller. As usual someone took it too seriously and the other threw a punch.”" },
+      ],
+      [
+        { type: 'paragraph', text: "This is really not surprising after you go to this school long enough." },
+        { type: 'paragraph', text: "Not only do they not listen to you, but they make shit up about what happened." },
+        { type: 'paragraph', text: "No one threw a punch and no one could care less about who is a better kicker." },
+      ],
+      [
+        { type: 'paragraph', text: "I shout, “Do you have any clue what the hell you are talking about? You suck at security if that’s what you think was happening.”" },
+        { type: 'paragraph', text: "The kid who I was there with started to laugh at my comment." },
+        { type: 'paragraph', text: "Then he joined in, “Yea everyone knows I am the better kicker, just like everyone knows that you suck as a security guard.”" },
+      ],
+      [
+        { type: 'paragraph', text: "We both start laughing." },
+        { type: 'paragraph', text: "The security guard does not think it is funny." },
+        { type: 'paragraph', text: "He tells us both to shut up and sit down." },
+        { type: 'thought', text: "Here we go again." },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'wait_for_principal',
+        label: 'Wait for the principal',
+        resultTitle: 'You wait in the office.',
+        result: [{ type: 'paragraph', text: 'You sit there, angry and tired, waiting for whatever happens next.' }],
+        metrics: { sleep: 0, stress: -2, time: -1, care: -2 },
+        nextSceneId: 'scene_placeholder_end',
+      },
+    ],
+  },
 
 
 ];
