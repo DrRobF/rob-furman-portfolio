@@ -1186,7 +1186,51 @@ No one asks.` },
         resultTitle: 'You go to ISS.',
         result: [{ type: 'paragraph', text: 'There is nothing else to say. You are sent to In-School Suspension.' }],
         metrics: { sleep: 0, stress: -2, time: -1, care: -2 },
-        nextSceneId: 'scene_placeholder_end',
+        nextSceneId: 'scene_iss_breaking_point',
+      },
+    ],
+  },
+  {
+    id: 'scene_iss_breaking_point',
+    sceneNumber: 17,
+    totalScenes: 20,
+    time: 'In-School Suspension',
+    heading: 'ISS — Breaking Point',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "After not knowing what is going to happen to me if that girl in gym class is pregnant." },
+        { type: 'paragraph', text: "After dealing with one stupid adult after another today, this idiot hit the last nerve I had." },
+      ],
+      [
+        { type: 'paragraph', text: "I didn't hold back this time like I did in gym class." },
+        { type: 'paragraph', text: 'I took my strong arm and went right for the nose.' },
+        { type: 'paragraph', text: 'My fist hit his nose as hard as I could and the cracking sound was gross.' },
+        { type: 'paragraph', text: 'Blood splattered from his nose and was everywhere.' },
+      ],
+      [
+        { type: 'paragraph', text: 'I then proceeded to stand up and hit him three or four more times in the face.' },
+        { type: 'paragraph', text: 'I wanted to break his face.' },
+        { type: 'paragraph', text: 'I wanted my fist to literally go right through his face and back out the other side.' },
+      ],
+      [
+        { type: 'paragraph', text: 'The teacher that was on duty was old and not much of a concern to me.' },
+        { type: 'paragraph', text: "I was so blind with rage that I really didn't even feel the security guard on me after about 6 minutes of me punching this kid." },
+      ],
+      [
+        { type: 'paragraph', text: "After I came back to reality a bit I didn't want to wait around to see what happened next." },
+        { type: 'paragraph', text: 'I twisted and turned and got away from the guard.' },
+        { type: 'paragraph', text: 'Besides, everyone was looking at the busted up kid on the floor so I quickly ran out of the room, down the hall and out the main door of the school.' },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'leave_school',
+        label: 'The only option left is to leave the school. I am already out of the building.',
+        resultTitle: 'You leave the building.',
+        result: [{ type: 'paragraph', text: 'You run out of the room, down the hall, and out the main door of the school.' }],
+        metrics: { sleep: 0, stress: -4, time: -2, care: -3 },
+        nextSceneId: 'scene_bus_home',
       },
     ],
   },
@@ -1210,6 +1254,7 @@ const tocItems = [
   { id: 'scene_reading_class_trying_to_listen', label: 'Reading Class — Trying to Listen' },
   { id: 'scene_office_after_gym', label: 'Main Office — After Gym' },
   { id: 'scene_principal_consequence', label: 'In-School Suspension' },
+  { id: 'scene_iss_breaking_point', label: 'ISS — Breaking Point' },
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
