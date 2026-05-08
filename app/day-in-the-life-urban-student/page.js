@@ -1527,6 +1527,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
   const [showInsights, setShowInsights] = useState({});
   const [showSceneMenu, setShowSceneMenu] = useState(false);
+  const [qaReport, setQaReport] = useState(null);
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
   const selectedChoiceId = selectedChoices[scene.id];
@@ -1597,6 +1598,92 @@ export default function DayInTheLifeUrbanStudentPage() {
     setCumulativeMetrics((prev) => ({ ...initialMetrics, ...(prev ?? {}) }));
     setShowSceneMenu(false);
   };
+  const runQaCheck = () => {
+    const errors = [];
+    const warnings = [];
+    const passedChecks = [];
+
+    errors.push(`Scene Count: ${urbanStudentScenes.length}`);
+
+    const missingTargets = [];
+    const scenesWithNoChoices = [];
+    const scenesMissingReflection = [];
+    const scenesMissingToc = [];
+    const missingMetrics = [];
+    const invalidSceneShape = [];
+    const invalidReflectionShape = [];
+
+    urbanStudentScenes.forEach((currentScene) => {
+      if (!currentScene.id || !currentScene.heading || !Array.isArray(currentScene.revealGroups) || currentScene.revealGroups.length < 1 || !currentScene.question || !Array.isArray(currentScene.choices)) {
+        invalidSceneShape.push(currentScene.id || '(missing id)');
+      }
+
+      if (!Array.isArray(currentScene.choices) || currentScene.choices.length === 0) {
+        if (currentScene.id !== 'scene_placeholder_end') scenesWithNoChoices.push(currentScene.id);
+      }
+
+      if (!currentScene.reflection) {
+        scenesMissingReflection.push(currentScene.id);
+      } else {
+        const reflection = currentScene.reflection;
+        const hasReflectionShape = Array.isArray(reflection.questions)
+          && typeof reflection.writingPrompt === 'string'
+          && typeof reflection.insight === 'string'
+          && typeof reflection.facilitatorLens === 'string'
+          && typeof reflection.manuscriptExcerpt === 'string';
+
+        if (!hasReflectionShape) invalidReflectionShape.push(currentScene.id);
+      }
+
+      (currentScene.choices ?? []).forEach((choice) => {
+        if (choice.nextSceneId && !sceneById[choice.nextSceneId]) missingTargets.push(`${currentScene.id} -> ${choice.nextSceneId}`);
+
+        const hasMetrics = choice.metrics
+          && Object.prototype.hasOwnProperty.call(choice.metrics, 'sleep')
+          && Object.prototype.hasOwnProperty.call(choice.metrics, 'stress')
+          && Object.prototype.hasOwnProperty.call(choice.metrics, 'time')
+          && Object.prototype.hasOwnProperty.call(choice.metrics, 'care');
+
+        if (!hasMetrics) missingMetrics.push(`${currentScene.id} / ${choice.id}`);
+      });
+
+      const inToc = tocItems.some((entry) => entry.id === currentScene.id);
+      if (!inToc) scenesMissingToc.push(currentScene.id);
+    });
+
+    const tocCounts = tocItems.reduce((acc, entry) => {
+      acc[entry.id] = (acc[entry.id] ?? 0) + 1;
+      return acc;
+    }, {});
+    const duplicateTocTargets = Object.entries(tocCounts).filter(([, count]) => count > 1).map(([id, count]) => `${id} (${count})`);
+
+    if (missingTargets.length) errors.push(`Missing scene targets: ${missingTargets.join(', ')}`);
+    else passedChecks.push('Missing Scene Targets: none');
+
+    if (invalidSceneShape.length) errors.push(`Basic scene shape issues: ${invalidSceneShape.join(', ')}`);
+    else passedChecks.push('Basic Scene Shape: all scenes valid');
+
+    if (missingMetrics.length) errors.push(`Missing metrics fields: ${missingMetrics.join(', ')}`);
+    else passedChecks.push('Scenes Missing Metrics: all choices include sleep/stress/time/care');
+
+    if (scenesWithNoChoices.length) warnings.push(`Scenes with no choices: ${scenesWithNoChoices.join(', ')}`);
+    else passedChecks.push('Scenes With No Choices: none');
+
+    if (scenesMissingReflection.length) warnings.push(`Scenes missing reflection: ${scenesMissingReflection.join(', ')}`);
+    else passedChecks.push('Scenes Missing Reflection: none');
+
+    if (invalidReflectionShape.length) warnings.push(`Reflection shape issues: ${invalidReflectionShape.join(', ')}`);
+    else passedChecks.push('Reflection Shape: valid where reflection exists');
+
+    if (scenesMissingToc.length) warnings.push(`Developer menu coverage missing scene ids: ${scenesMissingToc.join(', ')}`);
+    else passedChecks.push('Developer Menu Coverage: complete');
+
+    if (duplicateTocTargets.length) warnings.push(`Duplicate TOC targets: ${duplicateTocTargets.join(', ')}`);
+    else passedChecks.push('Duplicate TOC Targets: none');
+
+    setQaReport({ errors, warnings, passedChecks, generatedAt: new Date().toISOString() });
+  };
+
 
   if (sceneId === 'scene_placeholder_end') {
     return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
@@ -1619,12 +1706,33 @@ export default function DayInTheLifeUrbanStudentPage() {
           >
             Jump to Scene
           </button>
+          <button type="button" className="dev-menu-trigger qa-trigger" onClick={runQaCheck}>Run QA Check</button>
           <header className="scene-header">
             <div className="tone-band" />
             <p>{scene.time}</p>
             <h1>{scene.heading}</h1>
             <p>Scene {scene.sceneNumber} of {scene.totalScenes}</p>
           </header>
+          {qaReport && (
+            <section className="qa-panel" aria-live="polite">
+              <p className="section-label">DEV QA REPORT</p>
+              <p className="qa-timestamp">Generated: {qaReport.generatedAt}</p>
+              <div className="qa-grid">
+                <div>
+                  <h3>Errors</h3>
+                  {qaReport.errors.length ? <ul>{qaReport.errors.map((item) => <li key={`err-${item}`}>{item}</li>)}</ul> : <p>None</p>}
+                </div>
+                <div>
+                  <h3>Warnings</h3>
+                  {qaReport.warnings.length ? <ul>{qaReport.warnings.map((item) => <li key={`warn-${item}`}>{item}</li>)}</ul> : <p>None</p>}
+                </div>
+                <div>
+                  <h3>Passed Checks</h3>
+                  {qaReport.passedChecks.length ? <ul>{qaReport.passedChecks.map((item) => <li key={`pass-${item}`}>{item}</li>)}</ul> : <p>None</p>}
+                </div>
+              </div>
+            </section>
+          )}
           <p className="section-label">THE MOMENT</p>
           <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`}>{renderBlocks(group)}</div>)}</div>
           {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>Continue the moment</button>}
@@ -1707,6 +1815,13 @@ export default function DayInTheLifeUrbanStudentPage() {
         .experience-shell { max-width: 900px; margin: 0 auto; }
         .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
         .dev-menu-trigger { position: sticky; top: 8px; z-index: 5; margin: 0 0 6px auto; width: auto; border: 1px solid #94a3b8; border-radius: 999px; padding: 8px 12px; font-size: 0.82rem; background: #f8fafc; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
+        .qa-trigger { margin-top: 0; }
+        .qa-panel { border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px; background: #f8fafc; }
+        .qa-timestamp { margin: 0 0 10px; color: #475569; font-size: 0.82rem; }
+        .qa-grid { display: grid; gap: 10px; }
+        .qa-grid h3 { margin: 0 0 6px; font-size: 0.95rem; }
+        .qa-grid ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
         .metrics-stack { display: grid; gap: 10px; background: #ffffff; border: 1px solid #d8e0ea; border-radius: 18px; padding: 18px; margin-top: 18px; }
         .metric-subtitle { margin: -4px 0 6px; color: #334155; font-size: 0.92rem; }
         .metric-row { border: 1px solid #d8e0ea; background: #fff; border-radius: 12px; padding: 10px 12px; }
