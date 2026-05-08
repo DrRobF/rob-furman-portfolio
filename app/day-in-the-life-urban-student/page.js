@@ -172,7 +172,7 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'They leave as fast as they came in.\n\nThe noise moves away.\n\nBut your chest is still tight.' },
         { type: 'thought', text: 'I’m not making that mistake again.' },
         { type: 'paragraph', text: 'You move fast now.\n\nFaster than before.\n\nYou just need to get out of the house.' },
-      ], nextSceneId: 'scene_bus_stop' },
+      ], nextSceneId: 'scene_morning_bus_stop' },
       { id: 'get_ready', label: 'Get up and start getting ready', resultTitle: 'You force yourself up.', metrics: { sleep: 0, stress: -2, time: 1, care: -1 }, result: [
         { type: 'paragraph', text: 'You stand before your body feels ready.\n\nYour legs are heavy, but you move anyway.' },
         { type: 'paragraph', text: 'You find clothes, grab what you can, and start getting dressed as quickly as possible.\n\nThe house is not calm anymore.' },
@@ -182,23 +182,23 @@ const urbanStudentScenes = [
         { type: 'paragraph', text: 'Your stomach tightens.\n\nYou do not wait to hear what comes next.' },
         { type: 'paragraph', text: 'You grab what you can and move toward the door.\n\nYou hope your mom and baby sister will be okay.\n\nBut right now, you need to get out.' },
         { type: 'thought', text: 'Just get out of the house.' },
-      ], nextSceneId: 'scene_bus_stop' },
+      ], nextSceneId: 'scene_morning_bus_stop' },
       { id: 'check_phone', label: 'Check your phone first', resultTitle: 'You check your phone.', metrics: { sleep: 0, stress: -1, time: -1, care: 0 }, result: [
         { type: 'paragraph', text: 'You unlock the phone before you stand up. Notifications stack over each other. A few messages. A few things you do not need to see right now.' },
         { type: 'paragraph', text: 'You tell yourself you are just checking the time, but your thumb keeps moving.' },
         { type: 'thought', text: 'One second. Then I’ll get up.' },
         { type: 'paragraph', text: 'The room stays still around you, but the clock does not.' },
-      ], nextSceneId: 'scene_bus_stop' },
+      ], nextSceneId: 'scene_morning_bus_stop' },
       { id: 'wake_sister', label: 'Wake your sister up', resultTitle: 'You wake your sister.', metrics: { sleep: 0, stress: -1, time: -1, care: 1 }, result: [
         { type: 'paragraph', text: 'You touch her shoulder gently. She shifts but does not open her eyes.' },
         { type: 'paragraph', text: 'You say her name quietly. Then again. She makes a small sound and turns away from the light.' },
         { type: 'thought', text: 'Come on. I can’t be late again.' },
         { type: 'paragraph', text: 'You are trying to be patient, but you can already feel the morning getting away from you.' },
-      ], nextSceneId: 'scene_bus_stop' },
+      ], nextSceneId: 'scene_morning_bus_stop' },
     ],
   },
   {
-    id: 'scene_bus_stop',
+    id: 'scene_morning_bus_stop',
     sceneNumber: 3,
     totalScenes: 10,
     time: 'Bus Stop',
@@ -1266,7 +1266,68 @@ No one asks.` },
         resultTitle: 'You leave the building.',
         result: [{ type: 'paragraph', text: 'You run out of the room, down the hall, and out the main door of the school.' }],
         metrics: { sleep: 0, stress: -4, time: -2, care: -3 },
-        nextSceneId: 'scene_bus_home',
+        nextSceneId: 'scene_bus_stop',
+      },
+    ],
+  },
+
+  {
+    id: 'scene_bus_stop',
+    sceneNumber: 18,
+    totalScenes: 20,
+    time: 'After School',
+    heading: 'Bus Stop',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "That's the beauty of having the public buses around." },
+        { type: 'paragraph', text: 'They run every 15 minutes or so.' },
+        { type: 'paragraph', text: 'I was so tired from the day I fell asleep on the bus and almost missed my home stop.' },
+      ],
+      [
+        { type: 'paragraph', text: 'I slowly made my way down the stairs of the bus and out onto the side walk.' },
+        { type: 'paragraph', text: 'I slowly drug myself back towards my home.' },
+        { type: 'paragraph', text: 'I was so tired.' },
+        { type: 'paragraph', text: 'My brain even hurt from all the bullshit that went on today.' },
+      ],
+      [
+        { type: 'paragraph', text: 'As I turned the corner to walk the last 4 blocks to my home I see these two bigger guys walking towards me.' },
+        { type: 'paragraph', text: "I don't think much of it." },
+        { type: 'paragraph', text: 'However, these guys are staring right at me and my street sense kicks in.' },
+        { type: 'paragraph', text: 'Unfortunately, it kicks in too late since I am sort of out of it and still waking up from the bus.' },
+      ],
+      [
+        { type: 'paragraph', text: 'By the time I realize something is wrong the two men grab me and one punches me right in the nose.' },
+        { type: 'paragraph', text: "We learn in the city early that the nose is the best place to hit first because it makes their eyes water and they can't see what’s coming next." },
+      ],
+      [
+        { type: 'paragraph', text: 'My nose is broken. I can feel it.' },
+        { type: 'paragraph', text: 'They hit me a few more times, but this is not a mugging or a theft or this would have been done by now.' },
+        { type: 'paragraph', text: 'I have been in those too and this is different.' },
+        { type: 'paragraph', text: 'This is a "We need to make a point" sort of beating.' },
+      ],
+      [
+        { type: 'paragraph', text: 'They pause knocking me around long enough for me to listen to them.' },
+        { type: 'paragraph', text: '"The next time you decide to take my little cousins bus pass off of him, remember this."' },
+        { type: 'paragraph', text: 'Then he kicks me right in the gut.' },
+        { type: 'paragraph', text: 'I begin to puke as my rib makes a horrible cracking sound in my stomach.' },
+      ],
+      [
+        { type: 'paragraph', text: 'I have been beat up before, but this one is bad.' },
+        { type: 'paragraph', text: 'I start to feel like I am about to pass out...' },
+        { type: 'paragraph', text: 'Then I do.' },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'black_out',
+        label: 'You are blacked out. No options.',
+        resultTitle: 'Everything goes dark.',
+        result: [
+          { type: 'paragraph', text: 'Your body finally gives out.' },
+        ],
+        metrics: { sleep: 0, stress: -4, time: -2, care: -3 },
+        nextSceneId: 'scene_back_in_bedroom',
       },
     ],
   },
@@ -1279,7 +1340,7 @@ const tocItems = [
   { id: 'scene_2am_bedroom', label: 'Bedroom — 2:00 AM' },
   { id: 'scene_625am_bedroom', label: 'Morning Alarm' },
   { id: 'scene_625am_bedroom', label: 'Bedroom Confrontation' },
-  { id: 'scene_bus_stop', label: 'Bus Stop' },
+  { id: 'scene_morning_bus_stop', label: 'Bus Stop' },
   { id: 'scene_school_entrance', label: 'School Entrance' },
   { id: 'scene_technology_class', label: 'Technology Class' },
   { id: 'scene_main_office', label: 'Main Office' },
@@ -1291,6 +1352,7 @@ const tocItems = [
   { id: 'scene_office_after_gym', label: 'Main Office — After Gym' },
   { id: 'scene_principal_consequence', label: 'In-School Suspension' },
   { id: 'scene_iss_breaking_point', label: 'ISS — Breaking Point' },
+  { id: 'scene_bus_stop', label: 'Bus Stop' },
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
@@ -1320,7 +1382,7 @@ const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
-  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
+  const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
   const [showInsights, setShowInsights] = useState({});
   const [showSceneMenu, setShowSceneMenu] = useState(false);
@@ -1368,7 +1430,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     setSceneId('scene_2am_bedroom');
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
-    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
+    setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
     setShowInsights({});
   };
 
