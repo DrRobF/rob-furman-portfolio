@@ -1457,7 +1457,7 @@ No one asks.` },
 
   {
     id: 'scene_bus_stop',
-    image: '/urban-scenes/street.png',
+    image: '/urban-scenes/iss-room.png',
     sceneNumber: 18,
     totalScenes: 20,
     time: 'After School',
@@ -1533,7 +1533,7 @@ No one asks.` },
   },
   {
     id: 'scene_back_in_bedroom',
-    image: '/urban-scenes/bedroom-night.png',
+    image: '/urban-scenes/iss-room.png',
     sceneNumber: 19,
     totalScenes: 20,
     time: 'Bedroom',
@@ -1616,6 +1616,7 @@ No one asks.` },
 
   {
     id: 'scene_reflection_conference_room',
+    image: '/urban-scenes/street.png',
     sceneNumber: 20,
     totalScenes: 21,
     time: 'Reflection',
