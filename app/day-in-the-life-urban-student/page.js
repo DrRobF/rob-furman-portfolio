@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const urbanStudentScenes = [
   {
@@ -1782,6 +1782,14 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [hiddenSceneImages, setHiddenSceneImages] = useState({});
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
+
+  const [isSceneVisible, setIsSceneVisible] = useState(true);
+
+  useEffect(() => {
+    setIsSceneVisible(false);
+    const timer = setTimeout(() => setIsSceneVisible(true), 24);
+    return () => clearTimeout(timer);
+  }, [sceneId]);
   const selectedChoiceId = selectedChoices[scene.id];
   const selectedChoice = scene.choices.find((choice) => choice.id === selectedChoiceId);
 
@@ -1982,6 +1990,11 @@ export default function DayInTheLifeUrbanStudentPage() {
           .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
           .experience-shell { max-width: 900px; margin: 0 auto; }
           .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
+        .scene-transition { opacity: 0; transition: opacity 320ms ease-out; will-change: opacity; }
+        .scene-transition.scene-visible { opacity: 1; }
+        @media (prefers-reduced-motion: reduce) {
+          .scene-transition { transition: none; opacity: 1; }
+        }
           .intro-card h1 { margin: 0; }
           .intro-card h2 { margin: 0.25rem 0 0; color: #0f172a; }
           .paragraph-card { margin: 0; color: #24324a; font-size: 1.02rem; line-height: 1.8; }
@@ -1994,7 +2007,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   }
 
   if (sceneId === 'scene_placeholder_end') {
-    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
+    return <main className="urban-student-page"><section className="experience-shell"><article className={`scene-card scene-transition ${isSceneVisible ? 'scene-visible' : ''}`}><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
   }
 
   const changedMetrics = metricOrder
@@ -2008,7 +2021,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   return (
     <main className="urban-student-page">
       <section className="experience-shell">
-        <article className="scene-card">
+        <article className={`scene-card scene-transition ${isSceneVisible ? 'scene-visible' : ''}`}>
           <button
             type="button"
             className="dev-menu-trigger"
@@ -2141,6 +2154,11 @@ export default function DayInTheLifeUrbanStudentPage() {
         .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
         .experience-shell { max-width: 900px; margin: 0 auto; }
         .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
+        .scene-transition { opacity: 0; transition: opacity 320ms ease-out; will-change: opacity; }
+        .scene-transition.scene-visible { opacity: 1; }
+        @media (prefers-reduced-motion: reduce) {
+          .scene-transition { transition: none; opacity: 1; }
+        }
         .dev-menu-trigger { position: sticky; top: 8px; z-index: 5; margin: 0 0 6px auto; width: auto; border: 1px solid #94a3b8; border-radius: 999px; padding: 8px 12px; font-size: 0.82rem; background: #f8fafc; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
         .qa-trigger { margin-top: 0; }
         .qa-panel { border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px; background: #f8fafc; }
