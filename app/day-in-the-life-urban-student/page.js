@@ -1331,6 +1331,61 @@ No one asks.` },
       },
     ],
   },
+  {
+    id: 'scene_back_in_bedroom',
+    sceneNumber: 19,
+    totalScenes: 20,
+    time: 'Bedroom',
+    heading: 'Back in His Bedroom',
+    revealGroups: [
+      [
+        { type: 'paragraph', text: "I come to in my bed." },
+        { type: 'paragraph', text: "I feel like shit and very confused." },
+        { type: 'paragraph', text: "I hear rustling downstairs and try to remember how I got here." },
+      ],
+      [
+        { type: 'paragraph', text: "I slowly get out of bed and every inch of my body hurts." },
+        { type: 'paragraph', text: "My rib is screaming in pain and my face feels like it is a helium balloon." },
+        { type: 'paragraph', text: "I look in the mirror and all of a sudden everything hurts more." },
+        { type: 'paragraph', text: "When you see what it looks like it always hurts worse." },
+      ],
+      [
+        { type: 'paragraph', text: "I start to walk downstairs and I remember that my baby sister should be here with her babysitter and my mom should be at work." },
+        { type: 'paragraph', text: "I can hear my baby sister downstairs and I feel some relief." },
+        { type: 'thought', text: "She is OK." },
+      ],
+      [
+        { type: 'paragraph', text: "I take a few more steps and I hear the one voice that makes me feel worse." },
+        { type: 'paragraph', text: "I hear the man’s voice from last night, the asshole’s voice whose kid talked shit on my mom in ISS, the bastard that gave me all kinds of shit this morning, the man that made my entire day a misery." },
+      ],
+      [
+        { type: 'thought', text: "What in the hell would he be doing here!" },
+        { type: 'paragraph', text: "Didn't his jerk of a son say that my mom broke up with him this morning?" },
+        { type: 'paragraph', text: "So either he chose to not leave after my mom went to work, or did they make up even after how he treated us this morning." },
+        { type: 'thought', text: "You know what, screw it! I hate them all!" },
+      ],
+      [
+        { type: 'paragraph', text: "I go back up the few steps." },
+        { type: 'paragraph', text: "I go into my room." },
+        { type: 'paragraph', text: "I get back into bed." },
+        { type: 'paragraph', text: "I try to go back to sleep." },
+        { type: 'thought', text: "Sometimes it is just not worth being awake. Sometimes it is just not worth being around." },
+      ],
+    ],
+    question: 'What do you do?',
+    choices: [
+      {
+        id: 'go_to_reflection',
+        label: 'Reflection',
+        resultTitle: 'The day ends here.',
+        result: [
+          { type: 'paragraph', text: 'There are no more choices in Adam’s day. Now it is time to reflect on what happened.' },
+        ],
+        metrics: { sleep: 0, stress: -3, time: -1, care: -3 },
+        nextSceneId: 'scene_reflection_conference_room',
+      },
+    ],
+  },
 
 ];
 
@@ -1353,6 +1408,7 @@ const tocItems = [
   { id: 'scene_principal_consequence', label: 'In-School Suspension' },
   { id: 'scene_iss_breaking_point', label: 'ISS — Breaking Point' },
   { id: 'scene_bus_stop', label: 'Bus Stop' },
+  { id: 'scene_back_in_bedroom', label: 'Back in His Bedroom' },
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
