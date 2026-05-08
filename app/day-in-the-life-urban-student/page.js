@@ -1960,7 +1960,8 @@ export default function DayInTheLifeUrbanStudentPage() {
     .filter(([, value]) => value !== 0);
   const hasAnyChoiceSelected = Object.keys(selectedChoices).length > 0;
   const hasReflection = Boolean(scene.reflection?.questions?.length);
-  const shouldShowSceneImage = Boolean(scene.image) && !hiddenSceneImages[scene.id];
+  const hasSceneImage = Boolean(scene.image);
+  const shouldShowSceneImage = hasSceneImage && !hiddenSceneImages[scene.id];
 
   return (
     <main className="urban-student-page">
@@ -1989,6 +1990,11 @@ export default function DayInTheLifeUrbanStudentPage() {
                 onError={() => setHiddenSceneImages((prev) => ({ ...prev, [scene.id]: true }))}
               />
               <div className="scene-image-overlay" aria-hidden="true" />
+            </div>
+          )}
+          {hasSceneImage && hiddenSceneImages[scene.id] && (
+            <div className="scene-image-placeholder" role="status" aria-live="polite">
+              Scene image placeholder — image coming soon
             </div>
           )}
           {qaReport && (
@@ -2128,7 +2134,8 @@ export default function DayInTheLifeUrbanStudentPage() {
         .thought-label { margin: 0 0 8px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: #334155; font-style: normal !important; font-weight: 900; }
         .thought-card { background: #eef4ff; border-left: 7px solid #1e3a8a; color: #0f172a; font-style: italic !important; font-size: 1.08rem; font-weight: 700; border-radius: 16px; padding: 18px 22px; margin: 24px 0; line-height: 1.65; box-shadow: 0 8px 24px rgba(30, 58, 138, 0.08); }
         button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
-        .continue-moment, .continue-button { text-align: center; background: transparent; color: #fff; }
+        .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; border-color: #0f172a; }
+        .scene-image-placeholder { border: 1px dashed #94a3b8; background: #f8fafc; color: #475569; border-radius: 18px; min-height: 120px; display: grid; place-items: center; font-size: 0.92rem; font-weight: 600; padding: 16px; text-align: center; }
         .reset-button { text-align: center; background: #334155; color: #fff; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
