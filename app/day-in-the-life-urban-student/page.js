@@ -239,6 +239,17 @@ const urbanStudentScenes = [
       facilitatorLens:
         'Behavior in this moment is easier to understand when it is viewed as part of a larger chain of events, not in isolation.',
     },
+    microReflection: {
+      prompt: 'What might an adult miss if they only judged Adam’s behavior at the bus stop?',
+      options: [
+        'He is acting from urgency and fear',
+        'He simply wants to cause trouble',
+        'He planned this all morning',
+        'He does not care about anyone else',
+      ],
+      response:
+        'This moment is not just about the bus pass. Adam is exhausted, rushed, scared, and trying to solve an immediate problem without adult support.',
+    },
     choices: [
       { id: 'try_ask_first', label: 'Ask him for help first', resultTitle: 'You try to ask.', metrics: { sleep: 0, stress: -1, time: 1, care: -1 }, result: [
         { type: 'paragraph', text: 'You walk up to him, trying to keep your voice steady.\n\nYou ask if you can use his pass.' },
@@ -396,6 +407,17 @@ const urbanStudentScenes = [
       facilitatorLens:
         'Adults may first notice missing work or attitude, while fear and urgency remain hidden.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    microReflection: {
+      prompt: 'What is Adam carrying into class before instruction even begins?',
+      options: [
+        'Fear about what happened at home',
+        'A simple lack of interest in technology',
+        'A plan to disrupt the class',
+        'No meaningful stress at all',
+      ],
+      response:
+        'Adam enters class already overloaded. What looks like disengagement may actually be fear, fatigue, and panic.',
     },
     choices: [
       {
@@ -1023,6 +1045,17 @@ No one asks.` },
         'Basic-needs stress often shows up behaviorally in common spaces before adults hear the full story.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
+    microReflection: {
+      prompt: 'What is most likely increasing Adam’s stress during lunch?',
+      options: [
+        'Rumors about his street and uncertainty about home',
+        'The cafeteria food alone',
+        'The noise level only',
+        'A normal school disagreement',
+      ],
+      response:
+        'Lunch is not a break for Adam. Hunger, rumors, peer pressure, and fear about home are all stacking at once.',
+    },
     choices: [
       {
         id: 'go_to_fifth_period',
@@ -1229,6 +1262,17 @@ No one asks.` },
       facilitatorLens:
         'Practice identifying pre-incident cues and matching them with low-intensity interventions.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    microReflection: {
+      prompt: 'What did the adult system miss before Adam escalated?',
+      options: [
+        'The comment was tied to shame, fear, and accumulated stress',
+        'The game rules were unclear',
+        'Adam only needed stricter discipline',
+        'Nothing important happened before the shove',
+      ],
+      response:
+        'Adam’s reaction is not acceptable, but it is understandable in context. The system responds to the behavior after missing the buildup.',
     },
     choices: [
       {
@@ -1440,6 +1484,17 @@ No one asks.` },
         'Focus discussion on prevention and post-crisis repair, not only punishment severity.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
+    microReflection: {
+      prompt: 'What makes this moment different from ordinary defiance?',
+      options: [
+        'Adam has reached emotional overload after repeated missed interventions',
+        'Adam is bored and wants attention',
+        'The ISS room is too quiet',
+        'The other student is only joking',
+      ],
+      response:
+        'By this point, Adam is no longer responding from a regulated place. The insult lands on top of exhaustion, fear, shame, and a full day of adults not listening.',
+    },
     choices: [
       {
         id: 'leave_school',
@@ -1587,6 +1642,17 @@ No one asks.` },
       facilitatorLens:
         'When a student communicates “it is not worth being awake,” adults should identify immediate protective actions and support.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    microReflection: {
+      prompt: 'What should the ending make adults consider?',
+      options: [
+        'Students may return to the same unsafe conditions that shaped the school day',
+        'The school day is separate from home life',
+        'Punishment solved the problem',
+        'Adam simply made bad choices',
+      ],
+      response:
+        'The ending shows why school responses matter. If adults only punish what they see, students may leave school and return to the same instability with even less trust.',
     },
     choices: [
       {
@@ -1781,6 +1847,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [qaReport, setQaReport] = useState(null);
   const [showStoryFlowMap, setShowStoryFlowMap] = useState(false);
   const [hiddenSceneImages, setHiddenSceneImages] = useState({});
+  const [microReflectionAnswers, setMicroReflectionAnswers] = useState({});
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
 
@@ -1836,6 +1903,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     setCumulativeMetrics(initialMetrics);
     setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
     setShowInsights({});
+    setMicroReflectionAnswers({});
   };
 
 
@@ -1868,6 +1936,11 @@ export default function DayInTheLifeUrbanStudentPage() {
     });
     setRevealedGroupCounts((prev) => ({ ...prev, [targetSceneId]: 1 }));
     setShowInsights((prev) => ({ ...prev, [targetSceneId]: false }));
+    setMicroReflectionAnswers((prev) => {
+      const nextAnswers = { ...prev };
+      delete nextAnswers[targetSceneId];
+      return nextAnswers;
+    });
     setCumulativeMetrics((prev) => ({ ...initialMetrics, ...(prev ?? {}) }));
     setShowSceneMenu(false);
   };
@@ -2111,6 +2184,9 @@ export default function DayInTheLifeUrbanStudentPage() {
     .filter(([, value]) => value !== 0);
   const hasAnyChoiceSelected = Object.keys(selectedChoices).length > 0;
   const hasReflection = Boolean(scene.reflection?.questions?.length);
+  const hasMicroReflection = Boolean(scene.microReflection?.prompt && Array.isArray(scene.microReflection?.options) && scene.microReflection.options.length > 0);
+  const selectedMicroReflectionAnswer = microReflectionAnswers[scene.id];
+  const canContinue = !hasMicroReflection || Boolean(selectedMicroReflectionAnswer);
   const hasSceneImage = Boolean(scene.image);
   const shouldShowSceneImage = hasSceneImage && !hiddenSceneImages[scene.id];
   const dayProgressIndex = Math.min(
@@ -2310,7 +2386,26 @@ export default function DayInTheLifeUrbanStudentPage() {
               {hasReflection && (
                 <details className="reflect-panel"><summary><div><p className="section-label section-divider">PAUSE & REFLECT</p><p className="reflect-title">Professional Reflection Prompt</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /></div><div className="facilitator-lens"><p><strong>What Adults Might Miss</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for teachers and professional reflection</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or individual reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               )}
-              <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
+              {hasMicroReflection && (
+                <section className="micro-reflection-panel" aria-live="polite">
+                  <p className="section-label section-divider">LEARNING CHECKPOINT</p>
+                  <p className="micro-reflection-prompt">{scene.microReflection.prompt}</p>
+                  <div className="micro-reflection-options">
+                    {scene.microReflection.options.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        className={`micro-reflection-option ${selectedMicroReflectionAnswer === option ? 'selected' : ''}`}
+                        onClick={() => setMicroReflectionAnswers((prev) => ({ ...prev, [scene.id]: option }))}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedMicroReflectionAnswer && <p className="micro-reflection-response">{scene.microReflection.response}</p>}
+                </section>
+              )}
+              <button type="button" className="continue-button" onClick={handleContinue} disabled={!canContinue}>Continue</button>
               <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
             </section>
           )}
@@ -2354,6 +2449,13 @@ export default function DayInTheLifeUrbanStudentPage() {
         .flow-scene { border: 1px solid #dbe4f0; border-radius: 12px; padding: 10px; background: #fff; }
         .flow-scene p { margin: 0 0 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.83rem; line-height: 1.45; }
         .flow-id { color: #475569; }
+        .micro-reflection-panel { border: 1px solid #d5deeb; border-radius: 14px; padding: 14px; background: #f8fafc; display: grid; gap: 10px; }
+        .micro-reflection-prompt { margin: 0; color: #1e293b; line-height: 1.5; font-weight: 600; }
+        .micro-reflection-options { display: grid; gap: 8px; }
+        .micro-reflection-option { width: 100%; text-align: left; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a; padding: 10px 12px; font-weight: 500; }
+        .micro-reflection-option.selected { border-color: #1d4ed8; background: #eff6ff; }
+        .micro-reflection-response { margin: 2px 0 0; border-left: 3px solid #3b82f6; padding: 8px 10px; background: #eef5ff; color: #1e3a8a; border-radius: 8px; line-height: 1.55; }
+        .continue-button:disabled { background: #94a3b8; border-color: #94a3b8; color: #e2e8f0; cursor: not-allowed; opacity: 1; }
 
         .metrics-stack { display: grid; gap: 18px; background: linear-gradient(180deg, #1a2538 0%, #1f2e43 100%); border: 1px solid #3f516d; border-radius: 20px; padding: 22px; margin-top: 20px; }
         .metric-subtitle { margin: -6px 0 2px; color: #cad7ea; font-size: 0.96rem; }
