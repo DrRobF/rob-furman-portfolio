@@ -2314,7 +2314,7 @@ export default function DayInTheLifeUrbanStudentPage() {
               <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
               {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label section-divider">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
               {hasReflection && (
-                <details className="reflect-panel"><summary><div><p className="section-label section-divider">PAUSE & REFLECT</p><p className="reflect-title">Professional Reflection Prompt</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /></div><div className="facilitator-lens"><p><strong>What Adults Might Miss</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for teachers and professional reflection</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or individual reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
+                <section className="reflect-panel" aria-live="polite"><p className="section-label section-divider">ADULT LEARNING CHECK</p><p className="reflect-title">Adult Learning Check</p><p className="reflect-subtitle">Pause before continuing. What might an adult miss in this moment?</p><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /></div><div className="facilitator-lens"><p><strong>What Adults Might Miss</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div>{scene.reflection?.manuscriptExcerpt && <button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>}{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for teachers and professional reflection</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or individual reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></section>
               )}
               {hasMicroReflection && (
                 <section className="micro-reflection-panel" aria-live="polite">
@@ -2342,8 +2342,8 @@ export default function DayInTheLifeUrbanStudentPage() {
           )}
         </article>
         {hasAnyChoiceSelected && <aside className="metrics-stack metrics-side-panel" aria-label="Adam current status and cumulative load">
-          <p className="section-label section-divider">ADAM’S CURRENT LOAD</p>
-          <p className="metric-subtitle">How the day is weighing on him</p>
+          <p className="section-label section-divider">STUDENT STATUS</p>
+          <p className="metric-subtitle">Current indicators based on Adam’s choices and experiences.</p>
           <div className="metric-context-row">
             <p className="overall-state">Overall State <span>{overallState}</span></p>
             <p className="day-progress">Day Progress <span>{dayProgress}</span></p>
@@ -2353,6 +2353,7 @@ export default function DayInTheLifeUrbanStudentPage() {
               <div className="metric-row-meta">
                 <div>
                   <span className="metric-title">{metricConfig[metric].label}</span>
+                  <span className="metric-trend">{cumulativeMetrics[metric] <= -6 ? "Critical" : cumulativeMetrics[metric] <= -2 ? "Decreasing" : cumulativeMetrics[metric] >= 6 ? "Improving" : cumulativeMetrics[metric] >= 2 ? "Increasing" : "Stable"}</span>
                 </div>
                 <span className="metric-value">{cumulativeMetrics[metric] > 0 ? `+${cumulativeMetrics[metric]}` : cumulativeMetrics[metric]}</span>
               </div>
@@ -2427,9 +2428,11 @@ export default function DayInTheLifeUrbanStudentPage() {
         .overall-state span, .day-progress span { color: #0f172a; font-weight: 800; margin-left: 6px; }
         .metric-row { border: 1px solid #d6e0ea; background: #ffffff; border-radius: 14px; padding: 12px 12px 12px; }
         .metric-row-meta { display: flex; align-items: center; justify-content: space-between; color: #0f172a; }
+        .metric-row-meta > div { display: grid; gap: 3px; }
         .metric-title { font-size: 1.02rem; font-weight: 800; letter-spacing: 0.01em; }
-        .metric-value { font-size: 1.08rem; font-weight: 900; color: #f8fbff; }
-        .metric-track { margin-top: 11px; background: #dbe5f1; height: 22px; border-radius: 999px; overflow: hidden; position: relative; }
+        .metric-value { font-size: 1.08rem; font-weight: 900; color: #0f172a; }
+        .metric-trend { font-size: 0.76rem; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+        .metric-track { margin-top: 11px; background: #dbe5f1; height: 22px; border-radius: 999px; overflow: hidden; position: relative; border: 1px solid #c0cee0; }
         .metric-track::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 1px; height: 100%; background: #8aa1bf; z-index: 2; }
         .metric-center-marker { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font-size: 0.68rem; color: #64748b; font-weight: 700; }
         .metric-fill { position: absolute; top: 0; height: 100%; transition: all 0.35s ease; z-index: 1; }
@@ -2476,13 +2479,10 @@ export default function DayInTheLifeUrbanStudentPage() {
         .impact-positive { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
         .impact-positive-care { background: #f0fdf4; border-color: #16a34a; color: #166534; }
         .reflect-panel { margin-top: 22px; background: linear-gradient(180deg, #f9fbff 0%, #f4f7fb 100%); border: 1px solid #d8e0ea; border-radius: 20px; padding: 20px; }
-        .reflect-panel summary { cursor: pointer; font-weight: 700; list-style: none; display: flex; align-items: center; justify-content: space-between; }
-        .reflect-panel summary::-webkit-details-marker { display: none; }
+        .reflect-panel { display: grid; gap: 0; }
         .reflect-title { margin: 0; font-size: 1.12rem; color: #0f172a; }
         .reflect-subtitle { margin: 3px 0 0; color: #64748b; font-size: 0.86rem; font-weight: 600; }
-        .reflect-indicator { font-size: 1.2rem; font-weight: 800; color: #475569; }
-        .reflect-panel[open] .reflect-indicator { transform: rotate(45deg); }
-        .reflect-content { margin-top: 14px; border-top: 1px solid #d8e0ea; padding-top: 14px; display: grid; gap: 14px; }
+                .reflect-content { margin-top: 14px; border-top: 1px solid #d8e0ea; padding-top: 14px; display: grid; gap: 14px; }
         .reflect-block { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; }
         .reflect-content-label { margin: 0 0 8px; color: #334155; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; }
         .reflect-panel ol { margin: 0; padding-left: 22px; color: #1e293b; display: grid; gap: 10px; line-height: 1.75; }
