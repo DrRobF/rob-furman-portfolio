@@ -1768,6 +1768,7 @@ const metricConfig = {
 const metricOrder = ['sleep', 'stress', 'time', 'care'];
 const initialMetrics = { sleep: 0, stress: 0, time: 0, care: 0 };
 const clampMetric = (value) => Math.max(-10, Math.min(10, value));
+const dayProgressLabels = ['Morning', 'Early School Day', 'Midday', 'Afternoon', 'End of Day', 'Reflection'];
 
 export default function DayInTheLifeUrbanStudentPage() {
   const [hasStartedExperience, setHasStartedExperience] = useState(false);
@@ -2015,6 +2016,29 @@ export default function DayInTheLifeUrbanStudentPage() {
   const hasReflection = Boolean(scene.reflection?.questions?.length);
   const hasSceneImage = Boolean(scene.image);
   const shouldShowSceneImage = hasSceneImage && !hiddenSceneImages[scene.id];
+  const dayProgressIndex = Math.min(
+    dayProgressLabels.length - 1,
+    Math.floor(((scene.sceneNumber ?? 1) - 1) / Math.max(1, Math.ceil((scene.totalScenes ?? 1) / dayProgressLabels.length)))
+  );
+  const dayProgress = dayProgressLabels[dayProgressIndex];
+  const interpretedMetrics = {
+    sleep: cumulativeMetrics.sleep <= -7 ? 'Sleep Reserve is critically low.' : cumulativeMetrics.sleep <= -3 ? 'Sleep Reserve is dropping.' : cumulativeMetrics.sleep >= 3 ? 'Sleep Reserve is recovering slightly.' : 'Sleep Reserve is fragile.',
+    stress: cumulativeMetrics.stress <= -7 ? 'Stress Load is surging.' : cumulativeMetrics.stress <= -3 ? 'Stress Load is rising.' : cumulativeMetrics.stress >= 3 ? 'Stress Load has eased a little.' : 'Stress Load is lingering.',
+    time: cumulativeMetrics.time <= -7 ? 'Time pressure is closing in.' : cumulativeMetrics.time <= -3 ? 'Time pressure is building.' : cumulativeMetrics.time >= 3 ? 'There is brief room to breathe.' : 'Time pressure stays close.',
+    care: cumulativeMetrics.care <= -7 ? 'Care Connection feels cut off.' : cumulativeMetrics.care <= -3 ? 'Care Connection is fading.' : cumulativeMetrics.care >= 3 ? 'Care Connection is momentarily present.' : 'Care Connection is uncertain.',
+  };
+  const overallLoad = Math.max(0, -cumulativeMetrics.sleep) + Math.max(0, -cumulativeMetrics.stress) + Math.max(0, -cumulativeMetrics.time) + Math.max(0, -cumulativeMetrics.care);
+  const overallState = overallLoad >= 28
+    ? 'Shutting Down'
+    : overallLoad >= 22
+      ? 'Emotionally Overloaded'
+      : overallLoad >= 16
+        ? 'Running on Survival Mode'
+        : overallLoad >= 11
+          ? 'Barely Holding It Together'
+          : overallLoad >= 7
+            ? 'Trying to Stay Regulated'
+            : 'Disconnected';
 
   return (
     <main className="urban-student-page">
@@ -2094,6 +2118,10 @@ export default function DayInTheLifeUrbanStudentPage() {
               {hasAnyChoiceSelected && <div className="metrics-stack" aria-label="Cumulative load across all choices">
                 <p className="section-label section-divider">CUMULATIVE LOAD</p>
                 <p className="metric-subtitle">How far Adam has moved from baseline</p>
+                <div className="metric-context-row">
+                  <p className="overall-state">Overall state: <span>{overallState}</span></p>
+                  <p className="day-progress">Day Progress: <span>{dayProgress}</span></p>
+                </div>
                 {metricOrder.map((metric) => (
                   <div className="metric-row" key={metric}>
                     <div className="metric-row-meta">
@@ -2113,6 +2141,7 @@ export default function DayInTheLifeUrbanStudentPage() {
                         }}
                       />
                     </div>
+                    <p className="metric-meaning">{interpretedMetrics[metric]}</p>
                   </div>
                 ))}
               </div>}
@@ -2160,18 +2189,23 @@ export default function DayInTheLifeUrbanStudentPage() {
         .qa-grid h3 { margin: 0 0 6px; font-size: 0.95rem; }
         .qa-grid ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
-        .metrics-stack { display: grid; gap: 12px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #d8e0ea; border-radius: 18px; padding: 18px; margin-top: 18px; }
-        .metric-subtitle { margin: -4px 0 6px; color: #334155; font-size: 0.92rem; }
-        .metric-row { border: 1px solid #d8e0ea; background: #fff; border-radius: 12px; padding: 10px 12px; }
+        .metrics-stack { display: grid; gap: 12px; background: linear-gradient(180deg, #0e1729 0%, #121d33 100%); border: 1px solid #26324a; border-radius: 18px; padding: 18px; margin-top: 18px; }
+        .metric-subtitle { margin: -4px 0 6px; color: #a7b4cc; font-size: 0.92rem; }
+        .metric-context-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 2px; }
+        .overall-state, .day-progress { margin: 0; font-size: 0.82rem; color: #94a3b8; border: 1px solid #334155; border-radius: 999px; padding: 6px 10px; background: rgba(15, 23, 42, 0.55); }
+        .overall-state span, .day-progress span { color: #e2e8f0; font-weight: 700; }
+        .metric-row { border: 1px solid #334155; background: linear-gradient(180deg, #17243b 0%, #111c31 100%); border-radius: 12px; padding: 10px 12px; }
         .metric-row-meta { display: flex; align-items: center; justify-content: space-between; font-weight: 700; color: #1e293b; font-size: 0.92rem; }
-        .metric-help { margin: 4px 0 0; font-size: 0.8rem; color: #475569; font-weight: 500; }
-        .metric-track { margin-top: 8px; background: #e2e8f0; height: 14px; border-radius: 999px; overflow: hidden; position: relative; }
-        .metric-track::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 2px; height: 100%; background: #334155; z-index: 2; }
-        .metric-center-marker { position: absolute; left: 50%; top: -16px; transform: translateX(-50%); font-size: 0.72rem; color: #334155; font-weight: 700; }
+        .metric-row-meta { color: #e2e8f0; }
+        .metric-help { margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
+        .metric-track { margin-top: 8px; background: #243246; height: 12px; border-radius: 999px; overflow: hidden; position: relative; }
+        .metric-track::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 1px; height: 100%; background: #8aa1bf; z-index: 2; }
+        .metric-center-marker { position: absolute; left: 50%; top: -15px; transform: translateX(-50%); font-size: 0.68rem; color: #9fb0c8; font-weight: 700; }
         .metric-fill { position: absolute; top: 0; height: 100%; transition: all 0.35s ease; z-index: 1; }
-        .metric-fill-negative { background: #dc2626; }
-        .metric-fill-positive { background: #2563eb; }
-        .metric-fill-care-positive { background: #16a34a; }
+        .metric-fill-negative { background: linear-gradient(90deg, #8b1e3f 0%, #b42344 100%); }
+        .metric-fill-positive { background: linear-gradient(90deg, #2d4f8f 0%, #3b6ec8 100%); }
+        .metric-fill-care-positive { background: linear-gradient(90deg, #2f6f5e 0%, #39a688 100%); }
+        .metric-meaning { margin: 9px 0 0; font-size: 0.82rem; color: #b8c5d9; }
         .tone-band { height: 10px; border-radius: 999px; margin-bottom: 12px; background: linear-gradient(90deg, #1e293b, #334155); }
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem); color: #071228; }
