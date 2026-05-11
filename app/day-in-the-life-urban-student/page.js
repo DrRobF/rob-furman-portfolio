@@ -2238,11 +2238,6 @@ export default function DayInTheLifeUrbanStudentPage() {
               <div className="scene-image-overlay" aria-hidden="true" />
             </div>
           )}
-          {hasSceneImage && hiddenSceneImages[scene.id] && (
-            <div className="scene-image-placeholder" role="status" aria-live="polite">
-              Scene image placeholder — image coming soon
-            </div>
-          )}
           {qaReport && (
             <section className="qa-panel" aria-live="polite">
               <p className="section-label">DEV QA REPORT</p>
@@ -2468,7 +2463,6 @@ export default function DayInTheLifeUrbanStudentPage() {
         .thought-card { background: #f2f6fd; border-left: 4px solid #64748b; color: #1e293b; font-style: italic !important; font-size: 1.03rem; font-weight: 600; border-radius: 14px; padding: 14px 16px; margin: 0; line-height: 1.75; }
         button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 12px; text-align: left; font-weight: 600; cursor: pointer; line-height: 1.4; }
         .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; border-color: #0f172a; }
-        .scene-image-placeholder { border: 1px dashed #94a3b8; background: #f8fafc; color: #475569; border-radius: 18px; min-height: 120px; display: grid; place-items: center; font-size: 0.92rem; font-weight: 600; padding: 16px; text-align: center; }
         .reset-button { text-align: center; background: #334155; color: #fff; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
