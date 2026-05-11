@@ -1760,10 +1760,10 @@ const renderBlocks = (blocks) =>
   );
 
 const metricConfig = {
-  sleep: { label: 'Sleep Reserve', help: 'negative = deficit · positive = recovery' },
-  stress: { label: 'Stress Load', help: 'negative = load building · positive = relief' },
-  time: { label: 'Time Pressure', help: 'negative = slipping · positive = room gained' },
-  care: { label: 'Care Connection', help: 'negative = disconnection · positive = support/protection' },
+  sleep: { label: 'Sleep Reserve' },
+  stress: { label: 'Stress Load' },
+  time: { label: 'Time Pressure' },
+  care: { label: 'Care Connection' },
 };
 const metricOrder = ['sleep', 'stress', 'time', 'care'];
 const initialMetrics = { sleep: 0, stress: 0, time: 0, care: 0 };
@@ -2022,10 +2022,10 @@ export default function DayInTheLifeUrbanStudentPage() {
   );
   const dayProgress = dayProgressLabels[dayProgressIndex];
   const interpretedMetrics = {
-    sleep: cumulativeMetrics.sleep <= -7 ? 'Sleep Reserve is critically low.' : cumulativeMetrics.sleep <= -3 ? 'Sleep Reserve is dropping.' : cumulativeMetrics.sleep >= 3 ? 'Sleep Reserve is recovering slightly.' : 'Sleep Reserve is fragile.',
-    stress: cumulativeMetrics.stress <= -7 ? 'Stress Load is surging.' : cumulativeMetrics.stress <= -3 ? 'Stress Load is rising.' : cumulativeMetrics.stress >= 3 ? 'Stress Load has eased a little.' : 'Stress Load is lingering.',
-    time: cumulativeMetrics.time <= -7 ? 'Time pressure is closing in.' : cumulativeMetrics.time <= -3 ? 'Time pressure is building.' : cumulativeMetrics.time >= 3 ? 'There is brief room to breathe.' : 'Time pressure stays close.',
-    care: cumulativeMetrics.care <= -7 ? 'Care Connection feels cut off.' : cumulativeMetrics.care <= -3 ? 'Care Connection is fading.' : cumulativeMetrics.care >= 3 ? 'Care Connection is momentarily present.' : 'Care Connection is uncertain.',
+    sleep: cumulativeMetrics.sleep <= -7 ? 'Sleep is running out.' : cumulativeMetrics.sleep <= -3 ? 'Sleep is running low.' : cumulativeMetrics.sleep >= 3 ? 'There is a little recovery.' : 'Sleep still feels fragile.',
+    stress: cumulativeMetrics.stress <= -7 ? 'Stress is piling up fast.' : cumulativeMetrics.stress <= -3 ? 'Stress keeps building.' : cumulativeMetrics.stress >= 3 ? 'Stress eases for a moment.' : 'Stress stays close.',
+    time: cumulativeMetrics.time <= -7 ? 'Time is slipping away.' : cumulativeMetrics.time <= -3 ? 'The day is getting tighter.' : cumulativeMetrics.time >= 3 ? 'There is a little room to breathe.' : 'Time still feels tight.',
+    care: cumulativeMetrics.care <= -7 ? 'Connection feels out of reach.' : cumulativeMetrics.care <= -3 ? 'Connection feels unstable.' : cumulativeMetrics.care >= 3 ? 'Support shows up for a moment.' : 'Connection feels uncertain.',
   };
   const overallLoad = Math.max(0, -cumulativeMetrics.sleep) + Math.max(0, -cumulativeMetrics.stress) + Math.max(0, -cumulativeMetrics.time) + Math.max(0, -cumulativeMetrics.care);
   const overallState = overallLoad >= 28
@@ -2117,19 +2117,18 @@ export default function DayInTheLifeUrbanStudentPage() {
               {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label section-divider">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
               {hasAnyChoiceSelected && <div className="metrics-stack" aria-label="Cumulative load across all choices">
                 <p className="section-label section-divider">CUMULATIVE LOAD</p>
-                <p className="metric-subtitle">How far Adam has moved from baseline</p>
+                <p className="metric-subtitle">How the day is weighing on him</p>
                 <div className="metric-context-row">
-                  <p className="overall-state">Overall state: <span>{overallState}</span></p>
-                  <p className="day-progress">Day Progress: <span>{dayProgress}</span></p>
+                  <p className="overall-state">Overall State <span>{overallState}</span></p>
+                  <p className="day-progress">Day Progress <span>{dayProgress}</span></p>
                 </div>
                 {metricOrder.map((metric) => (
                   <div className="metric-row" key={metric}>
                     <div className="metric-row-meta">
                       <div>
-                        <span>{metricConfig[metric].label}</span>
-                        <p className="metric-help">{metricConfig[metric].help}</p>
+                        <span className="metric-title">{metricConfig[metric].label}</span>
                       </div>
-                      <span>{cumulativeMetrics[metric] > 0 ? `+${cumulativeMetrics[metric]}` : cumulativeMetrics[metric]}</span>
+                      <span className="metric-value">{cumulativeMetrics[metric] > 0 ? `+${cumulativeMetrics[metric]}` : cumulativeMetrics[metric]}</span>
                     </div>
                     <div className="metric-track">
                       <span className="metric-center-marker">0</span>
@@ -2189,23 +2188,30 @@ export default function DayInTheLifeUrbanStudentPage() {
         .qa-grid h3 { margin: 0 0 6px; font-size: 0.95rem; }
         .qa-grid ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 
-        .metrics-stack { display: grid; gap: 12px; background: linear-gradient(180deg, #0e1729 0%, #121d33 100%); border: 1px solid #26324a; border-radius: 18px; padding: 18px; margin-top: 18px; }
-        .metric-subtitle { margin: -4px 0 6px; color: #a7b4cc; font-size: 0.92rem; }
-        .metric-context-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 2px; }
-        .overall-state, .day-progress { margin: 0; font-size: 0.82rem; color: #94a3b8; border: 1px solid #334155; border-radius: 999px; padding: 6px 10px; background: rgba(15, 23, 42, 0.55); }
-        .overall-state span, .day-progress span { color: #e2e8f0; font-weight: 700; }
-        .metric-row { border: 1px solid #334155; background: linear-gradient(180deg, #17243b 0%, #111c31 100%); border-radius: 12px; padding: 10px 12px; }
-        .metric-row-meta { display: flex; align-items: center; justify-content: space-between; font-weight: 700; color: #1e293b; font-size: 0.92rem; }
-        .metric-row-meta { color: #e2e8f0; }
-        .metric-help { margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
-        .metric-track { margin-top: 8px; background: #243246; height: 12px; border-radius: 999px; overflow: hidden; position: relative; }
+        .metrics-stack { display: grid; gap: 18px; background: linear-gradient(180deg, #1a2538 0%, #1f2e43 100%); border: 1px solid #3f516d; border-radius: 20px; padding: 22px; margin-top: 20px; }
+        .metric-subtitle { margin: -6px 0 2px; color: #cad7ea; font-size: 0.96rem; }
+        .metric-context-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 2px 0 0; }
+        .overall-state, .day-progress { margin: 0; font-size: 0.8rem; color: #c7d5e8; border: none; border-radius: 999px; padding: 7px 12px; background: rgba(224, 234, 248, 0.14); }
+        .overall-state span, .day-progress span { color: #f4f8ff; font-weight: 800; margin-left: 6px; }
+        .metric-row { border: 1px solid #4a5d7b; background: linear-gradient(180deg, #2a3952 0%, #24344d 100%); border-radius: 14px; padding: 14px 14px 13px; }
+        .metric-row-meta { display: flex; align-items: center; justify-content: space-between; color: #f1f5fd; }
+        .metric-title { font-size: 1.02rem; font-weight: 800; letter-spacing: 0.01em; }
+        .metric-value { font-size: 1.08rem; font-weight: 900; color: #f8fbff; }
+        .metric-track { margin-top: 11px; background: #1f2d43; height: 18px; border-radius: 999px; overflow: hidden; position: relative; }
         .metric-track::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 1px; height: 100%; background: #8aa1bf; z-index: 2; }
-        .metric-center-marker { position: absolute; left: 50%; top: -15px; transform: translateX(-50%); font-size: 0.68rem; color: #9fb0c8; font-weight: 700; }
+        .metric-center-marker { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font-size: 0.68rem; color: #b9c8de; font-weight: 700; }
         .metric-fill { position: absolute; top: 0; height: 100%; transition: all 0.35s ease; z-index: 1; }
-        .metric-fill-negative { background: linear-gradient(90deg, #8b1e3f 0%, #b42344 100%); }
-        .metric-fill-positive { background: linear-gradient(90deg, #2d4f8f 0%, #3b6ec8 100%); }
-        .metric-fill-care-positive { background: linear-gradient(90deg, #2f6f5e 0%, #39a688 100%); }
-        .metric-meaning { margin: 9px 0 0; font-size: 0.82rem; color: #b8c5d9; }
+        .metric-fill-negative { background: linear-gradient(90deg, #5d2032 0%, #9f314e 55%, #c14866 100%); box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.25); }
+        .metric-fill-positive { background: linear-gradient(90deg, #3a547f 0%, #5775a8 100%); }
+        .metric-fill-care-positive { background: linear-gradient(90deg, #425b78 0%, #6f5f8e 100%); }
+        .metric-meaning { margin: 11px 0 0; font-size: 0.82rem; color: #d4deec; }
+        @media (max-width: 640px) {
+          .metrics-stack { padding: 18px 14px; gap: 14px; }
+          .metric-row { padding: 12px; }
+          .metric-title { font-size: 0.95rem; }
+          .metric-value { font-size: 1rem; }
+          .metric-track { height: 16px; }
+        }
         .tone-band { height: 10px; border-radius: 999px; margin-bottom: 12px; background: linear-gradient(90deg, #1e293b, #334155); }
         .scene-header p { margin: 0; color: #334155; }
         .scene-header h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.5rem, 2.8vw, 2.2rem); color: #071228; }
