@@ -1752,7 +1752,6 @@ const renderBlocks = (blocks) =>
   blocks.map((block, index) =>
     block.type === 'thought' ? (
       <aside key={`${block.type}-${index}`} className="thought-wrap">
-        <p className="thought-label">ADAM’S THOUGHTS</p>
         <div className="thought-card">{block.text}</div>
       </aside>
     ) : (
@@ -2071,13 +2070,13 @@ export default function DayInTheLifeUrbanStudentPage() {
               </div>
             </section>
           )}
-          <p className="section-label">THE MOMENT</p>
+          <p className="section-label section-divider">THE MOMENT</p>
           <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`} className="scene-group">{renderBlocks(group)}</div>)}</div>
           {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>Continue the moment</button>}
 
           {isFullyRevealed && !selectedChoice && (
             <div className="choices-section">
-              <p className="section-label">YOUR CHOICE</p>
+              <p className="section-label section-divider">YOUR CHOICE</p>
               <h2>{scene.question}</h2>
               <div className="button-group">
                 {scene.choices.map((choice) => <button key={choice.id} type="button" onClick={() => handleChoose(choice.id)}>{choice.label}</button>)}
@@ -2087,13 +2086,13 @@ export default function DayInTheLifeUrbanStudentPage() {
 
           {selectedChoice && (
             <section className="result-section">
-              <p className="section-label">YOUR CHOICE</p>
+              <p className="section-label section-divider">YOUR CHOICE</p>
               <p className="selected-pill">You chose: {selectedChoice.label}</p>
-              <p className="section-label">CONSEQUENCE</p>
+              <p className="section-label section-divider">CONSEQUENCE</p>
               <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
-              {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
+              {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label section-divider">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
               {hasAnyChoiceSelected && <div className="metrics-stack" aria-label="Cumulative load across all choices">
-                <p className="section-label">CUMULATIVE LOAD</p>
+                <p className="section-label section-divider">CUMULATIVE LOAD</p>
                 <p className="metric-subtitle">How far Adam has moved from baseline</p>
                 {metricOrder.map((metric) => (
                   <div className="metric-row" key={metric}>
@@ -2118,7 +2117,7 @@ export default function DayInTheLifeUrbanStudentPage() {
                 ))}
               </div>}
               {hasReflection && (
-                <details className="reflect-panel"><summary><div><p className="reflect-title">Pause & Reflect</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><p className="reflect-content-label">Reflection Questions</p><ul>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ul><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
+                <details className="reflect-panel"><summary><div><p className="section-label section-divider">PAUSE & REFLECT</p><p className="reflect-title">Professional Reflection Prompt</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /></div><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               )}
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
               <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
@@ -2153,7 +2152,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
         .experience-shell { max-width: 900px; margin: 0 auto; }
         .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
-        .dev-menu-trigger { position: sticky; top: 8px; z-index: 5; margin: 0 0 6px auto; width: auto; border: 1px solid #94a3b8; border-radius: 999px; padding: 8px 12px; font-size: 0.82rem; background: #f8fafc; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
+        .dev-menu-trigger { position: sticky; top: 8px; z-index: 5; margin: 0 0 6px auto; width: auto; border: 1px solid #94a3b8; border-radius: 999px; padding: 10px 14px; font-size: 0.82rem; background: #f8fafc; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
         .qa-trigger { margin-top: 0; }
         .qa-panel { border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px; background: #f8fafc; }
         .qa-timestamp { margin: 0 0 10px; color: #475569; font-size: 0.82rem; }
@@ -2180,14 +2179,15 @@ export default function DayInTheLifeUrbanStudentPage() {
         .scene-image { width: 100%; max-height: 320px; min-height: 200px; object-fit: cover; display: block; filter: brightness(0.8) saturate(0.92) contrast(1.06); }
         .scene-image-overlay { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(15, 23, 42, 0.18) 0%, rgba(15, 23, 42, 0.08) 42%, rgba(15, 23, 42, 0.3) 100%); }
         .section-label { margin: 0 0 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; font-weight: 800; }
-        .scene-content { max-width: 720px; display: grid; gap: 0.35rem; }
-        .scene-group { margin-bottom: 0.65rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(148, 163, 184, 0.22); }
+        .section-divider { padding-top: 6px; border-top: 1px solid rgba(148, 163, 184, 0.32); }
+        .scene-content { max-width: 720px; display: grid; gap: 0.9rem; }
+        .scene-group { margin-bottom: 0.9rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(148, 163, 184, 0.22); }
         .scene-group:last-child { border-bottom: none; margin-bottom: 0; }
-        .paragraph-card { margin: 0 0 18px; color: #24324a; font-size: 1.08rem; line-height: 1.9; letter-spacing: 0.005em; }
-        .thought-wrap { margin: 22px 0; max-width: 720px; }
-        .thought-label { margin: 0 0 8px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: #334155; font-style: normal !important; font-weight: 900; }
-        .thought-card { background: #eef4ff; border-left: 7px solid #1e3a8a; color: #0f172a; font-style: italic !important; font-size: 1.08rem; font-weight: 700; border-radius: 16px; padding: 18px 22px; margin: 24px 0; line-height: 1.65; box-shadow: 0 8px 24px rgba(30, 58, 138, 0.08); }
-        button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: left; font-weight: 600; cursor: pointer; }
+        .paragraph-card { margin: 0 0 14px; color: #24324a; font-size: 1.08rem; line-height: 1.9; letter-spacing: 0.005em; background: #f8fbff; border: 1px solid #e5ebf4; border-radius: 14px; padding: 14px 16px; }
+        .paragraph-card:last-child { margin-bottom: 0; }
+        .thought-wrap { margin: 16px 0 20px; max-width: 720px; }
+        .thought-card { background: #f2f6fd; border-left: 4px solid #64748b; color: #1e293b; font-style: italic !important; font-size: 1.03rem; font-weight: 600; border-radius: 14px; padding: 14px 16px; margin: 0; line-height: 1.75; }
+        button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 12px; text-align: left; font-weight: 600; cursor: pointer; line-height: 1.4; }
         .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; border-color: #0f172a; }
         .scene-image-placeholder { border: 1px dashed #94a3b8; background: #f8fafc; color: #475569; border-radius: 18px; min-height: 120px; display: grid; place-items: center; font-size: 0.92rem; font-weight: 600; padding: 16px; text-align: center; }
         .reset-button { text-align: center; background: #334155; color: #fff; }
@@ -2199,20 +2199,22 @@ export default function DayInTheLifeUrbanStudentPage() {
         .impact-negative { background: #fff1f2; border-color: #dc2626; color: #b91c1c; }
         .impact-positive { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
         .impact-positive-care { background: #f0fdf4; border-color: #16a34a; color: #166534; }
-        .reflect-panel { margin-top: 22px; background: #f8fafc; border: 1px solid #d8e0ea; border-radius: 20px; padding: 22px; }
+        .reflect-panel { margin-top: 22px; background: linear-gradient(180deg, #f9fbff 0%, #f4f7fb 100%); border: 1px solid #d8e0ea; border-radius: 20px; padding: 20px; }
         .reflect-panel summary { cursor: pointer; font-weight: 700; list-style: none; display: flex; align-items: center; justify-content: space-between; }
         .reflect-panel summary::-webkit-details-marker { display: none; }
-        .reflect-title { margin: 0; font-size: 1rem; color: #0f172a; }
+        .reflect-title { margin: 0; font-size: 1.12rem; color: #0f172a; }
         .reflect-subtitle { margin: 3px 0 0; color: #64748b; font-size: 0.86rem; font-weight: 600; }
         .reflect-indicator { font-size: 1.2rem; font-weight: 800; color: #475569; }
         .reflect-panel[open] .reflect-indicator { transform: rotate(45deg); }
-        .reflect-content { margin-top: 14px; border-top: 1px solid #d8e0ea; padding-top: 14px; }
+        .reflect-content { margin-top: 14px; border-top: 1px solid #d8e0ea; padding-top: 14px; display: grid; gap: 14px; }
+        .reflect-block { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; }
         .reflect-content-label { margin: 0 0 8px; color: #334155; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; }
-        .reflect-panel ul { margin: 0 0 16px; padding-left: 20px; color: #1e293b; display: grid; gap: 16px; line-height: 1.8; }
-        .writing-prompt { margin: 10px 0 4px; color: #0f172a; }
+        .reflect-panel ol { margin: 0; padding-left: 22px; color: #1e293b; display: grid; gap: 10px; line-height: 1.75; }
+        .writing-panel p:last-of-type { margin-bottom: 10px; }
+        .writing-prompt { margin: 0 0 6px; color: #0f172a; }
         textarea { min-height: 110px; width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; font-size: 1rem; color: #0f172a; background: #fff; font-family: inherit; }
         .insight-toggle { margin-top: 14px; width: auto; border: 1px solid #cbd5e1; background: #fff; color: #0f172a; border-radius: 12px; padding: 10px 14px; font-weight: 700; }
-        .facilitator-lens { margin-top: 14px; background: #fff; border: 1px solid #d8e0ea; border-radius: 14px; padding: 14px; color: #0f172a; }
+        .facilitator-lens { margin-top: 0; background: #fff; border: 1px solid #d8e0ea; border-radius: 14px; padding: 14px; color: #0f172a; }
         .lens-prompt { margin-top: 8px; }
         .insight-panel { max-height: 420px; overflow-y: auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; padding: 22px; margin-top: 14px; line-height: 1.85; font-size: 1.02rem; color: #1e293b; }
         .insight-heading { margin: 0; font-size: 1.08rem; font-weight: 800; color: #0f172a; }
