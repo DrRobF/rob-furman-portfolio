@@ -1779,6 +1779,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [showInsights, setShowInsights] = useState({});
   const [showSceneMenu, setShowSceneMenu] = useState(false);
   const [qaReport, setQaReport] = useState(null);
+  const [showStoryFlowMap, setShowStoryFlowMap] = useState(false);
   const [hiddenSceneImages, setHiddenSceneImages] = useState({});
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
@@ -1962,6 +1963,102 @@ export default function DayInTheLifeUrbanStudentPage() {
     setQaReport({ errors, warnings, passedChecks, generatedAt: new Date().toISOString() });
   };
 
+  const storyFlowReport = useMemo(() => {
+    const startSceneId = 'scene_2am_bedroom';
+    const reflectionSceneId = 'scene_reflection_conference_room';
+    const majorBeats = [
+      'scene_morning_bus_stop',
+      'scene_school_entrance',
+      'scene_technology_class',
+      'scene_main_office',
+      'scene_second_period_math',
+      'scene_third_period_reading_class',
+      'scene_lunch_room',
+      'scene_science_class',
+      'scene_gym_class',
+      'scene_principal_consequence',
+      'scene_iss_breaking_point',
+      'scene_back_in_bedroom',
+      'scene_reflection_conference_room',
+    ];
+    const sceneMap = Object.fromEntries(urbanStudentScenes.map((s) => [s.id, s]));
+    const adjacency = Object.fromEntries(urbanStudentScenes.map((s) => [s.id, (s.choices ?? []).map((c) => c.nextSceneId).filter(Boolean)]));
+
+    const visited = new Set();
+    const dfsReach = (id) => {
+      if (!id || visited.has(id) || !sceneMap[id]) return;
+      visited.add(id);
+      (adjacency[id] ?? []).forEach(dfsReach);
+    };
+    dfsReach(startSceneId);
+    const reachableScenes = [...visited];
+    const unreachableScenes = urbanStudentScenes.map((s) => s.id).filter((id) => !visited.has(id));
+    const menuOnlyScenes = tocItems.map((entry) => entry.id).filter((id) => !visited.has(id) && sceneMap[id]);
+
+    const queue = [[startSceneId, [startSceneId]]];
+    const shortestSeen = new Set([startSceneId]);
+    let shortestPathToReflection = null;
+    while (queue.length && !shortestPathToReflection) {
+      const [id, path] = queue.shift();
+      if (id === reflectionSceneId) shortestPathToReflection = path;
+      (adjacency[id] ?? []).forEach((nextId) => {
+        if (!sceneMap[nextId] || shortestSeen.has(nextId)) return;
+        shortestSeen.add(nextId);
+        queue.push([nextId, [...path, nextId]]);
+      });
+    }
+
+    let longestPathToReflection = null;
+    const enumeratePaths = (id, path, seen) => {
+      if (!sceneMap[id]) return;
+      if (id === reflectionSceneId) {
+        if (!longestPathToReflection || path.length > longestPathToReflection.length) longestPathToReflection = path;
+        return;
+      }
+      (adjacency[id] ?? []).forEach((nextId) => {
+        if (!sceneMap[nextId] || seen.has(nextId)) return;
+        enumeratePaths(nextId, [...path, nextId], new Set([...seen, nextId]));
+      });
+    };
+    enumeratePaths(startSceneId, [startSceneId], new Set([startSceneId]));
+
+    const cycleWarnings = [];
+    const visiting = new Set();
+    const visitedCycle = new Set();
+    const cycleDfs = (id, stack) => {
+      if (visiting.has(id)) {
+        const startIndex = stack.indexOf(id);
+        cycleWarnings.push([...stack.slice(startIndex), id].join(' -> '));
+        return;
+      }
+      if (visitedCycle.has(id) || !sceneMap[id]) return;
+      visitedCycle.add(id);
+      visiting.add(id);
+      (adjacency[id] ?? []).forEach((nextId) => cycleDfs(nextId, [...stack, id]));
+      visiting.delete(id);
+    };
+    cycleDfs(startSceneId, []);
+
+    const deadEnds = urbanStudentScenes
+      .filter((s) => (s.choices ?? []).length === 0 || (s.choices ?? []).some((c) => c.nextSceneId && !sceneMap[c.nextSceneId]))
+      .map((s) => s.id);
+
+    const duplicateRoutes = [];
+    urbanStudentScenes.forEach((s) => {
+      const routeCounts = {};
+      (s.choices ?? []).forEach((c) => {
+        routeCounts[c.nextSceneId] = (routeCounts[c.nextSceneId] ?? 0) + 1;
+      });
+      Object.entries(routeCounts).forEach(([target, count]) => {
+        if (target && count > 1) duplicateRoutes.push(`${s.id} -> ${target} (${count} buttons)`);
+      });
+    });
+
+    const beatSkips = majorBeats.filter((beatId) => beatId !== startSceneId && beatId !== reflectionSceneId && shortestPathToReflection && !shortestPathToReflection.includes(beatId));
+
+    return { startSceneId, reflectionSceneId, reachableScenes, unreachableScenes, menuOnlyScenes, shortestPathToReflection, longestPathToReflection, cycleWarnings, deadEnds, duplicateRoutes, beatSkips };
+  }, []);
+
 
   if (!hasStartedExperience) {
     return (
@@ -2088,6 +2185,7 @@ export default function DayInTheLifeUrbanStudentPage() {
             Jump to Scene
           </button>
           <button type="button" className="dev-menu-trigger qa-trigger" onClick={runQaCheck}>Run QA Check</button>
+          <button type="button" className="dev-menu-trigger qa-trigger" onClick={() => setShowStoryFlowMap((prev) => !prev)}>Show Story Flow Map</button>
           <header className="scene-header">
             <div className="tone-band" />
             <p>{scene.time}</p>
@@ -2127,6 +2225,35 @@ export default function DayInTheLifeUrbanStudentPage() {
                   <h3>Passed Checks</h3>
                   {qaReport.passedChecks.length ? <ul>{qaReport.passedChecks.map((item) => <li key={`pass-${item}`}>{item}</li>)}</ul> : <p>None</p>}
                 </div>
+              </div>
+            </section>
+          )}
+          {showStoryFlowMap && (
+            <section className="qa-panel" aria-live="polite">
+              <p className="section-label">DEV STORY FLOW MAP</p>
+              <p className="qa-timestamp">Start: {storyFlowReport.startSceneId}</p>
+              <div className="flow-map-list">
+                {urbanStudentScenes.map((flowScene) => (
+                  <div key={flowScene.id} className="flow-scene">
+                    <p><strong>[Scene {flowScene.sceneNumber}] {flowScene.heading}</strong></p>
+                    <p className="flow-id">{flowScene.id}</p>
+                    {(flowScene.choices ?? []).map((choice) => {
+                      const targetExists = Boolean(choice.nextSceneId && sceneById[choice.nextSceneId]);
+                      return <p key={`${flowScene.id}-${choice.id}`}>├─ "{choice.label}" → {choice.nextSceneId} {targetExists ? '✅' : '❌ missing target'}</p>;
+                    })}
+                  </div>
+                ))}
+              </div>
+              <div className="qa-grid">
+                <div><h3>Reachable Scenes</h3><p>{storyFlowReport.reachableScenes.join(', ') || 'None'}</p></div>
+                <div><h3>Unreachable Scenes</h3><p>{storyFlowReport.unreachableScenes.join(', ') || 'None'}</p></div>
+                <div><h3>Dead Ends / Broken Paths</h3><p>{storyFlowReport.deadEnds.join(', ') || 'None'}</p></div>
+                <div><h3>Loop Detection</h3><p>{storyFlowReport.cycleWarnings.join(' | ') || 'No infinite loop paths detected from start.'}</p></div>
+                <div><h3>Duplicate Routes</h3><p>{storyFlowReport.duplicateRoutes.join(', ') || 'None'}</p></div>
+                <div><h3>Menu-only Scenes</h3><p>{storyFlowReport.menuOnlyScenes.join(', ') || 'None'}</p></div>
+                <div><h3>Shortest Path to Reflection</h3><p>{storyFlowReport.shortestPathToReflection ? `${storyFlowReport.shortestPathToReflection.join(' -> ')} (${storyFlowReport.shortestPathToReflection.length - 1} steps)` : 'No route to reflection found.'}</p></div>
+                <div><h3>Longest Path to Reflection</h3><p>{storyFlowReport.longestPathToReflection ? `${storyFlowReport.longestPathToReflection.join(' -> ')} (${storyFlowReport.longestPathToReflection.length - 1} steps)` : 'No route to reflection found.'}</p></div>
+                <div><h3>Major Beat Validation</h3><p>{storyFlowReport.beatSkips.length ? `Warning: can be skipped: ${storyFlowReport.beatSkips.join(', ')}` : 'All major beats appear in shortest path.'}</p></div>
               </div>
             </section>
           )}
@@ -2223,6 +2350,10 @@ export default function DayInTheLifeUrbanStudentPage() {
         .qa-grid { display: grid; gap: 10px; }
         .qa-grid h3 { margin: 0 0 6px; font-size: 0.95rem; }
         .qa-grid ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+        .flow-map-list { display: grid; gap: 10px; margin-bottom: 12px; }
+        .flow-scene { border: 1px solid #dbe4f0; border-radius: 12px; padding: 10px; background: #fff; }
+        .flow-scene p { margin: 0 0 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.83rem; line-height: 1.45; }
+        .flow-id { color: #475569; }
 
         .metrics-stack { display: grid; gap: 18px; background: linear-gradient(180deg, #1a2538 0%, #1f2e43 100%); border: 1px solid #3f516d; border-radius: 20px; padding: 22px; margin-top: 20px; }
         .metric-subtitle { margin: -6px 0 2px; color: #cad7ea; font-size: 0.96rem; }
