@@ -2186,7 +2186,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const hasReflection = Boolean(scene.reflection?.questions?.length);
   const hasMicroReflection = Boolean(scene.microReflection?.prompt && Array.isArray(scene.microReflection?.options) && scene.microReflection.options.length > 0);
   const selectedMicroReflectionAnswer = microReflectionAnswers[scene.id];
-  const canContinue = !hasMicroReflection || Boolean(selectedMicroReflectionAnswer);
+  const canContinue = Boolean(selectedChoice) && (!hasMicroReflection || Boolean(selectedMicroReflectionAnswer));
   const hasSceneImage = Boolean(scene.image);
   const shouldShowSceneImage = hasSceneImage && !hiddenSceneImages[scene.id];
   const dayProgressIndex = Math.min(
@@ -2194,48 +2194,6 @@ export default function DayInTheLifeUrbanStudentPage() {
     Math.floor(((scene.sceneNumber ?? 1) - 1) / Math.max(1, Math.ceil((scene.totalScenes ?? 1) / dayProgressLabels.length)))
   );
   const dayProgress = dayProgressLabels[dayProgressIndex];
-  const interpretedMetrics = {
-    sleep:
-      cumulativeMetrics.sleep === 0
-        ? 'Sleep is holding at baseline.'
-        : cumulativeMetrics.sleep > 0
-          ? cumulativeMetrics.sleep >= 3
-            ? 'Sleep reserve is recovering.'
-            : 'Sleep reserve is stabilizing.'
-          : cumulativeMetrics.sleep <= -7
-            ? 'Sleep is running out.'
-            : 'Sleep is running low.',
-    stress:
-      cumulativeMetrics.stress === 0
-        ? 'Stress is holding at baseline.'
-        : cumulativeMetrics.stress > 0
-          ? cumulativeMetrics.stress >= 3
-            ? 'Stress is easing.'
-            : 'Stress is easing a little.'
-          : cumulativeMetrics.stress <= -7
-            ? 'Stress is piling up fast.'
-            : 'Stress keeps building.',
-    time:
-      cumulativeMetrics.time === 0
-        ? 'Time pressure is steady.'
-        : cumulativeMetrics.time > 0
-          ? cumulativeMetrics.time >= 3
-            ? 'There is a little more room to breathe.'
-            : 'Time pressure is easing a little.'
-          : cumulativeMetrics.time <= -7
-            ? 'Time pressure is slipping away quickly.'
-            : 'Time pressure is tightening.',
-    care:
-      cumulativeMetrics.care === 0
-        ? 'Connection is holding at baseline.'
-        : cumulativeMetrics.care > 0
-          ? cumulativeMetrics.care >= 3
-            ? 'Connection is strengthening.'
-            : 'Connection is getting steadier.'
-          : cumulativeMetrics.care <= -7
-            ? 'Connection feels out of reach.'
-            : 'Connection feels unstable.',
-  };
   const overallLoad = Math.max(0, -cumulativeMetrics.sleep) + Math.max(0, -cumulativeMetrics.stress) + Math.max(0, -cumulativeMetrics.time) + Math.max(0, -cumulativeMetrics.care);
   const overallState = overallLoad >= 28
     ? 'Shutting Down'
@@ -2252,6 +2210,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   return (
     <main className="urban-student-page">
       <section className="experience-shell">
+        <div className="experience-layout">
         <article className="scene-card">
           <button
             type="button"
@@ -2354,41 +2313,13 @@ export default function DayInTheLifeUrbanStudentPage() {
               <p className="section-label section-divider">CONSEQUENCE</p>
               <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
               {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label section-divider">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
-              {hasAnyChoiceSelected && <div className="metrics-stack" aria-label="Cumulative load across all choices">
-                <p className="section-label section-divider">CUMULATIVE LOAD</p>
-                <p className="metric-subtitle">How the day is weighing on him</p>
-                <div className="metric-context-row">
-                  <p className="overall-state">Overall State <span>{overallState}</span></p>
-                  <p className="day-progress">Day Progress <span>{dayProgress}</span></p>
-                </div>
-                {metricOrder.map((metric) => (
-                  <div className="metric-row" key={metric}>
-                    <div className="metric-row-meta">
-                      <div>
-                        <span className="metric-title">{metricConfig[metric].label}</span>
-                      </div>
-                      <span className="metric-value">{cumulativeMetrics[metric] > 0 ? `+${cumulativeMetrics[metric]}` : cumulativeMetrics[metric]}</span>
-                    </div>
-                    <div className="metric-track">
-                      <span className="metric-center-marker">0</span>
-                      <div
-                        className={`metric-fill ${cumulativeMetrics[metric] >= 0 ? (metric === 'care' ? 'metric-fill-care-positive' : 'metric-fill-positive') : 'metric-fill-negative'}`}
-                        style={{
-                          width: `${Math.abs((cumulativeMetrics[metric] / 10) * 50)}%`,
-                          left: cumulativeMetrics[metric] >= 0 ? '50%' : `${50 - Math.abs((cumulativeMetrics[metric] / 10) * 50)}%`,
-                        }}
-                      />
-                    </div>
-                    <p className="metric-meaning">{interpretedMetrics[metric]}</p>
-                  </div>
-                ))}
-              </div>}
               {hasReflection && (
                 <details className="reflect-panel"><summary><div><p className="section-label section-divider">PAUSE & REFLECT</p><p className="reflect-title">Professional Reflection Prompt</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /></div><div className="facilitator-lens"><p><strong>What Adults Might Miss</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for teachers and professional reflection</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or individual reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               )}
               {hasMicroReflection && (
                 <section className="micro-reflection-panel" aria-live="polite">
-                  <p className="section-label section-divider">LEARNING CHECKPOINT</p>
+                  <p className="section-label section-divider">QUICK EDUCATOR CHECK</p>
+                  <p className="micro-reflection-subheading">Before moving on, pause on what an adult might miss here.</p>
                   <p className="micro-reflection-prompt">{scene.microReflection.prompt}</p>
                   <div className="micro-reflection-options">
                     {scene.microReflection.options.map((option) => (
@@ -2410,6 +2341,35 @@ export default function DayInTheLifeUrbanStudentPage() {
             </section>
           )}
         </article>
+        {hasAnyChoiceSelected && <aside className="metrics-stack metrics-side-panel" aria-label="Adam current status and cumulative load">
+          <p className="section-label section-divider">ADAM’S CURRENT LOAD</p>
+          <p className="metric-subtitle">How the day is weighing on him</p>
+          <div className="metric-context-row">
+            <p className="overall-state">Overall State <span>{overallState}</span></p>
+            <p className="day-progress">Day Progress <span>{dayProgress}</span></p>
+          </div>
+          {metricOrder.map((metric) => (
+            <div className="metric-row" key={metric}>
+              <div className="metric-row-meta">
+                <div>
+                  <span className="metric-title">{metricConfig[metric].label}</span>
+                </div>
+                <span className="metric-value">{cumulativeMetrics[metric] > 0 ? `+${cumulativeMetrics[metric]}` : cumulativeMetrics[metric]}</span>
+              </div>
+              <div className="metric-track">
+                <span className="metric-center-marker">0</span>
+                <div
+                  className={`metric-fill ${cumulativeMetrics[metric] >= 0 ? (metric === 'care' ? 'metric-fill-care-positive' : 'metric-fill-positive') : 'metric-fill-negative'}`}
+                  style={{
+                    width: `${Math.abs((cumulativeMetrics[metric] / 10) * 50)}%`,
+                    left: cumulativeMetrics[metric] >= 0 ? '50%' : `${50 - Math.abs((cumulativeMetrics[metric] / 10) * 50)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </aside>}
+        </div>
       </section>
 
       {showSceneMenu && (
@@ -2436,8 +2396,9 @@ export default function DayInTheLifeUrbanStudentPage() {
 
       <style jsx>{`
         .urban-student-page { min-height: 100vh; background: #0b1120; color: #fff; padding: 3rem 1rem; }
-        .experience-shell { max-width: 900px; margin: 0 auto; }
-        .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; }
+        .experience-shell { max-width: 1220px; margin: 0 auto; }
+        .experience-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; align-items: start; }
+        .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; width: 100%; }
         .dev-menu-trigger { position: sticky; top: 8px; z-index: 5; margin: 0 0 6px auto; width: auto; border: 1px solid #94a3b8; border-radius: 999px; padding: 10px 14px; font-size: 0.82rem; background: #f8fafc; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
         .qa-trigger { margin-top: 0; }
         .qa-panel { border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px; background: #f8fafc; }
@@ -2450,6 +2411,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .flow-scene p { margin: 0 0 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.83rem; line-height: 1.45; }
         .flow-id { color: #475569; }
         .micro-reflection-panel { border: 1px solid #d5deeb; border-radius: 14px; padding: 14px; background: #f8fafc; display: grid; gap: 10px; }
+        .micro-reflection-subheading { margin: -4px 0 0; color: #475569; line-height: 1.45; font-size: 0.9rem; }
         .micro-reflection-prompt { margin: 0; color: #1e293b; line-height: 1.5; font-weight: 600; }
         .micro-reflection-options { display: grid; gap: 8px; }
         .micro-reflection-option { width: 100%; text-align: left; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #0f172a; padding: 10px 12px; font-weight: 500; }
@@ -2457,23 +2419,28 @@ export default function DayInTheLifeUrbanStudentPage() {
         .micro-reflection-response { margin: 2px 0 0; border-left: 3px solid #3b82f6; padding: 8px 10px; background: #eef5ff; color: #1e3a8a; border-radius: 8px; line-height: 1.55; }
         .continue-button:disabled { background: #94a3b8; border-color: #94a3b8; color: #e2e8f0; cursor: not-allowed; opacity: 1; }
 
-        .metrics-stack { display: grid; gap: 18px; background: linear-gradient(180deg, #1a2538 0%, #1f2e43 100%); border: 1px solid #3f516d; border-radius: 20px; padding: 22px; margin-top: 20px; }
-        .metric-subtitle { margin: -6px 0 2px; color: #cad7ea; font-size: 0.96rem; }
+        .metrics-stack { display: grid; gap: 14px; background: linear-gradient(180deg, #f7faff 0%, #f1f5fb 100%); border: 1px solid #c8d4e3; border-radius: 20px; padding: 20px; }
+        .metrics-side-panel { position: sticky; top: 16px; }
+        .metric-subtitle { margin: -6px 0 2px; color: #334155; font-size: 0.96rem; }
         .metric-context-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 2px 0 0; }
-        .overall-state, .day-progress { margin: 0; font-size: 0.8rem; color: #c7d5e8; border: none; border-radius: 999px; padding: 7px 12px; background: rgba(224, 234, 248, 0.14); }
-        .overall-state span, .day-progress span { color: #f4f8ff; font-weight: 800; margin-left: 6px; }
-        .metric-row { border: 1px solid #4a5d7b; background: linear-gradient(180deg, #2a3952 0%, #24344d 100%); border-radius: 14px; padding: 14px 14px 13px; }
-        .metric-row-meta { display: flex; align-items: center; justify-content: space-between; color: #f1f5fd; }
+        .overall-state, .day-progress { margin: 0; font-size: 0.8rem; color: #334155; border: 1px solid #d4deea; border-radius: 999px; padding: 7px 12px; background: #ffffff; }
+        .overall-state span, .day-progress span { color: #0f172a; font-weight: 800; margin-left: 6px; }
+        .metric-row { border: 1px solid #d6e0ea; background: #ffffff; border-radius: 14px; padding: 12px 12px 12px; }
+        .metric-row-meta { display: flex; align-items: center; justify-content: space-between; color: #0f172a; }
         .metric-title { font-size: 1.02rem; font-weight: 800; letter-spacing: 0.01em; }
         .metric-value { font-size: 1.08rem; font-weight: 900; color: #f8fbff; }
-        .metric-track { margin-top: 11px; background: #1f2d43; height: 18px; border-radius: 999px; overflow: hidden; position: relative; }
+        .metric-track { margin-top: 11px; background: #dbe5f1; height: 22px; border-radius: 999px; overflow: hidden; position: relative; }
         .metric-track::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 1px; height: 100%; background: #8aa1bf; z-index: 2; }
-        .metric-center-marker { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font-size: 0.68rem; color: #b9c8de; font-weight: 700; }
+        .metric-center-marker { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font-size: 0.68rem; color: #64748b; font-weight: 700; }
         .metric-fill { position: absolute; top: 0; height: 100%; transition: all 0.35s ease; z-index: 1; }
         .metric-fill-negative { background: linear-gradient(90deg, #5d2032 0%, #9f314e 55%, #c14866 100%); box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.25); }
         .metric-fill-positive { background: linear-gradient(90deg, #3a547f 0%, #5775a8 100%); }
         .metric-fill-care-positive { background: linear-gradient(90deg, #425b78 0%, #6f5f8e 100%); }
-        .metric-meaning { margin: 11px 0 0; font-size: 0.82rem; color: #d4deec; }
+        @media (max-width: 1024px) {
+          .experience-layout { grid-template-columns: minmax(0, 1fr); }
+          .metrics-side-panel { position: static; }
+          .scene-card { max-width: none; }
+        }
         @media (max-width: 640px) {
           .metrics-stack { padding: 18px 14px; gap: 14px; }
           .metric-row { padding: 12px; }
