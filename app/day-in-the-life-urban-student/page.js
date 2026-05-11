@@ -56,7 +56,7 @@ const urbanStudentScenes = [
       manuscriptExcerpt:
         '[PASTE MANUSCRIPT EXCERPT HERE]\n\nThis space is designed for a longer excerpt from the Urban Student manuscript. It can hold a full section, chapter passage, or facilitator reading connected to this moment in Adam’s day.\n\nUse this area for the original manuscript language, not a summary.',
       facilitatorLens:
-        'Ask participants what they would normally assume if a student put his head down, snapped back, or failed to engage during first period.',
+        'A student may be judged quickly for shutting down, snapping, or disengaging when adults do not know what happened before first period.',
     },
     choices: [
       {
@@ -157,7 +157,7 @@ const urbanStudentScenes = [
       manuscriptExcerpt:
         '[PASTE MANUSCRIPT EXCERPT HERE]\n\nThis space is designed for a longer excerpt from the Urban Student manuscript. It can hold a full section, chapter passage, or facilitator reading connected to this moment in Adam’s day.\n\nUse this area for the original manuscript language, not a summary.',
       facilitatorLens:
-        'Ask participants how their response would change if they knew the student’s morning began this way.',
+        'Adult responses often change when the morning context is understood before behavior is interpreted.',
     },
     choices: [
       { id: 'snooze', label: 'Hit snooze and lie back down', resultTitle: 'The alarm costs you.', metrics: { sleep: -1, stress: -3, time: -1, care: -1 }, result: [
@@ -237,7 +237,7 @@ const urbanStudentScenes = [
         'By the time Adam reaches the bus stop, he is not making decisions from a calm or neutral state. His actions are shaped by lack of sleep, emotional stress, fear, and urgency. When students act aggressively or impulsively, it is often the visible result of invisible buildup.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
       facilitatorLens:
-        'Ask participants whether Adam’s behavior should be judged in isolation or as part of a larger chain of events.',
+        'Behavior in this moment is easier to understand when it is viewed as part of a larger chain of events, not in isolation.',
     },
     choices: [
       { id: 'try_ask_first', label: 'Ask him for help first', resultTitle: 'You try to ask.', metrics: { sleep: 0, stress: -1, time: 1, care: -1 }, result: [
@@ -317,7 +317,7 @@ const urbanStudentScenes = [
       expandedInsight:
         'Adam’s missing book bag is not just forgetfulness. It is connected to the chaos of the morning, his fear of the boyfriend, the rushed exit, and his shame about not checking on his mom and sister. By the time he reaches school, he is already preparing to defend himself from questions.',
       facilitatorLens:
-        'Ask participants how they would respond to repeated missing homework if they did not know the morning behind it.',
+        'Repeated missing homework may reflect unseen morning instability rather than low effort.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -394,7 +394,7 @@ const urbanStudentScenes = [
       expandedInsight:
         'Adam enters first period already carrying fear from home, guilt from the bus stop, missing materials, and now panic about police on his street. The adult sees a student not starting work. Adam is experiencing a possible family emergency.',
       facilitatorLens:
-        'Ask participants what they would notice first: the missing work, the attitude, the distraction, or the fear.',
+        'Adults may first notice missing work or attitude, while fear and urgency remain hidden.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -472,7 +472,7 @@ const urbanStudentScenes = [
       expandedInsight:
         'The teacher’s refusal does more than deny a request. It confirms Adam’s belief that adults in school will not help him. The teacher also models the very rule-breaking he demands Adam avoid.',
       facilitatorLens:
-        'Ask participants how often students stop asking for help after one adult dismisses them.',
+        'One dismissive adult response can cause students to stop asking for help altogether.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -556,7 +556,7 @@ const urbanStudentScenes = [
       expandedInsight:
         'This moment should not be reduced to “student used computer incorrectly.” Adam tried to ask for help, was dismissed, and then attempted to meet the need himself. His behavior escalated when the adult treated the rule violation as more important than the possible emergency.',
       facilitatorLens:
-        'Ask participants how policy can be enforced without ignoring student crisis.',
+        'Policies can be enforced while still responding to signs of student crisis with care.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -647,7 +647,7 @@ const urbanStudentScenes = [
       expandedInsight:
         'Adam is sent to the office after a serious classroom escalation, but the office does not appear prepared for him. No one asks why he is there, what happened, or whether he is okay. The system failure confirms Adam’s belief that adults are disorganized and unavailable.',
       facilitatorLens:
-        'Ask participants how referral systems can either interrupt or intensify a student’s bad day.',
+        'Referral systems can either interrupt or intensify a student’s difficult day depending on adult response.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -733,7 +733,7 @@ No one asks.` },
       expandedInsight:
         'When students are quiet, adults may assume learning is happening. In this scene, low demands and copying create a system where students avoid exposure but also miss growth. A brief check-in and authentic task could interrupt that cycle.',
       facilitatorLens:
-        'Guide staff to distinguish calm classrooms from connected classrooms and identify one concrete intervention.',
+        'A quiet classroom is not always a connected classroom; compliance can mask disengagement, fear, or unmet skill needs.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -815,7 +815,7 @@ No one asks.` },
       expandedInsight:
         'Adam is not simply upset that a teacher changed jobs. He believed this teacher when she said she would not forget him. Her absence confirms a larger pattern in his life: adults leave, promises break, and trusting people is dangerous.',
       facilitatorLens:
-        'Ask participants how schools can make sure students do not experience staffing changes as personal abandonment.',
+        'Staffing changes can feel like personal abandonment to students unless adults communicate consistency and care.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -887,7 +887,7 @@ No one asks.` },
       expandedInsight:
         'Adam is scanning, bracing, and withdrawing at once. Adults who only enforce pace may miss a key intervention window. Small relational moves in transitions can prevent later escalation.',
       facilitatorLens:
-        'Have participants practice 15-second hallway responses that prioritize regulation over compliance.',
+        'Short, calm hallway responses can prioritize regulation and dignity before compliance.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -938,7 +938,7 @@ No one asks.` },
       expandedInsight:
         'Adam’s body is asking for recovery while school asks for attention. If adults respond only with correction, they lose a chance to connect and assess need.',
       facilitatorLens:
-        'Prompt teams to separate behavior management from need assessment in real time.',
+        'Behavior management and need assessment should happen together in real time, not as separate steps.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1020,7 +1020,7 @@ No one asks.` },
       expandedInsight:
         'Adam is managing hunger, fear for family, and social survival at once. In that state, conflict energy spreads quickly. Predictable adult presence and proactive support can lower harm.',
       facilitatorLens:
-        'Ask staff to map how basic-needs stress shows up behaviorally in common spaces.',
+        'Basic-needs stress often shows up behaviorally in common spaces before adults hear the full story.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1068,7 +1068,7 @@ No one asks.` },
       expandedInsight:
         'Adam is hungry, exhausted, and worried about safety at home. His shutdown is predictable under strain. Supportive responses should reduce load before demanding performance.',
       facilitatorLens:
-        'Have participants identify what “ready to learn” requires beyond compliance.',
+        'Being “ready to learn” requires safety, regulation, and basic needs support—not just compliance.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1139,7 +1139,7 @@ No one asks.` },
       expandedInsight:
         'Watching instead of doing reinforces a belief that students are seen as dangerous, not capable. That message compounds existing stress and reduces buy-in.',
       facilitatorLens:
-        'Invite teams to examine how policy decisions can unintentionally escalate student alienation.',
+        'Policy decisions can unintentionally escalate student alienation when they remove voice, context, or dignity.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1287,7 +1287,7 @@ No one asks.` },
       expandedInsight:
         'Adam experiences the office as a place where facts are replaced by assumptions. That pattern increases oppositional behavior and reduces future help-seeking.',
       facilitatorLens:
-        'Challenge teams to define what procedural justice looks like in school discipline spaces.',
+        'Procedural justice in discipline requires students to feel heard, respected, and treated consistently.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1339,7 +1339,7 @@ No one asks.` },
       expandedInsight:
         'Adam is moved through systems quickly, but no adult gathers context or need. Discipline becomes administrative flow rather than intervention.',
       facilitatorLens:
-        'Ask participants to redesign this decision point using a support-first framework.',
+        'This decision point can be redesigned with a support-first framework that slows down punishment and checks need.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1514,7 +1514,7 @@ No one asks.` },
       expandedInsight:
         'Adam’s bus-stop assault reflects a chain of earlier conflict and unmet intervention. Without coordinated safety supports, consequences can spill into community violence.',
       facilitatorLens:
-        'Encourage teams to map cross-setting risk and identify shared accountability with families and partners.',
+        'Risk often spans school, home, and community, so accountability and support must be shared across settings.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1585,7 +1585,7 @@ No one asks.` },
       expandedInsight:
         'After assault, exhaustion, and repeated invalidation, Adam retreats to bed as a survival strategy. This moment calls for coordinated care, not silence.',
       facilitatorLens:
-        'Ask participants to identify protective actions when a student communicates “it is not worth being awake.”',
+        'When a student communicates “it is not worth being awake,” adults should identify immediate protective actions and support.',
       manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
     },
     choices: [
@@ -1752,7 +1752,7 @@ const renderBlocks = (blocks) =>
   blocks.map((block, index) =>
     block.type === 'thought' ? (
       <aside key={`${block.type}-${index}`} className="thought-wrap">
-        <div className="thought-card">{block.text}</div>
+        <div className="thought-card"><span className="thought-label">Adam thinks:</span> <em>{block.text}</em></div>
       </aside>
     ) : (
       <p key={`${block.type}-${index}`} className="paragraph-card">{block.text}</p>
@@ -2117,7 +2117,7 @@ export default function DayInTheLifeUrbanStudentPage() {
                 ))}
               </div>}
               {hasReflection && (
-                <details className="reflect-panel"><summary><div><p className="section-label section-divider">PAUSE & REFLECT</p><p className="reflect-title">Professional Reflection Prompt</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /></div><div className="facilitator-lens"><p><strong>Facilitator Lens</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for facilitators, teachers, and discussion leaders</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or facilitator-led reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
+                <details className="reflect-panel"><summary><div><p className="section-label section-divider">PAUSE & REFLECT</p><p className="reflect-title">Professional Reflection Prompt</p><p className="reflect-subtitle">Adult learning layer</p></div><span className="reflect-indicator">+</span></summary><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder="Type your reflection here..." rows={4} /></div><div className="facilitator-lens"><p><strong>What Adults Might Miss</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div><button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for teachers and professional reflection</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or individual reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></details>
               )}
               <button type="button" className="continue-button" onClick={handleContinue}>Continue</button>
               <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
