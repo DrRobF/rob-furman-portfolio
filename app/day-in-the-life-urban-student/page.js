@@ -2022,10 +2022,46 @@ export default function DayInTheLifeUrbanStudentPage() {
   );
   const dayProgress = dayProgressLabels[dayProgressIndex];
   const interpretedMetrics = {
-    sleep: cumulativeMetrics.sleep <= -7 ? 'Sleep is running out.' : cumulativeMetrics.sleep <= -3 ? 'Sleep is running low.' : cumulativeMetrics.sleep >= 3 ? 'There is a little recovery.' : 'Sleep still feels fragile.',
-    stress: cumulativeMetrics.stress <= -7 ? 'Stress is piling up fast.' : cumulativeMetrics.stress <= -3 ? 'Stress keeps building.' : cumulativeMetrics.stress >= 3 ? 'Stress eases for a moment.' : 'Stress stays close.',
-    time: cumulativeMetrics.time <= -7 ? 'Time is slipping away.' : cumulativeMetrics.time <= -3 ? 'The day is getting tighter.' : cumulativeMetrics.time >= 3 ? 'There is a little room to breathe.' : 'Time still feels tight.',
-    care: cumulativeMetrics.care <= -7 ? 'Connection feels out of reach.' : cumulativeMetrics.care <= -3 ? 'Connection feels unstable.' : cumulativeMetrics.care >= 3 ? 'Support shows up for a moment.' : 'Connection feels uncertain.',
+    sleep:
+      cumulativeMetrics.sleep === 0
+        ? 'Sleep is holding at baseline.'
+        : cumulativeMetrics.sleep > 0
+          ? cumulativeMetrics.sleep >= 3
+            ? 'Sleep reserve is recovering.'
+            : 'Sleep reserve is stabilizing.'
+          : cumulativeMetrics.sleep <= -7
+            ? 'Sleep is running out.'
+            : 'Sleep is running low.',
+    stress:
+      cumulativeMetrics.stress === 0
+        ? 'Stress is holding at baseline.'
+        : cumulativeMetrics.stress > 0
+          ? cumulativeMetrics.stress >= 3
+            ? 'Stress is easing.'
+            : 'Stress is easing a little.'
+          : cumulativeMetrics.stress <= -7
+            ? 'Stress is piling up fast.'
+            : 'Stress keeps building.',
+    time:
+      cumulativeMetrics.time === 0
+        ? 'Time pressure is steady.'
+        : cumulativeMetrics.time > 0
+          ? cumulativeMetrics.time >= 3
+            ? 'There is a little more room to breathe.'
+            : 'Time pressure is easing a little.'
+          : cumulativeMetrics.time <= -7
+            ? 'Time pressure is slipping away quickly.'
+            : 'Time pressure is tightening.',
+    care:
+      cumulativeMetrics.care === 0
+        ? 'Connection is holding at baseline.'
+        : cumulativeMetrics.care > 0
+          ? cumulativeMetrics.care >= 3
+            ? 'Connection is strengthening.'
+            : 'Connection is getting steadier.'
+          : cumulativeMetrics.care <= -7
+            ? 'Connection feels out of reach.'
+            : 'Connection feels unstable.',
   };
   const overallLoad = Math.max(0, -cumulativeMetrics.sleep) + Math.max(0, -cumulativeMetrics.stress) + Math.max(0, -cumulativeMetrics.time) + Math.max(0, -cumulativeMetrics.care);
   const overallState = overallLoad >= 28
