@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const urbanStudentScenes = [
   {
@@ -1837,6 +1837,12 @@ const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 const dayProgressLabels = ['Morning', 'Early School Day', 'Midday', 'Afternoon', 'End of Day', 'Reflection'];
 
 export default function DayInTheLifeUrbanStudentPage() {
+  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    setIsDeveloperMode(params.get('dev') === 'true');
+  }, []);
   const [hasStartedExperience, setHasStartedExperience] = useState(false);
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [selectedChoices, setSelectedChoices] = useState({});
@@ -2212,15 +2218,20 @@ export default function DayInTheLifeUrbanStudentPage() {
       <section className="experience-shell">
         <div className="experience-layout">
         <article className="scene-card">
-          <button
-            type="button"
-            className="dev-menu-trigger"
-            onClick={() => setShowSceneMenu((prev) => !prev)}
-          >
-            Jump to Scene
-          </button>
-          <button type="button" className="dev-menu-trigger qa-trigger" onClick={runQaCheck}>Run QA Check</button>
-          <button type="button" className="dev-menu-trigger qa-trigger" onClick={() => setShowStoryFlowMap((prev) => !prev)}>Show Story Flow Map</button>
+          {isDeveloperMode && (
+            <>
+              <p className="dev-mode-badge" aria-live="polite">Developer Mode Active</p>
+              <button
+                type="button"
+                className="dev-menu-trigger"
+                onClick={() => setShowSceneMenu((prev) => !prev)}
+              >
+                Jump to Scene
+              </button>
+              <button type="button" className="dev-menu-trigger qa-trigger" onClick={runQaCheck}>Run QA Check</button>
+              <button type="button" className="dev-menu-trigger qa-trigger" onClick={() => setShowStoryFlowMap((prev) => !prev)}>Show Story Flow Map</button>
+            </>
+          )}
           <header className="scene-header">
             <div className="tone-band" />
             <p>{scene.time}</p>
@@ -2238,7 +2249,7 @@ export default function DayInTheLifeUrbanStudentPage() {
               <div className="scene-image-overlay" aria-hidden="true" />
             </div>
           )}
-          {qaReport && (
+          {isDeveloperMode && qaReport && (
             <section className="qa-panel" aria-live="polite">
               <p className="section-label">DEV QA REPORT</p>
               <p className="qa-timestamp">Generated: {qaReport.generatedAt}</p>
@@ -2258,7 +2269,7 @@ export default function DayInTheLifeUrbanStudentPage() {
               </div>
             </section>
           )}
-          {showStoryFlowMap && (
+          {isDeveloperMode && showStoryFlowMap && (
             <section className="qa-panel" aria-live="polite">
               <p className="section-label">DEV STORY FLOW MAP</p>
               <p className="qa-timestamp">Start: {storyFlowReport.startSceneId}</p>
@@ -2368,7 +2379,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         </div>
       </section>
 
-      {showSceneMenu && (
+      {isDeveloperMode && showSceneMenu && (
         <aside className="scene-menu-overlay" role="dialog" aria-modal="true" aria-label="Developer scene navigation menu">
           <div className="scene-menu-panel">
             <div className="scene-menu-header">
@@ -2396,6 +2407,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         .experience-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; align-items: start; }
         .scene-card { background: #fbfdff; color: #0f172a; border-radius: 24px; padding: 36px; max-width: 860px; margin: 0 auto; box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22); display: grid; gap: 1.2rem; width: 100%; }
         .dev-menu-trigger { position: sticky; top: 8px; z-index: 5; margin: 0 0 6px auto; width: auto; border: 1px solid #94a3b8; border-radius: 999px; padding: 10px 14px; font-size: 0.82rem; background: #f8fafc; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
+        .dev-mode-badge { margin: 0 0 6px auto; width: fit-content; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 999px; padding: 4px 10px; }
         .qa-trigger { margin-top: 0; }
         .qa-panel { border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px; background: #f8fafc; }
         .qa-timestamp { margin: 0 0 10px; color: #475569; font-size: 0.82rem; }
