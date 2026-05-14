@@ -4,6 +4,9 @@ export const setupOptions = {
   callTypes: ['Parent calls you unexpectedly', 'You call parent after initial investigation'],
   scenarioTypes: ['Discipline', 'Academic Concern', 'Attendance', 'Teacher Complaint'],
   intensities: ['Moderate', 'High', 'Full Blaze'],
+  parentVoices: ['Male', 'Female'],
+  parentTones: ['Full Blaze', 'Controlled Anger', 'Exhausted', 'Formal/Procedural'],
+  communicationStyles: ['Direct', 'Emotional', 'Passive Aggressive', 'Negotiating'],
 };
 
 export const callerProfiles = {
