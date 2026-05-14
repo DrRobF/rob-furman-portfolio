@@ -1,0 +1,8 @@
+{
+  "weighting": {
+    "emotionalPressure": 0.35,
+    "accountabilityDemand": 0.25,
+    "relationshipRepair": 0.2,
+    "processTrust": 0.2
+  }
+}

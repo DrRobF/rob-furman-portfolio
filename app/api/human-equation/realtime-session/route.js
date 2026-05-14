@@ -1,7 +1,11 @@
+import { buildSimulationPrompt } from '../../../../lib/human-equation/buildSimulationPrompt';
+
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
     const voice = body?.voice || 'alloy';
+    const setup = body?.setup || {};
+    const simulation = await buildSimulationPrompt(setup);
 
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
@@ -12,6 +16,7 @@ export async function POST(request) {
       body: JSON.stringify({
         model: 'gpt-4o-realtime-preview',
         voice,
+        instructions: simulation.prompt,
       }),
     });
 
@@ -21,7 +26,7 @@ export async function POST(request) {
     }
 
     const data = await response.json();
-    return Response.json(data);
+    return Response.json({ ...data, simulationPrompt: simulation.prompt, selectedCards: simulation.cards });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

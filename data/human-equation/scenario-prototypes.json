@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "prototype-01",
+      "issueId": "middle-school-fight-victim-bully-call",
+      "startingArchetypeId": "the_blazer",
+      "midCallArchetypeId": "the_dealer",
+      "possibleEndingArchetypeId": "legacy_parent",
+      "developmentalDynamicId": "middle_school"
+    }
+  ]
+}
