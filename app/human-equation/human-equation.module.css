@@ -90,3 +90,23 @@
   padding: 0.5rem;
   border-radius: 8px;
 }
+
+.debugToggle {
+  margin-top: .8rem;
+  border: 1px solid #7f8ea0;
+  border-radius: 999px;
+  padding: .55rem .95rem;
+  background: #f5f8fb;
+  color: #2f4357;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.debugWarning {
+  color: #fca5a5;
+  font-weight: 700;
+}
+
+.debugPanel {
+  color: #e5e7eb;
+}

@@ -7,7 +7,12 @@ export async function POST(request) {
     const setup = body?.setup || {};
     const simulation = await buildSimulationPrompt(setup);
 
-    console.log('HUMAN_EQUATION_PROMPT_USED', {
+    console.log('HUMAN_EQUATION_PROMPT_USED');
+    console.log('prompt source', simulation.promptSource);
+    console.log('prompt length', simulation.prompt.length);
+    console.log('first 1000 characters', simulation.prompt.slice(0, 1000));
+
+    console.log('HUMAN_EQUATION_PROMPT_METADATA', {
       promptSource: simulation.promptSource,
       selectedScenarioTitle: simulation.cards?.issue?.title || 'fallback',
       selectedParentArchetype: simulation.cards?.openingArchetype?.name || 'fallback',
@@ -15,7 +20,7 @@ export async function POST(request) {
       selectedVulnerabilities: simulation.cards?.vulnerabilities || [],
       selectedLeadershipSkills: simulation.cards?.leadershipSkills || [],
       promptLength: simulation.prompt.length,
-      promptPreview: simulation.prompt.slice(0, 1200),
+      promptPreview: simulation.prompt.slice(0, 1000),
       fallbackReason: simulation.fallbackReason || null,
     });
 
