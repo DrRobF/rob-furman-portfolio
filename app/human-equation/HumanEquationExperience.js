@@ -31,7 +31,7 @@ export default function HumanEquationExperience() {
   const [hasMicrophone, setHasMicrophone] = useState(true);
   const [userAudioDetected, setUserAudioDetected] = useState(false);
   const [noiseWarning, setNoiseWarning] = useState('');
-  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptSource: 'unknown', fallbackReason: null });
+  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const pcRef = useRef(null);
@@ -123,7 +123,7 @@ export default function HumanEquationExperience() {
   const beginCall = async () => {
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
-    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptSource: 'unknown', fallbackReason: null });
+    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null });
     setShowDebugPanel(false);
     setCallStatus('Connecting…');
     setEmotionalTemperature('Escalated');
@@ -144,6 +144,7 @@ export default function HumanEquationExperience() {
       setDebugInfo({
         selectedCards: tokenData?.selectedCards || null,
         simulationPrompt: simulationPrompt || '',
+        promptPreview: tokenData?.promptPreview || simulationPrompt || '',
         promptSource: tokenData?.promptSource || 'unknown',
         fallbackReason: tokenData?.fallbackReason || null,
       });
@@ -358,7 +359,7 @@ export default function HumanEquationExperience() {
                   <p className={styles.debugWarning}><strong>WARNING:</strong> Realtime session is not using generated JSON prompt.</p>
                 )}
                 <p><strong>Generated prompt (first 1500 chars):</strong></p>
-                <pre>{debugInfo.simulationPrompt ? debugInfo.simulationPrompt.slice(0, 1500) : 'No prompt generated yet.'}</pre>
+                <pre>{debugInfo.promptPreview || (debugInfo.simulationPrompt ? debugInfo.simulationPrompt.slice(0, 1500) : 'No prompt generated yet.')}</pre>
               </div>
             )}
           </div>
