@@ -70,3 +70,5 @@
   animation-duration: .6s;
   filter: saturate(1.25);
 }
+
+.contextLabel { color:#395268; font-weight:600; margin:.45rem 0; }
