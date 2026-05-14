@@ -2264,7 +2264,6 @@ export default function DayInTheLifeUrbanStudentPage() {
             <div className="tone-band" />
             <p>{scene.time}</p>
             <h1>{scene.heading}</h1>
-            <p>Scene {scene.sceneNumber} of {scene.totalScenes}</p>
           </header>
           {shouldShowSceneImage && (
             <div className="scene-image-wrap">
