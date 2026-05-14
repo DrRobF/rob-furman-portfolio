@@ -1,0 +1,206 @@
+.shell {
+  min-height: calc(100vh - 76px);
+  position: relative;
+  padding: 4rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #223658 0%, #101a2e 44%, #090f1a 100%);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(130deg, rgba(53, 111, 207, 0.22), rgba(11, 20, 38, 0.05));
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: min(920px, 100%);
+}
+
+.panel,
+.panelCentered,
+.callLayout {
+  border: 1px solid rgba(188, 210, 245, 0.25);
+  border-radius: 24px;
+  background: rgba(8, 14, 24, 0.82);
+  box-shadow: 0 24px 50px rgba(4, 9, 20, 0.45);
+  backdrop-filter: blur(8px);
+  color: #edf3ff;
+}
+
+.panel,
+.panelCentered {
+  padding: clamp(1.5rem, 3vw, 2.8rem);
+}
+
+.panel h1,
+.panel h2,
+.panel h3,
+.panelCentered h2,
+.callLayout h2 {
+  color: #f5f8ff;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9bb8ea;
+  font-weight: 700;
+  margin-bottom: 0.9rem;
+}
+
+.lead,
+.panel p,
+.panelCentered p,
+.transcript p {
+  color: #d3def4;
+  line-height: 1.75;
+}
+
+.cta,
+.endCall {
+  margin-top: 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.cta {
+  padding: 0.82rem 1.3rem;
+  color: #f5f9ff;
+  background: linear-gradient(135deg, #3f7ef0, #2f5ec6);
+  box-shadow: 0 12px 26px rgba(54, 109, 213, 0.3);
+}
+
+.cta:hover,
+.endCall:hover {
+  transform: translateY(-1px);
+}
+
+.scenarioCard {
+  margin-top: 0.75rem;
+  padding: 1.2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(173, 197, 236, 0.25);
+  background: rgba(26, 39, 67, 0.5);
+}
+
+.scenarioCard ul {
+  margin: 1rem 0;
+  padding-left: 1rem;
+}
+
+.scenarioCard li {
+  margin-bottom: 0.45rem;
+  color: #d8e4fb;
+}
+
+.subtle {
+  color: #afc3e8;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #b3c8f0;
+}
+
+.panelCentered {
+  text-align: center;
+}
+
+.callOrb {
+  width: 126px;
+  aspect-ratio: 1;
+  margin: 0 auto 1.2rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #78a9ff, #2e4f89 62%, #132341 100%);
+  box-shadow: 0 0 0 12px rgba(88, 132, 214, 0.18), 0 0 42px rgba(68, 125, 233, 0.48);
+}
+
+.callLayout {
+  padding: 1.35rem;
+}
+
+.callHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.timer {
+  font-variant-numeric: tabular-nums;
+  color: #d0dfff;
+  font-size: 1.15rem;
+}
+
+.transcript {
+  margin-top: 1.2rem;
+  border-radius: 14px;
+  border: 1px solid rgba(173, 197, 236, 0.25);
+  padding: 1rem;
+  max-height: 360px;
+  overflow: auto;
+  background: rgba(18, 28, 46, 0.75);
+}
+
+.lineItem + .lineItem {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(132, 160, 206, 0.2);
+}
+
+.lineMeta {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  font-size: 0.86rem;
+}
+
+.lineMeta span,
+.lineMeta time {
+  color: #acc3eb;
+}
+
+.endCall {
+  padding: 0.8rem 1.1rem;
+  color: #ffe6e9;
+  background: linear-gradient(135deg, #c6425b, #962f43);
+}
+
+.reportGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.reportGrid section {
+  border: 1px solid rgba(174, 199, 238, 0.25);
+  border-radius: 14px;
+  padding: 1rem;
+  background: rgba(19, 30, 51, 0.7);
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding-inline: 0.75rem;
+  }
+
+  .callHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
