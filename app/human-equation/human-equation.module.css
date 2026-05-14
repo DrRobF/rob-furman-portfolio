@@ -60,3 +60,8 @@
   .shell { padding-inline:.75rem; }
   .callHeader { flex-direction:column; align-items:flex-start; }
 }
+
+.waveformActive {
+  animation-duration: .6s;
+  filter: saturate(1.25);
+}
