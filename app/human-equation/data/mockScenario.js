@@ -2,6 +2,12 @@ export const setupOptions = {
   roles: ['Teacher', 'Assistant Principal', 'Principal'],
   gradeBands: ['Elementary', 'Middle School', 'High School'],
   callTypes: ['Parent calls you unexpectedly', 'You call parent after initial investigation'],
+  callTimings: [
+    'Morning call before school',
+    'Same-day afternoon parent call',
+    'Administrator callback after initial investigation',
+    'Next-day follow-up call',
+  ],
   scenarioTypes: ['Discipline', 'Academic Concern', 'Attendance', 'Teacher Complaint'],
   intensities: ['Moderate', 'High', 'Full Blaze'],
   parentVoices: ['Male', 'Female'],
@@ -88,4 +94,44 @@ export const report = {
   ],
   nextPracticeRecommendation:
     'Repeat this scenario at Full Blaze intensity and practice concise empathy statements in the first 45 seconds.',
+};
+
+
+export const callTimingBriefings = {
+  'Morning call before school': {
+    summary: 'Parent heard the child\'s story last night. Students have not arrived, and the administrator may not have full details yet.',
+    goal: 'Listen, gather facts, create an immediate arrival safety plan, and avoid premature conclusions.',
+    focus: [
+      'Acknowledge the parent\'s urgency from hearing the story overnight.',
+      'Set specific arrival supports before students enter the building.',
+      'Name what is known versus unknown in real time.',
+    ],
+  },
+  'Same-day afternoon parent call': {
+    summary: 'The child is already home and has shared their version. If admin was unaware, this may expose a communication or reporting failure.',
+    goal: 'Acknowledge concern, determine whether staff failed to notify school leadership/parent, and set a clear investigation and safety plan.',
+    focus: [
+      'Address why the parent is hearing about this first from the child.',
+      'Clarify whether staff followed incident-reporting procedures.',
+      'Commit to immediate communication checkpoints and safety actions.',
+    ],
+  },
+  'Administrator callback after initial investigation': {
+    summary: 'The administrator has already collected initial facts from staff/students and is calling back with updates.',
+    goal: 'Communicate what is known, what is still under review, and next steps without requiring emotional agreement.',
+    focus: [
+      'Lead with confirmed findings and timeline.',
+      'Separate evidence, unresolved items, and consequence process.',
+      'Expect pushback on fairness, accountability, and school response quality.',
+    ],
+  },
+  'Next-day follow-up call': {
+    summary: 'The parent had time to process, speak with the child, and possibly hear from other families, which can expand the narrative.',
+    goal: 'Re-anchor facts, address new concerns, and prevent escalation driven by community narratives.',
+    focus: [
+      'Reset to verified facts before addressing rumors.',
+      'Respond to new concerns without becoming defensive.',
+      'Protect trust through clear follow-up commitments and timeline.',
+    ],
+  },
 };
