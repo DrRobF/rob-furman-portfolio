@@ -6,6 +6,8 @@ import { briefings, callTimingBriefings, setupOptions } from './data/mockScenari
 
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 
+const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
+
 export default function HumanEquationExperience() {
   const [stage, setStage] = useState('intro');
   const [callStartedAt, setCallStartedAt] = useState(null);
@@ -238,6 +240,33 @@ export default function HumanEquationExperience() {
   };
 
   const setField = (key, value) => setSetup((prev) => ({ ...prev, [key]: value }));
+
+  const randomizeScenario = () => {
+    setSetup((prev) => ({
+      ...prev,
+      role: randomFrom(setupOptions.roles),
+      gradeBand: randomFrom(setupOptions.gradeBands),
+      callType: randomFrom(setupOptions.callTypes),
+      callTiming: randomFrom(setupOptions.callTimings),
+      scenarioType: randomFrom(setupOptions.scenarioTypes),
+      intensity: randomFrom(setupOptions.intensities),
+      parentVoice: randomFrom(setupOptions.parentVoices),
+      parentTone: randomFrom(setupOptions.parentTones),
+      communicationStyle: randomFrom(setupOptions.communicationStyles),
+      scenarioNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    }));
+  };
+
+  const regenerateParentProfile = () => {
+    setSetup((prev) => ({
+      ...prev,
+      intensity: randomFrom(setupOptions.intensities),
+      parentVoice: randomFrom(setupOptions.parentVoices),
+      parentTone: randomFrom(setupOptions.parentTones),
+      communicationStyle: randomFrom(setupOptions.communicationStyles),
+      parentProfileNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    }));
+  };
   const isUnexpectedCall = setup.callType === setupOptions.callTypes[0];
   const selectedTimingBriefing = callTimingBriefings[setup.callTiming];
 
@@ -261,6 +290,11 @@ export default function HumanEquationExperience() {
           <div className={styles.panel}>
             <p className={styles.eyebrow}>Simulation Setup</p>
             <h2>Configure your leadership call</h2>
+            <p className={styles.variationNote}>For realistic practice, scenario details may vary each time.</p>
+            <div className={styles.setupActions}>
+              <button type="button" className={styles.cta} onClick={randomizeScenario}>Generate New Scenario</button>
+              <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>Regenerate Parent Profile</button>
+            </div>
             <div className={styles.setupGrid}>
               <Selector label="Role" options={setupOptions.roles} value={setup.role} onSelect={(value) => setField('role', value)} />
               <Selector label="Grade Band" options={setupOptions.gradeBands} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
@@ -302,8 +336,8 @@ export default function HumanEquationExperience() {
           <div className={styles.panelCentered}>
             <p className={styles.eyebrow}>Incoming Call</p>
             <div className={styles.callOrb} />
-            <h2>Parent Caller: Ms. Rodriguez (Grade 7)</h2>
-            <p className={styles.subtle}>Child reportedly punched during lunch transition • Middle School</p>
+            <h2>Parent Caller: {setup.parentVoice === 'Male' ? 'Mr. Carter' : 'Ms. Rodriguez'} ({setup.gradeBand})</h2>
+            <p className={styles.subtle}>{setup.scenarioType} • {setup.callType}</p>
             <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
             <div className={styles.micChecklist}>
               <h3>Pre-Call Environment Check</h3>
@@ -353,6 +387,7 @@ export default function HumanEquationExperience() {
                 <p><strong>Selected developmental dynamic:</strong> {debugInfo.selectedCards?.developmentalDynamic?.name || 'Unknown'}</p>
                 <p><strong>Selected call timing:</strong> {debugInfo.selectedCards?.callTiming || setup.callTiming}</p>
                 <p><strong>Selected voice/profile options:</strong> {setup.parentVoice} / {setup.parentTone} / {setup.communicationStyle}</p>
+                <p><strong>Setup selections:</strong> {setup.role} / {setup.gradeBand} / {setup.callType} / {setup.callTiming} / {setup.scenarioType}</p>
                 <p><strong>Generated prompt length:</strong> {debugInfo.simulationPrompt?.length || 0}</p>
                 <p><strong>Prompt source:</strong> {debugInfo.promptSource}</p>
                 {debugInfo.promptSource !== 'json' && (
