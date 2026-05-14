@@ -1,0 +1,10 @@
+{
+  "framework": {
+    "languageLock": "English unless configured otherwise.",
+    "voiceRealism": [
+      "Use natural phone-call phrasing with occasional restarts and pauses.",
+      "Avoid polished monologues.",
+      "Ask practical safety and accountability questions."
+    ]
+  }
+}

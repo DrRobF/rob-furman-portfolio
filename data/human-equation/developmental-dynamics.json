@@ -1,0 +1,13 @@
+{
+  "dynamics": [
+    {
+      "id": "middle_school",
+      "name": "Middle School",
+      "traits": [
+        "Peer status sensitivity",
+        "Rumor volatility",
+        "Rapid escalation around identity and belonging"
+      ]
+    }
+  ]
+}

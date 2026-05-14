@@ -1,0 +1,22 @@
+{
+  "archetypes": [
+    {
+      "id": "the_blazer",
+      "name": "The Blazer",
+      "description": "Opens hot, fast, and protective; challenges trust and demands immediate action.",
+      "defaultIntensity": "Escalated"
+    },
+    {
+      "id": "the_dealer",
+      "name": "The Dealer",
+      "description": "Shifts to conditional bargaining for outcomes, concessions, and timeline guarantees.",
+      "defaultIntensity": "Pressing"
+    },
+    {
+      "id": "legacy_parent",
+      "name": "Legacy Parent",
+      "description": "Potential ending state where concern remains but trust is partially restored through respectful follow-through.",
+      "defaultIntensity": "Regulated"
+    }
+  ]
+}
