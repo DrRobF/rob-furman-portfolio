@@ -768,7 +768,7 @@ No one asks.` },
           { type: 'paragraph', text: 'The hallway noise rushes in as you step out, and the thought about your street follows you anyway.' },
         ],
         metrics: { sleep: 0, stress: -1, time: -1, care: -1 },
-        nextSceneId: 'scene_main_office',
+        nextSceneId: 'scene_hallway_internal_reflection',
       },
       {
         id: 'find_out_street',
@@ -1845,6 +1845,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   }, []);
   const [hasStartedExperience, setHasStartedExperience] = useState(false);
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
+  const [previousSceneId, setPreviousSceneId] = useState(null);
   const [selectedChoices, setSelectedChoices] = useState({});
   const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
@@ -1904,6 +1905,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const handleReset = () => {
     setHasStartedExperience(false);
     setSceneId('scene_2am_bedroom');
+    setPreviousSceneId(null);
     scrollToTopOnSceneChange();
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
@@ -1917,22 +1919,31 @@ export default function DayInTheLifeUrbanStudentPage() {
   const handleBeginExperience = () => {
     setHasStartedExperience(true);
     setSceneId('scene_2am_bedroom');
+    setPreviousSceneId(null);
     scrollToTopOnSceneChange();
   };
 
   const handleContinue = () => {
     if (selectedChoice?.nextSceneId && sceneById[selectedChoice.nextSceneId]) {
+      if (process.env.NODE_ENV !== 'production' && previousSceneId && selectedChoice.nextSceneId === previousSceneId) {
+        console.warn(
+          `[Urban Student Simulation] Potential backward loop detected: ${scene.id} routes back to previous scene ${previousSceneId}. Choice: ${selectedChoice.id}`,
+        );
+      }
+      setPreviousSceneId(scene.id);
       setSceneId(selectedChoice.nextSceneId);
       scrollToTopOnSceneChange();
       setRevealedGroupCounts((prev) => ({ ...prev, [selectedChoice.nextSceneId]: prev[selectedChoice.nextSceneId] ?? 1 }));
       return;
     }
+    setPreviousSceneId(scene.id);
     setSceneId('scene_placeholder_end');
     scrollToTopOnSceneChange();
   };
 
   const handleJumpToScene = (targetSceneId) => {
     if (!sceneById[targetSceneId] || targetSceneId === sceneId) return;
+    setPreviousSceneId(scene.id);
     setSceneId(targetSceneId);
     scrollToTopOnSceneChange();
     setSelectedChoices((prev) => {
@@ -1962,6 +1973,8 @@ export default function DayInTheLifeUrbanStudentPage() {
     const scenesMissingReflection = [];
     const scenesMissingToc = [];
     const missingMetrics = [];
+    const immediateBackwardRoutes = [];
+    const twoNodeCycles = [];
     const invalidSceneShape = [];
     const invalidReflectionShape = [];
 
@@ -2003,6 +2016,15 @@ export default function DayInTheLifeUrbanStudentPage() {
           && Object.prototype.hasOwnProperty.call(choice.metrics, 'care');
 
         if (!hasMetrics) missingMetrics.push(`${currentScene.id} / ${choice.id}`);
+
+        const targetScene = choice.nextSceneId ? sceneById[choice.nextSceneId] : null;
+        if (targetScene && typeof currentScene.sceneNumber === 'number' && typeof targetScene.sceneNumber === 'number' && targetScene.sceneNumber < currentScene.sceneNumber) {
+          immediateBackwardRoutes.push(`${currentScene.id} (${currentScene.sceneNumber}) -> ${targetScene.id} (${targetScene.sceneNumber}) via ${choice.id}`);
+        }
+
+        if (targetScene && (targetScene.choices ?? []).some((targetChoice) => targetChoice.nextSceneId === currentScene.id)) {
+          twoNodeCycles.push(`${currentScene.id} <-> ${targetScene.id}`);
+        }
       });
 
       const inToc = tocItems.some((entry) => entry.id === currentScene.id);
@@ -2038,6 +2060,12 @@ export default function DayInTheLifeUrbanStudentPage() {
 
     if (duplicateTocTargets.length) warnings.push(`Duplicate TOC targets: ${duplicateTocTargets.join(', ')}`);
     else passedChecks.push('Duplicate TOC Targets: none');
+
+    if (immediateBackwardRoutes.length) warnings.push(`Immediate backward routes found: ${immediateBackwardRoutes.join(', ')}`);
+    else passedChecks.push('Immediate Backward Routes: none');
+
+    if (twoNodeCycles.length) warnings.push(`Two-node cycle risks found: ${[...new Set(twoNodeCycles)].join(', ')}`);
+    else passedChecks.push('Two-node Cycle Risks: none');
 
     setQaReport({ errors, warnings, passedChecks, generatedAt: new Date().toISOString() });
   };
