@@ -1,5 +1,8 @@
-export async function POST() {
+export async function POST(request) {
   try {
+    const body = await request.json().catch(() => ({}));
+    const voice = body?.voice || 'alloy';
+
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
@@ -8,7 +11,7 @@ export async function POST() {
       },
       body: JSON.stringify({
         model: 'gpt-4o-realtime-preview',
-        voice: 'alloy',
+        voice,
       }),
     });
 
