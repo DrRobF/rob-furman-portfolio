@@ -110,3 +110,7 @@
 .debugPanel {
   color: #e5e7eb;
 }
+
+.setupActions { display:flex; gap:.6rem; flex-wrap:wrap; margin:.8rem 0 1rem; }
+.secondaryAction { border:1px solid #9ab0c4; border-radius:999px; padding:.6rem .95rem; background:#eef4fa; color:#2f4357; font-weight:700; cursor:pointer; }
+.variationNote { font-weight:600; color:#44617a; margin-top:.3rem; }
