@@ -72,3 +72,21 @@
 }
 
 .contextLabel { color:#395268; font-weight:600; margin:.45rem 0; }
+
+.debugPanel {
+  margin-top: 1rem;
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #111;
+}
+
+.debugPanel pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 180px;
+  overflow: auto;
+  background: #1b1b1b;
+  padding: 0.5rem;
+  border-radius: 8px;
+}

@@ -7,6 +7,18 @@ export async function POST(request) {
     const setup = body?.setup || {};
     const simulation = await buildSimulationPrompt(setup);
 
+    console.log('HUMAN_EQUATION_PROMPT_USED', {
+      promptSource: simulation.promptSource,
+      selectedScenarioTitle: simulation.cards?.issue?.title || 'fallback',
+      selectedParentArchetype: simulation.cards?.openingArchetype?.name || 'fallback',
+      selectedTactics: simulation.cards?.tactics || [],
+      selectedVulnerabilities: simulation.cards?.vulnerabilities || [],
+      selectedLeadershipSkills: simulation.cards?.leadershipSkills || [],
+      promptLength: simulation.prompt.length,
+      promptPreview: simulation.prompt.slice(0, 1200),
+      fallbackReason: simulation.fallbackReason || null,
+    });
+
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
@@ -26,7 +38,13 @@ export async function POST(request) {
     }
 
     const data = await response.json();
-    return Response.json({ ...data, simulationPrompt: simulation.prompt, selectedCards: simulation.cards });
+    return Response.json({
+      ...data,
+      simulationPrompt: simulation.prompt,
+      selectedCards: simulation.cards,
+      promptSource: simulation.promptSource,
+      fallbackReason: simulation.fallbackReason || null,
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
