@@ -8,9 +8,11 @@ export async function POST(request) {
     const simulation = await buildSimulationPrompt(setup);
 
     console.log('HUMAN_EQUATION_PROMPT_USED');
-    console.log('prompt source', simulation.promptSource);
+    console.log('promptSource', simulation.promptSource);
     console.log('prompt length', simulation.prompt.length);
-    console.log('first 1000 characters', simulation.prompt.slice(0, 1000));
+    console.log('selected scenario', simulation.cards?.issue?.title || 'fallback');
+    console.log('selected archetype', simulation.cards?.openingArchetype?.name || 'fallback');
+    console.log('first 1000 characters of prompt', simulation.prompt.slice(0, 1000));
 
     console.log('HUMAN_EQUATION_PROMPT_METADATA', {
       promptSource: simulation.promptSource,
@@ -48,6 +50,7 @@ export async function POST(request) {
       simulationPrompt: simulation.prompt,
       selectedCards: simulation.cards,
       promptSource: simulation.promptSource,
+      promptPreview: simulation.prompt.slice(0, 1500),
       fallbackReason: simulation.fallbackReason || null,
     });
   } catch (error) {
