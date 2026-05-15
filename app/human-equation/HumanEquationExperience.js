@@ -5,6 +5,7 @@ import styles from './human-equation.module.css';
 import { briefings, callTimingBriefings, setupOptions } from './data/mockScenario';
 
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
+const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
 
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
 
@@ -50,7 +51,7 @@ export default function HumanEquationExperience() {
     dataChannelOpen: false,
     realtimeSessionStarted: false,
   });
-  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
+  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: HUMAN_EQUATION_BUILD_VERSION });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const pcRef = useRef(null);
@@ -170,7 +171,7 @@ export default function HumanEquationExperience() {
     console.log('HUMAN_EQUATION_BEGIN_CALL');
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
-    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
+    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: HUMAN_EQUATION_BUILD_VERSION });
     setShowDebugPanel(false);
     setCallStatus('Connecting…');
     setEmotionalTemperature('Escalated');
@@ -301,6 +302,7 @@ export default function HumanEquationExperience() {
         body: localSdp,
       });
       console.log('HUMAN_EQUATION_SDP_REQUEST_STATUS', sdpRes.status);
+      const realtimeBuildVersion = sdpRes.headers.get('x-human-equation-build') || HUMAN_EQUATION_BUILD_VERSION;
       const answerText = await sdpRes.text();
       if (!sdpRes.ok) {
         throw new Error(answerText || `Realtime SDP exchange failed (${sdpRes.status}).`);
@@ -319,6 +321,7 @@ export default function HumanEquationExperience() {
         promptSource: 'json/card builder',
         fallbackReason: null,
         dataCounts: { parentArchetypes: 0, issueCards: 0 },
+        buildVersion: realtimeBuildVersion,
       });
     } catch (error) {
       console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', error);
@@ -495,6 +498,7 @@ export default function HumanEquationExperience() {
               <p className={styles.eyebrow}>Live Voice Simulation</p>
               <div className={styles.timer}>{callDuration}</div>
             </div>
+            <p className={styles.subtle}><strong>Human Equation Build:</strong> {HUMAN_EQUATION_BUILD_VERSION}</p>
             <h2>Ms. Rodriguez — Parent Caller</h2>
             <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong> • {callStatus}</p>
             <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
@@ -533,6 +537,7 @@ export default function HumanEquationExperience() {
                 <p><strong>Selected issue card:</strong> {debugInfo.selectedCards?.issue?.title || 'Unknown'}</p>
                 <p><strong>Generated prompt length:</strong> {debugInfo.simulationPrompt?.length || 0}</p>
                 <p><strong>Prompt source:</strong> {debugInfo.promptSource}</p>
+                <p><strong>Build version:</strong> {debugInfo.buildVersion || HUMAN_EQUATION_BUILD_VERSION}</p>
                 <p><strong>Prompt builder error:</strong> {debugInfo.fallbackReason || 'None'}</p>
                 {debugInfo.promptSource !== 'json' && (
                   <p className={styles.debugWarning}><strong>WARNING:</strong> Realtime session is not using generated JSON prompt.</p>
