@@ -170,6 +170,20 @@ export default function HumanEquationExperience() {
     return stream;
   };
 
+  const waitForIceGatheringComplete = (pc) => new Promise((resolve) => {
+    if (pc.iceGatheringState === 'complete') {
+      resolve();
+      return;
+    }
+    const checkState = () => {
+      if (pc.iceGatheringState === 'complete') {
+        pc.removeEventListener('icegatheringstatechange', checkState);
+        resolve();
+      }
+    };
+    pc.addEventListener('icegatheringstatechange', checkState);
+  });
+
   const beginCall = async () => {
     console.log('HUMAN_EQUATION_BEGIN_CALL');
     setCallStartedAt(Date.now());
@@ -191,6 +205,13 @@ export default function HumanEquationExperience() {
       realtimeEndpointUsed: 'https://api.openai.com/v1/realtime/calls',
       sdpOfferCreated: false,
       sdpAnswerReceived: false,
+      localDescriptionType: 'none',
+      remoteDescriptionType: 'none',
+      iceGatheringState: 'new',
+      iceCandidatesCount: 0,
+      sdpAnswerStartsWithV0: false,
+      setRemoteDescriptionSuccess: false,
+      setRemoteDescriptionError: '',
     }));
 
     try {
@@ -202,14 +223,21 @@ export default function HumanEquationExperience() {
       const pc = new RTCPeerConnection();
       pcRef.current = pc;
       setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true, realtimeSessionStatus: 'peer_connection_created' }));
+      let iceCandidatesCount = 0;
+      pc.onicecandidate = (event) => {
+        if (event.candidate) iceCandidatesCount += 1;
+        setRtcDiagnostics((prev) => ({ ...prev, iceCandidatesCount, iceGatheringState: pc.iceGatheringState }));
+      };
       pc.onconnectionstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
       pc.oniceconnectionstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
+      pc.onicegatheringstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, iceGatheringState: pc.iceGatheringState }));
+      pc.ondatachannel = (event) => setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: event.channel?.readyState || prev.dataChannelState }));
 
       const audioEl = new Audio();
       audioEl.autoplay = true;
       audioElRef.current = audioEl;
       pc.ontrack = (e) => { audioEl.srcObject = e.streams[0]; };
-      pc.addTrack(audioTracks[0], stream);
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
       const dc = pc.createDataChannel('oai-events');
       dcRef.current = dc;
@@ -227,12 +255,13 @@ export default function HumanEquationExperience() {
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      setRtcDiagnostics((prev) => ({ ...prev, sdpOfferCreated: Boolean(offer?.sdp), realtimeSessionStatus: 'offer_created' }));
+      await waitForIceGatheringComplete(pc);
+      setRtcDiagnostics((prev) => ({ ...prev, sdpOfferCreated: Boolean(offer?.sdp), realtimeSessionStatus: 'offer_created', localDescriptionType: pc.localDescription?.type || 'none', iceGatheringState: pc.iceGatheringState, iceCandidatesCount }));
 
       const tokenRes = await fetch('/api/human-equation/realtime-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ setup, offerSdp: offer.sdp }),
+        body: JSON.stringify({ setup, offerSdp: pc.localDescription?.sdp || offer.sdp }),
       });
       const tokenData = await tokenRes.json();
       if (!tokenRes.ok) throw new Error(tokenData?.error || 'Failed to create realtime call session.');
@@ -247,12 +276,31 @@ export default function HumanEquationExperience() {
         dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
       });
 
-      const answerSdp = tokenData?.answerSdp;
+      const answerSdp = typeof tokenData?.answerSdp === 'string'
+        ? tokenData.answerSdp
+        : tokenData?.answer?.sdp;
       if (!answerSdp) throw new Error('Realtime SDP exchange failed (missing answer SDP).');
-      setRtcDiagnostics((prev) => ({ ...prev, sdpAnswerReceived: true, realtimeSessionStatus: 'answer_received' }));
+      const sdpAnswerStartsWithV0 = answerSdp.trim().startsWith('v=0');
+      setRtcDiagnostics((prev) => ({ ...prev, sdpAnswerReceived: true, realtimeSessionStatus: 'answer_received', sdpAnswerStartsWithV0 }));
 
-      await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
-      setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'realtime_session_started' }));
+      try {
+        await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+        setRtcDiagnostics((prev) => ({
+          ...prev,
+          realtimeSessionStarted: true,
+          realtimeSessionStatus: 'realtime_session_started',
+          remoteDescriptionType: pc.remoteDescription?.type || 'none',
+          setRemoteDescriptionSuccess: true,
+          setRemoteDescriptionError: '',
+        }));
+      } catch (remoteDescriptionError) {
+        setRtcDiagnostics((prev) => ({
+          ...prev,
+          setRemoteDescriptionSuccess: false,
+          setRemoteDescriptionError: remoteDescriptionError.message,
+        }));
+        throw remoteDescriptionError;
+      }
 
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
@@ -452,6 +500,13 @@ export default function HumanEquationExperience() {
               <p><strong>Realtime API version:</strong> {rtcDiagnostics.realtimeApiVersion}</p>
               <p><strong>SDP offer created:</strong> {rtcDiagnostics.sdpOfferCreated ? 'true' : 'false'}</p>
               <p><strong>SDP answer received:</strong> {rtcDiagnostics.sdpAnswerReceived ? 'true' : 'false'}</p>
+              <p><strong>Local description type:</strong> {rtcDiagnostics.localDescriptionType}</p>
+              <p><strong>Remote description type:</strong> {rtcDiagnostics.remoteDescriptionType}</p>
+              <p><strong>ICE gathering state:</strong> {rtcDiagnostics.iceGatheringState}</p>
+              <p><strong>ICE candidates count:</strong> {rtcDiagnostics.iceCandidatesCount}</p>
+              <p><strong>SDP answer starts with v=0:</strong> {rtcDiagnostics.sdpAnswerStartsWithV0 ? 'true' : 'false'}</p>
+              <p><strong>setRemoteDescription success:</strong> {rtcDiagnostics.setRemoteDescriptionSuccess ? 'true' : 'false'}</p>
+              <p><strong>setRemoteDescription error:</strong> {rtcDiagnostics.setRemoteDescriptionError || 'None'}</p>
               <p><strong>Realtime session status:</strong> {rtcDiagnostics.realtimeSessionStatus}</p>
               <p><strong>Realtime session started:</strong> {rtcDiagnostics.realtimeSessionStarted ? 'true' : 'false'}</p>
               <p><strong>Peer connection created:</strong> {rtcDiagnostics.peerConnectionCreated ? 'true' : 'false'}</p>
