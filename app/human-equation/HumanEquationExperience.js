@@ -52,6 +52,8 @@ export default function HumanEquationExperience() {
     realtimeSessionStarted: false,
     turnConfigured: false,
     turnUrlPresent: false,
+    iceServerCount: 0,
+    turnUrlsLoaded: 'none',
     relayCandidateFound: false,
     iceCandidateTypes: 'none',
   });
@@ -217,21 +219,55 @@ export default function HumanEquationExperience() {
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:global.stun.twilio.com:3478' },
       ];
-      const turnUrl = process.env.NEXT_PUBLIC_TURN_URL;
-      const turnUrlPresent = Boolean(turnUrl);
-      if (turnUrlPresent) {
-        iceServers.push({
-          urls: turnUrl,
-          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
-          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
-        });
-      }
+      const turnUsername = process.env.NEXT_PUBLIC_TURN_USERNAME;
+      const turnCredential = process.env.NEXT_PUBLIC_TURN_CREDENTIAL;
+      const meteredTurnServers = [
+        {
+          urls: 'turn:global.relay.metered.ca:80',
+          username: turnUsername,
+          credential: turnCredential,
+        },
+        {
+          urls: 'turn:global.relay.metered.ca:80?transport=tcp',
+          username: turnUsername,
+          credential: turnCredential,
+        },
+        {
+          urls: 'turn:global.relay.metered.ca:443',
+          username: turnUsername,
+          credential: turnCredential,
+        },
+        {
+          urls: 'turns:global.relay.metered.ca:443?transport=tcp',
+          username: turnUsername,
+          credential: turnCredential,
+        },
+      ];
+
+      iceServers.unshift({ urls: 'stun:stun.relay.metered.ca:80' });
+      iceServers.push(...meteredTurnServers);
+
+      const turnUrlPresent = meteredTurnServers.length > 0;
+      const turnConfigured = Boolean(turnUsername && turnCredential);
+      const turnUrlsLoaded = meteredTurnServers.map((server) => server.urls);
       const pc = new RTCPeerConnection({ iceServers });
       const iceCandidateTypes = new Set();
       let relayCandidateFound = false;
-      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED', { turnConfigured: turnUrlPresent, turnUrlPresent });
+      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED', {
+        turnConfigured,
+        turnUrlPresent,
+        iceServerCount: iceServers.length,
+        turnUrlsLoaded,
+      });
       pcRef.current = pc;
-      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true, turnConfigured: turnUrlPresent, turnUrlPresent }));
+      setRtcDiagnostics((prev) => ({
+        ...prev,
+        peerConnectionCreated: true,
+        turnConfigured,
+        turnUrlPresent,
+        iceServerCount: iceServers.length,
+        turnUrlsLoaded: turnUrlsLoaded.join(', '),
+      }));
       pc.onconnectionstatechange = () => {
         console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
         setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
@@ -556,6 +592,8 @@ export default function HumanEquationExperience() {
               <p><strong>Data channel open:</strong> {rtcDiagnostics.dataChannelOpen ? 'true' : 'false'}</p>
               <p><strong>TURN configured:</strong> {rtcDiagnostics.turnConfigured ? 'true' : 'false'}</p>
               <p><strong>TURN URL present:</strong> {rtcDiagnostics.turnUrlPresent ? 'true' : 'false'}</p>
+              <p><strong>ICE server count:</strong> {rtcDiagnostics.iceServerCount}</p>
+              <p><strong>TURN URLs loaded:</strong> {rtcDiagnostics.turnUrlsLoaded}</p>
               <p><strong>Relay candidate found:</strong> {rtcDiagnostics.relayCandidateFound ? 'true' : 'false'}</p>
               <p><strong>ICE candidate types collected:</strong> {rtcDiagnostics.iceCandidateTypes}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
