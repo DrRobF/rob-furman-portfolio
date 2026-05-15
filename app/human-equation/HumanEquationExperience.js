@@ -33,6 +33,18 @@ export default function HumanEquationExperience() {
   const [hasMicrophone, setHasMicrophone] = useState(true);
   const [userAudioDetected, setUserAudioDetected] = useState(false);
   const [noiseWarning, setNoiseWarning] = useState('');
+  const [micTestResult, setMicTestResult] = useState('');
+  const [micTestVoiceDetected, setMicTestVoiceDetected] = useState(false);
+  const [rtcDiagnostics, setRtcDiagnostics] = useState({
+    micStreamStatus: 'missing',
+    audioTrackCount: 0,
+    firstTrackEnabled: 'n/a',
+    firstTrackMuted: 'n/a',
+    peerConnectionState: 'new',
+    iceConnectionState: 'new',
+    dataChannelState: 'closed',
+    realtimeSessionStatus: 'not_started',
+  });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
@@ -43,6 +55,8 @@ export default function HumanEquationExperience() {
   const analyzerRef = useRef(null);
   const audioContextRef = useRef(null);
   const audioDetectIntervalRef = useRef(null);
+  const micTestIntervalRef = useRef(null);
+  const micTestAudioContextRef = useRef(null);
 
   const callDuration = useMemo(() => {
     if (!callStartedAt) return '00:00';
@@ -74,9 +88,12 @@ export default function HumanEquationExperience() {
     setUserAudioDetected(false);
     setNoiseWarning('');
     if (audioDetectIntervalRef.current) clearInterval(audioDetectIntervalRef.current);
+    if (micTestIntervalRef.current) clearInterval(micTestIntervalRef.current);
     analyzerRef.current = null;
     audioContextRef.current?.close();
     audioContextRef.current = null;
+    micTestAudioContextRef.current?.close();
+    micTestAudioContextRef.current = null;
   };
 
   useEffect(() => {
@@ -122,6 +139,28 @@ export default function HumanEquationExperience() {
     trackPermission();
   }, []);
 
+  const ensureMicStream = async () => {
+    console.log('HUMAN_EQUATION_MIC_REQUEST_START');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const audioTracks = stream.getAudioTracks();
+    console.log('HUMAN_EQUATION_MIC_REQUEST_SUCCESS');
+    console.log('HUMAN_EQUATION_AUDIO_TRACKS', {
+      count: audioTracks.length,
+      enabled: audioTracks[0]?.enabled ?? null,
+      muted: audioTracks[0]?.muted ?? null,
+    });
+    setMicPermission('granted');
+    setMicError('');
+    setRtcDiagnostics((prev) => ({
+      ...prev,
+      micStreamStatus: stream.active ? 'active' : 'inactive',
+      audioTrackCount: audioTracks.length,
+      firstTrackEnabled: String(audioTracks[0]?.enabled ?? 'n/a'),
+      firstTrackMuted: String(audioTracks[0]?.muted ?? 'n/a'),
+    }));
+    return stream;
+  };
+
   const beginCall = async () => {
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
@@ -132,6 +171,13 @@ export default function HumanEquationExperience() {
     setStage('active');
 
     try {
+      const stream = micStreamRef.current?.active ? micStreamRef.current : await ensureMicStream();
+      micStreamRef.current = stream;
+      const audioTracks = stream.getAudioTracks();
+      if (!audioTracks.length) {
+        throw new Error('Microphone is not connected to the call. Check browser permission or try headphones.');
+      }
+
       const tokenRes = await fetch('/api/human-equation/realtime-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -155,6 +201,14 @@ export default function HumanEquationExperience() {
 
       const pc = new RTCPeerConnection();
       pcRef.current = pc;
+      pc.onconnectionstatechange = () => {
+        console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
+        setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
+      };
+      pc.oniceconnectionstatechange = () => {
+        console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
+        setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
+      };
 
       const audioEl = new Audio();
       audioEl.autoplay = true;
@@ -163,10 +217,7 @@ export default function HumanEquationExperience() {
         audioEl.srcObject = e.streams[0];
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      micStreamRef.current = stream;
-      pc.addTrack(stream.getTracks()[0]);
-      setMicPermission('granted');
+      pc.addTrack(audioTracks[0], stream);
 
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
@@ -185,8 +236,11 @@ export default function HumanEquationExperience() {
 
       const dc = pc.createDataChannel('oai-events');
       dcRef.current = dc;
+      setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'connecting' }));
       dc.onopen = () => {
         setCallStatus('Live call connected');
+        setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'connected' }));
+        console.log('HUMAN_EQUATION_REALTIME_CONNECTED');
         dc.send(
           JSON.stringify({
             type: 'session.update',
@@ -215,6 +269,7 @@ export default function HumanEquationExperience() {
           }
         }
       };
+      dc.onclose = () => setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: 'closed' }));
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -230,8 +285,44 @@ export default function HumanEquationExperience() {
       const answer = { type: 'answer', sdp: await sdpRes.text() };
       await pc.setRemoteDescription(answer);
     } catch (error) {
+      console.log('HUMAN_EQUATION_MIC_REQUEST_ERROR', error);
+      if (error?.name === 'NotAllowedError') {
+        setMicPermission('denied');
+      }
+      if (error?.name === 'NotAllowedError' || /Microphone is not connected/.test(error?.message || '')) {
+        setMicError('Microphone is not connected to the call. Check browser permission or try headphones.');
+      }
       setCallStatus(`Connection failed: ${error.message}`);
       teardownCall();
+    }
+  };
+
+  const testMicrophone = async () => {
+    setMicTestResult('Requesting microphone…');
+    setMicTestVoiceDetected(false);
+    try {
+      const stream = await ensureMicStream();
+      micStreamRef.current = stream;
+      const audioTracks = stream.getAudioTracks();
+      setMicTestResult(`Stream received. Audio tracks: ${audioTracks.length}`);
+      if (micTestIntervalRef.current) clearInterval(micTestIntervalRef.current);
+      micTestAudioContextRef.current?.close();
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 1024;
+      source.connect(analyser);
+      micTestAudioContextRef.current = audioContext;
+      const bins = new Uint8Array(analyser.frequencyBinCount);
+      micTestIntervalRef.current = setInterval(() => {
+        analyser.getByteFrequencyData(bins);
+        const avg = bins.reduce((sum, val) => sum + val, 0) / bins.length;
+        setMicTestVoiceDetected(avg > 18);
+      }, 250);
+    } catch (error) {
+      console.log('HUMAN_EQUATION_MIC_REQUEST_ERROR', error);
+      setMicTestResult(`Mic test failed: ${error.message}`);
+      setMicError('Microphone is not connected to the call. Check browser permission or try headphones.');
     }
   };
 
@@ -348,8 +439,11 @@ export default function HumanEquationExperience() {
                 <li>Use a device with a working microphone</li>
               </ul>
               <p><strong>Microphone permission:</strong> {micPermission}</p>
+              {micTestResult && <p><strong>Mic test:</strong> {micTestResult}</p>}
+              <p><strong>Voice test:</strong> {micTestVoiceDetected ? 'Voice detected' : 'Waiting for voice'}</p>
               {micError && <p className={styles.errorText}>{micError}</p>}
               {!hasMicrophone && <p className={styles.errorText}>No microphone detected.</p>}
+              <button type="button" className={styles.secondaryAction} onClick={testMicrophone}>Test Microphone</button>
             </div>
             <button className={styles.cta} onClick={beginCall} disabled={Boolean(micError) || !hasMicrophone}>Answer and Begin</button>
           </div>
@@ -365,8 +459,17 @@ export default function HumanEquationExperience() {
             <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
             <div className={styles.callStatusGrid}>
               <p><strong>Mic status:</strong> {micPermission}</p>
+              <p><strong>Mic stream status:</strong> {rtcDiagnostics.micStreamStatus}</p>
+              <p><strong>Audio tracks found:</strong> {rtcDiagnostics.audioTrackCount}</p>
+              <p><strong>First audio track enabled:</strong> {rtcDiagnostics.firstTrackEnabled}</p>
+              <p><strong>First audio track muted:</strong> {rtcDiagnostics.firstTrackMuted}</p>
+              <p><strong>WebRTC connection state:</strong> {rtcDiagnostics.peerConnectionState}</p>
+              <p><strong>ICE connection state:</strong> {rtcDiagnostics.iceConnectionState}</p>
+              <p><strong>Data channel state:</strong> {rtcDiagnostics.dataChannelState}</p>
+              <p><strong>Realtime session status:</strong> {rtcDiagnostics.realtimeSessionStatus}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
               {noiseWarning && <p className={styles.warningText}>{noiseWarning}</p>}
+              {micError && <p className={styles.errorText}>{micError}</p>}
             </div>
             <div className={`${styles.waveform} ${isSpeaking ? styles.waveformActive : ''}`} aria-hidden />
             <label className={styles.notesLabel}>Private Notes (not shared)</label>
