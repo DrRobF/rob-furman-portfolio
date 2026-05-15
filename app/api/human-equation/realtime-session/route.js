@@ -1,7 +1,10 @@
 import { buildSimulationPrompt } from '../../../../lib/human-equation/buildSimulationPrompt';
 
+const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
+
 export async function POST(request) {
   try {
+    console.log('HUMAN_EQUATION_BUILD_VERSION GA-CLEAN-1');
     const sdp = await request.text();
 
     if (!sdp || typeof sdp !== 'string') {
@@ -35,7 +38,10 @@ export async function POST(request) {
 
     return new Response(answerSdp, {
       status: response.status,
-      headers: { 'Content-Type': 'application/sdp' },
+      headers: {
+        'Content-Type': 'application/sdp',
+        'x-human-equation-build': HUMAN_EQUATION_BUILD_VERSION,
+      },
     });
   } catch (error) {
     return new Response(error.message, { status: 500 });
