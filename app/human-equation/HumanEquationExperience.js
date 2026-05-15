@@ -35,6 +35,7 @@ export default function HumanEquationExperience() {
   const [noiseWarning, setNoiseWarning] = useState('');
   const [micTestResult, setMicTestResult] = useState('');
   const [micTestVoiceDetected, setMicTestVoiceDetected] = useState(false);
+  const [sessionError, setSessionError] = useState('');
   const [rtcDiagnostics, setRtcDiagnostics] = useState({
     micStreamStatus: 'missing',
     audioTrackCount: 0,
@@ -44,6 +45,10 @@ export default function HumanEquationExperience() {
     iceConnectionState: 'new',
     dataChannelState: 'closed',
     realtimeSessionStatus: 'not_started',
+    sessionTokenReceived: false,
+    peerConnectionCreated: false,
+    dataChannelOpen: false,
+    realtimeSessionStarted: false,
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -162,6 +167,7 @@ export default function HumanEquationExperience() {
   };
 
   const beginCall = async () => {
+    console.log('HUMAN_EQUATION_BEGIN_CALL');
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
     setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
@@ -169,6 +175,15 @@ export default function HumanEquationExperience() {
     setCallStatus('Connecting…');
     setEmotionalTemperature('Escalated');
     setStage('active');
+    setSessionError('');
+    setRtcDiagnostics((prev) => ({
+      ...prev,
+      sessionTokenReceived: false,
+      peerConnectionCreated: false,
+      dataChannelOpen: false,
+      realtimeSessionStarted: false,
+      realtimeSessionStatus: 'not_started',
+    }));
 
     try {
       const stream = micStreamRef.current?.active ? micStreamRef.current : await ensureMicStream();
@@ -178,6 +193,7 @@ export default function HumanEquationExperience() {
         throw new Error('Microphone is not connected to the call. Check browser permission or try headphones.');
       }
 
+      console.log('HUMAN_EQUATION_SESSION_REQUEST_START');
       const tokenRes = await fetch('/api/human-equation/realtime-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -187,20 +203,31 @@ export default function HumanEquationExperience() {
         }),
       });
       const tokenData = await tokenRes.json();
+      if (!tokenRes.ok) {
+        console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', tokenData);
+        throw new Error(tokenData?.error || 'Failed to create realtime session token.');
+      }
+      console.log('HUMAN_EQUATION_SESSION_REQUEST_SUCCESS');
       const ephemeralKey = tokenData?.client_secret?.value;
-      const simulationPrompt = tokenData?.simulationPrompt;
+      const fallbackPrompt = 'You are roleplaying a parent in a school call simulation. Keep a realistic tone, speak clearly, and respond with short conversational turns.';
+      const simulationPrompt = tokenData?.simulationPrompt || fallbackPrompt;
+      const promptSource = tokenData?.simulationPrompt ? (tokenData?.promptSource || 'json') : 'fallback';
+      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource, promptLength: simulationPrompt.length });
       setDebugInfo({
         selectedCards: tokenData?.selectedCards || null,
-        simulationPrompt: simulationPrompt || '',
-        promptPreview: tokenData?.promptPreview || simulationPrompt || '',
-        promptSource: tokenData?.promptSource || 'unknown',
-        fallbackReason: tokenData?.fallbackReason || null,
+        simulationPrompt: simulationPrompt,
+        promptPreview: tokenData?.promptPreview || simulationPrompt,
+        promptSource,
+        fallbackReason: tokenData?.fallbackReason || (!tokenData?.simulationPrompt ? 'Missing simulation prompt in session response.' : null),
         dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
       });
-      if (!ephemeralKey || !simulationPrompt) throw new Error('Could not create realtime session.');
+      if (!ephemeralKey) throw new Error('Could not create realtime session token.');
+      setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true }));
 
       const pc = new RTCPeerConnection();
+      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED');
       pcRef.current = pc;
+      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true }));
       pc.onconnectionstatechange = () => {
         console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
         setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
@@ -238,8 +265,9 @@ export default function HumanEquationExperience() {
       dcRef.current = dc;
       setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'connecting' }));
       dc.onopen = () => {
+        console.log('HUMAN_EQUATION_DATA_CHANNEL_OPEN');
         setCallStatus('Live call connected');
-        setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'connected' }));
+        setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'connected' }));
         console.log('HUMAN_EQUATION_REALTIME_CONNECTED');
         dc.send(
           JSON.stringify({
@@ -282,9 +310,18 @@ export default function HumanEquationExperience() {
           'Content-Type': 'application/sdp',
         },
       });
+      if (!sdpRes.ok) {
+        throw new Error(`Realtime SDP exchange failed (${sdpRes.status}).`);
+      }
       const answer = { type: 'answer', sdp: await sdpRes.text() };
       await pc.setRemoteDescription(answer);
+      setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'started' }));
     } catch (error) {
+      console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', error);
+      setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStatus: 'failed' }));
+      if (/session|realtime|token/i.test(error?.message || '')) {
+        setSessionError(`Realtime session failed to start: ${error.message}`);
+      }
       console.log('HUMAN_EQUATION_MIC_REQUEST_ERROR', error);
       if (error?.name === 'NotAllowedError') {
         setMicPermission('denied');
@@ -467,9 +504,14 @@ export default function HumanEquationExperience() {
               <p><strong>ICE connection state:</strong> {rtcDiagnostics.iceConnectionState}</p>
               <p><strong>Data channel state:</strong> {rtcDiagnostics.dataChannelState}</p>
               <p><strong>Realtime session status:</strong> {rtcDiagnostics.realtimeSessionStatus}</p>
+              <p><strong>Realtime session started:</strong> {rtcDiagnostics.realtimeSessionStarted ? 'true' : 'false'}</p>
+              <p><strong>Session token received:</strong> {rtcDiagnostics.sessionTokenReceived ? 'true' : 'false'}</p>
+              <p><strong>Peer connection created:</strong> {rtcDiagnostics.peerConnectionCreated ? 'true' : 'false'}</p>
+              <p><strong>Data channel open:</strong> {rtcDiagnostics.dataChannelOpen ? 'true' : 'false'}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
               {noiseWarning && <p className={styles.warningText}>{noiseWarning}</p>}
               {micError && <p className={styles.errorText}>{micError}</p>}
+              {sessionError && <p className={styles.errorText}>{sessionError}</p>}
             </div>
             <div className={`${styles.waveform} ${isSpeaking ? styles.waveformActive : ''}`} aria-hidden />
             <label className={styles.notesLabel}>Private Notes (not shared)</label>
