@@ -218,22 +218,22 @@ export default function HumanEquationExperience() {
       const iceServers = [
         { urls: 'stun:stun.relay.metered.ca:80' },
         {
-          urls: 'turn:standard.relay.metered.ca:80',
+          urls: 'turn:global.relay.metered.ca:80',
           username: process.env.NEXT_PUBLIC_TURN_USERNAME,
           credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
         },
         {
-          urls: 'turn:standard.relay.metered.ca:80?transport=tcp',
+          urls: 'turn:global.relay.metered.ca:80?transport=tcp',
           username: process.env.NEXT_PUBLIC_TURN_USERNAME,
           credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
         },
         {
-          urls: 'turn:standard.relay.metered.ca:443',
+          urls: 'turn:global.relay.metered.ca:443',
           username: process.env.NEXT_PUBLIC_TURN_USERNAME,
           credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
         },
         {
-          urls: 'turns:standard.relay.metered.ca:443?transport=tcp',
+          urls: 'turns:global.relay.metered.ca:443?transport=tcp',
           username: process.env.NEXT_PUBLIC_TURN_USERNAME,
           credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
         },
@@ -283,6 +283,14 @@ export default function HumanEquationExperience() {
           relayCandidateFound,
           iceCandidateTypes: Array.from(iceCandidateTypes).sort().join('/') || 'none',
         }));
+      };
+
+      pc.onicecandidateerror = (event) => {
+        console.warn('HUMAN_EQUATION_ICE_CANDIDATE_ERROR', {
+          url: event.url,
+          errorCode: event.errorCode,
+          errorText: event.errorText,
+        });
       };
 
       const audioEl = new Audio();
