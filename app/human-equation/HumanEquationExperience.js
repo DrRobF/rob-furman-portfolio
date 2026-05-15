@@ -37,8 +37,7 @@ export default function HumanEquationExperience() {
   const [micTestVoiceDetected, setMicTestVoiceDetected] = useState(false);
   const [sessionError, setSessionError] = useState('');
   const [canRetryConnection, setCanRetryConnection] = useState(false);
-  const [connectionMode, setConnectionMode] = useState('auto');
-  const [retryAttempted, setRetryAttempted] = useState(false);
+    const [retryAttempted, setRetryAttempted] = useState(false);
   const [rtcDiagnostics, setRtcDiagnostics] = useState({
     micStreamStatus: 'missing',
     audioTrackCount: 0,
@@ -48,7 +47,7 @@ export default function HumanEquationExperience() {
     iceConnectionState: 'new',
     dataChannelState: 'closed',
     realtimeSessionStatus: 'not_started',
-    realtimeApiVersion: 'auto fallback (calls -> direct realtime)',
+    realtimeApiVersion: 'ga /v1/realtime/calls',
     sessionConfigModel: 'gpt-realtime',
     realtimeEndpointUsed: 'https://api.openai.com/v1/realtime/calls',
     sdpOfferCreated: false,
@@ -60,7 +59,7 @@ export default function HumanEquationExperience() {
     iceCandidateTypes: 'none',
     selectedCandidatePair: 'unavailable',
     connectionFailureReason: 'none',
-    selectedConnectionMode: 'auto',
+    selectedConnectionMode: 'calls',
     activeConnectionMode: 'calls',
     fallbackTriggered: false,
   });
@@ -200,7 +199,7 @@ export default function HumanEquationExperience() {
     return match?.[1] ? [match[1]] : [];
   };
 
-  const beginCall = async (attemptNumber = 0, forcedMode = null) => {
+  const beginCall = async (attemptNumber = 0) => {
     console.log('HUMAN_EQUATION_BEGIN_CALL');
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
@@ -212,21 +211,18 @@ export default function HumanEquationExperience() {
     setSessionError('');
     setCanRetryConnection(false);
     setRetryAttempted(attemptNumber > 0);
-    const selectedMode = forcedMode || connectionMode;
-    const modeToUse = selectedMode === 'direct' ? 'direct' : 'calls';
-    const shouldAllowFallback = selectedMode === 'auto' && modeToUse === 'calls';
     setRtcDiagnostics((prev) => ({
       ...prev,
       peerConnectionCreated: false,
       dataChannelOpen: false,
       realtimeSessionStarted: false,
       realtimeSessionStatus: 'not_started',
-      realtimeApiVersion: 'auto fallback (calls -> direct realtime)',
+      realtimeApiVersion: 'ga /v1/realtime/calls',
       sessionConfigModel: 'gpt-realtime',
-      realtimeEndpointUsed: modeToUse === 'calls' ? 'https://api.openai.com/v1/realtime/calls' : 'https://api.openai.com/v1/realtime?model=gpt-realtime',
-      selectedConnectionMode: selectedMode,
-      activeConnectionMode: modeToUse,
-      fallbackTriggered: forcedMode === 'direct' && selectedMode === 'auto',
+      realtimeEndpointUsed: 'https://api.openai.com/v1/realtime/calls',
+      selectedConnectionMode: 'calls',
+      activeConnectionMode: 'calls',
+      fallbackTriggered: false,
       sdpOfferCreated: false,
       sdpAnswerReceived: false,
       localDescriptionType: 'none',
@@ -325,7 +321,7 @@ export default function HumanEquationExperience() {
       const tokenRes = await fetch('/api/human-equation/realtime-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ setup, offerSdp: pc.localDescription?.sdp || offer.sdp, connectionMode: modeToUse }),
+        body: JSON.stringify({ setup, offerSdp: pc.localDescription?.sdp || offer.sdp }),
       });
       const tokenData = await tokenRes.json();
       if (!tokenRes.ok) throw new Error(tokenData?.error || 'Failed to create realtime call session.');
@@ -412,11 +408,6 @@ export default function HumanEquationExperience() {
       if (error?.name === 'NotAllowedError' || /Microphone is not connected/.test(error?.message || '')) setMicError('Microphone is not connected to the call. Check browser permission or try headphones.');
       setCallStatus(`Connection failed: ${error.message}`);
       teardownCall();
-      if (shouldAllowFallback) {
-        setRtcDiagnostics((prev) => ({ ...prev, fallbackTriggered: true, connectionFailureReason: `auto-fallback triggered: ${error.message}` }));
-        await beginCall(attemptNumber, 'direct');
-        return;
-      }
     }
   };
 
@@ -568,12 +559,7 @@ export default function HumanEquationExperience() {
               <p><strong>Microphone permission:</strong> {micPermission}</p>
               {micTestResult && <p><strong>Mic test:</strong> {micTestResult}</p>}
               <p><strong>Voice test:</strong> {micTestVoiceDetected ? 'Voice detected' : 'Waiting for voice'}</p>
-              <p><strong>Realtime Connection Mode:</strong></p>
-              <select value={connectionMode} onChange={(e) => setConnectionMode(e.target.value)} className={styles.selectorNative}>
-                <option value="calls">calls endpoint</option>
-                <option value="direct">direct realtime endpoint</option>
-                <option value="auto">auto fallback</option>
-              </select>
+              <p><strong>Realtime Connection Mode:</strong> calls endpoint (GA)</p>
               {micError && <p className={styles.errorText}>{micError}</p>}
               {!hasMicrophone && <p className={styles.errorText}>No microphone detected.</p>}
               <button type="button" className={styles.secondaryAction} onClick={testMicrophone}>Test Microphone</button>
