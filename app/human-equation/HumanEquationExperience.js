@@ -245,13 +245,10 @@ export default function HumanEquationExperience() {
         setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStatus: 'realtime_connected' }));
         const sessionUpdateEvent = {
           type: 'session.update',
-          session: {
-            instructions: simulationPrompt,
-          },
+          instructions: simulationPrompt,
         };
         console.log('HUMAN_EQUATION_SESSION_UPDATE_EVENT_KEYS', {
           rootKeys: Object.keys(sessionUpdateEvent),
-          sessionKeys: Object.keys(sessionUpdateEvent.session),
         });
         dc.send(JSON.stringify(sessionUpdateEvent));
       };
@@ -282,7 +279,6 @@ export default function HumanEquationExperience() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          voice: setup.parentVoice === 'Male' ? 'verse' : 'alloy',
           setup,
           offerSdp: offer.sdp,
         }),
