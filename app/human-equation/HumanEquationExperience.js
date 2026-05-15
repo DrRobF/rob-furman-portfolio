@@ -33,7 +33,7 @@ export default function HumanEquationExperience() {
   const [hasMicrophone, setHasMicrophone] = useState(true);
   const [userAudioDetected, setUserAudioDetected] = useState(false);
   const [noiseWarning, setNoiseWarning] = useState('');
-  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null });
+  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const pcRef = useRef(null);
@@ -125,7 +125,7 @@ export default function HumanEquationExperience() {
   const beginCall = async () => {
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
-    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null });
+    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
     setShowDebugPanel(false);
     setCallStatus('Connecting…');
     setEmotionalTemperature('Escalated');
@@ -149,6 +149,7 @@ export default function HumanEquationExperience() {
         promptPreview: tokenData?.promptPreview || simulationPrompt || '',
         promptSource: tokenData?.promptSource || 'unknown',
         fallbackReason: tokenData?.fallbackReason || null,
+        dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
       });
       if (!ephemeralKey || !simulationPrompt) throw new Error('Could not create realtime session.');
 
@@ -377,24 +378,13 @@ export default function HumanEquationExperience() {
             {showDebugPanel && (
               <div className={styles.debugPanel}>
                 <h3>Developer Debug Panel</h3>
-                <p><strong>Selected scenario title:</strong> {debugInfo.selectedCards?.issue?.title || 'Unknown'}</p>
-                <p><strong>Selected issue card ID:</strong> {debugInfo.selectedCards?.issue?.cardId || debugInfo.selectedCards?.issue?.id || 'Unknown'}</p>
-                <p><strong>Selected issue type:</strong> {debugInfo.selectedCards?.issue?.issueType || 'Unknown'}</p>
-                <p><strong>Selected issue age group:</strong> {debugInfo.selectedCards?.issue?.studentAgeGroup || debugInfo.selectedCards?.issue?.gradeBand || 'Unknown'}</p>
-                <p><strong>Selected parent name:</strong> Ms. Rodriguez</p>
-                <p><strong>Selected student name:</strong> Student A</p>
+                <p><strong>Parent archetypes count:</strong> {debugInfo.dataCounts?.parentArchetypes ?? 0}</p>
+                <p><strong>Issue cards count:</strong> {debugInfo.dataCounts?.issueCards ?? 0}</p>
                 <p><strong>Selected parent archetype:</strong> {debugInfo.selectedCards?.openingArchetype?.name || 'Unknown'}</p>
-                <p><strong>Selected parent archetype card ID:</strong> {debugInfo.selectedCards?.openingArchetype?.cardId || debugInfo.selectedCards?.openingArchetype?.id || 'Unknown'}</p>
-                <p><strong>Selected parent archetype goal:</strong> {debugInfo.selectedCards?.openingArchetype?.primaryGoal || 'Unknown'}</p>
-                <p><strong>Selected tactics:</strong> {(debugInfo.selectedCards?.tactics || []).join(', ') || 'None'}</p>
-                <p><strong>Selected vulnerabilities:</strong> {(debugInfo.selectedCards?.vulnerabilities || []).join(', ') || 'None'}</p>
-                <p><strong>Selected leadership skills:</strong> {(debugInfo.selectedCards?.leadershipSkills || []).join(', ') || 'None'}</p>
-                <p><strong>Selected developmental dynamic:</strong> {debugInfo.selectedCards?.developmentalDynamic?.name || 'Unknown'}</p>
-                <p><strong>Selected call timing:</strong> {debugInfo.selectedCards?.callTiming || setup.callTiming}</p>
-                <p><strong>Selected voice/profile options:</strong> {setup.parentVoice} / {setup.parentTone} / {setup.communicationStyle}</p>
-                <p><strong>Setup selections:</strong> {setup.role} / {setup.gradeBand} / {setup.callType} / {setup.callTiming} / {setup.scenarioType}</p>
+                <p><strong>Selected issue card:</strong> {debugInfo.selectedCards?.issue?.title || 'Unknown'}</p>
                 <p><strong>Generated prompt length:</strong> {debugInfo.simulationPrompt?.length || 0}</p>
                 <p><strong>Prompt source:</strong> {debugInfo.promptSource}</p>
+                <p><strong>Prompt builder error:</strong> {debugInfo.fallbackReason || 'None'}</p>
                 {debugInfo.promptSource !== 'json' && (
                   <p className={styles.debugWarning}><strong>WARNING:</strong> Realtime session is not using generated JSON prompt.</p>
                 )}

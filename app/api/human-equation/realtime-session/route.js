@@ -7,12 +7,16 @@ export async function POST(request) {
     const setup = body?.setup || {};
     const simulation = await buildSimulationPrompt(setup);
 
+    console.log('HUMAN_EQUATION_DATA_COUNTS');
+    console.log('parentArchetypes count', simulation.dataCounts?.parentArchetypes || 0);
+    console.log('issueCards count', simulation.dataCounts?.issueCards || 0);
+
     console.log('HUMAN_EQUATION_PROMPT_USED');
     console.log('promptSource', simulation.promptSource);
     console.log('prompt length', simulation.prompt.length);
-    console.log('selected scenario', simulation.cards?.issue?.title || 'fallback');
     console.log('selected archetype', simulation.cards?.openingArchetype?.name || 'fallback');
-    console.log('first 1000 characters of prompt', simulation.prompt.slice(0, 1000));
+    console.log('selected issue card', simulation.cards?.issue?.title || 'fallback');
+    console.log('error', simulation.fallbackReason || null);
 
     console.log('HUMAN_EQUATION_PROMPT_METADATA', {
       promptSource: simulation.promptSource,
@@ -52,6 +56,7 @@ export async function POST(request) {
       promptSource: simulation.promptSource,
       promptPreview: simulation.prompt.slice(0, 1500),
       fallbackReason: simulation.fallbackReason || null,
+      dataCounts: simulation.dataCounts || { parentArchetypes: 0, issueCards: 0 },
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
