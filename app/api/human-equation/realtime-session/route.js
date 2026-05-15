@@ -37,7 +37,7 @@ export async function POST(request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-realtime-preview',
+        model: 'gpt-realtime',
         voice,
         instructions: simulation.prompt,
       }),
@@ -51,6 +51,8 @@ export async function POST(request) {
     const data = await response.json();
     return Response.json({
       ...data,
+      realtimeApi: 'v1/realtime',
+      realtimeModel: 'gpt-realtime',
       simulationPrompt: simulation.prompt,
       selectedCards: simulation.cards,
       promptSource: simulation.promptSource,

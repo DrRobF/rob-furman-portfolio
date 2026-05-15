@@ -45,6 +45,7 @@ export default function HumanEquationExperience() {
     iceConnectionState: 'new',
     dataChannelState: 'closed',
     realtimeSessionStatus: 'not_started',
+    realtimeApiVersion: 'v1/realtime (GA)',
     sessionTokenReceived: false,
     peerConnectionCreated: false,
     dataChannelOpen: false,
@@ -183,6 +184,7 @@ export default function HumanEquationExperience() {
       dataChannelOpen: false,
       realtimeSessionStarted: false,
       realtimeSessionStatus: 'not_started',
+    realtimeApiVersion: 'v1/realtime (GA)',
     }));
 
     try {
@@ -222,12 +224,12 @@ export default function HumanEquationExperience() {
         dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
       });
       if (!ephemeralKey) throw new Error('Could not create realtime session token.');
-      setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true }));
+      setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true, realtimeSessionStatus: 'session_token_received' }));
 
       const pc = new RTCPeerConnection();
       console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED');
       pcRef.current = pc;
-      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true }));
+      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true, realtimeSessionStatus: 'peer_connection_created' }));
       pc.onconnectionstatechange = () => {
         console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
         setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
@@ -263,12 +265,13 @@ export default function HumanEquationExperience() {
 
       const dc = pc.createDataChannel('oai-events');
       dcRef.current = dc;
-      setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'connecting' }));
+      setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'realtime_session_started' }));
       dc.onopen = () => {
         console.log('HUMAN_EQUATION_DATA_CHANNEL_OPEN');
         setCallStatus('Live call connected');
-        setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'connected' }));
+        setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'data_channel_open' }));
         console.log('HUMAN_EQUATION_REALTIME_CONNECTED');
+        setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStatus: 'realtime_connected' }));
         dc.send(
           JSON.stringify({
             type: 'session.update',
@@ -302,7 +305,7 @@ export default function HumanEquationExperience() {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      const sdpRes = await fetch('https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview', {
+      const sdpRes = await fetch('https://api.openai.com/v1/realtime?model=gpt-realtime', {
         method: 'POST',
         body: offer.sdp,
         headers: {
@@ -315,7 +318,7 @@ export default function HumanEquationExperience() {
       }
       const answer = { type: 'answer', sdp: await sdpRes.text() };
       await pc.setRemoteDescription(answer);
-      setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'started' }));
+      setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'realtime_session_started' }));
     } catch (error) {
       console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', error);
       setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStatus: 'failed' }));
@@ -503,6 +506,7 @@ export default function HumanEquationExperience() {
               <p><strong>WebRTC connection state:</strong> {rtcDiagnostics.peerConnectionState}</p>
               <p><strong>ICE connection state:</strong> {rtcDiagnostics.iceConnectionState}</p>
               <p><strong>Data channel state:</strong> {rtcDiagnostics.dataChannelState}</p>
+              <p><strong>Realtime API version:</strong> {rtcDiagnostics.realtimeApiVersion}</p>
               <p><strong>Realtime session status:</strong> {rtcDiagnostics.realtimeSessionStatus}</p>
               <p><strong>Realtime session started:</strong> {rtcDiagnostics.realtimeSessionStarted ? 'true' : 'false'}</p>
               <p><strong>Session token received:</strong> {rtcDiagnostics.sessionTokenReceived ? 'true' : 'false'}</p>
