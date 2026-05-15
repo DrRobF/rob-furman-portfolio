@@ -5,7 +5,6 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const offerSdp = body?.offerSdp;
     const setup = body?.setup || {};
-    const connectionMode = body?.connectionMode || 'calls';
 
     if (!offerSdp) {
       return Response.json({ error: 'Missing offerSdp in request body.' }, { status: 400 });
@@ -16,60 +15,30 @@ export async function POST(request) {
       type: 'realtime',
       model: 'gpt-realtime',
       instructions: simulation.prompt,
-      audio: {
-        output: {
-          voice: 'marin',
-        },
-      },
     };
 
-    const sessionConfig = JSON.stringify({
-      type: 'realtime',
-      model: 'gpt-realtime',
-      instructions: simulation.prompt,
-      audio: {
-        output: {
-          voice: 'marin',
-        },
-      },
-    });
+    const sessionConfig = JSON.stringify(sessionUpdatePayload);
 
-    console.log('HUMAN_EQUATION_REALTIME_GA_REWRITE');
-    console.log('endpoint used', 'https://api.openai.com/v1/realtime/calls');
-    console.log('session config keys', ['type', 'model', 'instructions', 'audio']);
-    console.log('model used', 'gpt-realtime');
+    console.log('HUMAN_EQUATION_CALLS_MINIMAL_PAYLOAD');
+    console.log('session keys', Object.keys(sessionUpdatePayload));
+    console.log('model', sessionUpdatePayload.model);
     console.log('prompt source', simulation.promptSource);
     console.log('prompt length', simulation.prompt.length);
 
-    let response;
-    let realtimeEndpointUsed = 'https://api.openai.com/v1/realtime/calls';
+    const realtimeEndpointUsed = 'https://api.openai.com/v1/realtime/calls';
+    const formData = new FormData();
+    formData.append('sdp', offerSdp);
+    formData.append('session', sessionConfig);
 
-    if (connectionMode === 'direct') {
-      realtimeEndpointUsed = 'https://api.openai.com/v1/realtime?model=gpt-realtime';
-      response = await fetch(realtimeEndpointUsed, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/sdp',
-        },
-        body: offerSdp,
-      });
-    } else {
-      const formData = new FormData();
-      formData.append('sdp', offerSdp);
-      formData.append('session', sessionConfig);
+    const response = await fetch(realtimeEndpointUsed, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: formData,
+    });
 
-      response = await fetch(realtimeEndpointUsed, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: formData,
-      });
-    }
-
-    console.log('endpoint used', realtimeEndpointUsed);
-    console.log('OpenAI response status', response.status);
+    console.log('OpenAI status', response.status);
 
     if (!response.ok) {
       const errorBody = await response.text();
@@ -78,6 +47,7 @@ export async function POST(request) {
     }
 
     const answerSdp = await response.text();
+    console.log('answer starts with v=0', answerSdp.trim().startsWith('v=0'));
     return Response.json({
       answerSdp,
       simulationPrompt: simulation.prompt,
