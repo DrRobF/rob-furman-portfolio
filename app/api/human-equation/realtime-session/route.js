@@ -4,6 +4,7 @@ export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
     const voice = body?.voice || 'alloy';
+    const offerSdp = body?.offerSdp;
     const setup = body?.setup || {};
     const simulation = await buildSimulationPrompt(setup);
 
@@ -30,17 +31,29 @@ export async function POST(request) {
       fallbackReason: simulation.fallbackReason || null,
     });
 
-    const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    if (!offerSdp) {
+      return Response.json({ error: 'Missing offerSdp in request body.' }, { status: 400 });
+    }
+
+    const formData = new FormData();
+    formData.append('sdp', offerSdp);
+    formData.append(
+      'session',
+      JSON.stringify({
+        type: 'realtime',
         model: 'gpt-realtime',
         voice,
         instructions: simulation.prompt,
-      }),
+        modalities: ['audio', 'text'],
+      })
+    );
+
+    const response = await fetch('https://api.openai.com/v1/realtime/calls', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: formData,
     });
 
     if (!response.ok) {
@@ -48,9 +61,9 @@ export async function POST(request) {
       return Response.json({ error }, { status: response.status });
     }
 
-    const data = await response.json();
+    const answerSdp = await response.text();
     return Response.json({
-      ...data,
+      answerSdp,
       realtimeApi: 'v1/realtime',
       realtimeModel: 'gpt-realtime',
       simulationPrompt: simulation.prompt,
