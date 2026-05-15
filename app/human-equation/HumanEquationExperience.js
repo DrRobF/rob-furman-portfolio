@@ -196,35 +196,6 @@ export default function HumanEquationExperience() {
       }
 
       console.log('HUMAN_EQUATION_SESSION_REQUEST_START');
-      const tokenRes = await fetch('/api/human-equation/realtime-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          voice: setup.parentVoice === 'Male' ? 'verse' : 'alloy',
-          setup,
-        }),
-      });
-      const tokenData = await tokenRes.json();
-      if (!tokenRes.ok) {
-        console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', tokenData);
-        throw new Error(tokenData?.error || 'Failed to create realtime session token.');
-      }
-      console.log('HUMAN_EQUATION_SESSION_REQUEST_SUCCESS');
-      const ephemeralKey = tokenData?.client_secret?.value;
-      const fallbackPrompt = 'You are roleplaying a parent in a school call simulation. Keep a realistic tone, speak clearly, and respond with short conversational turns.';
-      const simulationPrompt = tokenData?.simulationPrompt || fallbackPrompt;
-      const promptSource = tokenData?.simulationPrompt ? (tokenData?.promptSource || 'json') : 'fallback';
-      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource, promptLength: simulationPrompt.length });
-      setDebugInfo({
-        selectedCards: tokenData?.selectedCards || null,
-        simulationPrompt: simulationPrompt,
-        promptPreview: tokenData?.promptPreview || simulationPrompt,
-        promptSource,
-        fallbackReason: tokenData?.fallbackReason || (!tokenData?.simulationPrompt ? 'Missing simulation prompt in session response.' : null),
-        dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
-      });
-      if (!ephemeralKey) throw new Error('Could not create realtime session token.');
-      setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true, realtimeSessionStatus: 'session_token_received' }));
 
       const pc = new RTCPeerConnection();
       console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED');
@@ -305,18 +276,39 @@ export default function HumanEquationExperience() {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      const sdpRes = await fetch('https://api.openai.com/v1/realtime?model=gpt-realtime', {
+      const tokenRes = await fetch('/api/human-equation/realtime-session', {
         method: 'POST',
-        body: offer.sdp,
-        headers: {
-          Authorization: `Bearer ${ephemeralKey}`,
-          'Content-Type': 'application/sdp',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voice: setup.parentVoice === 'Male' ? 'verse' : 'alloy',
+          setup,
+          offerSdp: offer.sdp,
+        }),
       });
-      if (!sdpRes.ok) {
-        throw new Error(`Realtime SDP exchange failed (${sdpRes.status}).`);
+      const tokenData = await tokenRes.json();
+      if (!tokenRes.ok) {
+        console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', tokenData);
+        throw new Error(tokenData?.error || 'Failed to create realtime call session.');
       }
-      const answer = { type: 'answer', sdp: await sdpRes.text() };
+      console.log('HUMAN_EQUATION_SESSION_REQUEST_SUCCESS');
+      const fallbackPrompt = 'You are roleplaying a parent in a school call simulation. Keep a realistic tone, speak clearly, and respond with short conversational turns.';
+      const simulationPrompt = tokenData?.simulationPrompt || fallbackPrompt;
+      const promptSource = tokenData?.simulationPrompt ? (tokenData?.promptSource || 'json') : 'fallback';
+      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource, promptLength: simulationPrompt.length });
+      setDebugInfo({
+        selectedCards: tokenData?.selectedCards || null,
+        simulationPrompt: simulationPrompt,
+        promptPreview: tokenData?.promptPreview || simulationPrompt,
+        promptSource,
+        fallbackReason: tokenData?.fallbackReason || (!tokenData?.simulationPrompt ? 'Missing simulation prompt in session response.' : null),
+        dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
+      });
+      setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true, realtimeSessionStatus: 'session_token_received' }));
+
+      const answer = { type: 'answer', sdp: tokenData?.answerSdp };
+      if (!answer.sdp) {
+        throw new Error('Realtime SDP exchange failed (missing answer SDP).');
+      }
       await pc.setRemoteDescription(answer);
       setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'realtime_session_started' }));
     } catch (error) {
