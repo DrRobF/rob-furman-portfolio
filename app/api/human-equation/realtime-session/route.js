@@ -3,7 +3,6 @@ import { buildSimulationPrompt } from '../../../../lib/human-equation/buildSimul
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const voice = body?.voice || 'alloy';
     const offerSdp = body?.offerSdp;
     const setup = body?.setup || {};
     const simulation = await buildSimulationPrompt(setup);
@@ -35,19 +34,19 @@ export async function POST(request) {
       return Response.json({ error: 'Missing offerSdp in request body.' }, { status: 400 });
     }
 
-    const realtimeSessionPayload = {
-      type: 'realtime',
+    const realtimeCallPayload = {
       model: 'gpt-realtime',
-      voice,
+      sdp: offerSdp,
       instructions: simulation.prompt,
     };
 
-    console.log('HUMAN_EQUATION_REALTIME_CALL_PAYLOAD_KEYS', Object.keys(realtimeSessionPayload));
-    console.log('HUMAN_EQUATION_REALTIME_CALL_FORMDATA_KEYS', ['sdp', 'session']);
+    console.log('HUMAN_EQUATION_REALTIME_CALL_PAYLOAD_KEYS', Object.keys(realtimeCallPayload));
+    console.log('HUMAN_EQUATION_REALTIME_CALL_FORMDATA_KEYS', ['model', 'sdp', 'instructions']);
 
     const formData = new FormData();
-    formData.append('sdp', offerSdp);
-    formData.append('session', JSON.stringify(realtimeSessionPayload));
+    formData.append('model', realtimeCallPayload.model);
+    formData.append('sdp', realtimeCallPayload.sdp);
+    formData.append('instructions', realtimeCallPayload.instructions);
 
     const response = await fetch('https://api.openai.com/v1/realtime/calls', {
       method: 'POST',
