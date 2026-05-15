@@ -50,6 +50,10 @@ export default function HumanEquationExperience() {
     peerConnectionCreated: false,
     dataChannelOpen: false,
     realtimeSessionStarted: false,
+    turnConfigured: false,
+    turnUrlPresent: false,
+    relayCandidateFound: false,
+    iceCandidateTypes: 'none',
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: HUMAN_EQUATION_BUILD_VERSION });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -184,6 +188,10 @@ export default function HumanEquationExperience() {
       dataChannelOpen: false,
       realtimeSessionStarted: false,
       realtimeSessionStatus: 'not_started',
+      turnConfigured: false,
+      turnUrlPresent: false,
+      relayCandidateFound: false,
+      iceCandidateTypes: 'none',
     }));
 
     try {
@@ -205,10 +213,25 @@ export default function HumanEquationExperience() {
         promptSource,
       }));
 
-      const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED');
+      const iceServers = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:global.stun.twilio.com:3478' },
+      ];
+      const turnUrl = process.env.NEXT_PUBLIC_TURN_URL;
+      const turnUrlPresent = Boolean(turnUrl);
+      if (turnUrlPresent) {
+        iceServers.push({
+          urls: turnUrl,
+          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        });
+      }
+      const pc = new RTCPeerConnection({ iceServers });
+      const iceCandidateTypes = new Set();
+      let relayCandidateFound = false;
+      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED', { turnConfigured: turnUrlPresent, turnUrlPresent });
       pcRef.current = pc;
-      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true }));
+      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true, turnConfigured: turnUrlPresent, turnUrlPresent }));
       pc.onconnectionstatechange = () => {
         console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
         setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
@@ -216,6 +239,19 @@ export default function HumanEquationExperience() {
       pc.oniceconnectionstatechange = () => {
         console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
         setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
+      };
+      pc.onicecandidate = (event) => {
+        if (!event.candidate?.candidate) return;
+        const match = event.candidate.candidate.match(/ typ (host|srflx|relay) /);
+        if (!match) return;
+        const candidateType = match[1];
+        iceCandidateTypes.add(candidateType);
+        if (candidateType === 'relay') relayCandidateFound = true;
+        setRtcDiagnostics((prev) => ({
+          ...prev,
+          relayCandidateFound,
+          iceCandidateTypes: Array.from(iceCandidateTypes).sort().join('/') || 'none',
+        }));
       };
 
       const audioEl = new Audio();
@@ -336,7 +372,9 @@ export default function HumanEquationExperience() {
       if (error?.name === 'NotAllowedError' || /Microphone is not connected/.test(error?.message || '')) {
         setMicError('Microphone is not connected to the call. Check browser permission or try headphones.');
       }
-      setCallStatus(`Connection failed: ${error.message}`);
+      const shouldShowTurnWarning = !rtcDiagnostics.relayCandidateFound && dcRef.current?.readyState !== 'open';
+      const turnWarning = shouldShowTurnWarning ? ' No TURN relay candidate found. This network may block direct WebRTC.' : '';
+      setCallStatus(`Connection failed: ${error.message}${turnWarning}`);
       teardownCall();
     }
   };
@@ -516,6 +554,10 @@ export default function HumanEquationExperience() {
               <p><strong>Session token received:</strong> {rtcDiagnostics.sessionTokenReceived ? 'true' : 'false'}</p>
               <p><strong>Peer connection created:</strong> {rtcDiagnostics.peerConnectionCreated ? 'true' : 'false'}</p>
               <p><strong>Data channel open:</strong> {rtcDiagnostics.dataChannelOpen ? 'true' : 'false'}</p>
+              <p><strong>TURN configured:</strong> {rtcDiagnostics.turnConfigured ? 'true' : 'false'}</p>
+              <p><strong>TURN URL present:</strong> {rtcDiagnostics.turnUrlPresent ? 'true' : 'false'}</p>
+              <p><strong>Relay candidate found:</strong> {rtcDiagnostics.relayCandidateFound ? 'true' : 'false'}</p>
+              <p><strong>ICE candidate types collected:</strong> {rtcDiagnostics.iceCandidateTypes}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
               {noiseWarning && <p className={styles.warningText}>{noiseWarning}</p>}
               {micError && <p className={styles.errorText}>{micError}</p>}
