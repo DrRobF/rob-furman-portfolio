@@ -36,6 +36,8 @@ export default function HumanEquationExperience() {
   const [micTestResult, setMicTestResult] = useState('');
   const [micTestVoiceDetected, setMicTestVoiceDetected] = useState(false);
   const [sessionError, setSessionError] = useState('');
+  const [canRetryConnection, setCanRetryConnection] = useState(false);
+  const [retryAttempted, setRetryAttempted] = useState(false);
   const [rtcDiagnostics, setRtcDiagnostics] = useState({
     micStreamStatus: 'missing',
     audioTrackCount: 0,
@@ -53,6 +55,10 @@ export default function HumanEquationExperience() {
     peerConnectionCreated: false,
     dataChannelOpen: false,
     realtimeSessionStarted: false,
+    iceServersConfigured: false,
+    iceCandidateTypes: 'none',
+    selectedCandidatePair: 'unavailable',
+    connectionFailureReason: 'none',
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -184,7 +190,13 @@ export default function HumanEquationExperience() {
     pc.addEventListener('icegatheringstatechange', checkState);
   });
 
-  const beginCall = async () => {
+  const parseIceCandidateTypes = (candidateString = '') => {
+    if (!candidateString) return [];
+    const match = candidateString.match(/ typ ([a-zA-Z0-9]+)/);
+    return match?.[1] ? [match[1]] : [];
+  };
+
+  const beginCall = async (attemptNumber = 0) => {
     console.log('HUMAN_EQUATION_BEGIN_CALL');
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
@@ -194,6 +206,8 @@ export default function HumanEquationExperience() {
     setEmotionalTemperature('Escalated');
     setStage('active');
     setSessionError('');
+    setCanRetryConnection(false);
+    setRetryAttempted(attemptNumber > 0);
     setRtcDiagnostics((prev) => ({
       ...prev,
       peerConnectionCreated: false,
@@ -212,23 +226,59 @@ export default function HumanEquationExperience() {
       sdpAnswerStartsWithV0: false,
       setRemoteDescriptionSuccess: false,
       setRemoteDescriptionError: '',
+      iceServersConfigured: false,
+      iceCandidateTypes: 'none',
+      selectedCandidatePair: 'unavailable',
+      connectionFailureReason: 'none',
     }));
 
     try {
-      const stream = await ensureMicStream();
-      micStreamRef.current = stream;
-      const audioTracks = stream.getAudioTracks();
-      if (!audioTracks.length) throw new Error('Microphone is not connected to the call. Check browser permission or try headphones.');
-
-      const pc = new RTCPeerConnection();
-      pcRef.current = pc;
-      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true, realtimeSessionStatus: 'peer_connection_created' }));
-      let iceCandidatesCount = 0;
-      pc.onicecandidate = (event) => {
-        if (event.candidate) iceCandidatesCount += 1;
-        setRtcDiagnostics((prev) => ({ ...prev, iceCandidatesCount, iceGatheringState: pc.iceGatheringState }));
+      const pcConfig = {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' },
+        ],
+        iceCandidatePoolSize: 10,
       };
-      pc.onconnectionstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
+      const pc = new RTCPeerConnection(pcConfig);
+      pcRef.current = pc;
+      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true, realtimeSessionStatus: 'peer_connection_created', iceServersConfigured: true }));
+      let iceCandidatesCount = 0;
+      const candidateTypes = new Set();
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          iceCandidatesCount += 1;
+          parseIceCandidateTypes(event.candidate.candidate).forEach((type) => candidateTypes.add(type));
+        }
+        setRtcDiagnostics((prev) => ({ ...prev, iceCandidatesCount, iceGatheringState: pc.iceGatheringState, iceCandidateTypes: Array.from(candidateTypes).join('/') || 'none' }));
+      };
+      pc.onconnectionstatechange = async () => {
+        let selectedCandidatePair = 'unavailable';
+        if (pc.connectionState === 'failed') {
+          try {
+            const stats = await pc.getStats();
+            let selectedPair = null;
+            stats.forEach((report) => {
+              if (report.type === 'transport' && report.selectedCandidatePairId && stats.get(report.selectedCandidatePairId)) {
+                selectedPair = stats.get(report.selectedCandidatePairId);
+              }
+              if (!selectedPair && report.type === 'candidate-pair' && report.selected) selectedPair = report;
+            });
+            if (selectedPair) {
+              selectedCandidatePair = `${selectedPair.localCandidateId || 'local?'} -> ${selectedPair.remoteCandidateId || 'remote?'}`;
+            }
+          } catch {
+            selectedCandidatePair = 'unavailable';
+          }
+        }
+        setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState, selectedCandidatePair }));
+        if (pc.connectionState === 'failed') {
+          setRtcDiagnostics((prev) => ({ ...prev, connectionFailureReason: `connectionState=failed; iceConnectionState=${pc.iceConnectionState}` }));
+          teardownCall();
+          setCanRetryConnection(attemptNumber === 0);
+          if (attemptNumber === 0) setCallStatus('Connection failed. Retry available.');
+        }
+      };
       pc.oniceconnectionstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
       pc.onicegatheringstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, iceGatheringState: pc.iceGatheringState }));
       pc.ondatachannel = (event) => setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: event.channel?.readyState || prev.dataChannelState }));
@@ -237,8 +287,6 @@ export default function HumanEquationExperience() {
       audioEl.autoplay = true;
       audioElRef.current = audioEl;
       pc.ontrack = (e) => { audioEl.srcObject = e.streams[0]; };
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
       const dc = pc.createDataChannel('oai-events');
       dcRef.current = dc;
       setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState }));
@@ -252,6 +300,12 @@ export default function HumanEquationExperience() {
         if (message.type === 'response.audio.delta' || message.type === 'output_audio_buffer.started') setIsSpeaking(true);
         if (message.type === 'output_audio_buffer.stopped') setIsSpeaking(false);
       };
+
+      const stream = await ensureMicStream();
+      micStreamRef.current = stream;
+      const audioTracks = stream.getAudioTracks();
+      if (!audioTracks.length) throw new Error('Microphone is not connected to the call. Check browser permission or try headphones.');
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -324,6 +378,10 @@ export default function HumanEquationExperience() {
       setCallStatus(`Connection failed: ${error.message}`);
       teardownCall();
     }
+  };
+
+  const retryConnection = async () => {
+    await beginCall(1);
   };
 
   const testMicrophone = async () => {
@@ -503,7 +561,11 @@ export default function HumanEquationExperience() {
               <p><strong>Local description type:</strong> {rtcDiagnostics.localDescriptionType}</p>
               <p><strong>Remote description type:</strong> {rtcDiagnostics.remoteDescriptionType}</p>
               <p><strong>ICE gathering state:</strong> {rtcDiagnostics.iceGatheringState}</p>
+              <p><strong>ICE servers configured:</strong> {rtcDiagnostics.iceServersConfigured ? 'yes' : 'no'}</p>
               <p><strong>ICE candidates count:</strong> {rtcDiagnostics.iceCandidatesCount}</p>
+              <p><strong>ICE candidate types:</strong> {rtcDiagnostics.iceCandidateTypes}</p>
+              <p><strong>Selected candidate pair:</strong> {rtcDiagnostics.selectedCandidatePair}</p>
+              <p><strong>Connection failure reason:</strong> {rtcDiagnostics.connectionFailureReason}</p>
               <p><strong>SDP answer starts with v=0:</strong> {rtcDiagnostics.sdpAnswerStartsWithV0 ? 'true' : 'false'}</p>
               <p><strong>setRemoteDescription success:</strong> {rtcDiagnostics.setRemoteDescriptionSuccess ? 'true' : 'false'}</p>
               <p><strong>setRemoteDescription error:</strong> {rtcDiagnostics.setRemoteDescriptionError || 'None'}</p>
@@ -520,6 +582,9 @@ export default function HumanEquationExperience() {
             <label className={styles.notesLabel}>Private Notes (not shared)</label>
             <textarea className={styles.notes} placeholder="Capture key facts, commitments, and follow-up actions..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             <button className={styles.endCall} onClick={endCall}>End Call</button>
+            {canRetryConnection && !retryAttempted && (
+              <button type="button" className={styles.secondaryAction} onClick={retryConnection}>Retry Connection</button>
+            )}
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
               {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
             </button>
