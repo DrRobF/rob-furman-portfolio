@@ -46,22 +46,9 @@ export default function HumanEquationExperience() {
     iceConnectionState: 'new',
     dataChannelState: 'closed',
     realtimeSessionStatus: 'not_started',
-    sessionTokenReceived: false,
     peerConnectionCreated: false,
     dataChannelOpen: false,
     realtimeSessionStarted: false,
-    turnConfigured: false,
-    turnUrlPresent: false,
-    iceServerCount: 0,
-    turnUrlsLoaded: 'none',
-    relayCandidateFound: false,
-    iceCandidateTypes: 'none',
-    candidateErrorUrl: 'none',
-    candidateErrorCode: 'none',
-    candidateErrorText: 'none',
-    candidateErrorTurnUsernamePresent: false,
-    candidateErrorTurnCredentialPresent: false,
-    candidateErrorIceTransportPolicy: 'relay',
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: HUMAN_EQUATION_BUILD_VERSION });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -191,15 +178,10 @@ export default function HumanEquationExperience() {
     setSessionError('');
     setRtcDiagnostics((prev) => ({
       ...prev,
-      sessionTokenReceived: false,
-      peerConnectionCreated: false,
+        peerConnectionCreated: false,
       dataChannelOpen: false,
       realtimeSessionStarted: false,
       realtimeSessionStatus: 'not_started',
-      turnConfigured: false,
-      turnUrlPresent: false,
-      relayCandidateFound: false,
-      iceCandidateTypes: 'none',
     }));
 
     try {
@@ -221,104 +203,19 @@ export default function HumanEquationExperience() {
         promptSource,
       }));
 
-      const iceServers = [
-        { urls: 'stun:stun.relay.metered.ca:80' },
-        {
-          urls: 'turn:global.relay.metered.ca:80',
-          username: '6eae6d180457190ac56934c5',
-          credential: 'hbebxAhl3tYfPkKf',
-        },
-        {
-          urls: 'turn:global.relay.metered.ca:80?transport=tcp',
-          username: '6eae6d180457190ac56934c5',
-          credential: 'hbebxAhl3tYfPkKf',
-        },
-        {
-          urls: 'turn:global.relay.metered.ca:443',
-          username: '6eae6d180457190ac56934c5',
-          credential: 'hbebxAhl3tYfPkKf',
-        },
-        {
-          urls: 'turns:global.relay.metered.ca:443?transport=tcp',
-          username: '6eae6d180457190ac56934c5',
-          credential: 'hbebxAhl3tYfPkKf',
-        },
-      ];
-      const turnUsername = iceServers.find((server) => String(server.urls).startsWith('turn'))?.username;
-      const turnCredential = iceServers.find((server) => String(server.urls).startsWith('turn'))?.credential;
-      const meteredTurnServers = iceServers.filter((server) => String(server.urls).startsWith('turn'));
-
-      const turnUrlPresent = meteredTurnServers.length > 0;
-      const turnConfigured = Boolean(turnUsername && turnCredential);
-      const turnUrlsLoaded = meteredTurnServers.map((server) => server.urls);
-      const pc = new RTCPeerConnection({
-        iceServers,
-        iceTransportPolicy: 'relay',
-      });
-      const iceCandidateTypes = new Set();
-      let relayCandidateFound = false;
-      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED', {
-        turnConfigured,
-        turnUrlPresent,
-        iceServerCount: iceServers.length,
-        turnUrlsLoaded,
-        iceTransportPolicy: 'relay',
-      });
+      const pc = new RTCPeerConnection();
+      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED');
       pcRef.current = pc;
       setRtcDiagnostics((prev) => ({
         ...prev,
         peerConnectionCreated: true,
-        turnConfigured,
-        turnUrlPresent,
-        iceServerCount: iceServers.length,
-        turnUrlsLoaded: turnUrlsLoaded.join(', '),
-        candidateErrorIceTransportPolicy: 'relay',
       }));
       pc.onconnectionstatechange = () => {
-        console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
+        console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState);
         setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
       };
-      pc.oniceconnectionstatechange = () => {
-        console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
-        setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
-      };
-      pc.onicecandidate = (event) => {
-        if (!event.candidate?.candidate) return;
-        const match = event.candidate.candidate.match(/ typ (host|srflx|relay) /);
-        if (!match) return;
-        const candidateType = match[1];
-        iceCandidateTypes.add(candidateType);
-        if (candidateType === 'relay') relayCandidateFound = true;
-        setRtcDiagnostics((prev) => ({
-          ...prev,
-          relayCandidateFound,
-          iceCandidateTypes: Array.from(iceCandidateTypes).sort().join('/') || 'none',
-        }));
-      };
 
-      pc.onicecandidateerror = (event) => {
-        const errorTurnUsernamePresent = Boolean(turnUsername);
-        const errorTurnCredentialPresent = Boolean(turnCredential);
-        console.warn('HUMAN_EQUATION_ICE_CANDIDATE_ERROR', {
-          url: event.url,
-          errorCode: event.errorCode,
-          errorText: event.errorText,
-          turnUsernamePresent: errorTurnUsernamePresent,
-          turnCredentialPresent: errorTurnCredentialPresent,
-          iceTransportPolicy: 'relay',
-        });
-        setRtcDiagnostics((prev) => ({
-          ...prev,
-          candidateErrorUrl: event.url || 'none',
-          candidateErrorCode: String(event.errorCode ?? 'none'),
-          candidateErrorText: event.errorText || 'none',
-          candidateErrorTurnUsernamePresent: errorTurnUsernamePresent,
-          candidateErrorTurnCredentialPresent: errorTurnCredentialPresent,
-          candidateErrorIceTransportPolicy: 'relay',
-        }));
-      };
-
-      const audioEl = new Audio();
+      const audioEl = document.createElement('audio');
       audioEl.autoplay = true;
       audioElRef.current = audioEl;
       pc.ontrack = (e) => {
@@ -326,7 +223,7 @@ export default function HumanEquationExperience() {
         audioEl.srcObject = e.streams[0];
       };
 
-      pc.addTrack(audioTracks[0], stream);
+      pc.addTrack(audioTracks[0]);
 
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
@@ -375,21 +272,8 @@ export default function HumanEquationExperience() {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      await new Promise((resolve) => {
-        if (pc.iceGatheringState === 'complete') {
-          resolve();
-          return;
-        }
-        const onIceGatheringStateChange = () => {
-          if (pc.iceGatheringState === 'complete') {
-            pc.removeEventListener('icegatheringstatechange', onIceGatheringStateChange);
-            resolve();
-          }
-        };
-        pc.addEventListener('icegatheringstatechange', onIceGatheringStateChange);
-      });
-
-      const localSdp = pc.localDescription?.sdp;
+      console.log('HUMAN_EQUATION_SDP_OFFER_CREATED');
+      const localSdp = offer.sdp;
       if (!localSdp) throw new Error('Local SDP offer is missing.');
 
       console.log('HUMAN_EQUATION_SDP_REQUEST_START');
@@ -409,9 +293,10 @@ export default function HumanEquationExperience() {
       }
 
       const answer = { type: 'answer', sdp: answerText };
-      console.log('HUMAN_EQUATION_SDP_ANSWER_STATUS', answer.sdp ? 'received' : 'missing');
+      console.log('HUMAN_EQUATION_SDP_ANSWER_RECEIVED');
       await pc.setRemoteDescription(answer);
-      setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true, realtimeSessionStarted: true, realtimeSessionStatus: 'started' }));
+      console.log('HUMAN_EQUATION_SET_REMOTE_DESCRIPTION_SUCCESS');
+      setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'started' }));
 
       console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource: 'json/card builder', promptLength: fallbackPrompt.length });
       setDebugInfo({
@@ -436,9 +321,7 @@ export default function HumanEquationExperience() {
       if (error?.name === 'NotAllowedError' || /Microphone is not connected/.test(error?.message || '')) {
         setMicError('Microphone is not connected to the call. Check browser permission or try headphones.');
       }
-      const shouldShowTurnWarning = !rtcDiagnostics.relayCandidateFound && dcRef.current?.readyState !== 'open';
-      const turnWarning = shouldShowTurnWarning ? ' No TURN relay candidate found. This network may block direct WebRTC.' : '';
-      setCallStatus(`Connection failed: ${error.message}${turnWarning}`);
+      setCallStatus(`Connection failed: ${error.message}`);
       teardownCall();
     }
   };
@@ -615,21 +498,8 @@ export default function HumanEquationExperience() {
               <p><strong>Data channel state:</strong> {rtcDiagnostics.dataChannelState}</p>
               <p><strong>Realtime session status:</strong> {rtcDiagnostics.realtimeSessionStatus}</p>
               <p><strong>Realtime session started:</strong> {rtcDiagnostics.realtimeSessionStarted ? 'true' : 'false'}</p>
-              <p><strong>Session token received:</strong> {rtcDiagnostics.sessionTokenReceived ? 'true' : 'false'}</p>
               <p><strong>Peer connection created:</strong> {rtcDiagnostics.peerConnectionCreated ? 'true' : 'false'}</p>
               <p><strong>Data channel open:</strong> {rtcDiagnostics.dataChannelOpen ? 'true' : 'false'}</p>
-              <p><strong>TURN configured:</strong> {rtcDiagnostics.turnConfigured ? 'true' : 'false'}</p>
-              <p><strong>TURN URL present:</strong> {rtcDiagnostics.turnUrlPresent ? 'true' : 'false'}</p>
-              <p><strong>ICE server count:</strong> {rtcDiagnostics.iceServerCount}</p>
-              <p><strong>TURN URLs loaded:</strong> {rtcDiagnostics.turnUrlsLoaded}</p>
-              <p><strong>Relay candidate found:</strong> {rtcDiagnostics.relayCandidateFound ? 'true' : 'false'}</p>
-              <p><strong>ICE candidate types collected:</strong> {rtcDiagnostics.iceCandidateTypes}</p>
-              <p><strong>ICE candidate error URL:</strong> {rtcDiagnostics.candidateErrorUrl}</p>
-              <p><strong>ICE candidate error code:</strong> {rtcDiagnostics.candidateErrorCode}</p>
-              <p><strong>ICE candidate error text:</strong> {rtcDiagnostics.candidateErrorText}</p>
-              <p><strong>TURN username present:</strong> {rtcDiagnostics.candidateErrorTurnUsernamePresent ? 'true' : 'false'}</p>
-              <p><strong>TURN credential present:</strong> {rtcDiagnostics.candidateErrorTurnCredentialPresent ? 'true' : 'false'}</p>
-              <p><strong>ICE transport policy:</strong> {rtcDiagnostics.candidateErrorIceTransportPolicy}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
               {noiseWarning && <p className={styles.warningText}>{noiseWarning}</p>}
               {micError && <p className={styles.errorText}>{micError}</p>}
