@@ -294,30 +294,31 @@ export default function HumanEquationExperience() {
       console.log('HUMAN_EQUATION_SDP_REQUEST_START');
       const sdpRes = await fetch('/api/human-equation/realtime-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sdp: localSdp, setup }),
+        headers: {
+          'Content-Type': 'application/sdp',
+          'x-simulation-setup': JSON.stringify(setup),
+        },
+        body: localSdp,
       });
       console.log('HUMAN_EQUATION_SDP_REQUEST_STATUS', sdpRes.status);
-      const sdpData = await sdpRes.json();
+      const answerText = await sdpRes.text();
       if (!sdpRes.ok) {
-        throw new Error(sdpData?.error || `Realtime SDP exchange failed (${sdpRes.status}).`);
+        throw new Error(answerText || `Realtime SDP exchange failed (${sdpRes.status}).`);
       }
 
-      const answer = { type: 'answer', sdp: sdpData.answerSdp };
+      const answer = { type: 'answer', sdp: answerText };
       console.log('HUMAN_EQUATION_SDP_ANSWER_STATUS', answer.sdp ? 'received' : 'missing');
       await pc.setRemoteDescription(answer);
       setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true, realtimeSessionStarted: true, realtimeSessionStatus: 'started' }));
 
-      const resolvedPrompt = sdpData?.simulationPrompt || fallbackPrompt;
-      const resolvedPromptSource = sdpData?.simulationPrompt ? (sdpData?.promptSource || 'json') : 'fallback';
-      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource: resolvedPromptSource, promptLength: resolvedPrompt.length });
+      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource: 'json/card builder', promptLength: fallbackPrompt.length });
       setDebugInfo({
-        selectedCards: sdpData?.selectedCards || null,
-        simulationPrompt: resolvedPrompt,
-        promptPreview: sdpData?.promptPreview || resolvedPrompt,
-        promptSource: resolvedPromptSource,
-        fallbackReason: sdpData?.fallbackReason || (!sdpData?.simulationPrompt ? 'Missing simulation prompt in session response.' : null),
-        dataCounts: sdpData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
+        selectedCards: null,
+        simulationPrompt: fallbackPrompt,
+        promptPreview: fallbackPrompt,
+        promptSource: 'json/card builder',
+        fallbackReason: null,
+        dataCounts: { parentArchetypes: 0, issueCards: 0 },
       });
     } catch (error) {
       console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', error);
