@@ -5,48 +5,33 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const offerSdp = body?.offerSdp;
     const setup = body?.setup || {};
-    const simulation = await buildSimulationPrompt(setup);
-
-    console.log('HUMAN_EQUATION_DATA_COUNTS');
-    console.log('parentArchetypes count', simulation.dataCounts?.parentArchetypes || 0);
-    console.log('issueCards count', simulation.dataCounts?.issueCards || 0);
-
-    console.log('HUMAN_EQUATION_PROMPT_USED');
-    console.log('promptSource', simulation.promptSource);
-    console.log('prompt length', simulation.prompt.length);
-    console.log('selected archetype', simulation.cards?.openingArchetype?.name || 'fallback');
-    console.log('selected issue card', simulation.cards?.issue?.title || 'fallback');
-    console.log('error', simulation.fallbackReason || null);
-
-    console.log('HUMAN_EQUATION_PROMPT_METADATA', {
-      promptSource: simulation.promptSource,
-      selectedScenarioTitle: simulation.cards?.issue?.title || 'fallback',
-      selectedParentArchetype: simulation.cards?.openingArchetype?.name || 'fallback',
-      selectedTactics: simulation.cards?.tactics || [],
-      selectedVulnerabilities: simulation.cards?.vulnerabilities || [],
-      selectedLeadershipSkills: simulation.cards?.leadershipSkills || [],
-      promptLength: simulation.prompt.length,
-      promptPreview: simulation.prompt.slice(0, 1000),
-      fallbackReason: simulation.fallbackReason || null,
-    });
 
     if (!offerSdp) {
       return Response.json({ error: 'Missing offerSdp in request body.' }, { status: 400 });
     }
 
-    const realtimeCallPayload = {
+    const simulation = await buildSimulationPrompt(setup);
+    const sessionConfig = JSON.stringify({
+      type: 'realtime',
       model: 'gpt-realtime',
-      sdp: offerSdp,
       instructions: simulation.prompt,
-    };
+      audio: {
+        output: {
+          voice: 'marin',
+        },
+      },
+    });
 
-    console.log('HUMAN_EQUATION_REALTIME_CALL_PAYLOAD_KEYS', Object.keys(realtimeCallPayload));
-    console.log('HUMAN_EQUATION_REALTIME_CALL_FORMDATA_KEYS', ['model', 'sdp', 'instructions']);
+    console.log('HUMAN_EQUATION_REALTIME_GA_REWRITE');
+    console.log('endpoint used', 'https://api.openai.com/v1/realtime/calls');
+    console.log('session config keys', ['type', 'model', 'instructions', 'audio']);
+    console.log('model used', 'gpt-realtime');
+    console.log('prompt source', simulation.promptSource);
+    console.log('prompt length', simulation.prompt.length);
 
     const formData = new FormData();
-    formData.append('model', realtimeCallPayload.model);
-    formData.append('sdp', realtimeCallPayload.sdp);
-    formData.append('instructions', realtimeCallPayload.instructions);
+    formData.append('sdp', offerSdp);
+    formData.append('session', sessionConfig);
 
     const response = await fetch('https://api.openai.com/v1/realtime/calls', {
       method: 'POST',
@@ -56,22 +41,25 @@ export async function POST(request) {
       body: formData,
     });
 
+    console.log('OpenAI response status', response.status);
+
     if (!response.ok) {
-      const error = await response.text();
-      return Response.json({ error }, { status: response.status });
+      const errorBody = await response.text();
+      console.log('OpenAI error body if failed', errorBody);
+      return Response.json({ error: errorBody }, { status: response.status });
     }
 
     const answerSdp = await response.text();
     return Response.json({
       answerSdp,
-      realtimeApi: 'v1/realtime',
-      realtimeModel: 'gpt-realtime',
       simulationPrompt: simulation.prompt,
       selectedCards: simulation.cards,
       promptSource: simulation.promptSource,
       promptPreview: simulation.prompt.slice(0, 1500),
       fallbackReason: simulation.fallbackReason || null,
       dataCounts: simulation.dataCounts || { parentArchetypes: 0, issueCards: 0 },
+      sessionConfigModel: 'gpt-realtime',
+      realtimeEndpointUsed: 'https://api.openai.com/v1/realtime/calls',
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
