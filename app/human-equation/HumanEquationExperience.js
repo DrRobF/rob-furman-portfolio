@@ -378,6 +378,9 @@ export default function HumanEquationExperience() {
               <div className={styles.debugPanel}>
                 <h3>Developer Debug Panel</h3>
                 <p><strong>Selected scenario title:</strong> {debugInfo.selectedCards?.issue?.title || 'Unknown'}</p>
+                <p><strong>Selected issue card ID:</strong> {debugInfo.selectedCards?.issue?.cardId || debugInfo.selectedCards?.issue?.id || 'Unknown'}</p>
+                <p><strong>Selected issue type:</strong> {debugInfo.selectedCards?.issue?.issueType || 'Unknown'}</p>
+                <p><strong>Selected issue age group:</strong> {debugInfo.selectedCards?.issue?.studentAgeGroup || debugInfo.selectedCards?.issue?.gradeBand || 'Unknown'}</p>
                 <p><strong>Selected parent name:</strong> Ms. Rodriguez</p>
                 <p><strong>Selected student name:</strong> Student A</p>
                 <p><strong>Selected parent archetype:</strong> {debugInfo.selectedCards?.openingArchetype?.name || 'Unknown'}</p>
