@@ -35,18 +35,19 @@ export async function POST(request) {
       return Response.json({ error: 'Missing offerSdp in request body.' }, { status: 400 });
     }
 
+    const realtimeSessionPayload = {
+      type: 'realtime',
+      model: 'gpt-realtime',
+      voice,
+      instructions: simulation.prompt,
+    };
+
+    console.log('HUMAN_EQUATION_REALTIME_CALL_PAYLOAD_KEYS', Object.keys(realtimeSessionPayload));
+    console.log('HUMAN_EQUATION_REALTIME_CALL_FORMDATA_KEYS', ['sdp', 'session']);
+
     const formData = new FormData();
     formData.append('sdp', offerSdp);
-    formData.append(
-      'session',
-      JSON.stringify({
-        type: 'realtime',
-        model: 'gpt-realtime',
-        voice,
-        instructions: simulation.prompt,
-        modalities: ['audio', 'text'],
-      })
-    );
+    formData.append('session', JSON.stringify(realtimeSessionPayload));
 
     const response = await fetch('https://api.openai.com/v1/realtime/calls', {
       method: 'POST',

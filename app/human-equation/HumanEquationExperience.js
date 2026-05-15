@@ -243,15 +243,17 @@ export default function HumanEquationExperience() {
         setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'data_channel_open' }));
         console.log('HUMAN_EQUATION_REALTIME_CONNECTED');
         setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStatus: 'realtime_connected' }));
-        dc.send(
-          JSON.stringify({
-            type: 'session.update',
-            session: {
-              instructions: simulationPrompt,
-              modalities: ['audio', 'text'],
-            },
-          })
-        );
+        const sessionUpdateEvent = {
+          type: 'session.update',
+          session: {
+            instructions: simulationPrompt,
+          },
+        };
+        console.log('HUMAN_EQUATION_SESSION_UPDATE_EVENT_KEYS', {
+          rootKeys: Object.keys(sessionUpdateEvent),
+          sessionKeys: Object.keys(sessionUpdateEvent.session),
+        });
+        dc.send(JSON.stringify(sessionUpdateEvent));
       };
 
       dc.onmessage = (event) => {
