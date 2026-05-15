@@ -36,8 +36,6 @@ export default function HumanEquationExperience() {
   const [micTestResult, setMicTestResult] = useState('');
   const [micTestVoiceDetected, setMicTestVoiceDetected] = useState(false);
   const [sessionError, setSessionError] = useState('');
-  const [canRetryConnection, setCanRetryConnection] = useState(false);
-    const [retryAttempted, setRetryAttempted] = useState(false);
   const [rtcDiagnostics, setRtcDiagnostics] = useState({
     micStreamStatus: 'missing',
     audioTrackCount: 0,
@@ -47,21 +45,10 @@ export default function HumanEquationExperience() {
     iceConnectionState: 'new',
     dataChannelState: 'closed',
     realtimeSessionStatus: 'not_started',
-    realtimeApiVersion: 'ga /v1/realtime/calls',
-    sessionConfigModel: 'gpt-realtime',
-    realtimeEndpointUsed: 'https://api.openai.com/v1/realtime/calls',
-    sdpOfferCreated: false,
-    sdpAnswerReceived: false,
+    sessionTokenReceived: false,
     peerConnectionCreated: false,
     dataChannelOpen: false,
     realtimeSessionStarted: false,
-    iceServersConfigured: false,
-    iceCandidateTypes: 'none',
-    selectedCandidatePair: 'unavailable',
-    connectionFailureReason: 'none',
-    selectedConnectionMode: 'calls',
-    activeConnectionMode: 'calls',
-    fallbackTriggered: false,
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 } });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -179,27 +166,7 @@ export default function HumanEquationExperience() {
     return stream;
   };
 
-  const waitForIceGatheringComplete = (pc) => new Promise((resolve) => {
-    if (pc.iceGatheringState === 'complete') {
-      resolve();
-      return;
-    }
-    const checkState = () => {
-      if (pc.iceGatheringState === 'complete') {
-        pc.removeEventListener('icegatheringstatechange', checkState);
-        resolve();
-      }
-    };
-    pc.addEventListener('icegatheringstatechange', checkState);
-  });
-
-  const parseIceCandidateTypes = (candidateString = '') => {
-    if (!candidateString) return [];
-    const match = candidateString.match(/ typ ([a-zA-Z0-9]+)/);
-    return match?.[1] ? [match[1]] : [];
-  };
-
-  const beginCall = async (attemptNumber = 0) => {
+  const beginCall = async () => {
     console.log('HUMAN_EQUATION_BEGIN_CALL');
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
@@ -209,183 +176,75 @@ export default function HumanEquationExperience() {
     setEmotionalTemperature('Escalated');
     setStage('active');
     setSessionError('');
-    setCanRetryConnection(false);
-    setRetryAttempted(attemptNumber > 0);
     setRtcDiagnostics((prev) => ({
       ...prev,
+      sessionTokenReceived: false,
       peerConnectionCreated: false,
       dataChannelOpen: false,
       realtimeSessionStarted: false,
       realtimeSessionStatus: 'not_started',
-      realtimeApiVersion: 'ga /v1/realtime/calls',
-      sessionConfigModel: 'gpt-realtime',
-      realtimeEndpointUsed: 'https://api.openai.com/v1/realtime/calls',
-      selectedConnectionMode: 'calls',
-      activeConnectionMode: 'calls',
-      fallbackTriggered: false,
-      sdpOfferCreated: false,
-      sdpAnswerReceived: false,
-      localDescriptionType: 'none',
-      remoteDescriptionType: 'none',
-      iceGatheringState: 'new',
-      iceCandidatesCount: 0,
-      sdpAnswerStartsWithV0: false,
-      setRemoteDescriptionSuccess: false,
-      setRemoteDescriptionError: '',
-      iceServersConfigured: false,
-      iceCandidateTypes: 'none',
-      selectedCandidatePair: 'unavailable',
-      connectionFailureReason: 'none',
     }));
 
     try {
-      const pcConfig = {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:global.stun.twilio.com:3478' },
-        ],
-        iceCandidatePoolSize: 10,
-      };
-      const pc = new RTCPeerConnection(pcConfig);
+      const stream = micStreamRef.current?.active ? micStreamRef.current : await ensureMicStream();
+      micStreamRef.current = stream;
+      const audioTracks = stream.getAudioTracks();
+      if (!audioTracks.length) {
+        throw new Error('Microphone is not connected to the call. Check browser permission or try headphones.');
+      }
+
+      console.log('HUMAN_EQUATION_SESSION_REQUEST_START');
+      const tokenRes = await fetch('/api/human-equation/realtime-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voice: setup.parentVoice === 'Male' ? 'verse' : 'alloy',
+          setup,
+        }),
+      });
+      const tokenData = await tokenRes.json();
+      if (!tokenRes.ok) {
+        console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', tokenData);
+        throw new Error(tokenData?.error || 'Failed to create realtime session token.');
+      }
+      console.log('HUMAN_EQUATION_SESSION_REQUEST_SUCCESS');
+      const ephemeralKey = tokenData?.client_secret?.value;
+      const fallbackPrompt = 'You are roleplaying a parent in a school call simulation. Keep a realistic tone, speak clearly, and respond with short conversational turns.';
+      const simulationPrompt = tokenData?.simulationPrompt || fallbackPrompt;
+      const promptSource = tokenData?.simulationPrompt ? (tokenData?.promptSource || 'json') : 'fallback';
+      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource, promptLength: simulationPrompt.length });
+      setDebugInfo({
+        selectedCards: tokenData?.selectedCards || null,
+        simulationPrompt: simulationPrompt,
+        promptPreview: tokenData?.promptPreview || simulationPrompt,
+        promptSource,
+        fallbackReason: tokenData?.fallbackReason || (!tokenData?.simulationPrompt ? 'Missing simulation prompt in session response.' : null),
+        dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
+      });
+      if (!ephemeralKey) throw new Error('Could not create realtime session token.');
+      setRtcDiagnostics((prev) => ({ ...prev, sessionTokenReceived: true }));
+
+      const pc = new RTCPeerConnection();
+      console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED');
       pcRef.current = pc;
-      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true, realtimeSessionStatus: 'peer_connection_created', iceServersConfigured: true }));
-      let iceCandidatesCount = 0;
-      const candidateTypes = new Set();
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          iceCandidatesCount += 1;
-          parseIceCandidateTypes(event.candidate.candidate).forEach((type) => candidateTypes.add(type));
-        }
-        setRtcDiagnostics((prev) => ({ ...prev, iceCandidatesCount, iceGatheringState: pc.iceGatheringState, iceCandidateTypes: Array.from(candidateTypes).join('/') || 'none' }));
+      setRtcDiagnostics((prev) => ({ ...prev, peerConnectionCreated: true }));
+      pc.onconnectionstatechange = () => {
+        console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
+        setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
       };
-      pc.onconnectionstatechange = async () => {
-        let selectedCandidatePair = 'unavailable';
-        if (pc.connectionState === 'failed') {
-          try {
-            const stats = await pc.getStats();
-            let selectedPair = null;
-            stats.forEach((report) => {
-              if (report.type === 'transport' && report.selectedCandidatePairId && stats.get(report.selectedCandidatePairId)) {
-                selectedPair = stats.get(report.selectedCandidatePairId);
-              }
-              if (!selectedPair && report.type === 'candidate-pair' && report.selected) selectedPair = report;
-            });
-            if (selectedPair) {
-              selectedCandidatePair = `${selectedPair.localCandidateId || 'local?'} -> ${selectedPair.remoteCandidateId || 'remote?'}`;
-            }
-          } catch {
-            selectedCandidatePair = 'unavailable';
-          }
-        }
-        setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState, selectedCandidatePair }));
-        if (pc.connectionState === 'failed') {
-          setRtcDiagnostics((prev) => ({ ...prev, connectionFailureReason: `connectionState=failed; iceConnectionState=${pc.iceConnectionState}` }));
-          teardownCall();
-          setCanRetryConnection(attemptNumber === 0);
-          if (attemptNumber === 0) setCallStatus('Connection failed. Retry available.');
-        }
+      pc.oniceconnectionstatechange = () => {
+        console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
+        setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
       };
-      pc.oniceconnectionstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
-      pc.onicegatheringstatechange = () => setRtcDiagnostics((prev) => ({ ...prev, iceGatheringState: pc.iceGatheringState }));
-      pc.ondatachannel = (event) => setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: event.channel?.readyState || prev.dataChannelState }));
 
       const audioEl = new Audio();
       audioEl.autoplay = true;
       audioElRef.current = audioEl;
-      pc.ontrack = (e) => { audioEl.srcObject = e.streams[0]; };
-      const dc = pc.createDataChannel('oai-events');
-      dcRef.current = dc;
-      setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState }));
-      dc.onopen = () => {
-        setCallStatus('Live call connected');
-        setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'realtime_connected' }));
-      };
-      dc.onclose = () => setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: 'closed' }));
-      dc.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.type === 'response.audio.delta' || message.type === 'output_audio_buffer.started') setIsSpeaking(true);
-        if (message.type === 'output_audio_buffer.stopped') setIsSpeaking(false);
+      pc.ontrack = (e) => {
+        audioEl.srcObject = e.streams[0];
       };
 
-      const stream = await ensureMicStream();
-      micStreamRef.current = stream;
-      const audioTracks = stream.getAudioTracks();
-      if (!audioTracks.length) throw new Error('Microphone is not connected to the call. Check browser permission or try headphones.');
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      await waitForIceGatheringComplete(pc);
-      setRtcDiagnostics((prev) => ({ ...prev, sdpOfferCreated: Boolean(offer?.sdp), realtimeSessionStatus: 'offer_created', localDescriptionType: pc.localDescription?.type || 'none', iceGatheringState: pc.iceGatheringState, iceCandidatesCount }));
-
-      const tokenRes = await fetch('/api/human-equation/realtime-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ setup, offerSdp: pc.localDescription?.sdp || offer.sdp }),
-      });
-      const tokenData = await tokenRes.json();
-      if (!tokenRes.ok) throw new Error(tokenData?.error || 'Failed to create realtime call session.');
-
-      const simulationPrompt = tokenData?.simulationPrompt || '';
-      setDebugInfo({
-        selectedCards: tokenData?.selectedCards || null,
-        simulationPrompt,
-        promptPreview: tokenData?.promptPreview || simulationPrompt,
-        promptSource: tokenData?.promptSource || 'unknown',
-        fallbackReason: tokenData?.fallbackReason || null,
-        dataCounts: tokenData?.dataCounts || { parentArchetypes: 0, issueCards: 0 },
-      });
-
-      const answerSdp = typeof tokenData?.answerSdp === 'string'
-        ? tokenData.answerSdp
-        : tokenData?.answer?.sdp;
-      if (!answerSdp) throw new Error('Realtime SDP exchange failed (missing answer SDP).');
-      const sdpAnswerStartsWithV0 = answerSdp.trim().startsWith('v=0');
-      setRtcDiagnostics((prev) => ({ ...prev, sdpAnswerReceived: true, realtimeSessionStatus: 'answer_received', sdpAnswerStartsWithV0 }));
-
-      const sendSessionUpdate = () => {
-        const sessionUpdatePayload = tokenData?.sessionUpdatePayload || {};
-        if (dc.readyState === 'open') {
-          dc.send(JSON.stringify({ type: 'session.update', session: sessionUpdatePayload }));
-          setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStatus: 'session_updated' }));
-        }
-      };
-
-      const dataChannelOpenPromise = new Promise((resolve, reject) => {
-        if (dc.readyState === 'open') {
-          sendSessionUpdate();
-          resolve();
-          return;
-        }
-        const timeout = setTimeout(() => reject(new Error('Data channel did not open within 8 seconds.')), 8000);
-        const onOpen = () => {
-          clearTimeout(timeout);
-          sendSessionUpdate();
-          resolve();
-        };
-        dc.addEventListener('open', onOpen, { once: true });
-      });
-
-      try {
-        await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
-        setRtcDiagnostics((prev) => ({
-          ...prev,
-          realtimeSessionStarted: true,
-          realtimeSessionStatus: 'realtime_session_started',
-          remoteDescriptionType: pc.remoteDescription?.type || 'none',
-          setRemoteDescriptionSuccess: true,
-          setRemoteDescriptionError: '',
-        }));
-      } catch (remoteDescriptionError) {
-        setRtcDiagnostics((prev) => ({
-          ...prev,
-          setRemoteDescriptionSuccess: false,
-          setRemoteDescriptionError: remoteDescriptionError.message,
-        }));
-        throw remoteDescriptionError;
-      }
-
-      await dataChannelOpenPromise;
+      pc.addTrack(audioTracks[0], stream);
 
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
@@ -401,18 +260,78 @@ export default function HumanEquationExperience() {
         setUserAudioDetected(avg > 18);
         setNoiseWarning(avg > 48 ? 'Background noise may be interfering. Move to a quieter room if possible.' : '');
       }, 300);
+
+      const dc = pc.createDataChannel('oai-events');
+      dcRef.current = dc;
+      setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'connecting' }));
+      dc.onopen = () => {
+        console.log('HUMAN_EQUATION_DATA_CHANNEL_OPEN');
+        setCallStatus('Live call connected');
+        setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'connected' }));
+        console.log('HUMAN_EQUATION_REALTIME_CONNECTED');
+        dc.send(
+          JSON.stringify({
+            type: 'session.update',
+            session: {
+              instructions: simulationPrompt,
+              modalities: ['audio', 'text'],
+            },
+          })
+        );
+      };
+
+      dc.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+
+        if (message.type === 'response.audio.delta' || message.type === 'output_audio_buffer.started') {
+          setIsSpeaking(true);
+        }
+        if (message.type === 'output_audio_buffer.stopped') {
+          setIsSpeaking(false);
+        }
+
+        if (message.type === 'response.done') {
+          const fullText = JSON.stringify(message).toLowerCase();
+          if (fullText.includes('i hear you') || fullText.includes('thank you for explaining')) {
+            setEmotionalTemperature('Stabilizing');
+          }
+        }
+      };
+      dc.onclose = () => setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: 'closed' }));
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      const sdpRes = await fetch('https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview', {
+        method: 'POST',
+        body: offer.sdp,
+        headers: {
+          Authorization: `Bearer ${ephemeralKey}`,
+          'Content-Type': 'application/sdp',
+        },
+      });
+      if (!sdpRes.ok) {
+        throw new Error(`Realtime SDP exchange failed (${sdpRes.status}).`);
+      }
+      const answer = { type: 'answer', sdp: await sdpRes.text() };
+      await pc.setRemoteDescription(answer);
+      setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'started' }));
     } catch (error) {
+      console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', error);
       setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStatus: 'failed' }));
-      setSessionError(`Realtime session failed to start: ${error.message}`);
-      if (error?.name === 'NotAllowedError') setMicPermission('denied');
-      if (error?.name === 'NotAllowedError' || /Microphone is not connected/.test(error?.message || '')) setMicError('Microphone is not connected to the call. Check browser permission or try headphones.');
+      if (/session|realtime|token/i.test(error?.message || '')) {
+        setSessionError(`Realtime session failed to start: ${error.message}`);
+      }
+      console.log('HUMAN_EQUATION_MIC_REQUEST_ERROR', error);
+      if (error?.name === 'NotAllowedError') {
+        setMicPermission('denied');
+      }
+      if (error?.name === 'NotAllowedError' || /Microphone is not connected/.test(error?.message || '')) {
+        setMicError('Microphone is not connected to the call. Check browser permission or try headphones.');
+      }
       setCallStatus(`Connection failed: ${error.message}`);
       teardownCall();
     }
-  };
-
-  const retryConnection = async () => {
-    await beginCall(1);
   };
 
   const testMicrophone = async () => {
@@ -559,7 +478,6 @@ export default function HumanEquationExperience() {
               <p><strong>Microphone permission:</strong> {micPermission}</p>
               {micTestResult && <p><strong>Mic test:</strong> {micTestResult}</p>}
               <p><strong>Voice test:</strong> {micTestVoiceDetected ? 'Voice detected' : 'Waiting for voice'}</p>
-              <p><strong>Realtime Connection Mode:</strong> calls endpoint (GA)</p>
               {micError && <p className={styles.errorText}>{micError}</p>}
               {!hasMicrophone && <p className={styles.errorText}>No microphone detected.</p>}
               <button type="button" className={styles.secondaryAction} onClick={testMicrophone}>Test Microphone</button>
@@ -585,27 +503,9 @@ export default function HumanEquationExperience() {
               <p><strong>WebRTC connection state:</strong> {rtcDiagnostics.peerConnectionState}</p>
               <p><strong>ICE connection state:</strong> {rtcDiagnostics.iceConnectionState}</p>
               <p><strong>Data channel state:</strong> {rtcDiagnostics.dataChannelState}</p>
-              <p><strong>Realtime endpoint used:</strong> {rtcDiagnostics.realtimeEndpointUsed}</p>
-              <p><strong>Selected connection mode:</strong> {rtcDiagnostics.selectedConnectionMode}</p>
-              <p><strong>Active connection mode:</strong> {rtcDiagnostics.activeConnectionMode}</p>
-              <p><strong>Fallback triggered:</strong> {rtcDiagnostics.fallbackTriggered ? 'true' : 'false'}</p>
-              <p><strong>SessionConfig model:</strong> {rtcDiagnostics.sessionConfigModel}</p>
-              <p><strong>Realtime API version:</strong> {rtcDiagnostics.realtimeApiVersion}</p>
-              <p><strong>SDP offer created:</strong> {rtcDiagnostics.sdpOfferCreated ? 'true' : 'false'}</p>
-              <p><strong>SDP answer received:</strong> {rtcDiagnostics.sdpAnswerReceived ? 'true' : 'false'}</p>
-              <p><strong>Local description type:</strong> {rtcDiagnostics.localDescriptionType}</p>
-              <p><strong>Remote description type:</strong> {rtcDiagnostics.remoteDescriptionType}</p>
-              <p><strong>ICE gathering state:</strong> {rtcDiagnostics.iceGatheringState}</p>
-              <p><strong>ICE servers configured:</strong> {rtcDiagnostics.iceServersConfigured ? 'yes' : 'no'}</p>
-              <p><strong>ICE candidates count:</strong> {rtcDiagnostics.iceCandidatesCount}</p>
-              <p><strong>ICE candidate types:</strong> {rtcDiagnostics.iceCandidateTypes}</p>
-              <p><strong>Selected candidate pair:</strong> {rtcDiagnostics.selectedCandidatePair}</p>
-              <p><strong>Connection failure reason:</strong> {rtcDiagnostics.connectionFailureReason}</p>
-              <p><strong>SDP answer starts with v=0:</strong> {rtcDiagnostics.sdpAnswerStartsWithV0 ? 'true' : 'false'}</p>
-              <p><strong>setRemoteDescription success:</strong> {rtcDiagnostics.setRemoteDescriptionSuccess ? 'true' : 'false'}</p>
-              <p><strong>setRemoteDescription error:</strong> {rtcDiagnostics.setRemoteDescriptionError || 'None'}</p>
               <p><strong>Realtime session status:</strong> {rtcDiagnostics.realtimeSessionStatus}</p>
               <p><strong>Realtime session started:</strong> {rtcDiagnostics.realtimeSessionStarted ? 'true' : 'false'}</p>
+              <p><strong>Session token received:</strong> {rtcDiagnostics.sessionTokenReceived ? 'true' : 'false'}</p>
               <p><strong>Peer connection created:</strong> {rtcDiagnostics.peerConnectionCreated ? 'true' : 'false'}</p>
               <p><strong>Data channel open:</strong> {rtcDiagnostics.dataChannelOpen ? 'true' : 'false'}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
@@ -617,9 +517,6 @@ export default function HumanEquationExperience() {
             <label className={styles.notesLabel}>Private Notes (not shared)</label>
             <textarea className={styles.notes} placeholder="Capture key facts, commitments, and follow-up actions..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             <button className={styles.endCall} onClick={endCall}>End Call</button>
-            {canRetryConnection && !retryAttempted && (
-              <button type="button" className={styles.secondaryAction} onClick={retryConnection}>Retry Connection</button>
-            )}
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
               {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
             </button>

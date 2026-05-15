@@ -3,62 +3,60 @@ import { buildSimulationPrompt } from '../../../../lib/human-equation/buildSimul
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const offerSdp = body?.offerSdp;
+    const voice = body?.voice || 'alloy';
     const setup = body?.setup || {};
-
-    if (!offerSdp) {
-      return Response.json({ error: 'Missing offerSdp in request body.' }, { status: 400 });
-    }
-
     const simulation = await buildSimulationPrompt(setup);
-    const sessionUpdatePayload = {
-      type: 'realtime',
-      model: 'gpt-realtime',
-      instructions: simulation.prompt,
-    };
 
-    const sessionConfig = JSON.stringify(sessionUpdatePayload);
+    console.log('HUMAN_EQUATION_DATA_COUNTS');
+    console.log('parentArchetypes count', simulation.dataCounts?.parentArchetypes || 0);
+    console.log('issueCards count', simulation.dataCounts?.issueCards || 0);
 
-    console.log('HUMAN_EQUATION_CALLS_MINIMAL_PAYLOAD');
-    console.log('session keys', Object.keys(sessionUpdatePayload));
-    console.log('model', sessionUpdatePayload.model);
-    console.log('prompt source', simulation.promptSource);
+    console.log('HUMAN_EQUATION_PROMPT_USED');
+    console.log('promptSource', simulation.promptSource);
     console.log('prompt length', simulation.prompt.length);
+    console.log('selected archetype', simulation.cards?.openingArchetype?.name || 'fallback');
+    console.log('selected issue card', simulation.cards?.issue?.title || 'fallback');
+    console.log('error', simulation.fallbackReason || null);
 
-    const realtimeEndpointUsed = 'https://api.openai.com/v1/realtime/calls';
-    const formData = new FormData();
-    formData.append('sdp', offerSdp);
-    formData.append('session', sessionConfig);
+    console.log('HUMAN_EQUATION_PROMPT_METADATA', {
+      promptSource: simulation.promptSource,
+      selectedScenarioTitle: simulation.cards?.issue?.title || 'fallback',
+      selectedParentArchetype: simulation.cards?.openingArchetype?.name || 'fallback',
+      selectedTactics: simulation.cards?.tactics || [],
+      selectedVulnerabilities: simulation.cards?.vulnerabilities || [],
+      selectedLeadershipSkills: simulation.cards?.leadershipSkills || [],
+      promptLength: simulation.prompt.length,
+      promptPreview: simulation.prompt.slice(0, 1000),
+      fallbackReason: simulation.fallbackReason || null,
+    });
 
-    const response = await fetch(realtimeEndpointUsed, {
+    const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
       },
-      body: formData,
+      body: JSON.stringify({
+        model: 'gpt-4o-realtime-preview',
+        voice,
+        instructions: simulation.prompt,
+      }),
     });
 
-    console.log('OpenAI status', response.status);
-
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.log('OpenAI error body if failed', errorBody);
-      return Response.json({ error: errorBody }, { status: response.status });
+      const error = await response.text();
+      return Response.json({ error }, { status: response.status });
     }
 
-    const answerSdp = await response.text();
-    console.log('answer starts with v=0', answerSdp.trim().startsWith('v=0'));
+    const data = await response.json();
     return Response.json({
-      answerSdp,
+      ...data,
       simulationPrompt: simulation.prompt,
       selectedCards: simulation.cards,
       promptSource: simulation.promptSource,
       promptPreview: simulation.prompt.slice(0, 1500),
       fallbackReason: simulation.fallbackReason || null,
       dataCounts: simulation.dataCounts || { parentArchetypes: 0, issueCards: 0 },
-      sessionConfigModel: 'gpt-realtime',
-      sessionUpdatePayload,
-      realtimeEndpointUsed,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
