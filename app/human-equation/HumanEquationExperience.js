@@ -216,36 +216,31 @@ export default function HumanEquationExperience() {
       }));
 
       const iceServers = [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:global.stun.twilio.com:3478' },
+        { urls: 'stun:stun.relay.metered.ca:80' },
+        {
+          urls: 'turn:standard.relay.metered.ca:80',
+          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        },
+        {
+          urls: 'turn:standard.relay.metered.ca:80?transport=tcp',
+          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        },
+        {
+          urls: 'turn:standard.relay.metered.ca:443',
+          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        },
+        {
+          urls: 'turns:standard.relay.metered.ca:443?transport=tcp',
+          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        },
       ];
       const turnUsername = process.env.NEXT_PUBLIC_TURN_USERNAME;
       const turnCredential = process.env.NEXT_PUBLIC_TURN_CREDENTIAL;
-      const meteredTurnServers = [
-        {
-          urls: 'turn:global.relay.metered.ca:80',
-          username: turnUsername,
-          credential: turnCredential,
-        },
-        {
-          urls: 'turn:global.relay.metered.ca:80?transport=tcp',
-          username: turnUsername,
-          credential: turnCredential,
-        },
-        {
-          urls: 'turn:global.relay.metered.ca:443',
-          username: turnUsername,
-          credential: turnCredential,
-        },
-        {
-          urls: 'turns:global.relay.metered.ca:443?transport=tcp',
-          username: turnUsername,
-          credential: turnCredential,
-        },
-      ];
-
-      iceServers.unshift({ urls: 'stun:stun.relay.metered.ca:80' });
-      iceServers.push(...meteredTurnServers);
+      const meteredTurnServers = iceServers.filter((server) => String(server.urls).startsWith('turn'));
 
       const turnUrlPresent = meteredTurnServers.length > 0;
       const turnConfigured = Boolean(turnUsername && turnCredential);
