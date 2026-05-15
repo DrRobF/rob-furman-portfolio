@@ -381,6 +381,8 @@ export default function HumanEquationExperience() {
                 <p><strong>Selected parent name:</strong> Ms. Rodriguez</p>
                 <p><strong>Selected student name:</strong> Student A</p>
                 <p><strong>Selected parent archetype:</strong> {debugInfo.selectedCards?.openingArchetype?.name || 'Unknown'}</p>
+                <p><strong>Selected parent archetype card ID:</strong> {debugInfo.selectedCards?.openingArchetype?.cardId || debugInfo.selectedCards?.openingArchetype?.id || 'Unknown'}</p>
+                <p><strong>Selected parent archetype goal:</strong> {debugInfo.selectedCards?.openingArchetype?.primaryGoal || 'Unknown'}</p>
                 <p><strong>Selected tactics:</strong> {(debugInfo.selectedCards?.tactics || []).join(', ') || 'None'}</p>
                 <p><strong>Selected vulnerabilities:</strong> {(debugInfo.selectedCards?.vulnerabilities || []).join(', ') || 'None'}</p>
                 <p><strong>Selected leadership skills:</strong> {(debugInfo.selectedCards?.leadershipSkills || []).join(', ') || 'None'}</p>
