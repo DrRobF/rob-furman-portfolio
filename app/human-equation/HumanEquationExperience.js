@@ -56,6 +56,12 @@ export default function HumanEquationExperience() {
     turnUrlsLoaded: 'none',
     relayCandidateFound: false,
     iceCandidateTypes: 'none',
+    candidateErrorUrl: 'none',
+    candidateErrorCode: 'none',
+    candidateErrorText: 'none',
+    candidateErrorTurnUsernamePresent: false,
+    candidateErrorTurnCredentialPresent: false,
+    candidateErrorIceTransportPolicy: 'relay',
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: HUMAN_EQUATION_BUILD_VERSION });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -219,33 +225,36 @@ export default function HumanEquationExperience() {
         { urls: 'stun:stun.relay.metered.ca:80' },
         {
           urls: 'turn:global.relay.metered.ca:80',
-          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
-          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+          username: '6eae6d180457190ac56934c5',
+          credential: 'hbebxAhl3tYfPkKf',
         },
         {
           urls: 'turn:global.relay.metered.ca:80?transport=tcp',
-          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
-          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+          username: '6eae6d180457190ac56934c5',
+          credential: 'hbebxAhl3tYfPkKf',
         },
         {
           urls: 'turn:global.relay.metered.ca:443',
-          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
-          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+          username: '6eae6d180457190ac56934c5',
+          credential: 'hbebxAhl3tYfPkKf',
         },
         {
           urls: 'turns:global.relay.metered.ca:443?transport=tcp',
-          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
-          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+          username: '6eae6d180457190ac56934c5',
+          credential: 'hbebxAhl3tYfPkKf',
         },
       ];
-      const turnUsername = process.env.NEXT_PUBLIC_TURN_USERNAME;
-      const turnCredential = process.env.NEXT_PUBLIC_TURN_CREDENTIAL;
+      const turnUsername = iceServers.find((server) => String(server.urls).startsWith('turn'))?.username;
+      const turnCredential = iceServers.find((server) => String(server.urls).startsWith('turn'))?.credential;
       const meteredTurnServers = iceServers.filter((server) => String(server.urls).startsWith('turn'));
 
       const turnUrlPresent = meteredTurnServers.length > 0;
       const turnConfigured = Boolean(turnUsername && turnCredential);
       const turnUrlsLoaded = meteredTurnServers.map((server) => server.urls);
-      const pc = new RTCPeerConnection({ iceServers });
+      const pc = new RTCPeerConnection({
+        iceServers,
+        iceTransportPolicy: 'relay',
+      });
       const iceCandidateTypes = new Set();
       let relayCandidateFound = false;
       console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED', {
@@ -253,6 +262,7 @@ export default function HumanEquationExperience() {
         turnUrlPresent,
         iceServerCount: iceServers.length,
         turnUrlsLoaded,
+        iceTransportPolicy: 'relay',
       });
       pcRef.current = pc;
       setRtcDiagnostics((prev) => ({
@@ -262,6 +272,7 @@ export default function HumanEquationExperience() {
         turnUrlPresent,
         iceServerCount: iceServers.length,
         turnUrlsLoaded: turnUrlsLoaded.join(', '),
+        candidateErrorIceTransportPolicy: 'relay',
       }));
       pc.onconnectionstatechange = () => {
         console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState, pc.iceConnectionState);
@@ -286,11 +297,25 @@ export default function HumanEquationExperience() {
       };
 
       pc.onicecandidateerror = (event) => {
+        const errorTurnUsernamePresent = Boolean(turnUsername);
+        const errorTurnCredentialPresent = Boolean(turnCredential);
         console.warn('HUMAN_EQUATION_ICE_CANDIDATE_ERROR', {
           url: event.url,
           errorCode: event.errorCode,
           errorText: event.errorText,
+          turnUsernamePresent: errorTurnUsernamePresent,
+          turnCredentialPresent: errorTurnCredentialPresent,
+          iceTransportPolicy: 'relay',
         });
+        setRtcDiagnostics((prev) => ({
+          ...prev,
+          candidateErrorUrl: event.url || 'none',
+          candidateErrorCode: String(event.errorCode ?? 'none'),
+          candidateErrorText: event.errorText || 'none',
+          candidateErrorTurnUsernamePresent: errorTurnUsernamePresent,
+          candidateErrorTurnCredentialPresent: errorTurnCredentialPresent,
+          candidateErrorIceTransportPolicy: 'relay',
+        }));
       };
 
       const audioEl = new Audio();
@@ -599,6 +624,12 @@ export default function HumanEquationExperience() {
               <p><strong>TURN URLs loaded:</strong> {rtcDiagnostics.turnUrlsLoaded}</p>
               <p><strong>Relay candidate found:</strong> {rtcDiagnostics.relayCandidateFound ? 'true' : 'false'}</p>
               <p><strong>ICE candidate types collected:</strong> {rtcDiagnostics.iceCandidateTypes}</p>
+              <p><strong>ICE candidate error URL:</strong> {rtcDiagnostics.candidateErrorUrl}</p>
+              <p><strong>ICE candidate error code:</strong> {rtcDiagnostics.candidateErrorCode}</p>
+              <p><strong>ICE candidate error text:</strong> {rtcDiagnostics.candidateErrorText}</p>
+              <p><strong>TURN username present:</strong> {rtcDiagnostics.candidateErrorTurnUsernamePresent ? 'true' : 'false'}</p>
+              <p><strong>TURN credential present:</strong> {rtcDiagnostics.candidateErrorTurnCredentialPresent ? 'true' : 'false'}</p>
+              <p><strong>ICE transport policy:</strong> {rtcDiagnostics.candidateErrorIceTransportPolicy}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
               {noiseWarning && <p className={styles.warningText}>{noiseWarning}</p>}
               {micError && <p className={styles.errorText}>{micError}</p>}
