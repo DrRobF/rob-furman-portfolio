@@ -5,12 +5,24 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const offerSdp = body?.offerSdp;
     const setup = body?.setup || {};
+    const connectionMode = body?.connectionMode || 'calls';
 
     if (!offerSdp) {
       return Response.json({ error: 'Missing offerSdp in request body.' }, { status: 400 });
     }
 
     const simulation = await buildSimulationPrompt(setup);
+    const sessionUpdatePayload = {
+      type: 'realtime',
+      model: 'gpt-realtime',
+      instructions: simulation.prompt,
+      audio: {
+        output: {
+          voice: 'marin',
+        },
+      },
+    };
+
     const sessionConfig = JSON.stringify({
       type: 'realtime',
       model: 'gpt-realtime',
@@ -29,18 +41,34 @@ export async function POST(request) {
     console.log('prompt source', simulation.promptSource);
     console.log('prompt length', simulation.prompt.length);
 
-    const formData = new FormData();
-    formData.append('sdp', offerSdp);
-    formData.append('session', sessionConfig);
+    let response;
+    let realtimeEndpointUsed = 'https://api.openai.com/v1/realtime/calls';
 
-    const response = await fetch('https://api.openai.com/v1/realtime/calls', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: formData,
-    });
+    if (connectionMode === 'direct') {
+      realtimeEndpointUsed = 'https://api.openai.com/v1/realtime?model=gpt-realtime';
+      response = await fetch(realtimeEndpointUsed, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/sdp',
+        },
+        body: offerSdp,
+      });
+    } else {
+      const formData = new FormData();
+      formData.append('sdp', offerSdp);
+      formData.append('session', sessionConfig);
 
+      response = await fetch(realtimeEndpointUsed, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: formData,
+      });
+    }
+
+    console.log('endpoint used', realtimeEndpointUsed);
     console.log('OpenAI response status', response.status);
 
     if (!response.ok) {
@@ -59,7 +87,8 @@ export async function POST(request) {
       fallbackReason: simulation.fallbackReason || null,
       dataCounts: simulation.dataCounts || { parentArchetypes: 0, issueCards: 0 },
       sessionConfigModel: 'gpt-realtime',
-      realtimeEndpointUsed: 'https://api.openai.com/v1/realtime/calls',
+      sessionUpdatePayload,
+      realtimeEndpointUsed,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
