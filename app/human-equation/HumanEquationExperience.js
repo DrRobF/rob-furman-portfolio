@@ -6,6 +6,7 @@ import { briefings, callTimingBriefings, setupOptions } from './data/mockScenari
 
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
+const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
 
 const asText = (value, fallback = 'Unknown') => {
   if (typeof value === 'string') return value;
