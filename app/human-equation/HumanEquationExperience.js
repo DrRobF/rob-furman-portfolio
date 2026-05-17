@@ -238,17 +238,27 @@ export default function HumanEquationExperience() {
       };
 
       dc.onmessage = (event) => {
-        const message = JSON.parse(event.data);
+        const rawPayload = typeof event?.data === 'string' ? event.data : '';
+        let message = null;
+        try {
+          message = rawPayload ? JSON.parse(rawPayload) : null;
+        } catch (parseError) {
+          console.log('HUMAN_EQUATION_DATA_CHANNEL_PARSE_ERROR', parseError);
+          return;
+        }
 
-        if (message.type === 'response.audio.delta' || message.type === 'output_audio_buffer.started') {
+        const eventType = message?.type;
+        if (!eventType) return;
+
+        if (eventType === 'response.audio.delta' || eventType === 'output_audio_buffer.started') {
           setIsSpeaking(true);
         }
-        if (message.type === 'output_audio_buffer.stopped') {
+        if (eventType === 'output_audio_buffer.stopped') {
           setIsSpeaking(false);
         }
 
-        if (message.type === 'response.done') {
-          const fullText = JSON.stringify(message).toLowerCase();
+        if (eventType === 'response.done') {
+          const fullText = JSON.stringify(message || {}).toLowerCase();
           if (fullText.includes('i hear you') || fullText.includes('thank you for explaining')) {
             setEmotionalTemperature('Stabilizing');
           }
@@ -374,7 +384,11 @@ export default function HumanEquationExperience() {
     }));
   };
   const isUnexpectedCall = setup.callType === setupOptions.callTypes[0];
-  const selectedTimingBriefing = callTimingBriefings[setup.callTiming];
+  const selectedTimingBriefing = callTimingBriefings?.[setup.callTiming] ?? {
+    summary: 'Context briefing unavailable.',
+    goal: 'Clarify the call context and establish next steps.',
+    focus: [],
+  };
 
   return (
     <section className={styles.shell}>
