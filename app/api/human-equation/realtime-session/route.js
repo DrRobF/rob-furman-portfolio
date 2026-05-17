@@ -1,13 +1,10 @@
 import { buildSimulationPrompt } from '../../../../lib/human-equation/buildSimulationPrompt';
 
-const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
-
 export async function POST(request) {
   try {
-    console.log('HUMAN_EQUATION_BUILD_VERSION GA-CLEAN-1');
-    const sdp = await request.text();
+    const rawSdp = await request.text();
 
-    if (!sdp || typeof sdp !== 'string') {
+    if (!rawSdp || typeof rawSdp !== 'string') {
       return new Response('Missing SDP offer.', { status: 400 });
     }
 
@@ -22,28 +19,27 @@ export async function POST(request) {
       audio: { output: { voice: 'marin' } },
     };
 
-    const formData = new FormData();
-    formData.set('sdp', sdp);
-    formData.set('session', JSON.stringify(session));
+    const fd = new FormData();
+    fd.set('sdp', rawSdp);
+    fd.set('session', JSON.stringify(session));
 
     const response = await fetch('https://api.openai.com/v1/realtime/calls', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
-      body: formData,
+      body: fd,
     });
 
-    const answerSdp = await response.text();
+    const answerText = await response.text();
 
-    return new Response(answerSdp, {
+    return new Response(answerText, {
       status: response.status,
       headers: {
         'Content-Type': 'application/sdp',
-        'x-human-equation-build': HUMAN_EQUATION_BUILD_VERSION,
       },
     });
   } catch (error) {
-    return new Response(error.message, { status: 500 });
+    return new Response(error.message || 'Server error', { status: 500 });
   }
 }

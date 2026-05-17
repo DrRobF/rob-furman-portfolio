@@ -5,8 +5,6 @@ import styles from './human-equation.module.css';
 import { briefings, callTimingBriefings, setupOptions } from './data/mockScenario';
 
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
-const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
-
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
 
 export default function HumanEquationExperience() {
@@ -50,7 +48,7 @@ export default function HumanEquationExperience() {
     dataChannelOpen: false,
     realtimeSessionStarted: false,
   });
-  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: HUMAN_EQUATION_BUILD_VERSION });
+  const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const pcRef = useRef(null);
@@ -170,7 +168,7 @@ export default function HumanEquationExperience() {
     console.log('HUMAN_EQUATION_BEGIN_CALL');
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
-    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: HUMAN_EQUATION_BUILD_VERSION });
+    setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
     setShowDebugPanel(false);
     setCallStatus('Connecting…');
     setEmotionalTemperature('Escalated');
@@ -191,17 +189,6 @@ export default function HumanEquationExperience() {
       if (!audioTracks.length) {
         throw new Error('Microphone is not connected to the call. Check browser permission or try headphones.');
       }
-
-      const fallbackPrompt = 'You are roleplaying a parent in a school call simulation. Keep a realistic tone, speak clearly, and respond with short conversational turns.';
-      const simulationPrompt = fallbackPrompt;
-      const promptSource = 'fallback';
-      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource, promptLength: simulationPrompt.length });
-      setDebugInfo((prev) => ({
-        ...prev,
-        simulationPrompt,
-        promptPreview: simulationPrompt,
-        promptSource,
-      }));
 
       const pc = new RTCPeerConnection();
       console.log('HUMAN_EQUATION_PEER_CONNECTION_CREATED');
@@ -286,7 +273,6 @@ export default function HumanEquationExperience() {
         body: localSdp,
       });
       console.log('HUMAN_EQUATION_SDP_REQUEST_STATUS', sdpRes.status);
-      const realtimeBuildVersion = sdpRes.headers.get('x-human-equation-build') || HUMAN_EQUATION_BUILD_VERSION;
       const answerText = await sdpRes.text();
       if (!sdpRes.ok) {
         throw new Error(answerText || `Realtime SDP exchange failed (${sdpRes.status}).`);
@@ -298,15 +284,14 @@ export default function HumanEquationExperience() {
       console.log('HUMAN_EQUATION_SET_REMOTE_DESCRIPTION_SUCCESS');
       setRtcDiagnostics((prev) => ({ ...prev, realtimeSessionStarted: true, realtimeSessionStatus: 'started' }));
 
-      console.log('HUMAN_EQUATION_PROMPT_READY', { promptSource: 'json/card builder', promptLength: fallbackPrompt.length });
       setDebugInfo({
         selectedCards: null,
-        simulationPrompt: fallbackPrompt,
-        promptPreview: fallbackPrompt,
+        simulationPrompt: 'Prompt is injected server-side from simulation cards.',
+        promptPreview: 'Prompt is injected server-side from simulation cards.',
         promptSource: 'json/card builder',
         fallbackReason: null,
         dataCounts: { parentArchetypes: 0, issueCards: 0 },
-        buildVersion: realtimeBuildVersion,
+        buildVersion: 'server-realtime-session',
       });
     } catch (error) {
       console.log('HUMAN_EQUATION_SESSION_REQUEST_ERROR', error);
