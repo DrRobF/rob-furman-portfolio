@@ -7,6 +7,12 @@ import { briefings, callTimingBriefings, setupOptions } from './data/mockScenari
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
 
+const asText = (value, fallback = 'Unknown') => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return fallback;
+};
+
 export default function HumanEquationExperience() {
   const [stage, setStage] = useState('intro');
   const [callStartedAt, setCallStartedAt] = useState(null);
@@ -50,6 +56,7 @@ export default function HumanEquationExperience() {
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [realtimeEventCounts, setRealtimeEventCounts] = useState({});
 
   const pcRef = useRef(null);
   const micStreamRef = useRef(null);
@@ -170,6 +177,7 @@ export default function HumanEquationExperience() {
     setTranscriptLines([]);
     setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
     setShowDebugPanel(false);
+    setRealtimeEventCounts({});
     setCallStatus('Connecting…');
     setEmotionalTemperature('Escalated');
     setStage('active');
@@ -238,30 +246,47 @@ export default function HumanEquationExperience() {
       };
 
       dc.onmessage = (event) => {
-        const rawPayload = typeof event?.data === 'string' ? event.data : '';
-        let message = null;
         try {
-          message = rawPayload ? JSON.parse(rawPayload) : null;
-        } catch (parseError) {
-          console.log('HUMAN_EQUATION_DATA_CHANNEL_PARSE_ERROR', parseError);
-          return;
-        }
+          const rawPayload = typeof event?.data === 'string' ? event.data : '';
+          if (!rawPayload) return;
 
-        const eventType = message?.type;
-        if (!eventType) return;
-
-        if (eventType === 'response.audio.delta' || eventType === 'output_audio_buffer.started') {
-          setIsSpeaking(true);
-        }
-        if (eventType === 'output_audio_buffer.stopped') {
-          setIsSpeaking(false);
-        }
-
-        if (eventType === 'response.done') {
-          const fullText = JSON.stringify(message || {}).toLowerCase();
-          if (fullText.includes('i hear you') || fullText.includes('thank you for explaining')) {
-            setEmotionalTemperature('Stabilizing');
+          let message = null;
+          try {
+            message = JSON.parse(rawPayload);
+          } catch (parseError) {
+            console.log('HUMAN_EQUATION_DATA_CHANNEL_PARSE_ERROR', parseError);
+            return;
           }
+
+          const eventType = asText(message?.type, '');
+          if (!eventType) return;
+
+          setRealtimeEventCounts((prev) => ({
+            ...prev,
+            [eventType]: (prev[eventType] || 0) + 1,
+          }));
+
+          switch (eventType) {
+            case 'response.audio.delta':
+            case 'output_audio_buffer.started':
+              setIsSpeaking(true);
+              return;
+            case 'output_audio_buffer.stopped':
+              setIsSpeaking(false);
+              return;
+            case 'response.done': {
+              const fullText = rawPayload.toLowerCase();
+              if (fullText.includes('i hear you') || fullText.includes('thank you for explaining')) {
+                setEmotionalTemperature('Stabilizing');
+              }
+              return;
+            }
+            default:
+              // Ignore unknown realtime event types so new API events cannot crash the UI.
+              return;
+          }
+        } catch (handlerError) {
+          console.log('HUMAN_EQUATION_DATA_CHANNEL_HANDLER_ERROR', handlerError);
         }
       };
       dc.onclose = () => setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: 'closed' }));
@@ -519,12 +544,14 @@ export default function HumanEquationExperience() {
                 <p><strong>Selected parent archetype:</strong> {debugInfo.selectedCards?.openingArchetype?.name || 'Unknown'}</p>
                 <p><strong>Selected issue card:</strong> {debugInfo.selectedCards?.issue?.title || 'Unknown'}</p>
                 <p><strong>Generated prompt length:</strong> {debugInfo.simulationPrompt?.length || 0}</p>
-                <p><strong>Prompt source:</strong> {debugInfo.promptSource}</p>
-                <p><strong>Build version:</strong> {debugInfo.buildVersion || HUMAN_EQUATION_BUILD_VERSION}</p>
-                <p><strong>Prompt builder error:</strong> {debugInfo.fallbackReason || 'None'}</p>
-                {debugInfo.promptSource !== 'json' && (
+                <p><strong>Prompt source:</strong> {asText(debugInfo.promptSource, 'unknown')}</p>
+                <p><strong>Build version:</strong> {asText(debugInfo.buildVersion, HUMAN_EQUATION_BUILD_VERSION)}</p>
+                <p><strong>Prompt builder error:</strong> {asText(debugInfo.fallbackReason, 'None')}</p>
+                {asText(debugInfo.promptSource, 'unknown') !== 'json' && (
                   <p className={styles.debugWarning}><strong>WARNING:</strong> Realtime session is not using generated JSON prompt.</p>
                 )}
+                <p><strong>Realtime event types seen:</strong> {Object.keys(realtimeEventCounts).length}</p>
+                <pre>{JSON.stringify(realtimeEventCounts, null, 2)}</pre>
                 <p><strong>Generated prompt (first 1500 chars):</strong></p>
                 <pre>{debugInfo.promptPreview || (debugInfo.simulationPrompt ? debugInfo.simulationPrompt.slice(0, 1500) : 'No prompt generated yet.')}</pre>
               </div>
