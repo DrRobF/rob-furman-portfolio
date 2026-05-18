@@ -104,13 +104,6 @@ export default function HumanEquationExperience() {
     return () => clearInterval(interval);
   }, [stage]);
 
-  useEffect(() => {
-    if (stage !== 'setup') return;
-    if (setup.practiceMode !== 'random') return;
-    randomizeScenario();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage]);
-
   const nextStage = () => setStage(stages[Math.min(stages.indexOf(stage) + 1, stages.length - 1)]);
 
   const teardownCall = () => {
@@ -554,6 +547,17 @@ export default function HumanEquationExperience() {
     }));
   };
 
+  const handleStartRandomCall = () => {
+    setSetup((prev) => ({ ...prev, practiceMode: 'random' }));
+    randomizeScenario();
+    setStage('setup');
+  };
+
+  const handleConfigurePractice = () => {
+    setSetup((prev) => ({ ...prev, practiceMode: 'guided' }));
+    setStage('setup');
+  };
+
   const regenerateParentProfile = () => {
     setSetup((prev) => ({
       ...prev,
@@ -585,25 +589,25 @@ export default function HumanEquationExperience() {
               <article><h3>Practice real parent dynamics</h3></article>
               <article><h3>Review your transcript and coaching report afterward</h3></article>
             </div>
-            <button className={styles.cta} onClick={nextStage}>Set Up Simulation</button>
+            <div className={styles.pathChoiceGrid}>
+              <button type="button" className={`${styles.pathCard} ${styles.pathCardPrimary}`} onClick={handleStartRandomCall}>
+                <p className={styles.pathTitle}>Realistic Random Call</p>
+                <p>Enter an unpredictable leadership conversation with incomplete information, emotional pressure, and realistic parent dynamics.</p>
+                <span className={styles.ctaMini}>Start Random Call</span>
+              </button>
+              <button type="button" className={`${styles.pathCard} ${styles.pathCardSecondary}`} onClick={handleConfigurePractice}>
+                <p className={styles.pathTitle}>Guided Practice</p>
+                <p>Configure and rehearse a specific conversation type.</p>
+                <span className={styles.secondaryMini}>Configure Practice</span>
+              </button>
+            </div>
           </div>
         )}
         {stage === 'setup' && (
           <div className={styles.panel}>
             <p className={styles.eyebrow}>Simulation Setup</p>
-            <h2>Choose your practice path</h2>
-            <div className={styles.pathChoiceGrid}>
-              <button type="button" className={`${styles.pathCard} ${setup.practiceMode === 'random' ? styles.pathCardPrimary : ''}`} onClick={() => { setSetup((prev) => ({ ...prev, practiceMode: 'random' })); randomizeScenario(); }}>
-                <p className={styles.pathTitle}>Realistic Random Call</p>
-                <p>Enter an unpredictable school leadership call with incomplete information, emotional pressure, and realistic parent dynamics.</p>
-                <span className={styles.ctaMini}>Start Random Call</span>
-              </button>
-              <button type="button" className={`${styles.pathCard} ${setup.practiceMode === 'guided' ? styles.pathCardSecondary : ''}`} onClick={() => setSetup((prev) => ({ ...prev, practiceMode: 'guided' }))}>
-                <p className={styles.pathTitle}>Guided Practice</p>
-                <p>Choose the type of conversation you want to practice and customize the conditions.</p>
-                <span className={styles.secondaryMini}>Configure Guided Practice</span>
-              </button>
-            </div>
+            <h2>{setup.practiceMode === 'random' ? 'Realistic Random Call' : 'Guided Practice'}</h2>
+            {setup.practiceMode === 'random' && <p className={styles.variationNote}>Scenario randomized for realistic uncertainty and pressure.</p>}
             {setup.practiceMode === 'guided' && (
               <>
                 <p className={styles.variationNote}>Intentional practice mode: customize conditions and build a targeted scenario.</p>
