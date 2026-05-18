@@ -23,6 +23,7 @@ export default function HumanEquationExperience() {
   const [emotionalTemperature, setEmotionalTemperature] = useState('Escalated');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcriptLines, setTranscriptLines] = useState([]);
+  const [callEndedAt, setCallEndedAt] = useState(null);
   const [setup, setSetup] = useState({
     role: setupOptions.roles[1],
     gradeBand: setupOptions.gradeBands[1],
@@ -77,6 +78,15 @@ export default function HumanEquationExperience() {
     return `${mins}:${secs}`;
   }, [callStartedAt, now]);
 
+  const resolvedCallDuration = useMemo(() => {
+    if (!callStartedAt) return '00:00';
+    const endTime = callEndedAt || now;
+    const seconds = Math.max(0, Math.floor((endTime - callStartedAt) / 1000));
+    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    return `${mins}:${secs}`;
+  }, [callEndedAt, callStartedAt, now]);
+
   useEffect(() => {
     if (stage !== 'active') return undefined;
     const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -105,6 +115,58 @@ export default function HumanEquationExperience() {
     audioContextRef.current = null;
     micTestAudioContextRef.current?.close();
     micTestAudioContextRef.current = null;
+  };
+
+  const mapRealtimeRole = (role) => {
+    if (role === 'assistant') return 'parent';
+    if (role === 'user') return 'user';
+    if (role === 'system') return 'system';
+    return 'unknown';
+  };
+
+  const extractTranscriptEntries = (message) => {
+    const eventType = asText(message?.type, '');
+    const timestamp = Date.now();
+    const candidates = [];
+    const pushEntry = (id, role, text) => {
+      const cleanText = typeof text === 'string' ? text.trim() : '';
+      if (!cleanText) return;
+      candidates.push({
+        id: asText(id, `${eventType}-${timestamp}-${candidates.length}`),
+        role: mapRealtimeRole(role),
+        text: cleanText,
+        timestamp,
+        eventType,
+      });
+    };
+
+    const responseOutput = Array.isArray(message?.response?.output) ? message.response.output : [];
+    responseOutput.forEach((outputItem, index) => {
+      const content = Array.isArray(outputItem?.content) ? outputItem.content : [];
+      content.forEach((contentItem, contentIndex) => {
+        if (typeof contentItem?.transcript === 'string') {
+          pushEntry(outputItem?.id || `${outputItem?.role || 'unknown'}-${index}-${contentIndex}`, outputItem?.role, contentItem.transcript);
+        }
+        if (typeof contentItem?.text === 'string') {
+          pushEntry(outputItem?.id || `${outputItem?.role || 'unknown'}-${index}-${contentIndex}-text`, outputItem?.role, contentItem.text);
+        }
+      });
+    });
+
+    if (eventType === 'conversation.item.input_audio_transcription.completed') {
+      pushEntry(message?.item_id || message?.id || 'user-transcription', 'user', message?.transcript);
+    }
+
+    if (eventType === 'conversation.item.created') {
+      const item = message?.item;
+      const content = Array.isArray(item?.content) ? item.content : [];
+      content.forEach((contentItem, index) => {
+        if (typeof contentItem?.transcript === 'string') pushEntry(item?.id || `item-${index}`, item?.role, contentItem.transcript);
+        if (typeof contentItem?.text === 'string') pushEntry(item?.id || `item-text-${index}`, item?.role, contentItem.text);
+      });
+    }
+
+    return candidates;
   };
 
   useEffect(() => {
@@ -179,6 +241,7 @@ export default function HumanEquationExperience() {
     setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
     setShowDebugPanel(false);
     setRealtimeEventCounts({});
+    setCallEndedAt(null);
     setCallStatus('Connecting…');
     setEmotionalTemperature('Escalated');
     setStage('active');
@@ -276,9 +339,21 @@ export default function HumanEquationExperience() {
               setIsSpeaking(false);
               return;
             case 'response.done': {
+              const transcriptEntries = extractTranscriptEntries(message);
+              if (transcriptEntries.length) {
+                setTranscriptLines((prev) => [...prev, ...transcriptEntries]);
+              }
               const fullText = rawPayload.toLowerCase();
               if (fullText.includes('i hear you') || fullText.includes('thank you for explaining')) {
                 setEmotionalTemperature('Stabilizing');
+              }
+              return;
+            }
+            case 'conversation.item.input_audio_transcription.completed':
+            case 'conversation.item.created': {
+              const transcriptEntries = extractTranscriptEntries(message);
+              if (transcriptEntries.length) {
+                setTranscriptLines((prev) => [...prev, ...transcriptEntries]);
               }
               return;
             }
@@ -377,8 +452,28 @@ export default function HumanEquationExperience() {
   };
 
   const endCall = () => {
+    setCallEndedAt(Date.now());
     teardownCall();
     setStage('report');
+  };
+
+  const copyTranscript = async () => {
+    const transcriptText = transcriptLines.map((line) => `[${new Date(line.timestamp).toLocaleTimeString()}] (${line.role}) ${line.text}`).join('\n');
+    try {
+      await navigator.clipboard.writeText(transcriptText);
+    } catch (error) {
+      console.log('HUMAN_EQUATION_COPY_TRANSCRIPT_ERROR', error);
+    }
+  };
+
+  const startNewCall = () => {
+    setTranscriptLines([]);
+    setPrivateNotes('');
+    setCallStartedAt(null);
+    setCallEndedAt(null);
+    setCallStatus('Not connected');
+    setEmotionalTemperature('Escalated');
+    setStage('setup');
   };
 
   const setField = (key, value) => setSetup((prev) => ({ ...prev, [key]: value }));
@@ -564,36 +659,51 @@ export default function HumanEquationExperience() {
             <p className={styles.eyebrow}>Post-Call Coaching Report</p>
             <h2>Transcript and Leadership Debrief</h2>
             <p className={styles.subtle}>Full transcript appears after the call ends.</p>
+            <p><strong>Scenario:</strong> {setup.scenarioType || 'Unknown scenario'}</p>
+            <p><strong>Parent:</strong> {setup.parentVoice === 'Male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
+            <p><strong>Issue:</strong> {setup.callType || 'Unknown issue'}</p>
+            <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
             <div className={styles.reportGrid}>
               <section>
-                <h3>Emotional pressure moments</h3>
+                <h3>What went well</h3>
                 <ul>
-                  <li>Parent opened escalated and distrustful about school communication speed.</li>
-                  <li>Moments of interruption raised emotional intensity before recovery.</li>
+                  <li>You stayed engaged throughout a high-pressure call and maintained response discipline.</li>
+                  <li>You can build trust by acknowledging concern before moving into process details.</li>
                 </ul>
               </section>
               <section>
-                <h3>Coaching highlights</h3>
+                <h3>Possible missed opportunities</h3>
                 <ul>
-                  <li>You can reinforce empathy before process details.</li>
-                  <li>Use concise checkpoints for follow-up communication.</li>
+                  <li>You may have opportunities to summarize shared understanding more explicitly.</li>
+                  <li>Consider adding one clear timeline checkpoint earlier in the conversation.</li>
                 </ul>
+              </section>
+              <section>
+                <h3>Suggested next step</h3>
+                <p>Open the next call by naming concern, confirming one fact, and proposing a concrete follow-up window.</p>
               </section>
             </div>
             <section className={styles.transcriptBlock}>
+              <h3>Private notes</h3>
+              <p>{privateNotes || 'No private notes captured for this call.'}</p>
+            </section>
+            <section className={styles.transcriptBlock}>
               <h3>Full transcript</h3>
               {transcriptLines.length === 0 ? (
-                <p>No transcript captured.</p>
+                <p>Transcript was not captured for this call yet, but the live voice session completed.</p>
               ) : (
                 transcriptLines.map((line, idx) => (
-                  <article key={`${line.speaker}-${idx}`} className={styles.lineItem}>
-                    <div className={styles.lineMeta}><strong>{line.speaker}</strong></div>
+                  <article key={`${line.id}-${idx}`} className={styles.lineItem}>
+                    <div className={styles.lineMeta}><strong>{line.role}</strong> <span>{new Date(line.timestamp).toLocaleTimeString()} • {line.eventType}</span></div>
                     <p>{line.text}</p>
                   </article>
                 ))
               )}
             </section>
-            <button className={styles.cta} onClick={() => setStage('intro')}>Run Simulation Again</button>
+            <div className={styles.reportActions}>
+              <button type="button" className={styles.secondaryAction} onClick={copyTranscript} disabled={transcriptLines.length === 0}>Copy Transcript</button>
+              <button className={styles.cta} onClick={startNewCall}>Start New Call</button>
+            </div>
           </div>
         )}
       </div>

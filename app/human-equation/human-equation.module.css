@@ -60,6 +60,7 @@
 .transcriptBlock { margin-bottom:1rem; }
 .lineItem + .lineItem { margin-top:.7rem; padding-top:.7rem; border-top:1px solid #dce4eb; }
 .lineMeta { display:flex; gap:.6rem; font-size:.86rem; color:#60798f; }
+.reportActions { display:flex; gap:.6rem; flex-wrap:wrap; }
 
 @media (max-width:640px) {
   .shell { padding-inline:.75rem; }
