@@ -46,6 +46,7 @@ export default function HumanEquationExperience() {
     practiceMode: 'random',
     briefingDepth: 'moderate context',
   });
+  const [isGuidedScenarioBuilt, setIsGuidedScenarioBuilt] = useState(false);
   const [micPermission, setMicPermission] = useState('Checking…');
   const [micError, setMicError] = useState('');
   const [hasMicrophone, setHasMicrophone] = useState(true);
@@ -520,7 +521,10 @@ export default function HumanEquationExperience() {
     setStage('setup');
   };
 
-  const setField = (key, value) => setSetup((prev) => ({ ...prev, [key]: value }));
+  const setField = (key, value) => {
+    setSetup((prev) => ({ ...prev, [key]: value }));
+    if (setup.practiceMode === 'guided') setIsGuidedScenarioBuilt(false);
+  };
 
   const randomizeScenario = () => {
     const randomCallType = randomFrom(setupOptions.callTypes);
@@ -549,12 +553,14 @@ export default function HumanEquationExperience() {
 
   const handleStartRandomCall = () => {
     setSetup((prev) => ({ ...prev, practiceMode: 'random' }));
+    setIsGuidedScenarioBuilt(false);
     randomizeScenario();
     setStage('setup');
   };
 
   const handleConfigurePractice = () => {
-    setSetup((prev) => ({ ...prev, practiceMode: 'guided' }));
+    setSetup((prev) => ({ ...prev, practiceMode: 'guided', briefingDepth: 'moderate context' }));
+    setIsGuidedScenarioBuilt(false);
     setStage('setup');
   };
 
@@ -567,6 +573,16 @@ export default function HumanEquationExperience() {
       communicationStyle: randomFrom(setupOptions.communicationStyles),
       parentProfileNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     }));
+    if (setup.practiceMode === 'guided') setIsGuidedScenarioBuilt(false);
+  };
+
+  const buildGuidedScenario = () => {
+    setSetup((prev) => ({
+      ...prev,
+      practiceMode: 'guided',
+      scenarioNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    }));
+    setIsGuidedScenarioBuilt(true);
   };
   const isUnexpectedCall = setup.briefingDepth === 'low context';
   const isDetailedBriefing = setup.briefingDepth === 'detailed context';
@@ -612,7 +628,7 @@ export default function HumanEquationExperience() {
               <>
                 <p className={styles.variationNote}>Intentional practice mode: customize conditions and build a targeted scenario.</p>
                 <div className={styles.setupActions}>
-                  <button type="button" className={styles.cta} onClick={randomizeScenario}>Build Practice Scenario</button>
+                  <button type="button" className={styles.cta} onClick={buildGuidedScenario}>Build Practice Scenario</button>
                   <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>Regenerate Parent</button>
                 </div>
                 <div className={styles.setupGrid}>
@@ -628,7 +644,8 @@ export default function HumanEquationExperience() {
                 </div>
               </>
             )}
-            <div className={styles.briefingCard}>
+            {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
+              <div className={styles.briefingCard}>
               <h3>Pre-Call Briefing</h3>
               <p className={styles.contextLabel}><strong>Path:</strong> {setup.practiceMode === 'random' ? 'Realistic Random Call' : 'Guided Practice'}</p>
               <p className={styles.contextLabel}><strong>Briefing depth:</strong> {setup.briefingDepth}</p>
@@ -660,10 +677,13 @@ export default function HumanEquationExperience() {
               {isDetailedBriefing && <p><strong>Prior actions already taken:</strong> Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.</p>}
               <p><strong>Suggested mindset:</strong> Stay calm, listen for the underlying fear, and balance empathy with process clarity.</p>
               <p className={styles.subtle}><strong>Professional note:</strong> As in real leadership situations, you may not have every detail. Use the briefing, ask clarifying questions, and make reasonable assumptions when needed.</p>
-            </div>
+              </div>
+            )}
             <label className={styles.notesLabel}>Private Administrator Notes</label>
             <textarea className={styles.notes} placeholder="Private prep notes for this call (visible in call view and report)..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
-            <button className={styles.cta} onClick={nextStage}>Proceed to Incoming Call</button>
+            {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
+              <button className={styles.cta} onClick={nextStage}>Proceed to Incoming Call</button>
+            )}
           </div>
         )}
         {stage === 'incoming' && (
