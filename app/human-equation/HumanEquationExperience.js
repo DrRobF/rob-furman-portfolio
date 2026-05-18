@@ -156,37 +156,38 @@ const scenarioTypeProfiles = {
 
 const pickOne = (items = []) => randomFrom(items.filter(Boolean));
 
-const communicationStyleDescriptions = {
-  Direct: 'direct, concise communication',
-  Emotional: 'emotionally expressive communication',
-  'Passive Aggressive': 'indirect communication that may include frustration or sarcasm',
-  Negotiating: 'solution-oriented, negotiating communication',
+const communicationStyleGuidance = {
+  Direct: 'Keep communication direct and concise with clear next steps.',
+  Emotional: 'Lead with empathy, then move quickly to facts and next steps.',
+  'Passive Aggressive': 'Expect indirect pushback; stay neutral and keep redirecting to specifics.',
+  Negotiating: 'Use collaborative language while holding firm boundaries and timelines.',
 };
 
-const parentToneDescriptions = {
-  'Full Blaze': 'high emotional intensity',
-  'Controlled Anger': 'firm but controlled frustration',
-  Exhausted: 'emotional fatigue and frustration',
-  'Formal/Procedural': 'formal, process-focused concerns',
+const parentToneGuidance = {
+  'Full Blaze': 'Expect immediate escalation pressure; keep your tone calm and your language specific.',
+  'Controlled Anger': 'Expect firm pushback; stay calm, specific, and timeline-focused.',
+  Exhausted: 'Parent may sound worn down and frustrated; acknowledge strain and provide concrete follow-through.',
+  'Formal/Procedural': 'Parent may focus on policy and process; be precise about steps and documentation.',
 };
 
-const intensityDescriptions = {
-  Moderate: 'moderate emotional intensity',
-  High: 'elevated emotional intensity',
-  'Full Blaze': 'high emotional intensity',
+const intensityGuidance = {
+  Moderate: 'Set a steady pace and confirm shared understanding throughout the call.',
+  High: 'Keep the call tightly structured and return often to actionable next steps.',
+  'Full Blaze': 'Use short, calm responses and frequent resets to maintain control of the conversation.',
 };
 
 const toReadableLabel = (value, map, fallback = '') => map[value] ?? fallback;
 
 const buildScenarioBriefing = (baseSetup, timingBriefing) => {
   const scenarioProfile = scenarioTypeProfiles[baseSetup.scenarioType] ?? scenarioTypeProfiles.Discipline;
-  const styleDescription = toReadableLabel(baseSetup.communicationStyle, communicationStyleDescriptions, baseSetup.communicationStyle.toLowerCase());
-  const toneDescription = toReadableLabel(baseSetup.parentTone, parentToneDescriptions, baseSetup.parentTone.toLowerCase());
-  const intensityDescription = toReadableLabel(baseSetup.intensity, intensityDescriptions, baseSetup.intensity.toLowerCase());
+  const styleGuidance = toReadableLabel(baseSetup.communicationStyle, communicationStyleGuidance, 'Keep communication clear, practical, and next-step oriented.');
+  const toneGuidance = toReadableLabel(baseSetup.parentTone, parentToneGuidance, 'Expect concern and pressure; keep your response calm and specific.');
+  const intensityGuidanceText = toReadableLabel(baseSetup.intensity, intensityGuidance, 'Keep a steady cadence and confirm concrete next steps.');
   const dynamicFocus = [
-    `Use ${styleDescription} while maintaining clear ${baseSetup.role.toLowerCase()} authority.`,
-    `Set your pace and tone for a parent presenting with ${toneDescription} at ${intensityDescription}.`,
-    `Anchor decisions and next steps to the ${baseSetup.callTiming.toLowerCase()} context in an ${baseSetup.gradeBand.toLowerCase()} setting.`,
+    styleGuidance,
+    toneGuidance,
+    intensityGuidanceText,
+    `Anchor decisions and next steps to the ${baseSetup.callTiming.toLowerCase()} context in a ${baseSetup.gradeBand.toLowerCase()} setting.`,
   ];
 
   return {
@@ -194,17 +195,17 @@ const buildScenarioBriefing = (baseSetup, timingBriefing) => {
     knownFacts: [
       `${scenarioProfile.knownFacts[0]} You are responding as the ${baseSetup.role.toLowerCase()} in an ${baseSetup.gradeBand.toLowerCase()} setting.`,
       `${scenarioProfile.knownFacts[1]} This call is taking place during ${baseSetup.callTiming.toLowerCase()}.`,
-      `${scenarioProfile.knownFacts[2]} Parent communication is currently ${toneDescription}, with ${styleDescription}.`,
+      `${scenarioProfile.knownFacts[2]} Parent is likely to press for clarity on both communication and next steps.`,
     ],
     staffReport: scenarioProfile.staffReport,
     studentStatements: scenarioProfile.studentStatements,
     unknownFacts: [
       `${scenarioProfile.unknownFacts[0]} Clarify this early, given the ${baseSetup.callTiming.toLowerCase()} timing pressure.`,
-      `${scenarioProfile.unknownFacts[1]} Expect the conversation to reflect ${intensityDescription} and ${toneDescription}.`,
+      `${scenarioProfile.unknownFacts[1]} Clarify expectations early so the call stays focused on decisions and follow-through.`,
     ],
     leadershipChallenge: pickOne(scenarioProfile.leadershipChallenge),
     priorActions: scenarioProfile.priorActions,
-    parentConcern: `${scenarioProfile.parentConcern} The parent may present with ${toneDescription} and ${styleDescription}.`,
+    parentConcern: `${scenarioProfile.parentConcern} The parent may push for clear accountability, timelines, and communication commitments.`,
     suggestedMindset: `${scenarioProfile.mindset} In this run, lead with calm structure, clear process steps, and family-centered communication appropriate for ${baseSetup.gradeBand.toLowerCase()} families.`,
     contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
     primaryGoal: timingBriefing.goal,
