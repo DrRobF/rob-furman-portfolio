@@ -15,6 +15,17 @@ const asText = (value, fallback = 'Unknown') => {
   return fallback;
 };
 
+const toSafeList = (value, fallback = []) => {
+  if (Array.isArray(value)) return value.filter((item) => typeof item === 'string' && item.trim());
+  if (typeof value === 'string' && value.trim()) return [value.trim()];
+  return fallback;
+};
+
+const safeTimeLabel = (timestamp) => {
+  const parsed = new Date(timestamp);
+  return Number.isNaN(parsed.getTime()) ? 'Unknown time' : parsed.toLocaleTimeString();
+};
+
 const TRANSCRIPT_EVENT_TYPES = new Set([
   'conversation.item.input_audio_transcription.completed',
   'conversation.item.created',
@@ -1029,13 +1040,13 @@ export default function HumanEquationExperience() {
               {coachingReport && (
                 <>
                   <section><h3>1. Conversation Snapshot</h3><ul><li><strong>Issue:</strong> {coachingReport.snapshot?.issue || setup.scenarioType}</li><li><strong>Parent type/tone:</strong> {coachingReport.snapshot?.parentTypeTone || `${setup.parentVoice} / ${setup.parentTone}`}</li><li><strong>Call context:</strong> {coachingReport.snapshot?.callContext || setup.callTiming}</li><li><strong>Duration:</strong> {coachingReport.snapshot?.duration || resolvedCallDuration}</li><li><strong>Summary:</strong> {coachingReport.snapshot?.briefSummary || 'Summary unavailable.'}</li></ul></section>
-                  <section><h3>2. Leadership Moves Observed</h3><ul>{(coachingReport.leadershipMovesObserved || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
-                  <section><h3>3. Strategic Tradeoffs</h3><ul>{(coachingReport.strategicTradeoffs || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
-                  <section><h3>4. Parent Pattern Analysis</h3><ul>{(coachingReport.parentPatternAnalysis || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
-                  <section><h3>5. Strengths</h3><ul>{(coachingReport.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
-                  <section><h3>6. Possible Risks / Watch Points</h3><ul>{(coachingReport.watchPoints || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
-                  <section><h3>7. Suggested Follow-Up</h3><ul>{(coachingReport.suggestedFollowUp || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
-                  <section><h3>8. Stronger Alternative Phrasing</h3><ul>{(coachingReport.strongerAlternativePhrasing || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                  <section><h3>2. Leadership Moves Observed</h3><ul>{toSafeList(coachingReport.leadershipMovesObserved).map((item, idx) => <li key={`leadership-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>3. Strategic Tradeoffs</h3><ul>{toSafeList(coachingReport.strategicTradeoffs).map((item, idx) => <li key={`tradeoff-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>4. Parent Pattern Analysis</h3><ul>{toSafeList(coachingReport.parentPatternAnalysis).map((item, idx) => <li key={`parent-pattern-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>5. Strengths</h3><ul>{toSafeList(coachingReport.strengths).map((item, idx) => <li key={`strength-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>6. Possible Risks / Watch Points</h3><ul>{toSafeList(coachingReport.watchPoints).map((item, idx) => <li key={`watch-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>7. Suggested Follow-Up</h3><ul>{toSafeList(coachingReport.suggestedFollowUp).map((item, idx) => <li key={`followup-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>8. Stronger Alternative Phrasing</h3><ul>{toSafeList(coachingReport.strongerAlternativePhrasing).map((item, idx) => <li key={`phrasing-${idx}-${item}`}>{item}</li>)}</ul></section>
                 </>
               )}
             </div>
@@ -1055,7 +1066,7 @@ export default function HumanEquationExperience() {
               ) : (
                 transcriptLines.map((line, idx) => (
                   <article key={`${line.id}-${idx}`} className={styles.lineItem}>
-                    <div className={styles.lineMeta}><strong>{line.role}</strong> <span>{new Date(line.timestamp).toLocaleTimeString()} • {line.eventType}</span></div>
+                    <div className={styles.lineMeta}><strong>{line.role || 'unknown'}</strong> <span>{safeTimeLabel(line.timestamp)} • {line.eventType || 'unknown-event'}</span></div>
                     <p>{line.text}</p>
                   </article>
                 ))
