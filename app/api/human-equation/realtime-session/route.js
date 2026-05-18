@@ -16,7 +16,14 @@ export async function POST(request) {
       type: 'realtime',
       model: 'gpt-realtime',
       instructions: simulation.prompt,
-      audio: { output: { voice: 'marin' } },
+      audio: {
+        input: {
+          transcription: {
+            model: 'gpt-4o-mini-transcribe',
+          },
+        },
+        output: { voice: 'marin' },
+      },
     };
 
     const fd = new FormData();
