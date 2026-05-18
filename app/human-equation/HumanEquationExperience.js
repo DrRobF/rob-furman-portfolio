@@ -23,6 +23,65 @@ const TRANSCRIPT_EVENT_TYPES = new Set([
   'response.done',
 ]);
 
+const scenarioTypeProfiles = {
+  Discipline: {
+    issueSummary: 'A discipline incident escalated quickly and now trust in school response is fragile.',
+    knownFacts: [
+      'A behavior referral was submitted and at least one staff member documented direct observations.',
+      'Students involved were separated and supervised after the incident.',
+      'Initial parent communication occurred, but timing/content is being scrutinized.',
+    ],
+    unknownFacts: [
+      'Whether the parent believes consequences were equitable across students.',
+      'Whether prior peer conflict or social media tension triggered the incident.',
+    ],
+    parentConcern: 'Their child may be unfairly blamed or unsafe with the same peers tomorrow.',
+    mindset: 'Lead with fairness, process clarity, and concrete safety actions while holding boundaries.',
+  },
+  'Academic Concern': {
+    issueSummary: 'The parent believes instruction, grading, or support quality is harming their child’s progress.',
+    knownFacts: [
+      'Recent grades or work samples show a noticeable change in performance.',
+      'Teacher contact history exists but may feel insufficient to the parent.',
+      'The student has identified at least one class task or expectation as a stress point.',
+    ],
+    unknownFacts: [
+      'Whether concerns center more on rigor, clarity, or perceived teacher responsiveness.',
+      'Which supports the family views as acceptable and realistic right now.',
+    ],
+    parentConcern: 'Their child is falling behind academically and school support may be inconsistent.',
+    mindset: 'Balance empathy with concrete academic next steps and measurable follow-up.',
+  },
+  Attendance: {
+    issueSummary: 'Attendance concerns are now tied to family stress, accountability, and student engagement risks.',
+    knownFacts: [
+      'Attendance records show a pattern that now requires direct intervention.',
+      'The student has missed instructional minutes that impact progress and belonging.',
+      'Previous reminders or outreach have occurred with mixed follow-through.',
+    ],
+    unknownFacts: [
+      'Whether barriers are primarily logistical, health-related, or school climate-related.',
+      'What immediate supports would most increase consistent attendance this week.',
+    ],
+    parentConcern: 'Their child may be labeled negatively while the real barriers are not being addressed.',
+    mindset: 'Stay nonjudgmental, focus on barrier-solving, and define shared accountability.',
+  },
+  'Teacher Complaint': {
+    issueSummary: 'The parent is challenging a teacher interaction and expects administrative accountability.',
+    knownFacts: [
+      'A specific classroom interaction is being cited as disrespectful or unprofessional.',
+      'The student has repeated the concern with strong emotional language at home.',
+      'Administrator review has started, but full context may still be developing.',
+    ],
+    unknownFacts: [
+      'Whether this reflects an isolated moment or a pattern of classroom concerns.',
+      'What resolution the parent expects: apology, reassignment, monitoring, or formal complaint steps.',
+    ],
+    parentConcern: 'Their child may not be emotionally safe or respected by school adults.',
+    mindset: 'Validate impact, avoid premature judgments, and explain the accountability process clearly.',
+  },
+};
+
 export default function HumanEquationExperience() {
   const [stage, setStage] = useState('intro');
   const [callStartedAt, setCallStartedAt] = useState(null);
@@ -71,6 +130,7 @@ export default function HumanEquationExperience() {
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [realtimeEventCounts, setRealtimeEventCounts] = useState({});
+  const [guidedScenario, setGuidedScenario] = useState(null);
 
   const pcRef = useRef(null);
   const micStreamRef = useRef(null);
@@ -522,8 +582,10 @@ export default function HumanEquationExperience() {
   };
 
   const setField = (key, value) => {
-    setSetup((prev) => ({ ...prev, [key]: value }));
-    if (setup.practiceMode === 'guided') setIsGuidedScenarioBuilt(false);
+    setSetup((prev) => {
+      if (prev.practiceMode === 'guided') setIsGuidedScenarioBuilt(false);
+      return { ...prev, [key]: value };
+    });
   };
 
   const randomizeScenario = () => {
@@ -577,6 +639,43 @@ export default function HumanEquationExperience() {
   };
 
   const buildGuidedScenario = () => {
+    const timingBriefing = callTimingBriefings?.[setup.callTiming] ?? {
+      summary: 'Context briefing unavailable.',
+      goal: 'Clarify the call context and establish next steps.',
+      focus: [],
+    };
+    const scenarioProfile = scenarioTypeProfiles[setup.scenarioType] ?? scenarioTypeProfiles.Discipline;
+    const roleLens = `${setup.role} supporting ${setup.gradeBand.toLowerCase()} students`;
+    const toneCue = setup.parentTone.toLowerCase();
+    const intensityCue = setup.intensity.toLowerCase();
+    const styleCue = setup.communicationStyle.toLowerCase();
+    const timingCue = setup.callTiming.toLowerCase();
+    const dynamicFocus = [
+      `Use a ${setup.communicationStyle} communication stance while keeping your ${setup.role} authority grounded.`,
+      `Adjust pace for a ${setup.parentTone} / ${setup.intensity} parent presentation.`,
+      `Anchor next steps to ${setup.callTiming} realities for ${setup.gradeBand.toLowerCase()} context.`,
+    ];
+    const generatedScenario = {
+      issueSummary: `${scenarioProfile.issueSummary} (${setup.scenarioType}; ${setup.callType.toLowerCase()}).`,
+      knownFacts: [
+        `${scenarioProfile.knownFacts[0]} (${roleLens}).`,
+        `${scenarioProfile.knownFacts[1]} (${setup.callTiming}).`,
+        `${scenarioProfile.knownFacts[2]} (Parent tone: ${setup.parentTone}; style: ${setup.communicationStyle}).`,
+      ],
+      unknownFacts: [
+        `${scenarioProfile.unknownFacts[0]} (Timing cue: ${timingCue}).`,
+        `${scenarioProfile.unknownFacts[1]} (Intensity cue: ${intensityCue}; tone cue: ${toneCue}).`,
+      ],
+      parentConcern: `${scenarioProfile.parentConcern} Current presentation may feel ${toneCue} and ${styleCue}.`,
+      suggestedMindset: `${scenarioProfile.mindset} In this run, prioritize ${setup.role.toLowerCase()} moves appropriate for ${setup.gradeBand.toLowerCase()} families.`,
+      contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
+      primaryGoal: timingBriefing.goal,
+      timingSummary: timingBriefing.summary,
+    };
+
+    console.log('HUMAN_EQUATION_GUIDED_SELECTED_VALUES', setup);
+    console.log('HUMAN_EQUATION_GUIDED_GENERATED_SCENARIO', generatedScenario);
+    setGuidedScenario(generatedScenario);
     setSetup((prev) => ({
       ...prev,
       practiceMode: 'guided',
@@ -591,6 +690,7 @@ export default function HumanEquationExperience() {
     goal: 'Clarify the call context and establish next steps.',
     focus: [],
   };
+  const activeBriefing = setup.practiceMode === 'guided' && guidedScenario ? guidedScenario : null;
 
   return (
     <section className={styles.shell}>
@@ -649,33 +749,33 @@ export default function HumanEquationExperience() {
               <h3>Pre-Call Briefing</h3>
               <p className={styles.contextLabel}><strong>Path:</strong> {setup.practiceMode === 'random' ? 'Realistic Random Call' : 'Guided Practice'}</p>
               <p className={styles.contextLabel}><strong>Briefing depth:</strong> {setup.briefingDepth}</p>
-              <p className={styles.contextLabel}><strong>Issue summary:</strong> {setup.scenarioType}</p>
+              <p className={styles.contextLabel}><strong>Issue summary:</strong> {activeBriefing?.issueSummary ?? setup.scenarioType}</p>
               <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
-              <p>{selectedTimingBriefing.summary}</p>
-              <p><strong>What is known:</strong> Use confirmed facts and observed behavior from current reports.</p>
-              <p><strong>What is unknown:</strong> Clarify missing details directly during the call before making commitments.</p>
-              <p><strong>Parent concern/fear:</strong> Their child may not be safe, heard, or treated fairly.</p>
-              <p><strong>Primary goal:</strong> {selectedTimingBriefing.goal}</p>
+              <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
+              <p><strong>What is known:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
+              <p><strong>What is unknown:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
+              <p><strong>Parent concern/fear:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
+              <p><strong>Primary goal:</strong> {activeBriefing?.primaryGoal ?? selectedTimingBriefing.goal}</p>
               <p><strong>Context focus:</strong></p>
-              <ul>{selectedTimingBriefing.focus.map((item) => <li key={item}>{item}</li>)}</ul>
+              <ul>{(activeBriefing?.contextFocus ?? selectedTimingBriefing.focus).map((item) => <li key={item}>{item}</li>)}</ul>
               {isUnexpectedCall ? (
                 <p>{briefings.limited}</p>
               ) : (
                 <>
                   <p><strong>Known facts</strong></p>
-                  <ul>{briefings.full.knownFacts.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
                   <p><strong>Teacher/staff report</strong></p>
                   <ul>{briefings.full.staffReport.map((item) => <li key={item}>{item}</li>)}</ul>
                   <p><strong>Student statements</strong></p>
                   <ul>{briefings.full.studentStatements.map((item) => <li key={item}>{item}</li>)}</ul>
                   <p><strong>What is still unclear</strong></p>
-                  <ul>{briefings.full.unclear.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <ul>{(activeBriefing?.unknownFacts ?? briefings.full.unclear).map((item) => <li key={item}>{item}</li>)}</ul>
                   <p><strong>Leadership challenge:</strong> {briefings.full.leadershipChallenge}</p>
                 </>
               )}
               {!isDetailedBriefing && <p><strong>Prior actions already taken:</strong> Initial review in progress; timelines may still be developing.</p>}
               {isDetailedBriefing && <p><strong>Prior actions already taken:</strong> Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.</p>}
-              <p><strong>Suggested mindset:</strong> Stay calm, listen for the underlying fear, and balance empathy with process clarity.</p>
+              <p><strong>Suggested mindset:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
               <p className={styles.subtle}><strong>Professional note:</strong> As in real leadership situations, you may not have every detail. Use the briefing, ask clarifying questions, and make reasonable assumptions when needed.</p>
               </div>
             )}
