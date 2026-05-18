@@ -156,36 +156,56 @@ const scenarioTypeProfiles = {
 
 const pickOne = (items = []) => randomFrom(items.filter(Boolean));
 
+const communicationStyleDescriptions = {
+  Direct: 'direct, concise communication',
+  Emotional: 'emotionally expressive communication',
+  'Passive Aggressive': 'indirect communication that may include frustration or sarcasm',
+  Negotiating: 'solution-oriented, negotiating communication',
+};
+
+const parentToneDescriptions = {
+  'Full Blaze': 'high emotional intensity',
+  'Controlled Anger': 'firm but controlled frustration',
+  Exhausted: 'emotional fatigue and frustration',
+  'Formal/Procedural': 'formal, process-focused concerns',
+};
+
+const intensityDescriptions = {
+  Moderate: 'moderate emotional intensity',
+  High: 'elevated emotional intensity',
+  'Full Blaze': 'high emotional intensity',
+};
+
+const toReadableLabel = (value, map, fallback = '') => map[value] ?? fallback;
+
 const buildScenarioBriefing = (baseSetup, timingBriefing) => {
   const scenarioProfile = scenarioTypeProfiles[baseSetup.scenarioType] ?? scenarioTypeProfiles.Discipline;
-  const roleLens = `${baseSetup.role} supporting ${baseSetup.gradeBand.toLowerCase()} students`;
-  const toneCue = baseSetup.parentTone.toLowerCase();
-  const intensityCue = baseSetup.intensity.toLowerCase();
-  const styleCue = baseSetup.communicationStyle.toLowerCase();
-  const timingCue = baseSetup.callTiming.toLowerCase();
+  const styleDescription = toReadableLabel(baseSetup.communicationStyle, communicationStyleDescriptions, baseSetup.communicationStyle.toLowerCase());
+  const toneDescription = toReadableLabel(baseSetup.parentTone, parentToneDescriptions, baseSetup.parentTone.toLowerCase());
+  const intensityDescription = toReadableLabel(baseSetup.intensity, intensityDescriptions, baseSetup.intensity.toLowerCase());
   const dynamicFocus = [
-    `Use a ${baseSetup.communicationStyle} communication stance while keeping your ${baseSetup.role} authority grounded.`,
-    `Adjust pace for a ${baseSetup.parentTone} / ${baseSetup.intensity} parent presentation.`,
-    `Anchor next steps to ${baseSetup.callTiming} realities for ${baseSetup.gradeBand.toLowerCase()} context.`,
+    `Use ${styleDescription} while maintaining clear ${baseSetup.role.toLowerCase()} authority.`,
+    `Set your pace and tone for a parent presenting with ${toneDescription} at ${intensityDescription}.`,
+    `Anchor decisions and next steps to the ${baseSetup.callTiming.toLowerCase()} context in an ${baseSetup.gradeBand.toLowerCase()} setting.`,
   ];
 
   return {
     issueSummary: `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
     knownFacts: [
-      `${scenarioProfile.knownFacts[0]} (${roleLens}).`,
-      `${scenarioProfile.knownFacts[1]} (${baseSetup.callTiming}).`,
-      `${scenarioProfile.knownFacts[2]} (Parent tone: ${baseSetup.parentTone}; style: ${baseSetup.communicationStyle}).`,
+      `${scenarioProfile.knownFacts[0]} You are responding as the ${baseSetup.role.toLowerCase()} in an ${baseSetup.gradeBand.toLowerCase()} setting.`,
+      `${scenarioProfile.knownFacts[1]} This call is taking place during ${baseSetup.callTiming.toLowerCase()}.`,
+      `${scenarioProfile.knownFacts[2]} Parent communication is currently ${toneDescription}, with ${styleDescription}.`,
     ],
     staffReport: scenarioProfile.staffReport,
     studentStatements: scenarioProfile.studentStatements,
     unknownFacts: [
-      `${scenarioProfile.unknownFacts[0]} (Timing cue: ${timingCue}).`,
-      `${scenarioProfile.unknownFacts[1]} (Intensity cue: ${intensityCue}; tone cue: ${toneCue}).`,
+      `${scenarioProfile.unknownFacts[0]} Clarify this early, given the ${baseSetup.callTiming.toLowerCase()} timing pressure.`,
+      `${scenarioProfile.unknownFacts[1]} Expect the conversation to reflect ${intensityDescription} and ${toneDescription}.`,
     ],
     leadershipChallenge: pickOne(scenarioProfile.leadershipChallenge),
     priorActions: scenarioProfile.priorActions,
-    parentConcern: `${scenarioProfile.parentConcern} Current presentation may feel ${toneCue} and ${styleCue}.`,
-    suggestedMindset: `${scenarioProfile.mindset} In this run, prioritize ${baseSetup.role.toLowerCase()} moves appropriate for ${baseSetup.gradeBand.toLowerCase()} families.`,
+    parentConcern: `${scenarioProfile.parentConcern} The parent may present with ${toneDescription} and ${styleDescription}.`,
+    suggestedMindset: `${scenarioProfile.mindset} In this run, lead with calm structure, clear process steps, and family-centered communication appropriate for ${baseSetup.gradeBand.toLowerCase()} families.`,
     contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
     primaryGoal: timingBriefing.goal,
     timingSummary: timingBriefing.summary,
