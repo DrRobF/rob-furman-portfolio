@@ -25,61 +25,171 @@ const TRANSCRIPT_EVENT_TYPES = new Set([
 
 const scenarioTypeProfiles = {
   Discipline: {
-    issueSummary: 'A discipline incident escalated quickly and now trust in school response is fragile.',
+    issueSummary: [
+      'A discipline incident escalated quickly and now trust in school response is fragile.',
+      'A behavior and safety concern is now driving parent pressure around fairness and accountability.',
+    ],
     knownFacts: [
       'A behavior referral was submitted and at least one staff member documented direct observations.',
       'Students involved were separated and supervised after the incident.',
       'Initial parent communication occurred, but timing/content is being scrutinized.',
     ],
+    staffReport: [
+      'A staff member reports escalating verbal exchanges before the incident.',
+      'Supervising staff documented intervention timing and post-incident supervision actions.',
+    ],
+    studentStatements: [
+      'One student says they felt threatened and reacted defensively.',
+      'Another student says they felt singled out publicly before the escalation.',
+    ],
     unknownFacts: [
       'Whether the parent believes consequences were equitable across students.',
       'Whether prior peer conflict or social media tension triggered the incident.',
     ],
+    leadershipChallenge: [
+      'Maintain trust while communicating safety, due process, and fair consequences without overstating unresolved facts.',
+    ],
+    priorActions: {
+      light: 'Students were separated, basic supervision notes were logged, and initial family contact was attempted.',
+      detailed: 'Staff and student statements were collected, supervision logs reviewed, and follow-up investigation checkpoints were documented.',
+    },
     parentConcern: 'Their child may be unfairly blamed or unsafe with the same peers tomorrow.',
     mindset: 'Lead with fairness, process clarity, and concrete safety actions while holding boundaries.',
   },
   'Academic Concern': {
-    issueSummary: 'The parent believes instruction, grading, or support quality is harming their child’s progress.',
+    issueSummary: [
+      'The parent believes instruction, grading, or support quality is harming their child’s progress.',
+      'Academic performance has shifted and the family is challenging whether classroom support is sufficient.',
+    ],
     knownFacts: [
       'Recent grades or work samples show a noticeable change in performance.',
       'Teacher contact history exists but may feel insufficient to the parent.',
       'The student has identified at least one class task or expectation as a stress point.',
     ],
+    staffReport: [
+      'Teacher reports incomplete or late work trends despite reminders and support opportunities.',
+      'Course team notes indicate the student may need clearer scaffolds or check-ins on major assignments.',
+    ],
+    studentStatements: [
+      'The student says assignment expectations feel unclear in at least one class.',
+      'The student reports feeling overwhelmed and unsure how to recover academically.',
+    ],
     unknownFacts: [
       'Whether concerns center more on rigor, clarity, or perceived teacher responsiveness.',
       'Which supports the family views as acceptable and realistic right now.',
     ],
+    leadershipChallenge: [
+      'Protect trust while separating grading/process facts from perception and building a concrete support plan.',
+    ],
+    priorActions: {
+      light: 'Gradebook review started and recent assignment feedback was pulled for administrative review.',
+      detailed: 'Recent graded work, assignment timelines, and teacher outreach logs were reviewed with initial support options outlined.',
+    },
     parentConcern: 'Their child is falling behind academically and school support may be inconsistent.',
     mindset: 'Balance empathy with concrete academic next steps and measurable follow-up.',
   },
   Attendance: {
-    issueSummary: 'Attendance concerns are now tied to family stress, accountability, and student engagement risks.',
+    issueSummary: [
+      'Attendance concerns are now tied to family stress, accountability, and student engagement risks.',
+      'Repeated absences and tardies are affecting progress, and the family is seeking practical support over blame.',
+    ],
     knownFacts: [
       'Attendance records show a pattern that now requires direct intervention.',
       'The student has missed instructional minutes that impact progress and belonging.',
       'Previous reminders or outreach have occurred with mixed follow-through.',
     ],
+    staffReport: [
+      'Attendance office logs show recurring absence/tardy patterns across multiple weeks.',
+      'School staff report that class re-entry after absences has been inconsistent without a stable catch-up routine.',
+    ],
+    studentStatements: [
+      'The student says morning transitions are difficult and sometimes lead to missed arrival.',
+      'The student reports feeling behind after absences, which can make returning harder.',
+    ],
     unknownFacts: [
       'Whether barriers are primarily logistical, health-related, or school climate-related.',
       'What immediate supports would most increase consistent attendance this week.',
     ],
+    leadershipChallenge: [
+      'Drive accountability without shame by pairing attendance expectations with barrier-solving and short-cycle follow-up.',
+    ],
+    priorActions: {
+      light: 'Attendance reminders were sent and basic outreach attempts were made by school staff.',
+      detailed: 'Attendance pattern review, outreach log review, and a draft support/check-in cadence were prepared before this call.',
+    },
     parentConcern: 'Their child may be labeled negatively while the real barriers are not being addressed.',
     mindset: 'Stay nonjudgmental, focus on barrier-solving, and define shared accountability.',
   },
   'Teacher Complaint': {
-    issueSummary: 'The parent is challenging a teacher interaction and expects administrative accountability.',
+    issueSummary: [
+      'The parent is challenging a teacher interaction and expects administrative accountability.',
+      'A classroom-practice complaint is raising concerns about communication, professionalism, and student trust.',
+    ],
     knownFacts: [
       'A specific classroom interaction is being cited as disrespectful or unprofessional.',
       'The student has repeated the concern with strong emotional language at home.',
       'Administrator review has started, but full context may still be developing.',
     ],
+    staffReport: [
+      'The teacher reports the interaction as a redirection moment tied to classroom expectations.',
+      'Administrator notes indicate witness/context review is underway before conclusions are finalized.',
+    ],
+    studentStatements: [
+      'The student says the teacher’s tone felt dismissive in front of peers.',
+      'The student says they no longer feel comfortable speaking up in that class.',
+    ],
     unknownFacts: [
       'Whether this reflects an isolated moment or a pattern of classroom concerns.',
       'What resolution the parent expects: apology, reassignment, monitoring, or formal complaint steps.',
     ],
+    leadershipChallenge: [
+      'Acknowledge impact while protecting due process and communicating transparent professional accountability steps.',
+    ],
+    priorActions: {
+      light: 'Initial administrative intake was completed and context gathering began with involved parties.',
+      detailed: 'Initial interviews and classroom context review were completed, and formal follow-up steps were drafted.',
+    },
     parentConcern: 'Their child may not be emotionally safe or respected by school adults.',
     mindset: 'Validate impact, avoid premature judgments, and explain the accountability process clearly.',
   },
+};
+
+const pickOne = (items = []) => randomFrom(items.filter(Boolean));
+
+const buildScenarioBriefing = (baseSetup, timingBriefing) => {
+  const scenarioProfile = scenarioTypeProfiles[baseSetup.scenarioType] ?? scenarioTypeProfiles.Discipline;
+  const roleLens = `${baseSetup.role} supporting ${baseSetup.gradeBand.toLowerCase()} students`;
+  const toneCue = baseSetup.parentTone.toLowerCase();
+  const intensityCue = baseSetup.intensity.toLowerCase();
+  const styleCue = baseSetup.communicationStyle.toLowerCase();
+  const timingCue = baseSetup.callTiming.toLowerCase();
+  const dynamicFocus = [
+    `Use a ${baseSetup.communicationStyle} communication stance while keeping your ${baseSetup.role} authority grounded.`,
+    `Adjust pace for a ${baseSetup.parentTone} / ${baseSetup.intensity} parent presentation.`,
+    `Anchor next steps to ${baseSetup.callTiming} realities for ${baseSetup.gradeBand.toLowerCase()} context.`,
+  ];
+
+  return {
+    issueSummary: `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
+    knownFacts: [
+      `${scenarioProfile.knownFacts[0]} (${roleLens}).`,
+      `${scenarioProfile.knownFacts[1]} (${baseSetup.callTiming}).`,
+      `${scenarioProfile.knownFacts[2]} (Parent tone: ${baseSetup.parentTone}; style: ${baseSetup.communicationStyle}).`,
+    ],
+    staffReport: scenarioProfile.staffReport,
+    studentStatements: scenarioProfile.studentStatements,
+    unknownFacts: [
+      `${scenarioProfile.unknownFacts[0]} (Timing cue: ${timingCue}).`,
+      `${scenarioProfile.unknownFacts[1]} (Intensity cue: ${intensityCue}; tone cue: ${toneCue}).`,
+    ],
+    leadershipChallenge: pickOne(scenarioProfile.leadershipChallenge),
+    priorActions: scenarioProfile.priorActions,
+    parentConcern: `${scenarioProfile.parentConcern} Current presentation may feel ${toneCue} and ${styleCue}.`,
+    suggestedMindset: `${scenarioProfile.mindset} In this run, prioritize ${baseSetup.role.toLowerCase()} moves appropriate for ${baseSetup.gradeBand.toLowerCase()} families.`,
+    contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
+    primaryGoal: timingBriefing.goal,
+    timingSummary: timingBriefing.summary,
+  };
 };
 
 export default function HumanEquationExperience() {
@@ -644,34 +754,7 @@ export default function HumanEquationExperience() {
       goal: 'Clarify the call context and establish next steps.',
       focus: [],
     };
-    const scenarioProfile = scenarioTypeProfiles[setup.scenarioType] ?? scenarioTypeProfiles.Discipline;
-    const roleLens = `${setup.role} supporting ${setup.gradeBand.toLowerCase()} students`;
-    const toneCue = setup.parentTone.toLowerCase();
-    const intensityCue = setup.intensity.toLowerCase();
-    const styleCue = setup.communicationStyle.toLowerCase();
-    const timingCue = setup.callTiming.toLowerCase();
-    const dynamicFocus = [
-      `Use a ${setup.communicationStyle} communication stance while keeping your ${setup.role} authority grounded.`,
-      `Adjust pace for a ${setup.parentTone} / ${setup.intensity} parent presentation.`,
-      `Anchor next steps to ${setup.callTiming} realities for ${setup.gradeBand.toLowerCase()} context.`,
-    ];
-    const generatedScenario = {
-      issueSummary: `${scenarioProfile.issueSummary} (${setup.scenarioType}; ${setup.callType.toLowerCase()}).`,
-      knownFacts: [
-        `${scenarioProfile.knownFacts[0]} (${roleLens}).`,
-        `${scenarioProfile.knownFacts[1]} (${setup.callTiming}).`,
-        `${scenarioProfile.knownFacts[2]} (Parent tone: ${setup.parentTone}; style: ${setup.communicationStyle}).`,
-      ],
-      unknownFacts: [
-        `${scenarioProfile.unknownFacts[0]} (Timing cue: ${timingCue}).`,
-        `${scenarioProfile.unknownFacts[1]} (Intensity cue: ${intensityCue}; tone cue: ${toneCue}).`,
-      ],
-      parentConcern: `${scenarioProfile.parentConcern} Current presentation may feel ${toneCue} and ${styleCue}.`,
-      suggestedMindset: `${scenarioProfile.mindset} In this run, prioritize ${setup.role.toLowerCase()} moves appropriate for ${setup.gradeBand.toLowerCase()} families.`,
-      contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
-      primaryGoal: timingBriefing.goal,
-      timingSummary: timingBriefing.summary,
-    };
+    const generatedScenario = buildScenarioBriefing(setup, timingBriefing);
 
     console.log('HUMAN_EQUATION_GUIDED_SELECTED_VALUES', setup);
     console.log('HUMAN_EQUATION_GUIDED_GENERATED_SCENARIO', generatedScenario);
@@ -690,7 +773,11 @@ export default function HumanEquationExperience() {
     goal: 'Clarify the call context and establish next steps.',
     focus: [],
   };
-  const activeBriefing = setup.practiceMode === 'guided' && guidedScenario ? guidedScenario : null;
+  const randomScenarioBriefing = useMemo(() => {
+    if (setup.practiceMode !== 'random') return null;
+    return buildScenarioBriefing(setup, selectedTimingBriefing);
+  }, [setup, selectedTimingBriefing]);
+  const activeBriefing = setup.practiceMode === 'guided' && guidedScenario ? guidedScenario : randomScenarioBriefing;
 
   return (
     <section className={styles.shell}>
@@ -765,16 +852,16 @@ export default function HumanEquationExperience() {
                   <p><strong>Known facts</strong></p>
                   <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
                   <p><strong>Teacher/staff report</strong></p>
-                  <ul>{briefings.full.staffReport.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <ul>{(activeBriefing?.staffReport ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
                   <p><strong>Student statements</strong></p>
-                  <ul>{briefings.full.studentStatements.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <ul>{(activeBriefing?.studentStatements ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
                   <p><strong>What is still unclear</strong></p>
                   <ul>{(activeBriefing?.unknownFacts ?? briefings.full.unclear).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>Leadership challenge:</strong> {briefings.full.leadershipChallenge}</p>
+                  <p><strong>Leadership challenge:</strong> {activeBriefing?.leadershipChallenge}</p>
                 </>
               )}
-              {!isDetailedBriefing && <p><strong>Prior actions already taken:</strong> Initial review in progress; timelines may still be developing.</p>}
-              {isDetailedBriefing && <p><strong>Prior actions already taken:</strong> Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.</p>}
+              {!isDetailedBriefing && <p><strong>Prior actions already taken:</strong> {activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.'}</p>}
+              {isDetailedBriefing && <p><strong>Prior actions already taken:</strong> {activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.'}</p>}
               <p><strong>Suggested mindset:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
               <p className={styles.subtle}><strong>Professional note:</strong> As in real leadership situations, you may not have every detail. Use the briefing, ask clarifying questions, and make reasonable assumptions when needed.</p>
               </div>
