@@ -269,6 +269,8 @@ export default function HumanEquationExperience() {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [realtimeEventCounts, setRealtimeEventCounts] = useState({});
   const [guidedScenario, setGuidedScenario] = useState(null);
+  const [coachingReport, setCoachingReport] = useState(null);
+  const [coachingStatus, setCoachingStatus] = useState({ state: 'idle', source: 'none', fallbackReason: null });
 
   const pcRef = useRef(null);
   const micStreamRef = useRef(null);
@@ -695,9 +697,37 @@ export default function HumanEquationExperience() {
   };
 
   const endCall = () => {
+    const endedAt = Date.now();
+    const transcriptSnapshot = transcriptLines.map((line) => ({ role: line.role, text: line.text, timestamp: line.timestamp, eventType: line.eventType }));
+    const setupSnapshot = { ...setup };
+    const notesSnapshot = privateNotes;
+    const durationSnapshot = resolvedCallDuration;
+
+    setCoachingStatus({ state: 'loading', source: 'pending', fallbackReason: null });
+    setCoachingReport(null);
     setCallEndedAt(Date.now());
     teardownCall();
     setStage('report');
+
+    fetch('/api/human-equation/post-call-coaching', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        setup: setupSnapshot,
+        privateNotes: notesSnapshot,
+        callDuration: durationSnapshot,
+        callEndedAt: endedAt,
+        transcriptLines: transcriptSnapshot,
+      }),
+    })
+      .then((res) => res.json())
+      .then((report) => {
+        setCoachingReport(report);
+        setCoachingStatus({ state: 'ready', source: asText(report?.source, 'unknown'), fallbackReason: report?.fallbackReason || null });
+      })
+      .catch(() => {
+        setCoachingStatus({ state: 'ready', source: 'local-fallback', fallbackReason: 'request-failed' });
+      });
   };
 
   const copyTranscript = async () => {
@@ -711,6 +741,8 @@ export default function HumanEquationExperience() {
 
   const startNewCall = () => {
     setTranscriptLines([]);
+    setCoachingReport(null);
+    setCoachingStatus({ state: 'idle', source: 'none', fallbackReason: null });
     setPrivateNotes('');
     setCallStartedAt(null);
     setCallEndedAt(null);
@@ -992,25 +1024,26 @@ export default function HumanEquationExperience() {
             <p><strong>Issue:</strong> {setup.callType || 'Unknown issue'}</p>
             <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
             <div className={styles.reportGrid}>
-              <section>
-                <h3>What went well</h3>
-                <ul>
-                  <li>You stayed engaged throughout a high-pressure call and maintained response discipline.</li>
-                  <li>You can build trust by acknowledging concern before moving into process details.</li>
-                </ul>
-              </section>
-              <section>
-                <h3>Possible missed opportunities</h3>
-                <ul>
-                  <li>You may have opportunities to summarize shared understanding more explicitly.</li>
-                  <li>Consider adding one clear timeline checkpoint earlier in the conversation.</li>
-                </ul>
-              </section>
-              <section>
-                <h3>Suggested next step</h3>
-                <p>Open the next call by naming concern, confirming one fact, and proposing a concrete follow-up window.</p>
-              </section>
+              {coachingStatus.state === 'loading' && <section><h3>Generating coaching report…</h3><p>Analyzing transcript and call context.</p></section>}
+              {coachingStatus.state === 'ready' && !coachingReport && <section><h3>Coaching unavailable</h3><p>We could not generate a full report from transcript data. Limited report mode is active.</p></section>}
+              {coachingReport && (
+                <>
+                  <section><h3>1. Conversation Snapshot</h3><ul><li><strong>Issue:</strong> {coachingReport.snapshot?.issue || setup.scenarioType}</li><li><strong>Parent type/tone:</strong> {coachingReport.snapshot?.parentTypeTone || `${setup.parentVoice} / ${setup.parentTone}`}</li><li><strong>Call context:</strong> {coachingReport.snapshot?.callContext || setup.callTiming}</li><li><strong>Duration:</strong> {coachingReport.snapshot?.duration || resolvedCallDuration}</li><li><strong>Summary:</strong> {coachingReport.snapshot?.briefSummary || 'Summary unavailable.'}</li></ul></section>
+                  <section><h3>2. Leadership Moves Observed</h3><ul>{(coachingReport.leadershipMovesObserved || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                  <section><h3>3. Strategic Tradeoffs</h3><ul>{(coachingReport.strategicTradeoffs || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                  <section><h3>4. Parent Pattern Analysis</h3><ul>{(coachingReport.parentPatternAnalysis || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                  <section><h3>5. Strengths</h3><ul>{(coachingReport.strengths || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                  <section><h3>6. Possible Risks / Watch Points</h3><ul>{(coachingReport.watchPoints || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                  <section><h3>7. Suggested Follow-Up</h3><ul>{(coachingReport.suggestedFollowUp || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                  <section><h3>8. Stronger Alternative Phrasing</h3><ul>{(coachingReport.strongerAlternativePhrasing || []).map((item) => <li key={item}>{item}</li>)}</ul></section>
+                </>
+              )}
             </div>
+            <section className={styles.transcriptBlock}>
+              <h3>Developer debug</h3>
+              <p><strong>Coaching source:</strong> {coachingStatus.source}</p>
+              <p><strong>Fallback reason:</strong> {coachingStatus.fallbackReason || 'None'}</p>
+            </section>
             <section className={styles.transcriptBlock}>
               <h3>Private notes</h3>
               <p>{privateNotes || 'No private notes captured for this call.'}</p>
