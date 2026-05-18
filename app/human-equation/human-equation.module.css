@@ -115,5 +115,13 @@
 .setupActions { display:flex; gap:.6rem; flex-wrap:wrap; margin:.8rem 0 1rem; }
 .secondaryAction { border:1px solid #9ab0c4; border-radius:999px; padding:.6rem .95rem; background:#eef4fa; color:#2f4357; font-weight:700; cursor:pointer; }
 .variationNote { font-weight:600; color:#44617a; margin-top:.3rem; }
+.pathChoiceGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:.85rem; margin: .8rem 0 1rem; }
+.pathCard { text-align:left; border:1px solid #c8d3de; border-radius:14px; padding:1rem; background:#f4f8fc; color:#2f4357; cursor:pointer; }
+.pathCardPrimary { border-color:#557999; background:linear-gradient(135deg,#e4eef7,#d5e4f2); box-shadow:0 8px 20px rgba(63,95,123,.18); }
+.pathCardSecondary { border-color:#95abc0; background:#eef4fa; }
+.pathTitle { font-weight:800; color:#243c52; margin:0 0 .35rem; }
+.ctaMini,.secondaryMini { display:inline-block; margin-top:.8rem; font-weight:700; border-radius:999px; padding:.45rem .85rem; }
+.ctaMini { color:#f6f9ff; background:linear-gradient(135deg,#5c7ea0,#496887); }
+.secondaryMini { color:#2f4357; border:1px solid #9ab0c4; background:#f8fbff; }
 
 .selectorNative { margin-top:.3rem; border:1px solid #c8d3de; border-radius:10px; padding:.45rem .55rem; background:#fff; color:#2f4357; }

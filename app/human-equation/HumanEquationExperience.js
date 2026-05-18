@@ -6,6 +6,7 @@ import { briefings, callTimingBriefings, setupOptions } from './data/mockScenari
 
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
+const briefingDepthOptions = ['low context', 'moderate context', 'detailed context'];
 const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
 
 const asText = (value, fallback = 'Unknown') => {
@@ -42,6 +43,8 @@ export default function HumanEquationExperience() {
     parentVoice: setupOptions.parentVoices[1],
     parentTone: setupOptions.parentTones[0],
     communicationStyle: setupOptions.communicationStyles[0],
+    practiceMode: 'random',
+    briefingDepth: 'moderate context',
   });
   const [micPermission, setMicPermission] = useState('Checking…');
   const [micError, setMicError] = useState('');
@@ -99,6 +102,13 @@ export default function HumanEquationExperience() {
     if (stage !== 'active') return undefined;
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage !== 'setup') return;
+    if (setup.practiceMode !== 'random') return;
+    randomizeScenario();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
   const nextStage = () => setStage(stages[Math.min(stages.indexOf(stage) + 1, stages.length - 1)]);
@@ -520,17 +530,26 @@ export default function HumanEquationExperience() {
   const setField = (key, value) => setSetup((prev) => ({ ...prev, [key]: value }));
 
   const randomizeScenario = () => {
+    const randomCallType = randomFrom(setupOptions.callTypes);
+    const randomCallTiming = randomFrom(setupOptions.callTimings);
+    const isCallbackStyle = /callback|after[- ]?investigation/i.test(`${randomCallType} ${randomCallTiming}`);
+    const isSurpriseStyle = /unexpected|surprise|drop[- ]?in/i.test(`${randomCallType} ${randomCallTiming}`);
+    let randomizedBriefingDepth = randomFrom(briefingDepthOptions);
+    if (isCallbackStyle) randomizedBriefingDepth = randomFrom(['moderate context', 'detailed context', 'detailed context']);
+    if (isSurpriseStyle) randomizedBriefingDepth = randomFrom(['low context', 'low context', 'moderate context']);
     setSetup((prev) => ({
       ...prev,
       role: randomFrom(setupOptions.roles),
       gradeBand: randomFrom(setupOptions.gradeBands),
-      callType: randomFrom(setupOptions.callTypes),
-      callTiming: randomFrom(setupOptions.callTimings),
+      callType: randomCallType,
+      callTiming: randomCallTiming,
       scenarioType: randomFrom(setupOptions.scenarioTypes),
       intensity: randomFrom(setupOptions.intensities),
       parentVoice: randomFrom(setupOptions.parentVoices),
       parentTone: randomFrom(setupOptions.parentTones),
       communicationStyle: randomFrom(setupOptions.communicationStyles),
+      practiceMode: 'random',
+      briefingDepth: randomizedBriefingDepth,
       scenarioNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     }));
   };
@@ -545,7 +564,8 @@ export default function HumanEquationExperience() {
       parentProfileNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     }));
   };
-  const isUnexpectedCall = setup.callType === setupOptions.callTypes[0];
+  const isUnexpectedCall = setup.briefingDepth === 'low context';
+  const isDetailedBriefing = setup.briefingDepth === 'detailed context';
   const selectedTimingBriefing = callTimingBriefings?.[setup.callTiming] ?? {
     summary: 'Context briefing unavailable.',
     goal: 'Clarify the call context and establish next steps.',
@@ -571,27 +591,49 @@ export default function HumanEquationExperience() {
         {stage === 'setup' && (
           <div className={styles.panel}>
             <p className={styles.eyebrow}>Simulation Setup</p>
-            <h2>Configure your leadership call</h2>
-            <p className={styles.variationNote}>For realistic practice, scenario details may vary each time.</p>
-            <div className={styles.setupActions}>
-              <button type="button" className={styles.cta} onClick={randomizeScenario}>Generate New Scenario</button>
-              <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>Regenerate Parent Profile</button>
+            <h2>Choose your practice path</h2>
+            <div className={styles.pathChoiceGrid}>
+              <button type="button" className={`${styles.pathCard} ${setup.practiceMode === 'random' ? styles.pathCardPrimary : ''}`} onClick={() => { setSetup((prev) => ({ ...prev, practiceMode: 'random' })); randomizeScenario(); }}>
+                <p className={styles.pathTitle}>Realistic Random Call</p>
+                <p>Enter an unpredictable school leadership call with incomplete information, emotional pressure, and realistic parent dynamics.</p>
+                <span className={styles.ctaMini}>Start Random Call</span>
+              </button>
+              <button type="button" className={`${styles.pathCard} ${setup.practiceMode === 'guided' ? styles.pathCardSecondary : ''}`} onClick={() => setSetup((prev) => ({ ...prev, practiceMode: 'guided' }))}>
+                <p className={styles.pathTitle}>Guided Practice</p>
+                <p>Choose the type of conversation you want to practice and customize the conditions.</p>
+                <span className={styles.secondaryMini}>Configure Guided Practice</span>
+              </button>
             </div>
-            <div className={styles.setupGrid}>
-              <Selector label="Role" options={setupOptions.roles} value={setup.role} onSelect={(value) => setField('role', value)} />
-              <Selector label="Grade Band" options={setupOptions.gradeBands} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
-              <Selector label="Call Type" options={setupOptions.callTypes} value={setup.callType} onSelect={(value) => setField('callType', value)} />
-              <Selector label="Call Timing / Context" options={setupOptions.callTimings} value={setup.callTiming} onSelect={(value) => setField('callTiming', value)} />
-              <Selector label="Scenario Type" options={setupOptions.scenarioTypes} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
-              <Selector label="Parent Intensity" options={setupOptions.intensities} value={setup.intensity} onSelect={(value) => setField('intensity', value)} />
-              <Selector label="Parent Voice" options={setupOptions.parentVoices} value={setup.parentVoice} onSelect={(value) => setField('parentVoice', value)} />
-              <Selector label="Parent Tone" options={setupOptions.parentTones} value={setup.parentTone} onSelect={(value) => setField('parentTone', value)} />
-              <Selector label="Communication Style" options={setupOptions.communicationStyles} value={setup.communicationStyle} onSelect={(value) => setField('communicationStyle', value)} />
-            </div>
+            {setup.practiceMode === 'guided' && (
+              <>
+                <p className={styles.variationNote}>Intentional practice mode: customize conditions and build a targeted scenario.</p>
+                <div className={styles.setupActions}>
+                  <button type="button" className={styles.cta} onClick={randomizeScenario}>Build Practice Scenario</button>
+                  <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>Regenerate Parent</button>
+                </div>
+                <div className={styles.setupGrid}>
+                  <Selector label="Role" options={setupOptions.roles} value={setup.role} onSelect={(value) => setField('role', value)} />
+                  <Selector label="Grade Band" options={setupOptions.gradeBands} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
+                  <Selector label="Call Type" options={setupOptions.callTypes} value={setup.callType} onSelect={(value) => setField('callType', value)} />
+                  <Selector label="Call Timing / Context" options={setupOptions.callTimings} value={setup.callTiming} onSelect={(value) => setField('callTiming', value)} />
+                  <Selector label="Scenario Type" options={setupOptions.scenarioTypes} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
+                  <Selector label="Parent Intensity" options={setupOptions.intensities} value={setup.intensity} onSelect={(value) => setField('intensity', value)} />
+                  <Selector label="Parent Voice" options={setupOptions.parentVoices} value={setup.parentVoice} onSelect={(value) => setField('parentVoice', value)} />
+                  <Selector label="Parent Tone" options={setupOptions.parentTones} value={setup.parentTone} onSelect={(value) => setField('parentTone', value)} />
+                  <Selector label="Communication Style" options={setupOptions.communicationStyles} value={setup.communicationStyle} onSelect={(value) => setField('communicationStyle', value)} />
+                </div>
+              </>
+            )}
             <div className={styles.briefingCard}>
               <h3>Pre-Call Briefing</h3>
+              <p className={styles.contextLabel}><strong>Path:</strong> {setup.practiceMode === 'random' ? 'Realistic Random Call' : 'Guided Practice'}</p>
+              <p className={styles.contextLabel}><strong>Briefing depth:</strong> {setup.briefingDepth}</p>
+              <p className={styles.contextLabel}><strong>Issue summary:</strong> {setup.scenarioType}</p>
               <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
               <p>{selectedTimingBriefing.summary}</p>
+              <p><strong>What is known:</strong> Use confirmed facts and observed behavior from current reports.</p>
+              <p><strong>What is unknown:</strong> Clarify missing details directly during the call before making commitments.</p>
+              <p><strong>Parent concern/fear:</strong> Their child may not be safe, heard, or treated fairly.</p>
               <p><strong>Primary goal:</strong> {selectedTimingBriefing.goal}</p>
               <p><strong>Context focus:</strong></p>
               <ul>{selectedTimingBriefing.focus.map((item) => <li key={item}>{item}</li>)}</ul>
@@ -610,7 +652,13 @@ export default function HumanEquationExperience() {
                   <p><strong>Leadership challenge:</strong> {briefings.full.leadershipChallenge}</p>
                 </>
               )}
+              {!isDetailedBriefing && <p><strong>Prior actions already taken:</strong> Initial review in progress; timelines may still be developing.</p>}
+              {isDetailedBriefing && <p><strong>Prior actions already taken:</strong> Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.</p>}
+              <p><strong>Suggested mindset:</strong> Stay calm, listen for the underlying fear, and balance empathy with process clarity.</p>
+              <p className={styles.subtle}><strong>Professional note:</strong> As in real leadership situations, you may not have every detail. Use the briefing, ask clarifying questions, and make reasonable assumptions when needed.</p>
             </div>
+            <label className={styles.notesLabel}>Private Administrator Notes</label>
+            <textarea className={styles.notes} placeholder="Private prep notes for this call (visible in call view and report)..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             <button className={styles.cta} onClick={nextStage}>Proceed to Incoming Call</button>
           </div>
         )}
