@@ -251,6 +251,7 @@ export default function HumanEquationExperience() {
     parentVoice: setupOptions.parentVoices[1],
     parentTone: setupOptions.parentTones[0],
     communicationStyle: setupOptions.communicationStyles[0],
+    parentLanguage: setupOptions.parentLanguages[0],
     practiceMode: 'random',
     briefingDepth: 'moderate context',
   });
@@ -788,6 +789,7 @@ export default function HumanEquationExperience() {
       parentVoice: randomFrom(setupOptions.parentVoices),
       parentTone: randomFrom(setupOptions.parentTones),
       communicationStyle: randomFrom(setupOptions.communicationStyles),
+      parentLanguage: setupOptions.parentLanguages[0],
       practiceMode: 'random',
       briefingDepth: randomizedBriefingDepth,
       scenarioNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -795,14 +797,14 @@ export default function HumanEquationExperience() {
   };
 
   const handleStartRandomCall = () => {
-    setSetup((prev) => ({ ...prev, practiceMode: 'random' }));
+    setSetup((prev) => ({ ...prev, practiceMode: 'random', parentLanguage: setupOptions.parentLanguages[0] }));
     setIsGuidedScenarioBuilt(false);
     randomizeScenario();
     setStage('setup');
   };
 
   const handleConfigurePractice = () => {
-    setSetup((prev) => ({ ...prev, practiceMode: 'guided', briefingDepth: 'moderate context' }));
+    setSetup((prev) => ({ ...prev, practiceMode: 'guided', briefingDepth: 'moderate context', parentLanguage: prev.parentLanguage || setupOptions.parentLanguages[0] }));
     setIsGuidedScenarioBuilt(false);
     setStage('setup');
   };
@@ -899,6 +901,7 @@ export default function HumanEquationExperience() {
                   <Selector label="Parent Voice" options={setupOptions.parentVoices} value={setup.parentVoice} onSelect={(value) => setField('parentVoice', value)} />
                   <Selector label="Parent Tone" options={setupOptions.parentTones} value={setup.parentTone} onSelect={(value) => setField('parentTone', value)} />
                   <Selector label="Communication Style" options={setupOptions.communicationStyles} value={setup.communicationStyle} onSelect={(value) => setField('communicationStyle', value)} />
+                  <Selector label="Parent Language" options={setupOptions.parentLanguages} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
                 </div>
               </>
             )}
@@ -909,6 +912,7 @@ export default function HumanEquationExperience() {
               <p className={styles.contextLabel}><strong>Briefing depth:</strong> {setup.briefingDepth}</p>
               <p className={styles.contextLabel}><strong>Issue summary:</strong> {activeBriefing?.issueSummary ?? setup.scenarioType}</p>
               <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
+              <p className={styles.contextLabel}><strong>Parent Language:</strong> {setup.parentLanguage}</p>
               <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
               <p><strong>What is known:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
               <p><strong>What is unknown:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>

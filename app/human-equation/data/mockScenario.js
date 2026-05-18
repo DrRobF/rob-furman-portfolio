@@ -12,6 +12,7 @@ export const setupOptions = {
   intensities: ['Moderate', 'High', 'Full Blaze'],
   parentVoices: ['Male', 'Female'],
   parentTones: ['Full Blaze', 'Controlled Anger', 'Exhausted', 'Formal/Procedural'],
+  parentLanguages: ['English', 'Spanish', 'Haitian Creole', 'Portuguese'],
   communicationStyles: ['Direct', 'Emotional', 'Passive Aggressive', 'Negotiating'],
 };
 
