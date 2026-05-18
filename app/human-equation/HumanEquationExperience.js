@@ -14,6 +14,14 @@ const asText = (value, fallback = 'Unknown') => {
   return fallback;
 };
 
+const TRANSCRIPT_EVENT_TYPES = new Set([
+  'conversation.item.input_audio_transcription.completed',
+  'conversation.item.created',
+  'response.audio_transcript.done',
+  'response.output_text.done',
+  'response.done',
+]);
+
 export default function HumanEquationExperience() {
   const [stage, setStage] = useState('intro');
   const [callStartedAt, setCallStartedAt] = useState(null);
@@ -140,6 +148,16 @@ export default function HumanEquationExperience() {
       });
     };
 
+    if (typeof message?.transcript === 'string') {
+      pushEntry(message?.item_id || message?.id || 'event-transcript', message?.item?.role || message?.role || 'unknown', message.transcript);
+    }
+    if (typeof message?.text === 'string') {
+      pushEntry(message?.item_id || `${eventType}-text`, message?.item?.role || message?.role || 'unknown', message.text);
+    }
+    if (typeof message?.delta === 'string') {
+      pushEntry(message?.item_id || `${eventType}-delta`, message?.item?.role || message?.role || 'unknown', message.delta);
+    }
+
     const responseOutput = Array.isArray(message?.response?.output) ? message.response.output : [];
     responseOutput.forEach((outputItem, index) => {
       const content = Array.isArray(outputItem?.content) ? outputItem.content : [];
@@ -153,6 +171,10 @@ export default function HumanEquationExperience() {
       });
     });
 
+    if (typeof message?.response?.output_text === 'string') {
+      pushEntry(message?.response?.id || `${eventType}-response-output-text`, 'assistant', message.response.output_text);
+    }
+
     if (eventType === 'conversation.item.input_audio_transcription.completed') {
       pushEntry(message?.item_id || message?.id || 'user-transcription', 'user', message?.transcript);
     }
@@ -165,8 +187,15 @@ export default function HumanEquationExperience() {
         if (typeof contentItem?.text === 'string') pushEntry(item?.id || `item-text-${index}`, item?.role, contentItem.text);
       });
     }
-
-    return candidates;
+    const deduped = [];
+    const seen = new Set();
+    candidates.forEach((entry) => {
+      const key = `${entry.role}::${entry.text}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      deduped.push(entry);
+    });
+    return deduped;
   };
 
   useEffect(() => {
@@ -350,14 +379,26 @@ export default function HumanEquationExperience() {
               return;
             }
             case 'conversation.item.input_audio_transcription.completed':
-            case 'conversation.item.created': {
+            case 'conversation.item.created':
+            case 'response.audio_transcript.done':
+            case 'response.output_text.done': {
               const transcriptEntries = extractTranscriptEntries(message);
               if (transcriptEntries.length) {
                 setTranscriptLines((prev) => [...prev, ...transcriptEntries]);
               }
               return;
             }
+            case 'input_audio_buffer.speech_started':
+            case 'input_audio_buffer.speech_stopped':
+              // Presence-only events for debugging/diagnostics.
+              return;
             default:
+              if (TRANSCRIPT_EVENT_TYPES.has(eventType)) {
+                const transcriptEntries = extractTranscriptEntries(message);
+                if (transcriptEntries.length) {
+                  setTranscriptLines((prev) => [...prev, ...transcriptEntries]);
+                }
+              }
               // Ignore unknown realtime event types so new API events cannot crash the UI.
               return;
           }
