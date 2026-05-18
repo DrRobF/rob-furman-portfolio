@@ -157,10 +157,10 @@ const scenarioTypeProfiles = {
 const pickOne = (items = []) => randomFrom(items.filter(Boolean));
 
 const communicationStyleGuidance = {
-  Direct: 'Keep communication direct and concise with clear next steps.',
-  Emotional: 'Lead with empathy, then move quickly to facts and next steps.',
-  'Passive Aggressive': 'Expect indirect pushback; stay neutral and keep redirecting to specifics.',
-  Negotiating: 'Use collaborative language while holding firm boundaries and timelines.',
+  Direct: 'Set a clear agenda early and keep each response focused on decisions and next steps.',
+  Emotional: 'Lead with empathy, then transition quickly to facts, options, and follow-through.',
+  'Passive Aggressive': 'Expect indirect pushback; stay neutral, name specifics, and keep redirecting to decisions.',
+  Negotiating: 'Use collaborative language while holding firm boundaries, ownership, and timelines.',
 };
 
 const parentToneGuidance = {
@@ -178,6 +178,13 @@ const intensityGuidance = {
 
 const toReadableLabel = (value, map, fallback = '') => map[value] ?? fallback;
 
+const withIndefiniteArticle = (phrase = '') => {
+  if (!phrase) return phrase;
+  const firstWord = phrase.trim().split(/\s+/)[0]?.toLowerCase() ?? '';
+  const useAn = ['a', 'e', 'i', 'o', 'u'].includes(firstWord[0]);
+  return `${useAn ? 'an' : 'a'} ${phrase}`;
+};
+
 const buildScenarioBriefing = (baseSetup, timingBriefing) => {
   const scenarioProfile = scenarioTypeProfiles[baseSetup.scenarioType] ?? scenarioTypeProfiles.Discipline;
   const styleGuidance = toReadableLabel(baseSetup.communicationStyle, communicationStyleGuidance, 'Keep communication clear, practical, and next-step oriented.');
@@ -187,13 +194,13 @@ const buildScenarioBriefing = (baseSetup, timingBriefing) => {
     styleGuidance,
     toneGuidance,
     intensityGuidanceText,
-    `Anchor decisions and next steps to the ${baseSetup.callTiming.toLowerCase()} context in a ${baseSetup.gradeBand.toLowerCase()} setting.`,
+    `Anchor decisions and next steps to the ${baseSetup.callTiming.toLowerCase()} context in ${withIndefiniteArticle(baseSetup.gradeBand.toLowerCase())} setting.`,
   ];
 
   return {
     issueSummary: `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
     knownFacts: [
-      `${scenarioProfile.knownFacts[0]} You are responding as the ${baseSetup.role.toLowerCase()} in an ${baseSetup.gradeBand.toLowerCase()} setting.`,
+      `${scenarioProfile.knownFacts[0]} You are responding as the ${baseSetup.role.toLowerCase()} in ${withIndefiniteArticle(baseSetup.gradeBand.toLowerCase())} setting.`,
       `${scenarioProfile.knownFacts[1]} This call is taking place during ${baseSetup.callTiming.toLowerCase()}.`,
       `${scenarioProfile.knownFacts[2]} Parent is likely to press for clarity on both communication and next steps.`,
     ],
@@ -205,8 +212,8 @@ const buildScenarioBriefing = (baseSetup, timingBriefing) => {
     ],
     leadershipChallenge: pickOne(scenarioProfile.leadershipChallenge),
     priorActions: scenarioProfile.priorActions,
-    parentConcern: `${scenarioProfile.parentConcern} The parent may push for clear accountability, timelines, and communication commitments.`,
-    suggestedMindset: `${scenarioProfile.mindset} In this run, lead with calm structure, clear process steps, and family-centered communication appropriate for ${baseSetup.gradeBand.toLowerCase()} families.`,
+    parentConcern: `${scenarioProfile.parentConcern} Expect pressure for clear accountability, communication, and timelines.`,
+    suggestedMindset: `${scenarioProfile.mindset} Keep your language practical, calm, and action-oriented for ${baseSetup.gradeBand.toLowerCase()} families.`,
     contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
     primaryGoal: timingBriefing.goal,
     timingSummary: timingBriefing.summary,
