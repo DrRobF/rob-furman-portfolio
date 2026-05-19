@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { coachingConstitution } from '../../../../lib/human-equation/coachingConstitution';
 
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
@@ -80,7 +81,7 @@ export async function POST(request) {
   const fallback = buildFallbackReport(payload);
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'missing-api-key' });
   const reportLanguageInstruction = payload.interfaceLanguage === 'es' ? 'Spanish' : 'English';
-  const prompt = `Generate a Human Equation post-call coaching report JSON organized around the Human Equation Leadership Framework. Canonical order: Trust Construction, Human Awareness, Reality Anchoring, Regulation Under Pressure, Accountability Balance, Vision & Change Leadership, Instructional & Academic Leadership, Team & Systems Leadership. Philosophy: evaluate leadership under human pressure; tension and firmness are not automatically negative, soothing language is not automatically positive. Focus on strategic leadership behavior, not generic niceness. Use transcript evidence whenever available and practical coaching language. Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (array of {label, level, evidence} in canonical order), parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. If evidence is thin, still return all 8 dimensions with concise fallback evidence language. Write all visible report text in ${reportLanguageInstruction}. Parent language controls the simulated parent speech only and must not force this report language.
+  const prompt = `Generate a Human Equation post-call coaching report JSON organized around the Human Equation Leadership Framework. Canonical order: Trust Construction, Human Awareness, Reality Anchoring, Regulation Under Pressure, Accountability Balance, Vision & Change Leadership, Instructional & Academic Leadership, Team & Systems Leadership. Philosophy: ${coachingConstitution} Use transcript evidence whenever available and practical coaching language. Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (array of {label, level, evidence} in canonical order), parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. If evidence is thin, still return all 8 dimensions with concise fallback evidence language. Write all visible report text in ${reportLanguageInstruction}. Parent language controls the simulated parent speech only and must not force this report language.
 
 Input:
 ${JSON.stringify(payload).slice(0, 18000)}`;
