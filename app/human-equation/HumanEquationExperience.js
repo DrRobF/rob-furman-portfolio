@@ -36,7 +36,7 @@ const TRANSCRIPT_EVENT_TYPES = new Set([
 ]);
 
 const scenarioTypeProfiles = {
-  Discipline: {
+  discipline: {
     issueSummary: [
       'A discipline incident escalated quickly and now trust in school response is fragile.',
       'A behavior and safety concern is now driving parent pressure around fairness and accountability.',
@@ -68,7 +68,7 @@ const scenarioTypeProfiles = {
     parentConcern: 'Their child may be unfairly blamed or unsafe with the same peers tomorrow.',
     mindset: 'Lead with fairness, process clarity, and concrete safety actions while holding boundaries.',
   },
-  'Academic Concern': {
+  academic_concern: {
     issueSummary: [
       'The parent believes instruction, grading, or support quality is harming their child’s progress.',
       'Academic performance has shifted and the family is challenging whether classroom support is sufficient.',
@@ -100,7 +100,7 @@ const scenarioTypeProfiles = {
     parentConcern: 'Their child is falling behind academically and school support may be inconsistent.',
     mindset: 'Balance empathy with concrete academic next steps and measurable follow-up.',
   },
-  Attendance: {
+  attendance: {
     issueSummary: [
       'Attendance concerns are now tied to family stress, accountability, and student engagement risks.',
       'Repeated absences and tardies are affecting progress, and the family is seeking practical support over blame.',
@@ -132,7 +132,7 @@ const scenarioTypeProfiles = {
     parentConcern: 'Their child may be labeled negatively while the real barriers are not being addressed.',
     mindset: 'Stay nonjudgmental, focus on barrier-solving, and define shared accountability.',
   },
-  'Teacher Complaint': {
+  teacher_complaint: {
     issueSummary: [
       'The parent is challenging a teacher interaction and expects administrative accountability.',
       'A classroom-practice complaint is raising concerns about communication, professionalism, and student trust.',
@@ -169,23 +169,23 @@ const scenarioTypeProfiles = {
 const pickOne = (items = []) => randomFrom(items.filter(Boolean));
 
 const communicationStyleGuidance = {
-  Direct: 'Set a clear agenda early and keep each response focused on decisions and next steps.',
-  Emotional: 'Lead with empathy, then transition quickly to facts, options, and follow-through.',
-  'Passive Aggressive': 'Expect indirect pushback; stay neutral, name specifics, and keep redirecting to decisions.',
-  Negotiating: 'Use collaborative language while holding firm boundaries, ownership, and timelines.',
+  direct: 'Set a clear agenda early and keep each response focused on decisions and next steps.',
+  emotional: 'Lead with empathy, then transition quickly to facts, options, and follow-through.',
+  passive_aggressive: 'Expect indirect pushback; stay neutral, name specifics, and keep redirecting to decisions.',
+  negotiating: 'Use collaborative language while holding firm boundaries, ownership, and timelines.',
 };
 
 const parentToneGuidance = {
-  'Full Blaze': 'Expect immediate escalation pressure; keep your tone calm and your language specific.',
-  'Controlled Anger': 'Expect firm pushback; stay calm, specific, and timeline-focused.',
-  Exhausted: 'Parent may sound worn down and frustrated; acknowledge strain and provide concrete follow-through.',
-  'Formal/Procedural': 'Parent may focus on policy and process; be precise about steps and documentation.',
+  full_blaze: 'Expect immediate escalation pressure; keep your tone calm and your language specific.',
+  controlled_anger: 'Expect firm pushback; stay calm, specific, and timeline-focused.',
+  exhausted: 'Parent may sound worn down and frustrated; acknowledge strain and provide concrete follow-through.',
+  formal_procedural: 'Parent may focus on policy and process; be precise about steps and documentation.',
 };
 
 const intensityGuidance = {
-  Moderate: 'Set a steady pace and confirm shared understanding throughout the call.',
-  High: 'Keep the call tightly structured and return often to actionable next steps.',
-  'Full Blaze': 'Use short, calm responses and frequent resets to maintain control of the conversation.',
+  moderate: 'Set a steady pace and confirm shared understanding throughout the call.',
+  high: 'Keep the call tightly structured and return often to actionable next steps.',
+  full_blaze: 'Use short, calm responses and frequent resets to maintain control of the conversation.',
 };
 
 const toReadableLabel = (value, map, fallback = '') => map[value] ?? fallback;
@@ -197,8 +197,8 @@ const withIndefiniteArticle = (phrase = '') => {
   return `${useAn ? 'an' : 'a'} ${phrase}`;
 };
 
-const buildScenarioBriefing = (baseSetup, timingBriefing) => {
-  const scenarioProfile = scenarioTypeProfiles[baseSetup.scenarioType] ?? scenarioTypeProfiles.Discipline;
+const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'en') => {
+  const scenarioProfile = scenarioTypeProfiles[baseSetup.scenarioType] ?? scenarioTypeProfiles.discipline;
   const styleGuidance = toReadableLabel(baseSetup.communicationStyle, communicationStyleGuidance, 'Keep communication clear, practical, and next-step oriented.');
   const toneGuidance = toReadableLabel(baseSetup.parentTone, parentToneGuidance, 'Expect concern and pressure; keep your response calm and specific.');
   const intensityGuidanceText = toReadableLabel(baseSetup.intensity, intensityGuidance, 'Keep a steady cadence and confirm concrete next steps.');
@@ -208,6 +208,33 @@ const buildScenarioBriefing = (baseSetup, timingBriefing) => {
     intensityGuidanceText,
     `Anchor decisions and next steps to the ${baseSetup.callTiming.toLowerCase()} context in ${withIndefiniteArticle(baseSetup.gradeBand.toLowerCase())} setting.`,
   ];
+  if (interfaceLanguage === 'es') {
+    return {
+      issueSummary: `Resumen del caso: ${baseSetup.scenarioType}. Contexto: ${baseSetup.callType}.`,
+      knownFacts: [
+        `Responderás como ${baseSetup.role} en ${baseSetup.gradeBand}.`,
+        `La llamada ocurre en el contexto: ${baseSetup.callTiming}.`,
+        'La familia probablemente pedirá claridad sobre hechos confirmados y próximos pasos.',
+      ],
+      staffReport: ['El personal reporta un incidente que requiere claridad, calma y seguimiento administrativo.'],
+      studentStatements: ['Existen versiones parciales del estudiante/familia que deben verificarse antes de conclusiones finales.'],
+      unknownFacts: ['No está claro todo el contexto; aclara primero hechos, tiempos y acciones concretas.'],
+      leadershipChallenge: 'Sostener confianza mientras comunicas proceso, límites y responsabilidad sin prometer resultados prematuros.',
+      priorActions: {
+        light: 'Se inició una revisión básica y se preparan próximos puntos de comunicación.',
+        detailed: 'Se recopilaron datos iniciales y se definieron pasos de seguimiento con tiempos concretos.',
+      },
+      parentConcern: 'La familia teme que su hijo/a no esté seguro/a, escuchado/a o tratado/a con justicia.',
+      suggestedMindset: 'Mantén calma, valida emoción y guía la conversación hacia decisiones concretas y seguimiento verificable.',
+      contextFocus: [
+        'Diferencia con precisión lo confirmado, lo pendiente y los próximos pasos.',
+        'Asigna responsable + plazo para cada compromiso clave.',
+        'Mantén lenguaje profesional, claro y sin defensividad.',
+      ],
+      primaryGoal: 'Alinear seguridad, claridad y plan de seguimiento sin escalar el conflicto.',
+      timingSummary: 'Este informe previo se muestra en el idioma de la interfaz seleccionada.',
+    };
+  }
 
   return {
     issueSummary: `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
@@ -233,18 +260,38 @@ const buildScenarioBriefing = (baseSetup, timingBriefing) => {
 };
 
 const optionLabelKeys = {
-  Teacher: 'he.teacher',
-  'Assistant Principal': 'he.assistantPrincipal',
-  Principal: 'he.principal',
-  Elementary: 'he.elementary',
-  'Middle School': 'he.middleSchool',
-  'High School': 'he.highSchool',
-  'Parent calls you unexpectedly': 'he.parentCallsUnexpectedly',
-  'You call parent after initial investigation': 'he.youCallAfterInvestigation',
-  Discipline: 'he.discipline',
-  'Academic Concern': 'he.academicConcern',
-  Attendance: 'he.attendance',
-  'Teacher Complaint': 'he.teacherComplaint',
+  teacher: 'he.teacher',
+  assistant_principal: 'he.assistantPrincipal',
+  principal: 'he.principal',
+  elementary: 'he.elementary',
+  middle_school: 'he.middleSchool',
+  high_school: 'he.highSchool',
+  parent_calls_unexpectedly: 'he.parentCallsUnexpectedly',
+  you_call_after_investigation: 'he.youCallAfterInvestigation',
+  morning_call_before_school: 'he.morningCallBeforeSchool',
+  same_day_afternoon_parent_call: 'he.sameDayAfternoonParentCall',
+  administrator_callback_after_initial_investigation: 'he.administratorCallbackAfterInvestigation',
+  next_day_follow_up_call: 'he.nextDayFollowUpCall',
+  discipline: 'he.discipline',
+  academic_concern: 'he.academicConcern',
+  attendance: 'he.attendance',
+  teacher_complaint: 'he.teacherComplaint',
+  moderate: 'he.moderate',
+  high: 'he.high',
+  full_blaze: 'he.fullBlaze',
+  male: 'he.male',
+  female: 'he.female',
+  controlled_anger: 'he.controlledAnger',
+  exhausted: 'he.exhausted',
+  formal_procedural: 'he.formalProcedural',
+  direct: 'he.direct',
+  emotional: 'he.emotional',
+  passive_aggressive: 'he.passiveAggressive',
+  negotiating: 'he.negotiating',
+  english: 'he.english',
+  spanish: 'he.spanish',
+  haitian_creole: 'he.haitianCreole',
+  portuguese: 'he.portuguese',
 };
 
 export default function HumanEquationExperience() {
@@ -846,7 +893,7 @@ export default function HumanEquationExperience() {
       goal: 'Clarify the call context and establish next steps.',
       focus: [],
     };
-    const generatedScenario = buildScenarioBriefing(setup, timingBriefing);
+    const generatedScenario = buildScenarioBriefing(setup, timingBriefing, language);
 
     console.log('HUMAN_EQUATION_GUIDED_SELECTED_VALUES', setup);
     console.log('HUMAN_EQUATION_GUIDED_GENERATED_SCENARIO', generatedScenario);
@@ -867,8 +914,8 @@ export default function HumanEquationExperience() {
   };
   const randomScenarioBriefing = useMemo(() => {
     if (setup.practiceMode !== 'random') return null;
-    return buildScenarioBriefing(setup, selectedTimingBriefing);
-  }, [setup, selectedTimingBriefing]);
+    return buildScenarioBriefing(setup, selectedTimingBriefing, language);
+  }, [setup, selectedTimingBriefing, language]);
   const activeBriefing = setup.practiceMode === 'guided' && guidedScenario ? guidedScenario : randomScenarioBriefing;
 
   return (
@@ -929,9 +976,9 @@ export default function HumanEquationExperience() {
               <h3>{t('he.preCallBriefing')}</h3>
               <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</p>
               <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
-              <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? setup.scenarioType}</p>
-              <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {setup.callTiming}</p>
-              <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {setup.parentLanguage}</p>
+              <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
+              <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
+              <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {translateOption(setup.parentLanguage)}</p>
               <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
               <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
               <p><strong>{t('he.whatUnknown')}:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
@@ -958,7 +1005,6 @@ export default function HumanEquationExperience() {
               {isDetailedBriefing && <p><strong>{t('he.priorActions')}:</strong> {activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.'}</p>}
               <p><strong>{t('he.suggestedMindset')}:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
               <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
-              {language === 'es' ? <p className={styles.subtle}>{t('he.dynamicLanguageNoteEs')}</p> : null}
               </div>
             )}
             <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
@@ -972,9 +1018,9 @@ export default function HumanEquationExperience() {
           <div className={styles.panelCentered}>
             <p className={styles.eyebrow}>{t('he.incomingCall')}</p>
             <div className={styles.callOrb} />
-            <h2>Parent Caller: {setup.parentVoice === 'Male' ? 'Mr. Carter' : 'Ms. Rodriguez'} ({setup.gradeBand})</h2>
-            <p className={styles.subtle}>{setup.scenarioType} • {setup.callType}</p>
-            <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {setup.callTiming}</p>
+            <h2>Parent Caller: {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'} ({translateOption(setup.gradeBand)})</h2>
+            <p className={styles.subtle}>{translateOption(setup.scenarioType)} • {translateOption(setup.callType)}</p>
+            <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
             <div className={styles.micChecklist}>
               <h3>{t('he.preCallEnvironmentCheck')}</h3>
               <ul>
@@ -1001,7 +1047,7 @@ export default function HumanEquationExperience() {
             <p className={styles.subtle}><strong>Human Equation Build:</strong> {HUMAN_EQUATION_BUILD_VERSION}</p>
             <h2>Ms. Rodriguez — Parent Caller</h2>
             <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong> • {callStatus}</p>
-            <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {setup.callTiming}</p>
+            <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
             <div className={styles.callStatusGrid}>
               <p><strong>Mic status:</strong> {micPermission}</p>
               <p><strong>Mic stream status:</strong> {rtcDiagnostics.micStreamStatus}</p>
@@ -1054,9 +1100,9 @@ export default function HumanEquationExperience() {
             <p className={styles.eyebrow}>{t('he.postCallReport')}</p>
             <h2>{t('he.transcript')}</h2>
             <p className={styles.subtle}>{t('he.endReportTranscriptSubtle')}</p>
-            <p><strong>Scenario:</strong> {setup.scenarioType || 'Unknown scenario'}</p>
-            <p><strong>Parent:</strong> {setup.parentVoice === 'Male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
-            <p><strong>Issue:</strong> {setup.callType || 'Unknown issue'}</p>
+            <p><strong>Scenario:</strong> {translateOption(setup.scenarioType) || 'Unknown scenario'}</p>
+            <p><strong>Parent:</strong> {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
+            <p><strong>Issue:</strong> {translateOption(setup.callType) || 'Unknown issue'}</p>
             <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
             <div className={styles.reportGrid}>
               {coachingStatus.state === 'loading' && <section><h3>Generating coaching report…</h3><p>Analyzing transcript and call context.</p></section>}
