@@ -30,6 +30,13 @@
 .valueGrid h3 { font-size: .98rem; color:#314759; }
 
 .setupGrid { display:grid; gap:1rem; margin-top:1rem; }
+.guidedLayout { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; margin-top:.8rem; }
+.setupPanel,.briefingPanel { border:1px solid #d4dee8; border-radius:14px; background:#f8fafc; padding:1rem; }
+.panelTitle { font-weight:800; color:#2a4257; margin:0 0 .6rem; }
+.stageHeadline { margin:.4rem 0 .2rem; color:#2d4358; }
+.setupNotes { min-height:150px; }
+.lockedList { margin:.55rem 0 .8rem 1rem; }
+.pressureLine { font-weight:700; color:#3f5a73; }
 .selectorLabel { font-weight:600; color:#3b4f61; margin-bottom:.45rem; }
 .selectorWrap { display:flex; flex-wrap:wrap; gap:.55rem; }
 .selectorBtn { border:1px solid #c8d3de; background:#f5f8fa; color:#3f5468; padding:.5rem .8rem; border-radius:999px; }
@@ -66,6 +73,7 @@
 @media (max-width:640px) {
   .shell { padding-inline:.75rem; }
   .callHeader { flex-direction:column; align-items:flex-start; }
+  .guidedLayout { grid-template-columns:1fr; }
 }
 
 .waveformActive {

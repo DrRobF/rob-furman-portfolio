@@ -1182,60 +1182,94 @@ export default function HumanEquationExperience() {
             <p className={styles.eyebrow}>{t('he.simulationSetup')}</p>
             <h2>{setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</h2>
             {setup.practiceMode === 'random' && <p className={styles.variationNote}>{t('he.randomizedNote')}</p>}
+            {setup.practiceMode === 'random' && (
+              <>
+                <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
+                <textarea className={styles.notes} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
+              </>
+            )}
             {setup.practiceMode === 'guided' && (
               <>
-                <p className={styles.variationNote}>{t('he.intentionalModeNote')}</p>
+                <h3 className={styles.stageHeadline}>{t('he.guidedCallbackHeadline')}</h3>
                 <p>{t('he.guidedCallbackFraming')}</p>
-                <div className={styles.setupGrid}>
-                  <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
-                  <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
-                  <Selector label={t('he.scenarioType')} options={setupOptions.scenarioTypes} translateOption={translateOption} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
-                  <Selector label={t('he.parentLanguage')} options={setupOptions.parentLanguages} translateOption={translateOption} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
+                <p className={styles.subtle}>{t('he.guidedCallbackSupportLine')}</p>
+                <div className={styles.guidedLayout}>
+                  <div className={styles.setupPanel}>
+                    <p className={styles.panelTitle}>{t('he.practiceSetupPanel')}</p>
+                    <div className={styles.setupGrid}>
+                      <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
+                      <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
+                      <Selector label={t('he.scenarioType')} options={setupOptions.scenarioTypes} translateOption={translateOption} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
+                      <Selector label={t('he.parentLanguage')} options={setupOptions.parentLanguages} translateOption={translateOption} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
+                    </div>
+                    <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
+                    <textarea className={`${styles.notes} ${styles.setupNotes}`} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
+                    <div className={styles.setupActions}>
+                      <button type="button" className={styles.cta} onClick={buildGuidedScenario}>{t('he.generateBriefing')}</button>
+                    </div>
+                  </div>
+                  <div className={styles.briefingPanel}>
+                    {!isGuidedScenarioBuilt ? (
+                      <div className={styles.briefingCard}>
+                        <p className={styles.panelTitle}>{t('he.callbackBriefingPreview')}</p>
+                        <p className={styles.contextLabel}><strong>{t('he.statusLabel')}:</strong> {t('he.waitingForBriefing')}</p>
+                        <p>{t('he.previewBriefingNote')}</p>
+                        <ul className={styles.lockedList}>
+                          <li><strong>{t('he.knownFacts')}:</strong> {t('he.lockedAfterBriefing')}</li>
+                          <li><strong>{t('he.stillUnclear')}:</strong> {t('he.lockedAfterBriefing')}</li>
+                          <li><strong>{t('he.parentConcernFear')}:</strong> {t('he.lockedAfterBriefing')}</li>
+                          <li><strong>{t('he.leadershipChallenge')}:</strong> {t('he.lockedAfterBriefing')}</li>
+                        </ul>
+                        <p className={styles.pressureLine}>{t('he.parentEmotionalPosturePending')}</p>
+                        <p className={styles.subtle}>{t('he.pressureLineOne')}</p>
+                        <p className={styles.subtle}>{t('he.pressureLineTwo')}</p>
+                        <p className={styles.subtle}>{t('he.pressureLineThree')}</p>
+                      </div>
+                    ) : (
+                      <div className={styles.briefingCard}>
+                        <h3>{t('he.preCallBriefing')}</h3>
+                        <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {t('he.guidedPractice')}</p>
+                        <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
+                        <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
+                        <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
+                        <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
+                        <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {translateOption(setup.parentLanguage)}</p>
+                        <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
+                        <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
+                        <p><strong>{t('he.whatUnknown')}:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
+                        <p><strong>{t('he.parentConcernFear')}:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
+                        <p><strong>{t('he.primaryGoal')}:</strong> {activeBriefing?.primaryGoal ?? selectedTimingBriefing.goal}</p>
+                        <p><strong>{t('he.contextFocus')}:</strong></p>
+                        <ul>{(activeBriefing?.contextFocus ?? selectedTimingBriefing.focus).map((item) => <li key={item}>{item}</li>)}</ul>
+                        <p><strong>{t('he.knownFacts')}</strong></p>
+                        <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
+                        <p><strong>{t('he.staffReport')}</strong></p>
+                        <ul>{(activeBriefing?.staffReport ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
+                        <p><strong>{t('he.studentStatements')}</strong></p>
+                        <ul>{(activeBriefing?.studentStatements ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
+                        <p><strong>{t('he.stillUnclear')}</strong></p>
+                        <ul>{(activeBriefing?.unknownFacts ?? briefings.full.unclear).map((item) => <li key={item}>{item}</li>)}</ul>
+                        <p><strong>{t('he.leadershipChallenge')}:</strong> {activeBriefing?.leadershipChallenge}</p>
+                        <p><strong>{t('he.priorActions')}:</strong> {isDetailedBriefing ? (activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.') : (activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.')}</p>
+                        <p><strong>{t('he.suggestedMindset')}:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
+                        <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
+                        <button className={styles.cta} onClick={nextStage}>{t('he.startCall')}</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </>
             )}
-            <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
-            <textarea className={styles.notes} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
-            {setup.practiceMode === 'guided' && (
-              <div className={styles.setupActions}>
-                <button type="button" className={styles.cta} onClick={buildGuidedScenario}>{t('he.generateBriefing')}</button>
-              </div>
-            )}
-            {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
+            {setup.practiceMode === 'random' && (setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
               <div className={styles.briefingCard}>
-              <h3>{t('he.preCallBriefing')}</h3>
-              <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</p>
-              <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
-              <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
-              <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
-              <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
-              <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {translateOption(setup.parentLanguage)}</p>
-              <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
-              <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
-              <p><strong>{t('he.whatUnknown')}:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
-              <p><strong>{t('he.parentConcernFear')}:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
-              <p><strong>{t('he.primaryGoal')}:</strong> {activeBriefing?.primaryGoal ?? selectedTimingBriefing.goal}</p>
-              <p><strong>{t('he.contextFocus')}:</strong></p>
-              <ul>{(activeBriefing?.contextFocus ?? selectedTimingBriefing.focus).map((item) => <li key={item}>{item}</li>)}</ul>
-              {isUnexpectedCall ? (
-                <p>{briefings.limited}</p>
-              ) : (
-                <>
-                  <p><strong>{t('he.knownFacts')}</strong></p>
-                  <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>{t('he.staffReport')}</strong></p>
-                  <ul>{(activeBriefing?.staffReport ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>{t('he.studentStatements')}</strong></p>
-                  <ul>{(activeBriefing?.studentStatements ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>{t('he.stillUnclear')}</strong></p>
-                  <ul>{(activeBriefing?.unknownFacts ?? briefings.full.unclear).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>{t('he.leadershipChallenge')}:</strong> {activeBriefing?.leadershipChallenge}</p>
-                </>
-              )}
-              {!isDetailedBriefing && <p><strong>{t('he.priorActions')}:</strong> {activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.'}</p>}
-              {isDetailedBriefing && <p><strong>{t('he.priorActions')}:</strong> {activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.'}</p>}
-              <p><strong>{t('he.suggestedMindset')}:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
-              <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
+                <h3>{t('he.preCallBriefing')}</h3>
+                <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {t('he.randomCall')}</p>
+                <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
+                <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
+                <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
+                <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
+                <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {translateOption(setup.parentLanguage)}</p>
+                <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
               </div>
             )}
 
@@ -1258,7 +1292,7 @@ export default function HumanEquationExperience() {
                 ))}
               </div>
             )}
-            {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
+            {setup.practiceMode === 'random' && (
               <button className={styles.cta} onClick={nextStage}>{t('he.startCall')}</button>
             )}
           </div>
