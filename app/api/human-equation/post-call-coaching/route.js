@@ -5,44 +5,89 @@ const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const normText = (value, fallback = '') => (typeof value === 'string' ? value.trim() : fallback);
 const arr = (value) => (Array.isArray(value) ? value : []);
 
+const inferLevel = (transcriptText, type) => {
+  const checks = {
+    emotionalRegulation: /(let's slow|take a breath|i want to be direct|calm|steady|one step at a time)/i,
+    clarityOfNextSteps: /(next step|by (today|tomorrow|end of day)|i will (call|email)|timeline|follow up)/i,
+    accountabilityFraming: /(accountability|responsibility|expectation|obligation|cannot|we will not)/i,
+    empathyAcknowledgment: /(i hear you|i understand|that sounds|i can hear|i know this is hard)/i,
+    boundarySetting: /(need to be clear|cannot|won't|we will not|boundary|not appropriate)/i,
+    followThroughRisk: /(not sure|maybe|we'll see|i hope|try to)/i,
+  };
+  if (type === 'followThroughRisk') {
+    if (checks.followThroughRisk.test(transcriptText) && !checks.clarityOfNextSteps.test(transcriptText)) return 'Watch';
+    if (checks.clarityOfNextSteps.test(transcriptText)) return 'Developing';
+    return 'Watch';
+  }
+  if (checks[type].test(transcriptText)) return 'Strong';
+  return 'Developing';
+};
+
 function buildFallbackReport(payload = {}) {
   const transcriptLines = arr(payload.transcriptLines);
   const transcriptText = transcriptLines.map((line) => `${line.role || 'unknown'}: ${line.text || ''}`).join(' ').toLowerCase();
-  const parentTurns = transcriptLines.filter((line) => line.role === 'parent').length;
-  const userTurns = transcriptLines.filter((line) => line.role === 'user').length;
-  const leadershipMoves = [];
-  if (/(fact|confirm|what happened|walk me through|specific|documentation|record)/i.test(transcriptText)) leadershipMoves.push('Clarified facts and grounded the conversation in specifics.');
-  if (/(cannot|need to be clear|boundary|not appropriate|we will not|expectation)/i.test(transcriptText)) leadershipMoves.push('Set or reinforced boundaries when expectations needed structure.');
-  if (/(next step|follow up|by tomorrow|timeline|i will call|email)/i.test(transcriptText)) leadershipMoves.push('Named concrete next steps and follow-up structure.');
-  if (/(i hear you|i understand|that sounds|i can hear)/i.test(transcriptText)) leadershipMoves.push('Used empathy without abandoning administrative clarity.');
-  if (/(accountability|responsibility|consequence|due process)/i.test(transcriptText)) leadershipMoves.push('Established accountability framing instead of pure reassurance.');
-  const parentPatterns = [];
-  if (/(just want to make sure|are you sure|promise me|guarantee)/i.test(transcriptText)) parentPatterns.push('Reassurance seeking');
-  if (/(again|like i said|i already told you|same thing)/i.test(transcriptText)) parentPatterns.push('Looping / repetition under stress');
-  if (/(policy|procedure|district|formal complaint)/i.test(transcriptText)) parentPatterns.push('Procedural pressure');
-  if (/(your fault|school failed|teacher failed|blame)/i.test(transcriptText)) parentPatterns.push('Blame shifting / responsibility transfer');
-  if (/(board|superintendent|media|lawyer)/i.test(transcriptText)) parentPatterns.push('Escalation threat signaling');
-  if (/(don't trust|never listen|always ignore)/i.test(transcriptText)) parentPatterns.push('Distrust of school systems');
+  const userLines = transcriptLines.filter((line) => line.role === 'user');
+  const parentLines = transcriptLines.filter((line) => line.role === 'parent');
+
+  const leadershipSnapshot = [
+    { label: 'Emotional Regulation', level: inferLevel(transcriptText, 'emotionalRegulation'), evidence: userLines[0]?.text ? `Leader opened with: "${userLines[0].text.slice(0, 120)}"` : 'Limited transcript evidence; maintain calm pacing and explicit emotional resets.' },
+    { label: 'Clarity of Next Steps', level: inferLevel(transcriptText, 'clarityOfNextSteps'), evidence: /(next|follow|timeline|by tomorrow|email|call)/i.test(transcriptText) ? 'Leader referenced follow-up or timeline language during the call.' : 'No explicit next-step cadence detected; risk of ambiguity after call.' },
+    { label: 'Accountability Framing', level: inferLevel(transcriptText, 'accountabilityFraming'), evidence: /(accountability|responsibility|obligation|expectation|consequence)/i.test(transcriptText) ? 'Leader used accountability framing rather than reassurance-only language.' : 'Accountability language was limited in captured transcript.' },
+    { label: 'Empathy / Acknowledgment', level: inferLevel(transcriptText, 'empathyAcknowledgment'), evidence: /(i hear|i understand|hard|stress)/i.test(transcriptText) ? 'Leader acknowledged parent concern while continuing operational discussion.' : 'Empathy phrase usage is limited in transcript excerpts.' },
+    { label: 'Boundary Setting', level: inferLevel(transcriptText, 'boundarySetting'), evidence: /(cannot|need to be clear|not appropriate|we will not)/i.test(transcriptText) ? 'Leader set boundaries on what can be promised or concluded immediately.' : 'Boundary language not strongly visible in captured lines.' },
+    { label: 'Follow-Through Risk', level: inferLevel(transcriptText, 'followThroughRisk'), evidence: /(timeline|by|update|follow up|recap)/i.test(transcriptText) ? 'Some follow-through structures are present; ensure documentation closes the loop.' : 'Low explicit closure language raises follow-through risk.' },
+  ];
+
   return {
     source: transcriptLines.length ? 'rule-based-transcript' : 'fallback-limited-data',
-    snapshot: {
-      issue: normText(payload.setup?.scenarioType, 'Unknown issue'),
-      parentTypeTone: `${normText(payload.setup?.parentVoice, 'Unknown voice')} / ${normText(payload.setup?.parentTone, 'Unknown tone')}`,
-      callContext: normText(payload.setup?.callTiming, 'Unknown context'),
-      duration: normText(payload.callDuration, '00:00'),
-      briefSummary: transcriptLines.length ? `Call included ${userTurns} leader turns and ${parentTurns} parent turns with pressure around ${normText(payload.setup?.callType, 'the concern')}.` : 'Transcript was unavailable; summary is based on call setup metadata only.',
-    },
-    leadershipMovesObserved: leadershipMoves.length ? leadershipMoves : ['Maintained engagement through a high-pressure interaction with limited evidence detail in transcript.'],
-    strategicTradeoffs: [
-      'This increased emotional intensity, but it also clarified accountability expectations.',
-      'This may have created defensiveness, but it helped surface the parent’s real concern for decision-making.',
-      'This was firm rather than soothing; that may be appropriate when process integrity and fairness are the immediate goal.',
+    reportLanguage: payload.interfaceLanguage === 'es' ? 'en' : 'en',
+    languageNote: payload.interfaceLanguage === 'es' ? 'Spanish report generation is not enabled yet; report is in English with translation-ready schema.' : null,
+    executiveSummary: [
+      `This call addressed ${normText(payload.setup?.scenarioType, 'an unresolved school concern')} in a high-pressure parent context.`,
+      `The parent pattern showed ${parentLines.length > userLines.length ? 'sustained pressure and reassurance-seeking' : 'active pressure with concern about support and accountability'}.`,
+      'The leader stance was generally firm and process-oriented, with emphasis on accountability and controllable next steps.',
+      transcriptLines.length ? 'Outcome: conversation moved toward structure, but at least one thread appears unresolved and needs documented follow-up.' : 'Outcome is partially unresolved because transcript evidence was limited.',
+    ].join(' '),
+    leadershipSnapshot,
+    keyLeadershipMoves: [
+      'Redirected emotional pressure toward process and concrete actions.',
+      'Maintained accountability framing instead of offering guarantees.',
+      'Balanced concern acknowledgment with institutional boundary language.',
+      'Worked toward defining follow-up ownership and timing.',
     ],
-    parentPatternAnalysis: parentPatterns.length ? parentPatterns : ['No clear parent pattern could be confidently inferred from available transcript data.'],
-    strengths: ['Leadership voice stayed task-oriented under pressure.', 'Conversation appeared oriented toward follow-through instead of vague reassurance.'],
-    watchPoints: ['If firm language was used without explicit empathy, trust could weaken even when decisions are correct.', 'Any commitments should be documented quickly to avoid perception gaps later.', 'If tension rose, a same-day follow-up note can stabilize interpretation of what was agreed.'],
-    suggestedFollowUp: ['Send a short recap email within one school day with decisions, owner, and timeline.', 'Document key facts and commitments in internal notes immediately after the call.', 'Run a staff check-in with counselor/AP/teacher as relevant before the next parent update.', 'Schedule a parent update checkpoint (24–72 hours depending on urgency).'],
-    strongerAlternativePhrasing: ['I hear your concern. I am not going to over-promise, but I am going to give you a clear process and timeline today.', 'This is difficult, and I want to be direct: we will address this, and we will do it through a fair, documented process.', 'I understand why this feels urgent. My job right now is to protect your child and make sure accountability is handled correctly.', 'I cannot finalize conclusions in this moment, but I can commit to specific next steps and a time for follow-up.'],
+    strategicTradeoffs: [
+      'This response may have increased defensiveness, but it also clarified accountability.',
+      'This was firm rather than soothing; that can be appropriate when the goal is to establish seriousness.',
+      'The risk is that the parent may hear it as blame unless it is paired with support and a clear help path.',
+      'Holding boundaries likely protected process integrity, but relational trust depends on fast, visible follow-through.',
+    ],
+    parentPatternAnalysis: [
+      /(just want to make sure|are you sure|promise me|guarantee)/i.test(transcriptText) ? 'Reassurance seeking' : 'Fear of child being unsupported',
+      /(again|like i said|i already told you|same thing)/i.test(transcriptText) ? 'Looping' : 'Procedural pressure',
+      /(policy|procedure|district|formal complaint)/i.test(transcriptText) ? 'Procedural pressure' : 'Emotional reframing',
+      /(your fault|school failed|teacher failed|blame)/i.test(transcriptText) ? 'Blame shifting' : 'Pressure for guarantees',
+      /(board|superintendent|media|lawyer)/i.test(transcriptText) ? 'Escalation threat' : 'Distrust of school',
+    ],
+    momentsToRevisit: [
+      'Revisit any point where firmness may have sounded final before process completion was explained.',
+      'Revisit moments where parent emotion was acknowledged briefly but not explicitly linked to support actions.',
+      'Revisit any commitment that lacked owner + deadline language.',
+    ],
+    strongerAlternativePhrasing: [
+      'I hear the urgency. I will not promise an outcome today, but I will give you a documented timeline and owner for each step.',
+      'I need to be direct: attendance is a serious obligation, and we are also going to remove barriers with a concrete support plan.',
+      'We are not minimizing this. We are handling it through a fair process, and you will get an update by tomorrow at 3 PM.',
+      'I can’t conclude the full finding yet, but I can commit to specific actions today and a follow-up checkpoint.',
+      'If we disagree on interpretation, we can still align on immediate student support and clear accountability steps.',
+    ],
+    suggestedFollowUpPlan: [
+      'Send parent recap within 24 hours: decisions made, open questions, owner, and next update time.',
+      'Document call summary and commitments in internal case notes immediately.',
+      'Conduct staff check-in (teacher/counselor/AP) to align execution and messaging.',
+      'Run student check-in within one school day to validate support and safety.',
+      'Publish short support plan with timeline and progress indicators.',
+      'Schedule follow-up communication window (24–72 hours based on risk).',
+    ],
   };
 }
 
@@ -50,7 +95,7 @@ export async function POST(request) {
   const payload = await request.json().catch(() => ({}));
   const fallback = buildFallbackReport(payload);
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'missing-api-key' });
-  const prompt = `You are generating a post-call school leadership coaching report from a parent-call transcript. Core philosophy: do not frame all tension as negative; evaluate strategic tradeoffs and accountability language. Return JSON only with keys snapshot, leadershipMovesObserved, strategicTradeoffs, parentPatternAnalysis, strengths, watchPoints, suggestedFollowUp, strongerAlternativePhrasing.\n\nTranscript + metadata:\n${JSON.stringify(payload).slice(0, 18000)}`;
+  const prompt = `Generate a Human Equation post-call coaching report JSON. Philosophy: tension is not automatically bad; evaluate strategic tradeoffs between firmness, accountability, support, and trust. Use transcript evidence whenever available. Return JSON only with keys: executiveSummary, leadershipSnapshot (array of {label, level, evidence}), keyLeadershipMoves, strategicTradeoffs, parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. Keep report language in English.\n\nInput:\n${JSON.stringify(payload).slice(0, 18000)}`;
   try {
     const response = await fetch(OPENAI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, body: JSON.stringify({ model: MODEL, temperature: 0.2, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Return only JSON.' }, { role: 'user', content: prompt }] }) });
     if (!response.ok) throw new Error(`OpenAI request failed: ${response.status}`);
