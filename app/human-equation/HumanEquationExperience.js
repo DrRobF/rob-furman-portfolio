@@ -1178,13 +1178,11 @@ export default function HumanEquationExperience() {
               {coachingReport && (
                 <>
                   <section><h3>1. Executive Summary</h3><p>{asText(coachingReport.executiveSummary, 'Summary unavailable.')}</p></section>
-                  <section><h3>2. Leadership Snapshot</h3><ul>{(Array.isArray(coachingReport.leadershipSnapshot) ? coachingReport.leadershipSnapshot : []).map((item, idx) => <li key={`snapshot-${idx}-${item?.label || 'item'}`}><strong>{asText(item?.label, 'Indicator')} — {asText(item?.level, 'Developing')}</strong><br />{asText(item?.evidence, 'Evidence unavailable.')}</li>)}</ul></section>
-                  <section><h3>3. Key Leadership Moves</h3><ul>{toSafeList(coachingReport.keyLeadershipMoves).map((item, idx) => <li key={`leadership-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>4. Strategic Tradeoffs</h3><ul>{toSafeList(coachingReport.strategicTradeoffs).map((item, idx) => <li key={`tradeoff-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>5. Parent Pattern Analysis</h3><ul>{toSafeList(coachingReport.parentPatternAnalysis).map((item, idx) => <li key={`parent-pattern-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>6. Moments to Revisit</h3><ul>{toSafeList(coachingReport.momentsToRevisit).map((item, idx) => <li key={`revisit-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>7. Stronger Alternative Phrasing</h3><ul>{toSafeList(coachingReport.strongerAlternativePhrasing).map((item, idx) => <li key={`phrasing-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>8. Suggested Follow-Up Plan</h3><ul>{toSafeList(coachingReport.suggestedFollowUpPlan).map((item, idx) => <li key={`followup-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>2. Human Equation Leadership Analysis</h3><ul>{(Array.isArray(coachingReport.humanEquationLeadershipAnalysis) ? coachingReport.humanEquationLeadershipAnalysis : []).map((item, idx) => <li key={`framework-${idx}-${item?.label || 'item'}`}><strong>{asText(item?.label, 'Framework Dimension')} — {asText(item?.level, 'Developing')}</strong><br />{asText(item?.evidence, 'Evidence unavailable; gather more transcript detail to refine this dimension.')}</li>)}</ul></section>
+                  <section><h3>3. Parent Pattern Analysis</h3><ul>{toSafeList(coachingReport.parentPatternAnalysis).map((item, idx) => <li key={`parent-pattern-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>4. Moments to Revisit</h3><ul>{toSafeList(coachingReport.momentsToRevisit).map((item, idx) => <li key={`revisit-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>5. Stronger Alternative Phrasing</h3><ul>{toSafeList(coachingReport.strongerAlternativePhrasing).map((item, idx) => <li key={`phrasing-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section><h3>6. Suggested Follow-Up Plan</h3><ul>{toSafeList(coachingReport.suggestedFollowUpPlan).map((item, idx) => <li key={`followup-${idx}-${item}`}>{item}</li>)}</ul></section>
                   {coachingReport.languageNote ? <section><h3>Language note</h3><p>{coachingReport.languageNote}</p></section> : null}
                 </>
               )}
