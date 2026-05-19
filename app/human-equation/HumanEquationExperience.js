@@ -878,21 +878,21 @@ export default function HumanEquationExperience() {
           <div className={styles.panel}>
             <p className={styles.eyebrow}>The Human Equation</p>
             <h1>{t('he.practiceHeading')}</h1>
-            <p className={styles.lead}>A voice-first leadership simulator for difficult parent and school conversations. Rehearse how you respond under pressure before the real call happens.</p>
+            <p className={styles.lead}>{t('he.introLead')}</p>
             <div className={styles.valueGrid}>
-              <article><h3>Stay calm under pressure</h3></article>
-              <article><h3>Practice real parent dynamics</h3></article>
-              <article><h3>Review your transcript and coaching report afterward</h3></article>
+              <article><h3>{t('he.stayCalm')}</h3></article>
+              <article><h3>{t('he.practiceDynamics')}</h3></article>
+              <article><h3>{t('he.reviewReport')}</h3></article>
             </div>
             <div className={styles.pathChoiceGrid}>
               <button type="button" className={`${styles.pathCard} ${styles.pathCardPrimary}`} onClick={handleStartRandomCall}>
                 <p className={styles.pathTitle}>{t('he.randomCall')}</p>
-                <p>Enter an unpredictable leadership conversation with incomplete information, emotional pressure, and realistic parent dynamics.</p>
+                <p>{t('he.randomCardBody')}</p>
                 <span className={styles.ctaMini}>{t('he.startRandomCall')}</span>
               </button>
               <button type="button" className={`${styles.pathCard} ${styles.pathCardSecondary}`} onClick={handleConfigurePractice}>
                 <p className={styles.pathTitle}>{t('he.guidedPractice')}</p>
-                <p>Configure and rehearse a specific conversation type.</p>
+                <p>{t('he.guidedCardBody')}</p>
                 <span className={styles.secondaryMini}>{t('he.configurePractice')}</span>
               </button>
             </div>
@@ -902,10 +902,10 @@ export default function HumanEquationExperience() {
           <div className={styles.panel}>
             <p className={styles.eyebrow}>{t('he.simulationSetup')}</p>
             <h2>{setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</h2>
-            {setup.practiceMode === 'random' && <p className={styles.variationNote}>Scenario randomized for realistic uncertainty and pressure.</p>}
+            {setup.practiceMode === 'random' && <p className={styles.variationNote}>{t('he.randomizedNote')}</p>}
             {setup.practiceMode === 'guided' && (
               <>
-                <p className={styles.variationNote}>Intentional practice mode: customize conditions and build a targeted scenario.</p>
+                <p className={styles.variationNote}>{t('he.intentionalModeNote')}</p>
                 <div className={styles.setupActions}>
                   <button type="button" className={styles.cta} onClick={buildGuidedScenario}>{t('he.buildPracticeScenario')}</button>
                   <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>{t('he.regenerateParent')}</button>
@@ -914,7 +914,7 @@ export default function HumanEquationExperience() {
                   <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
                   <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
                   <Selector label={t('he.callType')} options={setupOptions.callTypes} translateOption={translateOption} value={setup.callType} onSelect={(value) => setField('callType', value)} />
-                  <Selector label="Call Timing / Context" options={setupOptions.callTimings} translateOption={translateOption} value={setup.callTiming} onSelect={(value) => setField('callTiming', value)} />
+                  <Selector label={t('he.callTimingContext')} options={setupOptions.callTimings} translateOption={translateOption} value={setup.callTiming} onSelect={(value) => setField('callTiming', value)} />
                   <Selector label={t('he.scenarioType')} options={setupOptions.scenarioTypes} translateOption={translateOption} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
                   <Selector label={t('he.parentIntensity')} options={setupOptions.intensities} translateOption={translateOption} value={setup.intensity} onSelect={(value) => setField('intensity', value)} />
                   <Selector label={t('he.parentVoice')} options={setupOptions.parentVoices} translateOption={translateOption} value={setup.parentVoice} onSelect={(value) => setField('parentVoice', value)} />
@@ -927,41 +927,42 @@ export default function HumanEquationExperience() {
             {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
               <div className={styles.briefingCard}>
               <h3>{t('he.preCallBriefing')}</h3>
-              <p className={styles.contextLabel}><strong>Path:</strong> {setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</p>
-              <p className={styles.contextLabel}><strong>Briefing depth:</strong> {setup.briefingDepth}</p>
-              <p className={styles.contextLabel}><strong>Issue summary:</strong> {activeBriefing?.issueSummary ?? setup.scenarioType}</p>
-              <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
+              <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</p>
+              <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
+              <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? setup.scenarioType}</p>
+              <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {setup.callTiming}</p>
               <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {setup.parentLanguage}</p>
               <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
-              <p><strong>What is known:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
-              <p><strong>What is unknown:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
-              <p><strong>Parent concern/fear:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
-              <p><strong>Primary goal:</strong> {activeBriefing?.primaryGoal ?? selectedTimingBriefing.goal}</p>
-              <p><strong>Context focus:</strong></p>
+              <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
+              <p><strong>{t('he.whatUnknown')}:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
+              <p><strong>{t('he.parentConcernFear')}:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
+              <p><strong>{t('he.primaryGoal')}:</strong> {activeBriefing?.primaryGoal ?? selectedTimingBriefing.goal}</p>
+              <p><strong>{t('he.contextFocus')}:</strong></p>
               <ul>{(activeBriefing?.contextFocus ?? selectedTimingBriefing.focus).map((item) => <li key={item}>{item}</li>)}</ul>
               {isUnexpectedCall ? (
                 <p>{briefings.limited}</p>
               ) : (
                 <>
-                  <p><strong>Known facts</strong></p>
+                  <p><strong>{t('he.knownFacts')}</strong></p>
                   <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>Teacher/staff report</strong></p>
+                  <p><strong>{t('he.staffReport')}</strong></p>
                   <ul>{(activeBriefing?.staffReport ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>Student statements</strong></p>
+                  <p><strong>{t('he.studentStatements')}</strong></p>
                   <ul>{(activeBriefing?.studentStatements ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>What is still unclear</strong></p>
+                  <p><strong>{t('he.stillUnclear')}</strong></p>
                   <ul>{(activeBriefing?.unknownFacts ?? briefings.full.unclear).map((item) => <li key={item}>{item}</li>)}</ul>
-                  <p><strong>Leadership challenge:</strong> {activeBriefing?.leadershipChallenge}</p>
+                  <p><strong>{t('he.leadershipChallenge')}:</strong> {activeBriefing?.leadershipChallenge}</p>
                 </>
               )}
-              {!isDetailedBriefing && <p><strong>Prior actions already taken:</strong> {activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.'}</p>}
-              {isDetailedBriefing && <p><strong>Prior actions already taken:</strong> {activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.'}</p>}
-              <p><strong>Suggested mindset:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
-              <p className={styles.subtle}><strong>Professional note:</strong> As in real leadership situations, you may not have every detail. Use the briefing, ask clarifying questions, and make reasonable assumptions when needed.</p>
+              {!isDetailedBriefing && <p><strong>{t('he.priorActions')}:</strong> {activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.'}</p>}
+              {isDetailedBriefing && <p><strong>{t('he.priorActions')}:</strong> {activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.'}</p>}
+              <p><strong>{t('he.suggestedMindset')}:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
+              <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
+              {language === 'es' ? <p className={styles.subtle}>{t('he.dynamicLanguageNoteEs')}</p> : null}
               </div>
             )}
             <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
-            <textarea className={styles.notes} placeholder="Private prep notes for this call (visible in call view and report)..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
+            <textarea className={styles.notes} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
               <button className={styles.cta} onClick={nextStage}>{t('he.proceedIncomingCall')}</button>
             )}
@@ -969,13 +970,13 @@ export default function HumanEquationExperience() {
         )}
         {stage === 'incoming' && (
           <div className={styles.panelCentered}>
-            <p className={styles.eyebrow}>Incoming Call</p>
+            <p className={styles.eyebrow}>{t('he.incomingCall')}</p>
             <div className={styles.callOrb} />
             <h2>Parent Caller: {setup.parentVoice === 'Male' ? 'Mr. Carter' : 'Ms. Rodriguez'} ({setup.gradeBand})</h2>
             <p className={styles.subtle}>{setup.scenarioType} • {setup.callType}</p>
-            <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
+            <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {setup.callTiming}</p>
             <div className={styles.micChecklist}>
-              <h3>Pre-Call Environment Check</h3>
+              <h3>{t('he.preCallEnvironmentCheck')}</h3>
               <ul>
                 <li>Quiet room recommended</li>
                 <li>Headphones recommended</li>
@@ -986,9 +987,9 @@ export default function HumanEquationExperience() {
               <p><strong>Voice test:</strong> {micTestVoiceDetected ? 'Voice detected' : 'Waiting for voice'}</p>
               {micError && <p className={styles.errorText}>{micError}</p>}
               {!hasMicrophone && <p className={styles.errorText}>No microphone detected.</p>}
-              <button type="button" className={styles.secondaryAction} onClick={testMicrophone}>Test Microphone</button>
+              <button type="button" className={styles.secondaryAction} onClick={testMicrophone}>{t('he.testMicrophone')}</button>
             </div>
-            <button className={styles.cta} onClick={beginCall} disabled={Boolean(micError) || !hasMicrophone}>Answer and Begin</button>
+            <button className={styles.cta} onClick={beginCall} disabled={Boolean(micError) || !hasMicrophone}>{t('he.answerBegin')}</button>
           </div>
         )}
         {stage === 'active' && (
@@ -1000,7 +1001,7 @@ export default function HumanEquationExperience() {
             <p className={styles.subtle}><strong>Human Equation Build:</strong> {HUMAN_EQUATION_BUILD_VERSION}</p>
             <h2>Ms. Rodriguez — Parent Caller</h2>
             <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong> • {callStatus}</p>
-            <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
+            <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {setup.callTiming}</p>
             <div className={styles.callStatusGrid}>
               <p><strong>Mic status:</strong> {micPermission}</p>
               <p><strong>Mic stream status:</strong> {rtcDiagnostics.micStreamStatus}</p>
@@ -1020,7 +1021,7 @@ export default function HumanEquationExperience() {
               {sessionError && <p className={styles.errorText}>{sessionError}</p>}
             </div>
             <div className={`${styles.waveform} ${isSpeaking ? styles.waveformActive : ''}`} aria-hidden />
-            <label className={styles.notesLabel}>Private Notes (not shared)</label>
+            <label className={styles.notesLabel}>{t('he.privateNotesNotShared')}</label>
             <textarea className={styles.notes} placeholder="Capture key facts, commitments, and follow-up actions..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             <button className={styles.endCall} onClick={endCall}>{t('he.endCall')}</button>
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
@@ -1052,7 +1053,7 @@ export default function HumanEquationExperience() {
           <div className={styles.panel}>
             <p className={styles.eyebrow}>{t('he.postCallReport')}</p>
             <h2>{t('he.transcript')}</h2>
-            <p className={styles.subtle}>Full transcript appears after the call ends.</p>
+            <p className={styles.subtle}>{t('he.endReportTranscriptSubtle')}</p>
             <p><strong>Scenario:</strong> {setup.scenarioType || 'Unknown scenario'}</p>
             <p><strong>Parent:</strong> {setup.parentVoice === 'Male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
             <p><strong>Issue:</strong> {setup.callType || 'Unknown issue'}</p>
