@@ -124,7 +124,14 @@ function buildFallbackReport(payload = {}, tacticCards = []) {
   const transcriptLines = arr(payload.transcriptLines);
   const transcriptText = transcriptLines.map((line) => `${line.role || 'unknown'}: ${line.text || ''}`).join(' ').toLowerCase();
   const userLines = transcriptLines.filter((line) => line.role === 'user');
+  const parentLines = transcriptLines.filter((line) => line.role === 'parent');
   const parentPatternAnalysis = inferParentPatterns(transcriptLines, extractArchetypeHints(payload), tacticCards);
+  const parentText = parentLines.map((line) => normText(line?.text)).join(' ').toLowerCase();
+  const userText = userLines.map((line) => normText(line?.text)).join(' ').toLowerCase();
+  const hasGuardedCooperation = /(i[’']?ll hold you to that|let[’']s see if this goes somewhere real|we[’']ll see|fine[, ]?but|okay[, ]?but|if you follow through)/i.test(parentText);
+  const hasEscalationLanguage = /(lawyer|board|media|formal complaint|covering this up|not telling the truth|this is insane|unacceptable)/i.test(parentText);
+  const hasContainmentLanguage = /(let me be direct|one step at a time|documented|written update|by tomorrow|verify|shared goal|student support|fair process)/i.test(userText);
+  const hasTurningPoint = /(shared goal|student support|next step|written update|timeline|checkpoint|owner)/i.test(userText) && /(okay|fine|i hear you|if you follow through|i'll hold you to that|let's see)/i.test(parentText);
 
   return {
     source: transcriptLines.length ? 'rule-based-transcript' : 'fallback-limited-data',
@@ -136,6 +143,26 @@ function buildFallbackReport(payload = {}, tacticCards = []) {
       'The leader stance was generally firm and process-oriented; strategic firmness and reality anchoring are treated as potential strengths when they create clearer commitments.',
       transcriptLines.length ? 'Outcome: conversation moved toward structure, but at least one thread appears unresolved and needs documented follow-up.' : 'Outcome is partially unresolved because transcript evidence was limited.',
     ].join(' '),
+    conversationTrajectory: {
+      startingParentState: parentLines[0]?.text
+        ? 'The parent began with distrust and visible pressure, prioritizing proof and accountability.'
+        : 'Parent opening state was only partially captured; pressure signals still suggest distrust and urgency.',
+      escalationPoints: hasEscalationLanguage
+        ? 'The conversation intensified when legal/process language was heard as self-protective rather than student-centered.'
+        : 'Escalation remained moderate; pressure rose when certainty was requested before full fact verification.',
+      containmentAttempts: hasContainmentLanguage
+        ? 'The leader attempted containment by reality-anchoring facts, setting timelines, and reframing toward shared student support.'
+        : 'Containment attempts were present but not always explicit; stronger owner-plus-deadline language would stabilize pressure.',
+      turningPoint: hasTurningPoint
+        ? 'A turning point emerged when the leader linked accountability to concrete next steps and the parent shifted from resistance to conditional engagement.'
+        : 'No single clean turning point appeared; movement was incremental through repeated process clarity and follow-through framing.',
+      endingState: hasGuardedCooperation
+        ? 'The parent ended in guarded cooperation rather than full trust, indicating meaningful but incomplete repair.'
+        : 'The call ended with partial alignment and unresolved trust, requiring disciplined follow-up to convert structure into confidence.',
+      overallMovement: hasGuardedCooperation || (hasContainmentLanguage && !hasEscalationLanguage)
+        ? 'Overall movement was from high pressure toward usable working alignment: clearer commitments, realistic follow-up, and shared next steps.'
+        : 'Overall movement was mixed: some clarity gains occurred, but trust and accountability still require stronger follow-through and explicit agreement checkpoints.',
+    },
     humanEquationLeadershipAnalysis: [
       { label: 'Trust Construction', level: inferFrameworkLevel(transcriptText, [/(written update|documented next steps|by tomorrow|follow up|fair process)/i], [/(we\'ll see|not sure|maybe)/i], [/(i hear|i understand)/i]), evidence: /(written update|documented next steps|by tomorrow|follow up|fair process)/i.test(transcriptText) ? 'Credibility was reinforced through timeline language and explicit follow-through commitments.' : 'Trust signals are present but mostly implied; add explicit fairness and follow-through checkpoints.' },
       { label: 'Human Awareness', level: inferFrameworkLevel(transcriptText, [/(i hear|i understand|urgent|felt humiliated|hardest part)/i], [/(calm down|you are overreacting)/i], [/(concern|impact)/i]), evidence: /(i hear|i understand|urgent|hardest part|impact)/i.test(transcriptText) ? 'Leader named emotion and pressure cues without losing direction.' : 'Limited direct naming of emotional cues; risk of the parent feeling unheard even when process is clear.' },
@@ -193,6 +220,16 @@ Implementation requirements:
 - Use setup/cards archetype fields when present (Common Tactics Used, Escalation Triggers, Calming Factors, Hidden Fear/Vulnerability, Speech Pattern, Typical Phrases, Manipulation Style, Relationship to School, Likely Ending State) as pattern guidance, but still infer directly from transcript language.
 
 Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (array of {label, level, evidence} in canonical order), parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan.
+Add conversationTrajectory as an object with exactly these keys:
+- startingParentState
+- escalationPoints
+- containmentAttempts
+- turningPoint
+- endingState
+- overallMovement
+Trajectory analysis must evaluate movement over time (start -> escalation/containment -> turn -> ending), not isolated moments.
+Do not treat parent anger as automatic leader failure or calmness as automatic success.
+Assess whether the leader moved the conversation toward clarity, trust, accountability, realistic follow-up, usable agreement, and shared next steps.
 Levels allowed: Strong, Developing, Watch.
 Write all visible report text in ${reportLanguageInstruction}.
 If evidence is thin, still return all 8 dimensions with concise fallback evidence language.
