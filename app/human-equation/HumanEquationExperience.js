@@ -435,6 +435,15 @@ export default function HumanEquationExperience() {
   const audioDetectIntervalRef = useRef(null);
   const micTestIntervalRef = useRef(null);
   const micTestAudioContextRef = useRef(null);
+  const callReadinessRef = useRef({
+    remoteTrackReceived: false,
+    audioPlayAttempted: false,
+    audioPlayable: false,
+    peerConnected: false,
+    dataChannelOpen: false,
+    parentOpeningTriggered: false,
+  });
+  const parentOpeningTimeoutRef = useRef(null);
 
   const callDuration = useMemo(() => {
     if (!callStartedAt) return '00:00';
@@ -462,6 +471,16 @@ export default function HumanEquationExperience() {
   const nextStage = () => setStage(stages[Math.min(stages.indexOf(stage) + 1, stages.length - 1)]);
 
   const teardownCall = () => {
+    if (parentOpeningTimeoutRef.current) clearTimeout(parentOpeningTimeoutRef.current);
+    parentOpeningTimeoutRef.current = null;
+    callReadinessRef.current = {
+      remoteTrackReceived: false,
+      audioPlayAttempted: false,
+      audioPlayable: false,
+      peerConnected: false,
+      dataChannelOpen: false,
+      parentOpeningTriggered: false,
+    };
     dcRef.current?.close();
     pcRef.current?.getSenders().forEach((sender) => sender.track?.stop());
     pcRef.current?.close();
@@ -642,6 +661,36 @@ export default function HumanEquationExperience() {
     }));
 
     try {
+      callReadinessRef.current = {
+        remoteTrackReceived: false,
+        audioPlayAttempted: false,
+        audioPlayable: false,
+        peerConnected: false,
+        dataChannelOpen: false,
+        parentOpeningTriggered: false,
+      };
+      const triggerParentOpeningWhenReady = () => {
+        const readiness = callReadinessRef.current;
+        if (readiness.parentOpeningTriggered) return;
+        const readyForOpening = readiness.remoteTrackReceived
+          && readiness.audioPlayAttempted
+          && readiness.peerConnected
+          && readiness.dataChannelOpen;
+        if (!readyForOpening) return;
+        readiness.parentOpeningTriggered = true;
+        console.log('HUMAN_EQUATION_PARENT_OPENING_READINESS_CONFIRMED');
+        parentOpeningTimeoutRef.current = setTimeout(() => {
+          const dc = dcRef.current;
+          if (!dc || dc.readyState !== 'open') return;
+          console.log('HUMAN_EQUATION_PARENT_OPENING_TRIGGERED');
+          dc.send(JSON.stringify({
+            type: 'response.create',
+            response: {
+              modalities: ['audio', 'text'],
+            },
+          }));
+        }, 700);
+      };
       const stream = micStreamRef.current?.active ? micStreamRef.current : await ensureMicStream();
       micStreamRef.current = stream;
       const audioTracks = stream.getAudioTracks();
@@ -658,15 +707,43 @@ export default function HumanEquationExperience() {
       }));
       pc.onconnectionstatechange = () => {
         console.log('HUMAN_EQUATION_PEER_CONNECTION_STATE', pc.connectionState);
+        if (pc.connectionState === 'connected' || pc.iceConnectionState === 'connected') {
+          console.log('HUMAN_EQUATION_PEER_OR_ICE_CONNECTED');
+          callReadinessRef.current.peerConnected = true;
+          triggerParentOpeningWhenReady();
+        }
         setRtcDiagnostics((prev) => ({ ...prev, peerConnectionState: pc.connectionState, iceConnectionState: pc.iceConnectionState }));
+      };
+      pc.oniceconnectionstatechange = () => {
+        console.log('HUMAN_EQUATION_ICE_CONNECTION_STATE', pc.iceConnectionState);
+        if (pc.iceConnectionState === 'connected') {
+          console.log('HUMAN_EQUATION_PEER_OR_ICE_CONNECTED');
+          callReadinessRef.current.peerConnected = true;
+          triggerParentOpeningWhenReady();
+        }
+        setRtcDiagnostics((prev) => ({ ...prev, iceConnectionState: pc.iceConnectionState }));
       };
 
       const audioEl = document.createElement('audio');
       audioEl.autoplay = true;
+      audioEl.playsInline = true;
+      audioEl.muted = false;
+      console.log('HUMAN_EQUATION_REMOTE_AUDIO_ELEMENT_CREATED');
       audioElRef.current = audioEl;
-      pc.ontrack = (e) => {
+      pc.ontrack = async (e) => {
         console.log('HUMAN_EQUATION_REMOTE_AUDIO_TRACK_RECEIVED');
+        callReadinessRef.current.remoteTrackReceived = true;
         audioEl.srcObject = e.streams[0];
+        callReadinessRef.current.audioPlayAttempted = true;
+        console.log('HUMAN_EQUATION_AUDIO_PLAY_ATTEMPTED');
+        try {
+          await audioEl.play();
+          callReadinessRef.current.audioPlayable = true;
+          console.log('HUMAN_EQUATION_AUDIO_PLAY_SUCCESS');
+        } catch (playError) {
+          console.log('HUMAN_EQUATION_AUDIO_PLAY_FAILURE', playError);
+        }
+        triggerParentOpeningWhenReady();
       };
 
       pc.addTrack(audioTracks[0]);
@@ -691,6 +768,8 @@ export default function HumanEquationExperience() {
       setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, realtimeSessionStatus: 'connecting' }));
       dc.onopen = () => {
         console.log('HUMAN_EQUATION_DATA_CHANNEL_OPEN');
+        callReadinessRef.current.dataChannelOpen = true;
+        triggerParentOpeningWhenReady();
         setCallStatus('Live call connected');
         setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'connected' }));
         console.log('HUMAN_EQUATION_REALTIME_CONNECTED');
