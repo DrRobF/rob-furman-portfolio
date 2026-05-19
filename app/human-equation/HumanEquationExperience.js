@@ -1040,6 +1040,85 @@ export default function HumanEquationExperience() {
     }
   };
 
+  const downloadFullReport = () => {
+    const fallback = 'Not available';
+    const stamp = new Date();
+    const pad = (value) => String(value).padStart(2, '0');
+    const fileName = `human-equation-report-${stamp.getFullYear()}-${pad(stamp.getMonth() + 1)}-${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}.md`;
+    const scenarioMeta = [
+      `- Scenario: ${translateOption(setup.scenarioType) || fallback}`,
+      `- Parent: ${setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}`,
+      `- Issue: ${translateOption(setup.callType) || fallback}`,
+      `- Call duration: ${resolvedCallDuration || fallback}`,
+      `- Parent language: ${translateOption(setup.parentLanguage) || fallback}`,
+    ];
+    const optionalSections = [];
+    if (coachingReport?.conversationTrajectory) {
+      optionalSections.push([
+        '## Conversation Trajectory',
+        `- Starting Parent State: ${conversationTrajectory.startingParentState || fallback}`,
+        `- Escalation Points: ${conversationTrajectory.escalationPoints || fallback}`,
+        `- Containment / Stabilization Attempts: ${conversationTrajectory.containmentAttempts || fallback}`,
+        `- Turning Point: ${conversationTrajectory.turningPoint || fallback}`,
+        `- Ending State: ${conversationTrajectory.endingState || fallback}`,
+        `- Overall Movement: ${conversationTrajectory.overallMovement || fallback}`,
+      ].join('\n'));
+    }
+    if (privateNotes || coachingReport?.privateAdministratorNotes) {
+      optionalSections.push(`## Private Administrator Notes\n${privateNotes || coachingReport?.privateAdministratorNotes || fallback}`);
+    }
+    if (prepUnknownsNotes) {
+      optionalSections.push(`## Questions / Unknowns to Clarify\n${prepUnknownsNotes || fallback}`);
+    }
+    const leadershipSection = frameworkAnalysis.length
+      ? frameworkAnalysis.map((item) => `### ${item.label}\n- Level: ${item.level || fallback}\n- Summary: ${item.summary || fallback}\n- Evidence: ${item.evidence || fallback}`).join('\n\n')
+      : fallback;
+    const parentPatternSection = parentPatterns.length
+      ? parentPatterns.map((item) => `- **${item.pattern || fallback}**\n  - Evidence: ${item.evidence || fallback}\n  - Leadership implication: ${item.implication || fallback}`).join('\n')
+      : fallback;
+    const transcriptSection = transcriptLines.length
+      ? transcriptLines.map((line) => `- [${safeTimeLabel(line.timestamp)}] (${line.role || 'unknown'}) ${line.text || fallback}`).join('\n')
+      : fallback;
+    const markdown = [
+      '# Human Equation Post-Call Report',
+      '',
+      '## Scenario metadata',
+      ...scenarioMeta,
+      '',
+      '## Executive Summary',
+      conciseExecutiveSummary || fallback,
+      '',
+      ...optionalSections.flatMap((section) => [section, '']),
+      '## Human Equation Leadership Analysis',
+      leadershipSection,
+      '',
+      '## Parent Pattern Analysis',
+      parentPatternSection,
+      '',
+      '## Moments to Revisit',
+      momentsToRevisit.length ? momentsToRevisit.map((item) => `- ${item || fallback}`).join('\n') : fallback,
+      '',
+      '## Stronger Alternative Phrasing',
+      strongerPhrasing.length ? strongerPhrasing.map((item) => `- ${item || fallback}`).join('\n') : fallback,
+      '',
+      '## Suggested Follow-Up Plan',
+      followUpPlan.length ? followUpPlan.map((item) => `- ${item || fallback}`).join('\n') : fallback,
+      '',
+      '## Full Transcript',
+      transcriptSection,
+      '',
+    ].join('\n');
+    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+  };
+
   const startNewCall = () => {
     setTranscriptLines([]);
     setCoachingReport(null);
@@ -1477,9 +1556,10 @@ export default function HumanEquationExperience() {
               )}
             </section>
             <div className={styles.reportActions}>
+              <button type="button" className={styles.cta} onClick={downloadFullReport}>{t('he.downloadFullReport')}</button>
               <button type="button" className={styles.secondaryAction} onClick={copyTranscript} disabled={transcriptLines.length === 0}>{t('he.copyTranscript')}</button>
               {previewFixtureId ? <button type="button" className={styles.secondaryAction} onClick={startNewCall}>Return to setup</button> : null}
-              <button className={styles.cta} onClick={startNewCall}>{t('he.startNewCall')}</button>
+              <button className={styles.secondaryAction} onClick={startNewCall}>{t('he.startNewCall')}</button>
             </div>
           </div>
         )}
