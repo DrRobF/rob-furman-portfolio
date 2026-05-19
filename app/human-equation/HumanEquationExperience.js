@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../components/LanguageProvider';
 import styles from './human-equation.module.css';
 import { briefings, callTimingBriefings, setupOptions } from './data/mockScenario';
+import { reportPreviewFixtures } from './data/reportPreviewFixtures';
 
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
@@ -344,6 +345,7 @@ export default function HumanEquationExperience() {
   });
   const [debugInfo, setDebugInfo] = useState({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [previewFixtureId, setPreviewFixtureId] = useState(null);
   const [realtimeEventCounts, setRealtimeEventCounts] = useState({});
   const [guidedScenario, setGuidedScenario] = useState(null);
   const [coachingReport, setCoachingReport] = useState(null);
@@ -773,17 +775,11 @@ export default function HumanEquationExperience() {
     }
   };
 
-  const endCall = () => {
-    const endedAt = Date.now();
-    const transcriptSnapshot = transcriptLines.map((line) => ({ role: line.role, text: line.text, timestamp: line.timestamp, eventType: line.eventType }));
-    const setupSnapshot = { ...setup };
-    const notesSnapshot = privateNotes;
-    const durationSnapshot = resolvedCallDuration;
 
+  const requestCoachingReport = ({ setupSnapshot, notesSnapshot, durationSnapshot, endedAt, transcriptSnapshot }) => {
     setCoachingStatus({ state: 'loading', source: 'pending', fallbackReason: null });
     setCoachingReport(null);
-    setCallEndedAt(Date.now());
-    teardownCall();
+    setCallEndedAt(endedAt);
     setStage('report');
 
     fetch('/api/human-equation/post-call-coaching', {
@@ -808,6 +804,61 @@ export default function HumanEquationExperience() {
       });
   };
 
+  const launchReportPreview = (fixture) => {
+    if (!fixture) return;
+    const endedAt = Date.now();
+    const fixtureSetup = {
+      ...setup,
+      scenarioType: asText(fixture?.metadata?.scenarioType, setup.scenarioType),
+      callType: asText(fixture?.metadata?.issueType, setup.callType),
+      callTiming: asText(fixture?.metadata?.callTiming, setup.callTiming),
+      role: asText(fixture?.metadata?.role, setup.role),
+      gradeBand: asText(fixture?.metadata?.gradeBand, setup.gradeBand),
+      parentLanguage: asText(fixture?.metadata?.parentLanguage, setup.parentLanguage),
+    };
+    const normalizedTranscript = Array.isArray(fixture?.transcript)
+      ? fixture.transcript.map((line, index) => ({
+        id: asText(line?.id, `preview-${fixture.id || 'fixture'}-${index}`),
+        role: asText(line?.role, 'unknown'),
+        text: asText(line?.text, ''),
+        timestamp: Number.isNaN(new Date(line?.timestamp).getTime()) ? endedAt : new Date(line.timestamp).getTime(),
+        eventType: asText(line?.eventType, 'preview-sample'),
+      })).filter((line) => line.text)
+      : [];
+
+    setPreviewFixtureId(asText(fixture?.id, null));
+    setSetup(fixtureSetup);
+    setPrivateNotes(asText(fixture?.privateNotes, ''));
+    setCallStartedAt(endedAt - 12 * 60 * 1000);
+    setTranscriptLines(normalizedTranscript);
+    teardownCall();
+
+    requestCoachingReport({
+      setupSnapshot: fixtureSetup,
+      notesSnapshot: asText(fixture?.privateNotes, ''),
+      durationSnapshot: '12:00',
+      endedAt,
+      transcriptSnapshot: normalizedTranscript,
+    });
+  };
+
+  const endCall = () => {
+    const endedAt = Date.now();
+    const transcriptSnapshot = transcriptLines.map((line) => ({ role: line.role, text: line.text, timestamp: line.timestamp, eventType: line.eventType }));
+    const setupSnapshot = { ...setup };
+    const notesSnapshot = privateNotes;
+    const durationSnapshot = resolvedCallDuration;
+
+    teardownCall();
+    requestCoachingReport({
+      setupSnapshot,
+      notesSnapshot,
+      durationSnapshot,
+      endedAt,
+      transcriptSnapshot,
+    });
+  };
+
   const copyTranscript = async () => {
     const transcriptText = transcriptLines.map((line) => `[${new Date(line.timestamp).toLocaleTimeString()}] (${line.role}) ${line.text}`).join('\n');
     try {
@@ -825,6 +876,7 @@ export default function HumanEquationExperience() {
     setCallStartedAt(null);
     setCallEndedAt(null);
     setCallStatus('Not connected');
+    setPreviewFixtureId(null);
     setEmotionalTemperature('Escalated');
     setStage('setup');
   };
@@ -1007,6 +1059,21 @@ export default function HumanEquationExperience() {
               <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
               </div>
             )}
+
+            <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
+              {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
+            </button>
+            {showDebugPanel && (
+              <div className={styles.debugPanel}>
+                <h3>Developer Debug Panel</h3>
+                <p><strong>Report Preview Mode:</strong> Load sample transcript data and open the same post-call report flow.</p>
+                {reportPreviewFixtures.map((fixture) => (
+                  <button key={fixture.id} type="button" className={styles.secondaryAction} onClick={() => launchReportPreview(fixture)}>
+                    Preview Sample Report: {fixture.label}
+                  </button>
+                ))}
+              </div>
+            )}
             <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
             <textarea className={styles.notes} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
@@ -1104,6 +1171,7 @@ export default function HumanEquationExperience() {
             <p><strong>Parent:</strong> {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
             <p><strong>Issue:</strong> {translateOption(setup.callType) || 'Unknown issue'}</p>
             <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
+            {previewFixtureId ? <p><strong>Preview sample:</strong> {previewFixtureId}</p> : null}
             <div className={styles.reportGrid}>
               {coachingStatus.state === 'loading' && <section><h3>Generating coaching report…</h3><p>Analyzing transcript and call context.</p></section>}
               {coachingStatus.state === 'ready' && !coachingReport && <section><h3>Coaching unavailable</h3><p>We could not generate a full report from transcript data. Limited report mode is active.</p></section>}
@@ -1145,6 +1213,7 @@ export default function HumanEquationExperience() {
             </section>
             <div className={styles.reportActions}>
               <button type="button" className={styles.secondaryAction} onClick={copyTranscript} disabled={transcriptLines.length === 0}>{t('he.copyTranscript')}</button>
+              {previewFixtureId ? <button type="button" className={styles.secondaryAction} onClick={startNewCall}>Return to setup</button> : null}
               <button className={styles.cta} onClick={startNewCall}>{t('he.startNewCall')}</button>
             </div>
           </div>
