@@ -89,6 +89,18 @@ const normalizePatternItems = (value) => (Array.isArray(value) ? value : []).map
   };
 });
 
+const normalizeConversationTrajectory = (value) => {
+  const raw = value && typeof value === 'object' ? value : {};
+  return {
+    startingParentState: asText(raw?.startingParentState, 'The parent began with visible concern and pressure signals.'),
+    escalationPoints: asText(raw?.escalationPoints, 'Escalation points were limited in the captured transcript sample.'),
+    containmentAttempts: asText(raw?.containmentAttempts, 'Containment attempts were present but not consistently explicit in language.'),
+    turningPoint: asText(raw?.turningPoint, 'A clear turning point was not fully established; movement appeared gradual.'),
+    endingState: asText(raw?.endingState, 'The conversation ended with partial alignment and open trust work.'),
+    overallMovement: asText(raw?.overallMovement, 'Overall movement was mixed, with some structure gains and unresolved concerns.'),
+  };
+};
+
 const TRANSCRIPT_EVENT_TYPES = new Set([
   'conversation.item.input_audio_transcription.completed',
   'conversation.item.created',
@@ -1136,6 +1148,7 @@ export default function HumanEquationExperience() {
   const followUpPlan = toSafeList(coachingReport?.suggestedFollowUpPlan);
   const strongerPhrasing = toSafeList(coachingReport?.strongerAlternativePhrasing);
   const momentsToRevisit = toSafeList(coachingReport?.momentsToRevisit);
+  const conversationTrajectory = normalizeConversationTrajectory(coachingReport?.conversationTrajectory);
 
   return (
     <section className={styles.shell}>
@@ -1346,6 +1359,17 @@ export default function HumanEquationExperience() {
               {coachingReport && (
                 <>
                   <section className={`${styles.reportSection} ${styles.executiveSummarySection}`}><h3>Executive Summary</h3><p>{conciseExecutiveSummary}</p></section>
+                  <section className={styles.reportSection}>
+                    <h3>Conversation Trajectory</h3>
+                    <ul>
+                      <li><strong>Starting Parent State:</strong> {conversationTrajectory.startingParentState}</li>
+                      <li><strong>Escalation Points:</strong> {conversationTrajectory.escalationPoints}</li>
+                      <li><strong>Containment / Stabilization Attempts:</strong> {conversationTrajectory.containmentAttempts}</li>
+                      <li><strong>Turning Point:</strong> {conversationTrajectory.turningPoint}</li>
+                      <li><strong>Ending State:</strong> {conversationTrajectory.endingState}</li>
+                      <li><strong>Overall Movement:</strong> {conversationTrajectory.overallMovement}</li>
+                    </ul>
+                  </section>
                   <section className={styles.reportSection}>
                     <h3>Human Equation Leadership Analysis</h3>
                     <div className={styles.analysisGrid}>
