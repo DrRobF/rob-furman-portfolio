@@ -1246,8 +1246,30 @@ export default function HumanEquationExperience() {
               {coachingReport && (
                 <>
                   <section className={`${styles.reportSection} ${styles.executiveSummarySection}`}><h3>Executive Summary</h3><p>{conciseExecutiveSummary}</p></section>
-                  <section className={styles.reportSection}><h3>Leadership Dashboard</h3><div className={styles.dashboardGrid}>{frameworkAnalysis.map((item, idx) => { const insight = shortInsight(item.summary); return <article key={`dash-${item.label}-${idx}`} className={styles.dashboardCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div><p className={styles.compactNote}>{insight || 'Insight unavailable'}</p></article>; })}</div></section>
-                  <section className={styles.reportSection}><h3>Human Equation Leadership Analysis</h3><div className={styles.analysisGrid}>{frameworkAnalysis.map((item, idx) => <article key={`analysis-${item.label}-${idx}`} className={styles.analysisCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div><div className={styles.analysisBody}>{coachingAnalysisSentences(item.evidence).map((sentence, sentenceIdx) => <p key={`analysis-sentence-${idx}-${sentenceIdx}`}>{sentence}</p>)}</div><p className={styles.analysisEvidence}><strong>Transcript evidence:</strong> {shortInsight(item.summary) || 'Not captured in this sample.'}</p></article>)}</div></section>
+                  <section className={styles.reportSection}>
+                    <h3>Human Equation Leadership Analysis</h3>
+                    <div className={styles.analysisGrid}>
+                      {frameworkAnalysis.map((item, idx) => {
+                        const snapshot = shortInsight(item.summary) || 'Limited evidence in this call.';
+                        const evidenceText = item.summary ? shortInsight(item.summary) : 'Limited evidence in this call.';
+                        const coachingInsight = coachingAnalysisSentences(item.evidence);
+                        return (
+                          <article key={`analysis-${item.label}-${idx}`} className={styles.analysisCard}>
+                            <div className={styles.cardTop}>
+                              <h4>{item.label}</h4>
+                              <span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span>
+                            </div>
+                            <p className={styles.analysisSnapshot}><strong>Snapshot:</strong> {snapshot}</p>
+                            <div className={styles.analysisBody}>
+                              <p><strong>Coaching Insight:</strong></p>
+                              {coachingInsight.map((sentence, sentenceIdx) => <p key={`analysis-sentence-${idx}-${sentenceIdx}`}>{sentence}</p>)}
+                            </div>
+                            <p className={styles.analysisEvidence}><strong>Transcript Evidence:</strong> {evidenceText}</p>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </section>
                   <div className={styles.lowerGrid}>
                     <section className={styles.reportSection}><h3>Parent Pattern Analysis</h3>{parentPatterns.length === 0 ? <p className={styles.emptyMessage}>Limited parent pattern evidence available for this sample.</p> : <div className={styles.patternGrid}>{parentPatterns.map((item, idx) => <article key={`parent-pattern-${idx}-${item.pattern}`} className={styles.patternCard}><h4>{item.pattern}</h4><ul className={styles.patternList}><li><strong>Evidence:</strong> {item.evidence}</li><li><strong>Leadership implication:</strong> {item.implication}</li></ul></article>)}</div>}</section>
                     <section className={styles.reportSection}><h3>Moments to Revisit</h3><ul>{momentsToRevisit.map((item, idx) => <li key={`revisit-${idx}-${item}`}>{item}</li>)}</ul></section>
