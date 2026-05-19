@@ -118,7 +118,6 @@ Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (a
 Levels allowed: Strong, Developing, Watch.
 If evidence is thin, still return all 8 dimensions with concise fallback evidence language.
 Write all visible report text in ${reportLanguageInstruction}. Parent language controls the simulated parent speech only and must not force this report language.
-  const prompt = `Generate a Human Equation post-call coaching report JSON organized around the Human Equation Leadership Framework. Canonical order: Trust Construction, Human Awareness, Reality Anchoring, Regulation Under Pressure, Accountability Balance, Vision & Change Leadership, Instructional & Academic Leadership, Team & Systems Leadership. Philosophy: ${coachingConstitution} Use transcript evidence whenever available and practical coaching language. Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (array of {label, level, evidence} in canonical order), parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. If evidence is thin, still return all 8 dimensions with concise fallback evidence language. Write all visible report text in ${reportLanguageInstruction}. Parent language controls the simulated parent speech only and must not force this report language.
 
 Input:
 ${JSON.stringify(payload).slice(0, 18000)}`;
