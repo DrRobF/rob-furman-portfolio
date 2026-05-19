@@ -389,6 +389,7 @@ export default function HumanEquationExperience() {
   const [callStartedAt, setCallStartedAt] = useState(null);
   const [now, setNow] = useState(Date.now());
   const [privateNotes, setPrivateNotes] = useState('');
+  const [prepUnknownsNotes, setPrepUnknownsNotes] = useState('');
   const [callStatus, setCallStatus] = useState('Not connected');
   const [emotionalTemperature, setEmotionalTemperature] = useState('Escalated');
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -942,7 +943,7 @@ export default function HumanEquationExperience() {
   };
 
 
-  const requestCoachingReport = ({ setupSnapshot, notesSnapshot, durationSnapshot, endedAt, transcriptSnapshot }) => {
+  const requestCoachingReport = ({ setupSnapshot, notesSnapshot, prepUnknownsSnapshot, durationSnapshot, endedAt, transcriptSnapshot }) => {
     setCoachingStatus({ state: 'loading', source: 'pending', fallbackReason: null });
     setCoachingReport(null);
     setCallEndedAt(endedAt);
@@ -954,6 +955,7 @@ export default function HumanEquationExperience() {
       body: JSON.stringify({
         setup: setupSnapshot,
         privateNotes: notesSnapshot,
+        prepUnknownsNotes: prepUnknownsSnapshot,
         callDuration: durationSnapshot,
         callEndedAt: endedAt,
         transcriptLines: transcriptSnapshot,
@@ -995,6 +997,7 @@ export default function HumanEquationExperience() {
     setPreviewFixtureId(asText(fixture?.id, null));
     setSetup(fixtureSetup);
     setPrivateNotes(asText(fixture?.privateNotes, ''));
+    setPrepUnknownsNotes(asText(fixture?.prepUnknownsNotes, ''));
     setCallStartedAt(endedAt - 12 * 60 * 1000);
     setTranscriptLines(normalizedTranscript);
     teardownCall();
@@ -1002,6 +1005,7 @@ export default function HumanEquationExperience() {
     requestCoachingReport({
       setupSnapshot: fixtureSetup,
       notesSnapshot: asText(fixture?.privateNotes, ''),
+      prepUnknownsSnapshot: asText(fixture?.prepUnknownsNotes, ''),
       durationSnapshot: '12:00',
       endedAt,
       transcriptSnapshot: normalizedTranscript,
@@ -1011,14 +1015,16 @@ export default function HumanEquationExperience() {
   const endCall = () => {
     const endedAt = Date.now();
     const transcriptSnapshot = transcriptLines.map((line) => ({ role: line.role, text: line.text, timestamp: line.timestamp, eventType: line.eventType }));
-    const setupSnapshot = { ...setup };
+    const setupSnapshot = { ...setup, prepUnknownsNotes };
     const notesSnapshot = privateNotes;
+    const prepUnknownsSnapshot = prepUnknownsNotes;
     const durationSnapshot = resolvedCallDuration;
 
     teardownCall();
     requestCoachingReport({
       setupSnapshot,
       notesSnapshot,
+      prepUnknownsSnapshot,
       durationSnapshot,
       endedAt,
       transcriptSnapshot,
@@ -1039,6 +1045,7 @@ export default function HumanEquationExperience() {
     setCoachingReport(null);
     setCoachingStatus({ state: 'idle', source: 'none', fallbackReason: null });
     setPrivateNotes('');
+    setPrepUnknownsNotes('');
     setCallStartedAt(null);
     setCallEndedAt(null);
     setCallStatus('Not connected');
@@ -1216,13 +1223,8 @@ export default function HumanEquationExperience() {
                         <p>{t('he.previewBriefingNote')}</p>
                         <ul className={styles.lockedList}>
                           <li><strong>{t('he.knownFacts')}:</strong> {t('he.lockedAfterBriefing')}</li>
-                          <li><strong>{t('he.stillUnclear')}:</strong> {t('he.lockedAfterBriefing')}</li>
                           <li><strong>{t('he.parentConcernFear')}:</strong> {t('he.lockedAfterBriefing')}</li>
                         </ul>
-                        <p className={styles.pressureLine}>{t('he.parentEmotionalPosturePending')}</p>
-                        <p className={styles.subtle}>{t('he.pressureLineOne')}</p>
-                        <p className={styles.subtle}>{t('he.pressureLineTwo')}</p>
-                        <p className={styles.subtle}>{t('he.pressureLineThree')}</p>
                       </div>
                     ) : (
                       <div className={styles.briefingCard}>
@@ -1235,7 +1237,6 @@ export default function HumanEquationExperience() {
                         <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {translateOption(setup.parentLanguage)}</p>
                         <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
                         <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
-                        <p><strong>{t('he.whatUnknown')}:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
                         <p><strong>{t('he.parentConcernFear')}:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
                         <p><strong>{t('he.knownFacts')}</strong></p>
                         <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
@@ -1243,8 +1244,14 @@ export default function HumanEquationExperience() {
                         <ul>{(activeBriefing?.staffReport ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
                         <p><strong>{t('he.studentStatements')}</strong></p>
                         <ul>{(activeBriefing?.studentStatements ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
-                        <p><strong>{t('he.stillUnclear')}</strong></p>
-                        <ul>{(activeBriefing?.unknownFacts ?? briefings.full.unclear).map((item) => <li key={item}>{item}</li>)}</ul>
+                        <p><strong>{t('he.questionsUnknownsToClarify')}</strong></p>
+                        <p className={styles.subtle}>{t('he.questionsUnknownsHelper')}</p>
+                        <textarea
+                          className={`${styles.notes} ${styles.setupNotes}`}
+                          placeholder={t('he.questionsUnknownsPlaceholder')}
+                          value={prepUnknownsNotes}
+                          onChange={(e) => setPrepUnknownsNotes(e.target.value)}
+                        />
                         <p><strong>{t('he.priorActions')}:</strong> {isDetailedBriefing ? (activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.') : (activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.')}</p>
                         <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
                         <button className={styles.cta} onClick={nextStage}>{t('he.startCall')}</button>
@@ -1348,6 +1355,12 @@ export default function HumanEquationExperience() {
             <div className={`${styles.waveform} ${isSpeaking ? styles.waveformActive : ''}`} aria-hidden />
             <label className={styles.notesLabel}>{t('he.privateNotesNotShared')}</label>
             <textarea className={styles.notes} placeholder="Capture key facts, commitments, and follow-up actions..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
+            {prepUnknownsNotes ? (
+              <>
+                <label className={styles.notesLabel}>{t('he.questionsUnknownsToClarify')}</label>
+                <textarea className={styles.notes} value={prepUnknownsNotes} onChange={(e) => setPrepUnknownsNotes(e.target.value)} />
+              </>
+            ) : null}
             <button className={styles.endCall} onClick={endCall}>{t('he.endCall')}</button>
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
               {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
@@ -1443,6 +1456,12 @@ export default function HumanEquationExperience() {
             <section className={styles.transcriptBlock}>
               <h3>Private notes</h3>
               <p>{privateNotes || 'No private notes captured for this call.'}</p>
+              {prepUnknownsNotes ? (
+                <>
+                  <h3>{t('he.questionsUnknownsToClarify')}</h3>
+                  <p>{prepUnknownsNotes}</p>
+                </>
+              ) : null}
             </section>
             <section className={styles.transcriptBlock}>
               <h3>Transcript</h3>
