@@ -121,12 +121,12 @@ const scenarioTypeProfiles = {
       'Initial parent communication occurred, but timing/content is being scrutinized.',
     ],
     staffReport: [
-      'A staff member reports escalating verbal exchanges before the incident.',
-      'Supervising staff documented intervention timing and post-incident supervision actions.',
+      "Teacher note: 'They were already arguing when I walked over. I separated them before it got physical.'",
+      "Campus aide note: 'I got there after it started. I can confirm they were apart by the time admin arrived.'",
     ],
     studentStatements: [
-      'One student says they felt threatened and reacted defensively.',
-      'Another student says they felt singled out publicly before the escalation.',
+      "Student A: 'I thought he was about to hit me, so I pushed him away.'",
+      "Student B: 'He kept calling me out in front of everybody, and then it just went left.'",
     ],
     unknownFacts: [
       'Whether the parent believes consequences were equitable across students.',
@@ -153,12 +153,12 @@ const scenarioTypeProfiles = {
       'The student has identified at least one class task or expectation as a stress point.',
     ],
     staffReport: [
-      'Teacher reports incomplete or late work trends despite reminders and support opportunities.',
-      'Course team notes indicate the student may need clearer scaffolds or check-ins on major assignments.',
+      "Teacher note: 'Missing work has piled up. I sent reminders, but I'm not sure those messages made it home.'",
+      "Counselor note: 'Student shuts down on long assignments; timeline of when that started is still fuzzy.'",
     ],
     studentStatements: [
-      'The student says assignment expectations feel unclear in at least one class.',
-      'The student reports feeling overwhelmed and unsure how to recover academically.',
+      "Student: 'I don't always get what the teacher wants, then I'm already behind.'",
+      "Student: 'I keep trying to catch up, but every week it gets worse.'",
     ],
     unknownFacts: [
       'Whether concerns center more on rigor, clarity, or perceived teacher responsiveness.',
@@ -185,12 +185,12 @@ const scenarioTypeProfiles = {
       'Previous reminders or outreach have occurred with mixed follow-through.',
     ],
     staffReport: [
-      'Attendance office logs show recurring absence/tardy patterns across multiple weeks.',
-      'School staff report that class re-entry after absences has been inconsistent without a stable catch-up routine.',
+      "Attendance clerk note: 'It's been off-and-on for weeks, but some days they arrive and leave early without advance notice.'",
+      "Teacher note: 'When they come back, they sit quiet and avoid work. We still don't have a consistent re-entry plan.'",
     ],
     studentStatements: [
-      'The student says morning transitions are difficult and sometimes lead to missed arrival.',
-      'The student reports feeling behind after absences, which can make returning harder.',
+      "Student: 'Mornings are chaos at home. Sometimes I miss the bus and just give up.'",
+      "Student: 'After I miss one day, I feel lost, so coming back feels embarrassing.'",
     ],
     unknownFacts: [
       'Whether barriers are primarily logistical, health-related, or school climate-related.',
@@ -217,12 +217,12 @@ const scenarioTypeProfiles = {
       'Administrator review has started, but full context may still be developing.',
     ],
     staffReport: [
-      'The teacher reports the interaction as a redirection moment tied to classroom expectations.',
-      'Administrator notes indicate witness/context review is underway before conclusions are finalized.',
+      "Teacher note: 'I redirected the student for talking over others. I did not intend to embarrass them.'",
+      "Assistant principal note: 'We have two witness accounts and they do not fully match yet.'",
     ],
     studentStatements: [
-      'The student says the teacher’s tone felt dismissive in front of peers.',
-      'The student says they no longer feel comfortable speaking up in that class.',
+      "Student: 'She talked to me like I was the problem in front of everyone.'",
+      "Student: 'I'm not saying anything in that class now. It's not worth it.'",
     ],
     unknownFacts: [
       'Whether this reflects an isolated moment or a pattern of classroom concerns.',
@@ -1218,7 +1218,6 @@ export default function HumanEquationExperience() {
                           <li><strong>{t('he.knownFacts')}:</strong> {t('he.lockedAfterBriefing')}</li>
                           <li><strong>{t('he.stillUnclear')}:</strong> {t('he.lockedAfterBriefing')}</li>
                           <li><strong>{t('he.parentConcernFear')}:</strong> {t('he.lockedAfterBriefing')}</li>
-                          <li><strong>{t('he.leadershipChallenge')}:</strong> {t('he.lockedAfterBriefing')}</li>
                         </ul>
                         <p className={styles.pressureLine}>{t('he.parentEmotionalPosturePending')}</p>
                         <p className={styles.subtle}>{t('he.pressureLineOne')}</p>
@@ -1238,9 +1237,6 @@ export default function HumanEquationExperience() {
                         <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
                         <p><strong>{t('he.whatUnknown')}:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
                         <p><strong>{t('he.parentConcernFear')}:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
-                        <p><strong>{t('he.primaryGoal')}:</strong> {activeBriefing?.primaryGoal ?? selectedTimingBriefing.goal}</p>
-                        <p><strong>{t('he.contextFocus')}:</strong></p>
-                        <ul>{(activeBriefing?.contextFocus ?? selectedTimingBriefing.focus).map((item) => <li key={item}>{item}</li>)}</ul>
                         <p><strong>{t('he.knownFacts')}</strong></p>
                         <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
                         <p><strong>{t('he.staffReport')}</strong></p>
@@ -1249,9 +1245,7 @@ export default function HumanEquationExperience() {
                         <ul>{(activeBriefing?.studentStatements ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
                         <p><strong>{t('he.stillUnclear')}</strong></p>
                         <ul>{(activeBriefing?.unknownFacts ?? briefings.full.unclear).map((item) => <li key={item}>{item}</li>)}</ul>
-                        <p><strong>{t('he.leadershipChallenge')}:</strong> {activeBriefing?.leadershipChallenge}</p>
                         <p><strong>{t('he.priorActions')}:</strong> {isDetailedBriefing ? (activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.') : (activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.')}</p>
-                        <p><strong>{t('he.suggestedMindset')}:</strong> {activeBriefing?.suggestedMindset ?? 'Stay calm, listen for the underlying fear, and balance empathy with process clarity.'}</p>
                         <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
                         <button className={styles.cta} onClick={nextStage}>{t('he.startCall')}</button>
                       </div>
