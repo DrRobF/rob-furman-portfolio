@@ -5,21 +5,14 @@ const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const normText = (value, fallback = '') => (typeof value === 'string' ? value.trim() : fallback);
 const arr = (value) => (Array.isArray(value) ? value : []);
 
-const inferLevel = (transcriptText, type) => {
-  const checks = {
-    emotionalRegulation: /(let's slow|take a breath|i want to be direct|calm|steady|one step at a time)/i,
-    clarityOfNextSteps: /(next step|by (today|tomorrow|end of day)|i will (call|email)|timeline|follow up)/i,
-    accountabilityFraming: /(accountability|responsibility|expectation|obligation|cannot|we will not)/i,
-    empathyAcknowledgment: /(i hear you|i understand|that sounds|i can hear|i know this is hard)/i,
-    boundarySetting: /(need to be clear|cannot|won't|we will not|boundary|not appropriate)/i,
-    followThroughRisk: /(not sure|maybe|we'll see|i hope|try to)/i,
-  };
-  if (type === 'followThroughRisk') {
-    if (checks.followThroughRisk.test(transcriptText) && !checks.clarityOfNextSteps.test(transcriptText)) return 'Watch';
-    if (checks.clarityOfNextSteps.test(transcriptText)) return 'Developing';
-    return 'Watch';
-  }
-  if (checks[type].test(transcriptText)) return 'Strong';
+const inferFrameworkLevel = (transcriptText, strengths = [], risks = [], supports = []) => {
+  const hasStrength = strengths.some((pattern) => pattern.test(transcriptText));
+  const hasRisk = risks.some((pattern) => pattern.test(transcriptText));
+  const hasSupport = supports.some((pattern) => pattern.test(transcriptText));
+
+  if (hasRisk && !hasStrength) return 'Watch';
+  if (hasStrength && !hasRisk) return 'Strong';
+  if (hasStrength || hasSupport) return 'Developing';
   return 'Developing';
 };
 
@@ -30,13 +23,15 @@ function buildFallbackReport(payload = {}) {
   const userLines = transcriptLines.filter((line) => line.role === 'user');
   const parentLines = transcriptLines.filter((line) => line.role === 'parent');
 
-  const leadershipSnapshot = [
-    { label: 'Emotional Regulation', level: inferLevel(transcriptText, 'emotionalRegulation'), evidence: userLines[0]?.text ? `Leader opened with: "${userLines[0].text.slice(0, 120)}"` : 'Limited transcript evidence; maintain calm pacing and explicit emotional resets.' },
-    { label: 'Clarity of Next Steps', level: inferLevel(transcriptText, 'clarityOfNextSteps'), evidence: /(next|follow|timeline|by tomorrow|email|call)/i.test(transcriptText) ? 'Leader referenced follow-up or timeline language during the call.' : 'No explicit next-step cadence detected; risk of ambiguity after call.' },
-    { label: 'Accountability Framing', level: inferLevel(transcriptText, 'accountabilityFraming'), evidence: /(accountability|responsibility|obligation|expectation|consequence)/i.test(transcriptText) ? 'Leader used accountability framing rather than reassurance-only language.' : 'Accountability language was limited in captured transcript.' },
-    { label: 'Empathy / Acknowledgment', level: inferLevel(transcriptText, 'empathyAcknowledgment'), evidence: /(i hear|i understand|hard|stress)/i.test(transcriptText) ? 'Leader acknowledged parent concern while continuing operational discussion.' : 'Empathy phrase usage is limited in transcript excerpts.' },
-    { label: 'Boundary Setting', level: inferLevel(transcriptText, 'boundarySetting'), evidence: /(cannot|need to be clear|not appropriate|we will not)/i.test(transcriptText) ? 'Leader set boundaries on what can be promised or concluded immediately.' : 'Boundary language not strongly visible in captured lines.' },
-    { label: 'Follow-Through Risk', level: inferLevel(transcriptText, 'followThroughRisk'), evidence: /(timeline|by|update|follow up|recap)/i.test(transcriptText) ? 'Some follow-through structures are present; ensure documentation closes the loop.' : 'Low explicit closure language raises follow-through risk.' },
+  const humanEquationLeadershipAnalysis = [
+    { label: 'Trust Construction', level: inferFrameworkLevel(transcriptText, [/(written update|documented next steps|by tomorrow|follow up|fair process)/i], [/(we\'ll see|not sure|maybe)/i], [/(i hear|i understand)/i]), evidence: /(written update|documented next steps|by tomorrow|follow up|fair process)/i.test(transcriptText) ? 'Credibility was reinforced through timeline language and explicit follow-through commitments.' : 'Trust signals are present but mostly implied; add explicit fairness and follow-through checkpoints.' },
+    { label: 'Human Awareness', level: inferFrameworkLevel(transcriptText, [/(i hear|i understand|urgent|felt humiliated|hardest part)/i], [/(calm down|you are overreacting)/i], [/(concern|impact)/i]), evidence: /(i hear|i understand|urgent|hardest part|impact)/i.test(transcriptText) ? 'Leader named emotion and pressure cues without losing direction.' : 'Limited direct naming of emotional cues; risk of the parent feeling unheard even when process is clear.' },
+    { label: 'Reality Anchoring', level: inferFrameworkLevel(transcriptText, [/(confirmed|verify|review|timeline|by tomorrow|facts|gradebook)/i], [/(always|never|everyone knows)/i], [/(next step|update)/i]), evidence: /(confirmed|verify|review|timeline|by tomorrow|facts|gradebook)/i.test(transcriptText) ? 'Leader separated confirmed facts from pending review and provided a verification path.' : 'Facts and assumptions were not clearly separated; add explicit what-we-know vs what-we-still-need-to-check framing.' },
+    { label: 'Regulation Under Pressure', level: inferFrameworkLevel(transcriptText, [/(i want to be direct|understood|let me|one step at a time)/i], [/(this is not my problem|enough)/i], [/(cannot guarantee outcomes yet|can guarantee follow-through)/i]), evidence: userLines[0]?.text ? `Leadership tone opened with: "${userLines[0].text.slice(0, 120)}"` : 'Transcript is limited; maintain calm structure and avoid emotional contagion under pressure.' },
+    { label: 'Accountability Balance', level: inferFrameworkLevel(transcriptText, [/(need daily attendance|obligation|responsibility|cannot make immediate|expectation)/i], [/(whatever you want|no consequences|it\'s all your fault)/i], [/(support plan|pair expectation with options)/i]), evidence: /(need daily attendance|obligation|responsibility|cannot make immediate|expectation)/i.test(transcriptText) ? 'Leader held standards while still offering support options.' : 'Standards were not consistently explicit; strengthen accountability language without becoming punitive.' },
+    { label: 'Vision & Change Leadership', level: inferFrameworkLevel(transcriptText, [/(improvement|support plan|restore trust|next checkpoint|growth)/i], [/(nothing will change|this is pointless)/i], [/(plan|finalize supports)/i]), evidence: /(support plan|restore trust|next checkpoint|finalize supports)/i.test(transcriptText) ? 'Conversation moved beyond immediate conflict toward improvement and relationship repair.' : 'Future-facing leadership is light; add explicit improvement targets and culture expectations.' },
+    { label: 'Instructional & Academic Leadership', level: inferFrameworkLevel(transcriptText, [/(catch-up plan|assignments|gradebook|student support|counselor)/i], [/(ignore academics|not about learning)/i], [/(teacher|class|submission)/i]), evidence: /(catch-up plan|assignments|gradebook|student support|counselor)/i.test(transcriptText) ? 'Leader connected response steps to student learning and support structures.' : 'Academic impact was referenced minimally; define instructional supports and monitoring more clearly.' },
+    { label: 'Team & Systems Leadership', level: inferFrameworkLevel(transcriptText, [/(meeting with counselor|teacher notes|documented|written update|owner)/i], [/(no one knows|nobody follows up)/i], [/(conference|update)/i]), evidence: /(meeting with counselor|teacher notes|documented|written update)/i.test(transcriptText) ? 'Cross-team coordination and documentation were visible in commitments.' : 'System coordination is implied but thin; assign owners, communication cadence, and documentation steps.' },
   ];
 
   return {
@@ -49,25 +44,13 @@ function buildFallbackReport(payload = {}) {
       'The leader stance was generally firm and process-oriented, with emphasis on accountability and controllable next steps.',
       transcriptLines.length ? 'Outcome: conversation moved toward structure, but at least one thread appears unresolved and needs documented follow-up.' : 'Outcome is partially unresolved because transcript evidence was limited.',
     ].join(' '),
-    leadershipSnapshot,
-    keyLeadershipMoves: [
-      'Redirected emotional pressure toward process and concrete actions.',
-      'Maintained accountability framing instead of offering guarantees.',
-      'Balanced concern acknowledgment with institutional boundary language.',
-      'Worked toward defining follow-up ownership and timing.',
-    ],
-    strategicTradeoffs: [
-      'This response may have increased defensiveness, but it also clarified accountability.',
-      'This was firm rather than soothing; that can be appropriate when the goal is to establish seriousness.',
-      'The risk is that the parent may hear it as blame unless it is paired with support and a clear help path.',
-      'Holding boundaries likely protected process integrity, but relational trust depends on fast, visible follow-through.',
-    ],
+    humanEquationLeadershipAnalysis,
     parentPatternAnalysis: [
-      /(just want to make sure|are you sure|promise me|guarantee)/i.test(transcriptText) ? 'Reassurance seeking' : 'Fear of child being unsupported',
-      /(again|like i said|i already told you|same thing)/i.test(transcriptText) ? 'Looping' : 'Procedural pressure',
-      /(policy|procedure|district|formal complaint)/i.test(transcriptText) ? 'Procedural pressure' : 'Emotional reframing',
-      /(your fault|school failed|teacher failed|blame)/i.test(transcriptText) ? 'Blame shifting' : 'Pressure for guarantees',
-      /(board|superintendent|media|lawyer)/i.test(transcriptText) ? 'Escalation threat' : 'Distrust of school',
+      /(just want to make sure|are you sure|promise me|guarantee)/i.test(transcriptText) ? 'Reassurance seeking' : 'Pressure for guarantees',
+      /(again|like i said|i already told you|same thing)/i.test(transcriptText) ? 'Escalation through repetition' : 'Looping',
+      /(policy|procedure|district|formal complaint)/i.test(transcriptText) ? 'Procedural pressure' : 'Distrust of school systems',
+      /(your fault|school failed|teacher failed|blame)/i.test(transcriptText) ? 'Blame shifting' : 'Identity protection',
+      /(left out|excluded|nobody told me|without me)/i.test(transcriptText) ? 'Fear of exclusion' : 'Status threat',
     ],
     momentsToRevisit: [
       'Revisit any point where firmness may have sounded final before process completion was explained.',
@@ -97,7 +80,10 @@ export async function POST(request) {
   const fallback = buildFallbackReport(payload);
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'missing-api-key' });
   const reportLanguageInstruction = payload.interfaceLanguage === 'es' ? 'Spanish' : 'English';
-  const prompt = `Generate a Human Equation post-call coaching report JSON. Philosophy: tension is not automatically bad; evaluate strategic tradeoffs between firmness, accountability, support, and trust. Use transcript evidence whenever available. Return JSON only with keys: executiveSummary, leadershipSnapshot (array of {label, level, evidence}), keyLeadershipMoves, strategicTradeoffs, parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. Write all visible report text in ${reportLanguageInstruction}. Parent language controls the simulated parent speech only and must not force this report language.\n\nInput:\n${JSON.stringify(payload).slice(0, 18000)}`;
+  const prompt = `Generate a Human Equation post-call coaching report JSON organized around the Human Equation Leadership Framework. Canonical order: Trust Construction, Human Awareness, Reality Anchoring, Regulation Under Pressure, Accountability Balance, Vision & Change Leadership, Instructional & Academic Leadership, Team & Systems Leadership. Philosophy: evaluate leadership under human pressure; tension and firmness are not automatically negative, soothing language is not automatically positive. Focus on strategic leadership behavior, not generic niceness. Use transcript evidence whenever available and practical coaching language. Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (array of {label, level, evidence} in canonical order), parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. If evidence is thin, still return all 8 dimensions with concise fallback evidence language. Write all visible report text in ${reportLanguageInstruction}. Parent language controls the simulated parent speech only and must not force this report language.
+
+Input:
+${JSON.stringify(payload).slice(0, 18000)}`;
   try {
     const response = await fetch(OPENAI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, body: JSON.stringify({ model: MODEL, temperature: 0.2, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Return only JSON.' }, { role: 'user', content: prompt }] }) });
     if (!response.ok) throw new Error(`OpenAI request failed: ${response.status}`);
