@@ -1222,23 +1222,25 @@ export default function HumanEquationExperience() {
             <p><strong>Issue:</strong> {translateOption(setup.callType) || 'Unknown issue'}</p>
             <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
             {previewFixtureId ? <p><strong>Preview sample:</strong> {previewFixtureId}</p> : null}
-            <div className={styles.reportGrid}>
+            <div className={styles.reportMeta}>
               {coachingStatus.state === 'loading' && <section><h3>Generating coaching report…</h3><p>Analyzing transcript and call context.</p></section>}
               {coachingStatus.state === 'ready' && !coachingReport && <section><h3>Coaching unavailable</h3><p>We could not generate a full report from transcript data. Limited report mode is active.</p></section>}
               {coachingReport && (
                 <>
                   <section className={styles.reportSection}><h3>Executive Summary</h3><p>{conciseExecutiveSummary}</p></section>
-                  <section className={styles.reportSection}><h3>Leadership Dashboard</h3><div className={styles.dashboardGrid}>{frameworkAnalysis.map((item) => <article key={`dash-${item.label}`} className={styles.dashboardCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div><p>{item.summary}</p></article>)}</div></section>
-                  <section className={styles.reportSection}><h3>Human Equation Leadership Analysis</h3><div className={styles.analysisGrid}>{frameworkAnalysis.map((item) => <article key={`analysis-${item.label}`} className={styles.analysisCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div><p>{item.evidence}</p></article>)}</div></section>
-                  <section className={styles.reportSection}><h3>Parent Pattern Analysis</h3><div className={styles.patternGrid}>{parentPatterns.map((item, idx) => <article key={`parent-pattern-${idx}-${item.pattern}`} className={styles.patternCard}><h4>{item.pattern}</h4><p><strong>Evidence:</strong> {item.evidence}</p><p><strong>Leadership implication:</strong> {item.implication}</p></article>)}</div></section>
-                  <section className={styles.reportSection}><h3>Moments to Revisit</h3><ul>{toSafeList(coachingReport.momentsToRevisit).map((item, idx) => <li key={`revisit-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section className={styles.reportSection}><h3>Stronger Alternative Phrasing</h3><ul>{toSafeList(coachingReport.strongerAlternativePhrasing).map((item, idx) => <li key={`phrasing-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section className={styles.reportSection}><h3>Suggested Follow-Up Plan</h3><ul className={styles.checklist}>{toSafeList(coachingReport.suggestedFollowUpPlan).map((item, idx) => <li key={`followup-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section className={styles.reportSection}><h3>Leadership Dashboard</h3><div className={styles.dashboardGrid}>{frameworkAnalysis.map((item, idx) => <article key={`dash-${item.label}-${idx}`} className={styles.dashboardCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div>{item.summary ? <p className={styles.compactNote}>{String(item.summary).split(/(?<=[.!?])\s+/)[0].slice(0, 140)}</p> : null}</article>)}</div></section>
+                  <section className={styles.reportSection}><h3>Human Equation Leadership Analysis</h3><div className={styles.analysisGrid}>{frameworkAnalysis.map((item, idx) => <article key={`analysis-${item.label}-${idx}`} className={styles.analysisCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div><p>{item.evidence || item.summary || 'No detailed coaching insight available for this dimension yet.'}</p></article>)}</div></section>
+                  <div className={styles.lowerGrid}>
+                    <section className={styles.reportSection}><h3>Parent Pattern Analysis</h3><div className={styles.patternGrid}>{parentPatterns.map((item, idx) => <article key={`parent-pattern-${idx}-${item.pattern}`} className={styles.patternCard}><h4>{item.pattern}</h4><ul className={styles.patternList}><li><strong>Evidence:</strong> {item.evidence}</li><li><strong>Leadership implication:</strong> {item.implication}</li></ul></article>)}</div></section>
+                    <section className={styles.reportSection}><h3>Moments to Revisit</h3><ul>{toSafeList(coachingReport.momentsToRevisit).map((item, idx) => <li key={`revisit-${idx}-${item}`}>{item}</li>)}</ul></section>
+                    <section className={styles.reportSection}><h3>Stronger Alternative Phrasing</h3><ul>{toSafeList(coachingReport.strongerAlternativePhrasing).map((item, idx) => <li key={`phrasing-${idx}-${item}`}>{item}</li>)}</ul></section>
+                    <section className={styles.reportSection}><h3>Suggested Follow-Up Plan</h3><ul className={styles.checklist}>{toSafeList(coachingReport.suggestedFollowUpPlan).map((item, idx) => <li key={`followup-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  </div>
                   {coachingReport.languageNote ? <section className={styles.reportSection}><h3>Language note</h3><p>{coachingReport.languageNote}</p></section> : null}
                 </>
               )}
             </div>
-            <section className={styles.transcriptBlock}>
+            <section className={styles.debugBlock}>
               <h3>Developer debug</h3>
               <p><strong>Coaching source:</strong> {coachingStatus.source}</p>
               <p><strong>Fallback reason:</strong> {coachingStatus.fallbackReason || 'None'}</p>
