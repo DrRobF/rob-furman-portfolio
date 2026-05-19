@@ -1,19 +1,19 @@
 export const setupOptions = {
-  roles: ['Teacher', 'Assistant Principal', 'Principal'],
-  gradeBands: ['Elementary', 'Middle School', 'High School'],
-  callTypes: ['Parent calls you unexpectedly', 'You call parent after initial investigation'],
+  roles: ['teacher', 'assistant_principal', 'principal'],
+  gradeBands: ['elementary', 'middle_school', 'high_school'],
+  callTypes: ['parent_calls_unexpectedly', 'you_call_after_investigation'],
   callTimings: [
-    'Morning call before school',
-    'Same-day afternoon parent call',
-    'Administrator callback after initial investigation',
-    'Next-day follow-up call',
+    'morning_call_before_school',
+    'same_day_afternoon_parent_call',
+    'administrator_callback_after_initial_investigation',
+    'next_day_follow_up_call',
   ],
-  scenarioTypes: ['Discipline', 'Academic Concern', 'Attendance', 'Teacher Complaint'],
-  intensities: ['Moderate', 'High', 'Full Blaze'],
-  parentVoices: ['Male', 'Female'],
-  parentTones: ['Full Blaze', 'Controlled Anger', 'Exhausted', 'Formal/Procedural'],
-  parentLanguages: ['English', 'Spanish', 'Haitian Creole', 'Portuguese'],
-  communicationStyles: ['Direct', 'Emotional', 'Passive Aggressive', 'Negotiating'],
+  scenarioTypes: ['discipline', 'academic_concern', 'attendance', 'teacher_complaint'],
+  intensities: ['moderate', 'high', 'full_blaze'],
+  parentVoices: ['male', 'female'],
+  parentTones: ['full_blaze', 'controlled_anger', 'exhausted', 'formal_procedural'],
+  parentLanguages: ['english', 'spanish', 'haitian_creole', 'portuguese'],
+  communicationStyles: ['direct', 'emotional', 'passive_aggressive', 'negotiating'],
 };
 
 export const callerProfiles = {
@@ -99,7 +99,7 @@ export const report = {
 
 
 export const callTimingBriefings = {
-  'Morning call before school': {
+  morning_call_before_school: {
     summary: 'Parent heard the child\'s story last night. Students have not arrived, and the administrator may not have full details yet.',
     goal: 'Listen, gather facts, create an immediate arrival safety plan, and avoid premature conclusions.',
     focus: [
@@ -108,7 +108,7 @@ export const callTimingBriefings = {
       'Name what is known versus unknown in real time.',
     ],
   },
-  'Same-day afternoon parent call': {
+  same_day_afternoon_parent_call: {
     summary: 'The child is already home and has shared their version. If admin was unaware, this may expose a communication or reporting failure.',
     goal: 'Acknowledge concern, determine whether staff failed to notify school leadership/parent, and set a clear investigation and safety plan.',
     focus: [
@@ -117,7 +117,7 @@ export const callTimingBriefings = {
       'Commit to immediate communication checkpoints and safety actions.',
     ],
   },
-  'Administrator callback after initial investigation': {
+  administrator_callback_after_initial_investigation: {
     summary: 'The administrator has already collected initial facts from staff/students and is calling back with updates.',
     goal: 'Communicate what is known, what is still under review, and next steps without requiring emotional agreement.',
     focus: [
@@ -126,7 +126,7 @@ export const callTimingBriefings = {
       'Expect pushback on fairness, accountability, and school response quality.',
     ],
   },
-  'Next-day follow-up call': {
+  next_day_follow_up_call: {
     summary: 'The parent had time to process, speak with the child, and possibly hear from other families, which can expand the narrative.',
     goal: 'Re-anchor facts, address new concerns, and prevent escalation driven by community narratives.',
     focus: [

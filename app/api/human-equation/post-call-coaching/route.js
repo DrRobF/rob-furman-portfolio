@@ -24,6 +24,7 @@ const inferLevel = (transcriptText, type) => {
 };
 
 function buildFallbackReport(payload = {}) {
+  const reportLanguage = payload.interfaceLanguage === 'es' ? 'es' : 'en';
   const transcriptLines = arr(payload.transcriptLines);
   const transcriptText = transcriptLines.map((line) => `${line.role || 'unknown'}: ${line.text || ''}`).join(' ').toLowerCase();
   const userLines = transcriptLines.filter((line) => line.role === 'user');
@@ -40,8 +41,8 @@ function buildFallbackReport(payload = {}) {
 
   return {
     source: transcriptLines.length ? 'rule-based-transcript' : 'fallback-limited-data',
-    reportLanguage: payload.interfaceLanguage === 'es' ? 'en' : 'en',
-    languageNote: payload.interfaceLanguage === 'es' ? 'Spanish report generation is not enabled yet; report is in English with translation-ready schema.' : null,
+    reportLanguage,
+    languageNote: null,
     executiveSummary: [
       `This call addressed ${normText(payload.setup?.scenarioType, 'an unresolved school concern')} in a high-pressure parent context.`,
       `The parent pattern showed ${parentLines.length > userLines.length ? 'sustained pressure and reassurance-seeking' : 'active pressure with concern about support and accountability'}.`,
@@ -95,7 +96,8 @@ export async function POST(request) {
   const payload = await request.json().catch(() => ({}));
   const fallback = buildFallbackReport(payload);
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'missing-api-key' });
-  const prompt = `Generate a Human Equation post-call coaching report JSON. Philosophy: tension is not automatically bad; evaluate strategic tradeoffs between firmness, accountability, support, and trust. Use transcript evidence whenever available. Return JSON only with keys: executiveSummary, leadershipSnapshot (array of {label, level, evidence}), keyLeadershipMoves, strategicTradeoffs, parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. Keep report language in English.\n\nInput:\n${JSON.stringify(payload).slice(0, 18000)}`;
+  const reportLanguageInstruction = payload.interfaceLanguage === 'es' ? 'Spanish' : 'English';
+  const prompt = `Generate a Human Equation post-call coaching report JSON. Philosophy: tension is not automatically bad; evaluate strategic tradeoffs between firmness, accountability, support, and trust. Use transcript evidence whenever available. Return JSON only with keys: executiveSummary, leadershipSnapshot (array of {label, level, evidence}), keyLeadershipMoves, strategicTradeoffs, parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan. Levels allowed: Strong, Developing, Watch. Write all visible report text in ${reportLanguageInstruction}. Parent language controls the simulated parent speech only and must not force this report language.\n\nInput:\n${JSON.stringify(payload).slice(0, 18000)}`;
   try {
     const response = await fetch(OPENAI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, body: JSON.stringify({ model: MODEL, temperature: 0.2, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Return only JSON.' }, { role: 'user', content: prompt }] }) });
     if (!response.ok) throw new Error(`OpenAI request failed: ${response.status}`);
