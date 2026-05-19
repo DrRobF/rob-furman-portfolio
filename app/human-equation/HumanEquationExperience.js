@@ -1031,20 +1031,11 @@ export default function HumanEquationExperience() {
     });
   };
 
-  const copyTranscript = async () => {
-    const transcriptText = transcriptLines.map((line) => `[${new Date(line.timestamp).toLocaleTimeString()}] (${line.role}) ${line.text}`).join('\n');
-    try {
-      await navigator.clipboard.writeText(transcriptText);
-    } catch (error) {
-      console.log('HUMAN_EQUATION_COPY_TRANSCRIPT_ERROR', error);
-    }
-  };
-
   const downloadFullReport = () => {
     const fallback = 'Not available';
     const stamp = new Date();
     const pad = (value) => String(value).padStart(2, '0');
-    const fileName = `human-equation-report-${stamp.getFullYear()}-${pad(stamp.getMonth() + 1)}-${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}.md`;
+    const fileName = `human-equation-report-${stamp.getFullYear()}-${pad(stamp.getMonth() + 1)}-${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}.txt`;
     const scenarioMeta = [
       `- Scenario: ${translateOption(setup.scenarioType) || fallback}`,
       `- Parent: ${setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}`,
@@ -1079,7 +1070,7 @@ export default function HumanEquationExperience() {
     const transcriptSection = transcriptLines.length
       ? transcriptLines.map((line) => `- [${safeTimeLabel(line.timestamp)}] (${line.role || 'unknown'}) ${line.text || fallback}`).join('\n')
       : fallback;
-    const markdown = [
+    const plainTextReport = [
       '# Human Equation Post-Call Report',
       '',
       '## Scenario metadata',
@@ -1108,7 +1099,7 @@ export default function HumanEquationExperience() {
       transcriptSection,
       '',
     ].join('\n');
-    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+    const blob = new Blob([plainTextReport], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -1557,7 +1548,6 @@ export default function HumanEquationExperience() {
             </section>
             <div className={styles.reportActions}>
               <button type="button" className={styles.cta} onClick={downloadFullReport}>{t('he.downloadFullReport')}</button>
-              <button type="button" className={styles.secondaryAction} onClick={copyTranscript} disabled={transcriptLines.length === 0}>{t('he.copyTranscript')}</button>
               {previewFixtureId ? <button type="button" className={styles.secondaryAction} onClick={startNewCall}>Return to setup</button> : null}
               <button className={styles.secondaryAction} onClick={startNewCall}>{t('he.startNewCall')}</button>
             </div>
