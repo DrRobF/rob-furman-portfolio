@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { HUMAN_EQUATION_COACHING_CONSTITUTION } from '@/lib/human-equation/coachingConstitution';
-import { coachingConstitution } from '../../../../lib/human-equation/coachingConstitution';
+import { HUMAN_EQUATION_COACHING_CONSTITUTION } from '../../../../lib/human-equation/coachingConstitution';
 
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
