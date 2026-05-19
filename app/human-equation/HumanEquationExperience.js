@@ -28,6 +28,52 @@ const safeTimeLabel = (timestamp) => {
   return Number.isNaN(parsed.getTime()) ? 'Unknown time' : parsed.toLocaleTimeString();
 };
 
+
+const FRAMEWORK_DIMENSIONS = [
+  'Trust Construction',
+  'Human Awareness',
+  'Reality Anchoring',
+  'Regulation Under Pressure',
+  'Accountability Balance',
+  'Vision & Change Leadership',
+  'Instructional & Academic Leadership',
+  'Team & Systems Leadership',
+];
+
+const normalizeStatus = (value) => {
+  const text = asText(value, 'Developing').toLowerCase();
+  if (text.includes('strong')) return 'Strong';
+  if (text.includes('watch')) return 'Watch';
+  return 'Developing';
+};
+
+const normalizeFrameworkAnalysis = (analysis) => {
+  const byLabel = new Map();
+  (Array.isArray(analysis) ? analysis : []).forEach((item) => {
+    const label = asText(item?.label, '').trim();
+    if (label) byLabel.set(label, item);
+  });
+  return FRAMEWORK_DIMENSIONS.map((label) => {
+    const raw = byLabel.get(label) || {};
+    const evidence = asText(raw?.evidence, '').trim();
+    return {
+      label,
+      level: normalizeStatus(raw?.level),
+      evidence: evidence || 'Limited evidence in this call.',
+      summary: evidence ? evidence.split(/(?<=[.!?])\s+/).filter(Boolean).slice(0, 1).join(' ') : 'Limited evidence in this call.',
+    };
+  });
+};
+
+const normalizePatternItems = (value) => (Array.isArray(value) ? value : []).map((item) => {
+  if (typeof item === 'string') return { pattern: item, evidence: 'Evidence suggests this pattern appeared in the call.', implication: 'This may be worth revisiting in next coaching focus.' };
+  return {
+    pattern: asText(item?.pattern || item?.name || item?.label, 'Pattern signal'),
+    evidence: asText(item?.evidence, 'Limited evidence in this call.'),
+    implication: asText(item?.leadershipImplication || item?.implication, 'Evidence suggests a watch point for next coaching focus.'),
+  };
+});
+
 const TRANSCRIPT_EVENT_TYPES = new Set([
   'conversation.item.input_audio_transcription.completed',
   'conversation.item.created',
@@ -970,6 +1016,10 @@ export default function HumanEquationExperience() {
   }, [setup, selectedTimingBriefing, language]);
   const activeBriefing = setup.practiceMode === 'guided' && guidedScenario ? guidedScenario : randomScenarioBriefing;
 
+  const frameworkAnalysis = normalizeFrameworkAnalysis(coachingReport?.humanEquationLeadershipAnalysis);
+  const parentPatterns = normalizePatternItems(coachingReport?.parentPatternAnalysis);
+  const conciseExecutiveSummary = asText(coachingReport?.executiveSummary, 'Summary unavailable.').split(/(?<=[.!?])\s+/).filter(Boolean).slice(0, 4).join(' ');
+
   return (
     <section className={styles.shell}>
       <div className={styles.content}>
@@ -1165,7 +1215,7 @@ export default function HumanEquationExperience() {
         {stage === 'report' && (
           <div className={styles.panel}>
             <p className={styles.eyebrow}>{t('he.postCallReport')}</p>
-            <h2>{t('he.transcript')}</h2>
+            <h2>Human Equation Post-Call Report</h2>
             <p className={styles.subtle}>{t('he.endReportTranscriptSubtle')}</p>
             <p><strong>Scenario:</strong> {translateOption(setup.scenarioType) || 'Unknown scenario'}</p>
             <p><strong>Parent:</strong> {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
@@ -1177,13 +1227,14 @@ export default function HumanEquationExperience() {
               {coachingStatus.state === 'ready' && !coachingReport && <section><h3>Coaching unavailable</h3><p>We could not generate a full report from transcript data. Limited report mode is active.</p></section>}
               {coachingReport && (
                 <>
-                  <section><h3>1. Executive Summary</h3><p>{asText(coachingReport.executiveSummary, 'Summary unavailable.')}</p></section>
-                  <section><h3>2. Human Equation Leadership Analysis</h3><ul>{(Array.isArray(coachingReport.humanEquationLeadershipAnalysis) ? coachingReport.humanEquationLeadershipAnalysis : []).map((item, idx) => <li key={`framework-${idx}-${item?.label || 'item'}`}><strong>{asText(item?.label, 'Framework Dimension')} — {asText(item?.level, 'Developing')}</strong><br />{asText(item?.evidence, 'Evidence unavailable; gather more transcript detail to refine this dimension.')}</li>)}</ul></section>
-                  <section><h3>3. Parent Pattern Analysis</h3><ul>{toSafeList(coachingReport.parentPatternAnalysis).map((item, idx) => <li key={`parent-pattern-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>4. Moments to Revisit</h3><ul>{toSafeList(coachingReport.momentsToRevisit).map((item, idx) => <li key={`revisit-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>5. Stronger Alternative Phrasing</h3><ul>{toSafeList(coachingReport.strongerAlternativePhrasing).map((item, idx) => <li key={`phrasing-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  <section><h3>6. Suggested Follow-Up Plan</h3><ul>{toSafeList(coachingReport.suggestedFollowUpPlan).map((item, idx) => <li key={`followup-${idx}-${item}`}>{item}</li>)}</ul></section>
-                  {coachingReport.languageNote ? <section><h3>Language note</h3><p>{coachingReport.languageNote}</p></section> : null}
+                  <section className={styles.reportSection}><h3>Executive Summary</h3><p>{conciseExecutiveSummary}</p></section>
+                  <section className={styles.reportSection}><h3>Leadership Dashboard</h3><div className={styles.dashboardGrid}>{frameworkAnalysis.map((item) => <article key={`dash-${item.label}`} className={styles.dashboardCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div><p>{item.summary}</p></article>)}</div></section>
+                  <section className={styles.reportSection}><h3>Human Equation Leadership Analysis</h3><div className={styles.analysisGrid}>{frameworkAnalysis.map((item) => <article key={`analysis-${item.label}`} className={styles.analysisCard}><div className={styles.cardTop}><h4>{item.label}</h4><span className={`${styles.statusPill} ${styles[`status${item.level}`]}`}>{item.level}</span></div><p>{item.evidence}</p></article>)}</div></section>
+                  <section className={styles.reportSection}><h3>Parent Pattern Analysis</h3><div className={styles.patternGrid}>{parentPatterns.map((item, idx) => <article key={`parent-pattern-${idx}-${item.pattern}`} className={styles.patternCard}><h4>{item.pattern}</h4><p><strong>Evidence:</strong> {item.evidence}</p><p><strong>Leadership implication:</strong> {item.implication}</p></article>)}</div></section>
+                  <section className={styles.reportSection}><h3>Moments to Revisit</h3><ul>{toSafeList(coachingReport.momentsToRevisit).map((item, idx) => <li key={`revisit-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section className={styles.reportSection}><h3>Stronger Alternative Phrasing</h3><ul>{toSafeList(coachingReport.strongerAlternativePhrasing).map((item, idx) => <li key={`phrasing-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  <section className={styles.reportSection}><h3>Suggested Follow-Up Plan</h3><ul className={styles.checklist}>{toSafeList(coachingReport.suggestedFollowUpPlan).map((item, idx) => <li key={`followup-${idx}-${item}`}>{item}</li>)}</ul></section>
+                  {coachingReport.languageNote ? <section className={styles.reportSection}><h3>Language note</h3><p>{coachingReport.languageNote}</p></section> : null}
                 </>
               )}
             </div>
@@ -1197,7 +1248,7 @@ export default function HumanEquationExperience() {
               <p>{privateNotes || 'No private notes captured for this call.'}</p>
             </section>
             <section className={styles.transcriptBlock}>
-              <h3>Full transcript</h3>
+              <h3>Transcript</h3>
               {transcriptLines.length === 0 ? (
                 <p>Transcript was not captured for this call yet, but the live voice session completed.</p>
               ) : (
