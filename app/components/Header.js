@@ -1,15 +1,21 @@
+'use client';
+
 import Link from 'next/link';
+import { useLanguage } from './LanguageProvider';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 const navItems = [
-  ['Home', '/'],
-  ['Projects', '/projects'],
-  ['Speaking', '/speaking'],
-  ['Publications', '/publications'],
-  ['About', '/about'],
-  ['Contact', '/contact'],
+  ['nav.home', '/'],
+  ['nav.projects', '/projects'],
+  ['nav.speaking', '/speaking'],
+  ['nav.publications', '/publications'],
+  ['nav.about', '/about'],
+  ['nav.contact', '/contact'],
 ];
 
 export function Header() {
+  const { t } = useLanguage();
+
   return (
     <header className="site-header">
       <div className="container nav-wrap">
@@ -18,13 +24,14 @@ export function Header() {
         </Link>
         <nav aria-label="Primary">
           <ul className="nav-list">
-            {navItems.map(([label, href]) => (
+            {navItems.map(([key, href]) => (
               <li key={href}>
-                <Link href={href}>{label}</Link>
+                <Link href={href}>{t(key)}</Link>
               </li>
             ))}
           </ul>
         </nav>
+        <LanguageSwitcher />
       </div>
     </header>
   );
