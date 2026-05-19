@@ -1185,10 +1185,7 @@ export default function HumanEquationExperience() {
             {setup.practiceMode === 'guided' && (
               <>
                 <p className={styles.variationNote}>{t('he.intentionalModeNote')}</p>
-                <div className={styles.setupActions}>
-                  <button type="button" className={styles.cta} onClick={buildGuidedScenario}>{t('he.buildPracticeScenario')}</button>
-                  <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>{t('he.regenerateParent')}</button>
-                </div>
+                <p>{t('he.guidedCallbackFraming')}</p>
                 <div className={styles.setupGrid}>
                   <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
                   <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
@@ -1196,6 +1193,13 @@ export default function HumanEquationExperience() {
                   <Selector label={t('he.parentLanguage')} options={setupOptions.parentLanguages} translateOption={translateOption} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
                 </div>
               </>
+            )}
+            <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
+            <textarea className={styles.notes} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
+            {setup.practiceMode === 'guided' && (
+              <div className={styles.setupActions}>
+                <button type="button" className={styles.cta} onClick={buildGuidedScenario}>{t('he.generateBriefing')}</button>
+              </div>
             )}
             {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
               <div className={styles.briefingCard}>
@@ -1245,6 +1249,7 @@ export default function HumanEquationExperience() {
                 <p><strong>Hidden Parent Profile:</strong> tone={setup.parentTone}, intensity={setup.intensity}, style={setup.communicationStyle}</p>
                 <p><strong>Call Context:</strong> {setup.callType} / {setup.callTiming}</p>
                 <p><strong>Archetype / Tactic / Vulnerability:</strong> available in server prompt cards and report diagnostics.</p>
+                <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>{t('he.regenerateParent')}</button>
                 <p><strong>Report Preview Mode:</strong> Load sample transcript data and open the same post-call report flow.</p>
                 {reportPreviewFixtures.map((fixture) => (
                   <button key={fixture.id} type="button" className={styles.secondaryAction} onClick={() => launchReportPreview(fixture)}>
@@ -1253,10 +1258,8 @@ export default function HumanEquationExperience() {
                 ))}
               </div>
             )}
-            <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
-            <textarea className={styles.notes} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
-              <button className={styles.cta} onClick={nextStage}>{t('he.proceedIncomingCall')}</button>
+              <button className={styles.cta} onClick={nextStage}>{t('he.startCall')}</button>
             )}
           </div>
         )}
