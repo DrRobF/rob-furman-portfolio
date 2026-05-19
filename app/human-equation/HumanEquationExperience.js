@@ -259,8 +259,19 @@ const withIndefiniteArticle = (phrase = '') => {
   return `${useAn ? 'an' : 'a'} ${phrase}`;
 };
 
+const guidedScenarioProfileMap = {
+  student_safety: 'discipline',
+  academic_conflict: 'academic_concern',
+  behavior_discipline: 'discipline',
+  parent_distrust: 'teacher_complaint',
+  staff_conduct_concern: 'teacher_complaint',
+  communication_breakdown: 'teacher_complaint',
+  emotional_crisis: 'attendance',
+};
+
 const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'en') => {
-  const scenarioProfile = scenarioTypeProfiles[baseSetup.scenarioType] ?? scenarioTypeProfiles.discipline;
+  const scenarioProfileKey = guidedScenarioProfileMap[baseSetup.scenarioType] || baseSetup.scenarioType;
+  const scenarioProfile = scenarioTypeProfiles[scenarioProfileKey] ?? scenarioTypeProfiles.discipline;
   const styleGuidance = toReadableLabel(baseSetup.communicationStyle, communicationStyleGuidance, 'Keep communication clear, practical, and next-step oriented.');
   const toneGuidance = toReadableLabel(baseSetup.parentTone, parentToneGuidance, 'Expect concern and pressure; keep your response calm and specific.');
   const intensityGuidanceText = toReadableLabel(baseSetup.intensity, intensityGuidance, 'Keep a steady cadence and confirm concrete next steps.');
@@ -334,10 +345,13 @@ const optionLabelKeys = {
   same_day_afternoon_parent_call: 'he.sameDayAfternoonParentCall',
   administrator_callback_after_initial_investigation: 'he.administratorCallbackAfterInvestigation',
   next_day_follow_up_call: 'he.nextDayFollowUpCall',
-  discipline: 'he.discipline',
-  academic_concern: 'he.academicConcern',
-  attendance: 'he.attendance',
-  teacher_complaint: 'he.teacherComplaint',
+  student_safety: 'he.studentSafety',
+  academic_conflict: 'he.academicConflict',
+  behavior_discipline: 'he.behaviorDiscipline',
+  parent_distrust: 'he.parentDistrust',
+  staff_conduct_concern: 'he.staffConductConcern',
+  communication_breakdown: 'he.communicationBreakdown',
+  emotional_crisis: 'he.emotionalCrisis',
   moderate: 'he.moderate',
   high: 'he.high',
   full_blaze: 'he.fullBlaze',
@@ -371,10 +385,10 @@ export default function HumanEquationExperience() {
   const [setup, setSetup] = useState({
     role: setupOptions.roles[1],
     gradeBand: setupOptions.gradeBands[1],
-    callType: setupOptions.callTypes[0],
-    callTiming: setupOptions.callTimings[0],
+    callType: 'you_call_after_investigation',
+    callTiming: 'administrator_callback_after_initial_investigation',
     scenarioType: setupOptions.scenarioTypes[0],
-    intensity: setupOptions.intensities[2],
+    intensity: randomFrom(setupOptions.intensities),
     parentVoice: setupOptions.parentVoices[1],
     parentTone: setupOptions.parentTones[0],
     communicationStyle: setupOptions.communicationStyles[0],
@@ -968,7 +982,7 @@ export default function HumanEquationExperience() {
       parentVoice: randomFrom(setupOptions.parentVoices),
       parentTone: randomFrom(setupOptions.parentTones),
       communicationStyle: randomFrom(setupOptions.communicationStyles),
-      parentLanguage: setupOptions.parentLanguages[0],
+      parentLanguage: randomFrom(setupOptions.parentLanguages),
       practiceMode: 'random',
       briefingDepth: randomizedBriefingDepth,
       scenarioNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -976,14 +990,14 @@ export default function HumanEquationExperience() {
   };
 
   const handleStartRandomCall = () => {
-    setSetup((prev) => ({ ...prev, practiceMode: 'random', parentLanguage: setupOptions.parentLanguages[0] }));
+    setSetup((prev) => ({ ...prev, practiceMode: 'random', parentLanguage: randomFrom(setupOptions.parentLanguages) }));
     setIsGuidedScenarioBuilt(false);
     randomizeScenario();
     setStage('setup');
   };
 
   const handleConfigurePractice = () => {
-    setSetup((prev) => ({ ...prev, practiceMode: 'guided', briefingDepth: 'moderate context', parentLanguage: prev.parentLanguage || setupOptions.parentLanguages[0] }));
+    setSetup((prev) => ({ ...prev, practiceMode: 'guided', callType: 'you_call_after_investigation', callTiming: 'administrator_callback_after_initial_investigation', briefingDepth: 'detailed context', parentLanguage: prev.parentLanguage || setupOptions.parentLanguages[0], intensity: randomFrom(setupOptions.intensities), parentTone: randomFrom(setupOptions.parentTones), communicationStyle: randomFrom(setupOptions.communicationStyles) }));
     setIsGuidedScenarioBuilt(false);
     setStage('setup');
   };
@@ -1001,24 +1015,30 @@ export default function HumanEquationExperience() {
   };
 
   const buildGuidedScenario = () => {
-    const timingBriefing = callTimingBriefings?.[setup.callTiming] ?? {
+    const forcedGuidedSetup = {
+      ...setup,
+      practiceMode: 'guided',
+      callType: 'you_call_after_investigation',
+      callTiming: 'administrator_callback_after_initial_investigation',
+      briefingDepth: 'detailed context',
+    };
+    const timingBriefing = callTimingBriefings?.[forcedGuidedSetup.callTiming] ?? {
       summary: 'Context briefing unavailable.',
       goal: 'Clarify the call context and establish next steps.',
       focus: [],
     };
-    const generatedScenario = buildScenarioBriefing(setup, timingBriefing, language);
+    const generatedScenario = buildScenarioBriefing(forcedGuidedSetup, timingBriefing, language);
 
-    console.log('HUMAN_EQUATION_GUIDED_SELECTED_VALUES', setup);
+    console.log('HUMAN_EQUATION_GUIDED_SELECTED_VALUES', forcedGuidedSetup);
     console.log('HUMAN_EQUATION_GUIDED_GENERATED_SCENARIO', generatedScenario);
     setGuidedScenario(generatedScenario);
     setSetup((prev) => ({
-      ...prev,
-      practiceMode: 'guided',
+      ...forcedGuidedSetup,
       scenarioNonce: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     }));
     setIsGuidedScenarioBuilt(true);
   };
-  const isUnexpectedCall = setup.briefingDepth === 'low context';
+  const isUnexpectedCall = setup.practiceMode === 'random' && setup.briefingDepth === 'low context';
   const isDetailedBriefing = setup.briefingDepth === 'detailed context';
   const selectedTimingBriefing = callTimingBriefings?.[setup.callTiming] ?? {
     summary: 'Context briefing unavailable.',
@@ -1080,13 +1100,7 @@ export default function HumanEquationExperience() {
                 <div className={styles.setupGrid}>
                   <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
                   <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
-                  <Selector label={t('he.callType')} options={setupOptions.callTypes} translateOption={translateOption} value={setup.callType} onSelect={(value) => setField('callType', value)} />
-                  <Selector label={t('he.callTimingContext')} options={setupOptions.callTimings} translateOption={translateOption} value={setup.callTiming} onSelect={(value) => setField('callTiming', value)} />
                   <Selector label={t('he.scenarioType')} options={setupOptions.scenarioTypes} translateOption={translateOption} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
-                  <Selector label={t('he.parentIntensity')} options={setupOptions.intensities} translateOption={translateOption} value={setup.intensity} onSelect={(value) => setField('intensity', value)} />
-                  <Selector label={t('he.parentVoice')} options={setupOptions.parentVoices} translateOption={translateOption} value={setup.parentVoice} onSelect={(value) => setField('parentVoice', value)} />
-                  <Selector label={t('he.parentTone')} options={setupOptions.parentTones} translateOption={translateOption} value={setup.parentTone} onSelect={(value) => setField('parentTone', value)} />
-                  <Selector label={t('he.communicationStyle')} options={setupOptions.communicationStyles} translateOption={translateOption} value={setup.communicationStyle} onSelect={(value) => setField('communicationStyle', value)} />
                   <Selector label={t('he.parentLanguage')} options={setupOptions.parentLanguages} translateOption={translateOption} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
                 </div>
               </>
@@ -1098,6 +1112,7 @@ export default function HumanEquationExperience() {
               <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
               <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
               <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
+              <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
               <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {translateOption(setup.parentLanguage)}</p>
               <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
               <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
@@ -1134,6 +1149,10 @@ export default function HumanEquationExperience() {
             {showDebugPanel && (
               <div className={styles.debugPanel}>
                 <h3>Developer Debug Panel</h3>
+                <p><strong>Core Scenario Type:</strong> {setup.scenarioType}</p>
+                <p><strong>Hidden Parent Profile:</strong> tone={setup.parentTone}, intensity={setup.intensity}, style={setup.communicationStyle}</p>
+                <p><strong>Call Context:</strong> {setup.callType} / {setup.callTiming}</p>
+                <p><strong>Archetype / Tactic / Vulnerability:</strong> available in server prompt cards and report diagnostics.</p>
                 <p><strong>Report Preview Mode:</strong> Load sample transcript data and open the same post-call report flow.</p>
                 {reportPreviewFixtures.map((fixture) => (
                   <button key={fixture.id} type="button" className={styles.secondaryAction} onClick={() => launchReportPreview(fixture)}>
@@ -1156,6 +1175,7 @@ export default function HumanEquationExperience() {
             <h2>Parent Caller: {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'} ({translateOption(setup.gradeBand)})</h2>
             <p className={styles.subtle}>{translateOption(setup.scenarioType)} • {translateOption(setup.callType)}</p>
             <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
+              <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
             <div className={styles.micChecklist}>
               <h3>{t('he.preCallEnvironmentCheck')}</h3>
               <ul>
@@ -1183,6 +1203,7 @@ export default function HumanEquationExperience() {
             <h2>Ms. Rodriguez — Parent Caller</h2>
             <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong> • {callStatus}</p>
             <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
+              <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
             <div className={styles.callStatusGrid}>
               <p><strong>Mic status:</strong> {micPermission}</p>
               <p><strong>Mic stream status:</strong> {rtcDiagnostics.micStreamStatus}</p>
