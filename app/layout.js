@@ -2,6 +2,7 @@ import './globals.css';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import Script from 'next/script';
+import { LanguageProvider } from './components/LanguageProvider';
 
 export const metadata = {
   title: 'Dr. Rob Furman | AI + Learning Design Portfolio',
@@ -13,9 +14,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Header />
-        <main className="site-main">{children}</main>
-        <Footer />
+        <LanguageProvider>
+          <Header />
+          <main className="site-main">{children}</main>
+          <Footer />
+        </LanguageProvider>
         <Script id="clarity-script" strategy="afterInteractive">
           {`
 (function(c,l,a,r,i,t,y){

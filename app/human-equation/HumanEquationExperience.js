@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLanguage } from '../components/LanguageProvider';
 import styles from './human-equation.module.css';
 import { briefings, callTimingBriefings, setupOptions } from './data/mockScenario';
 
@@ -231,7 +232,24 @@ const buildScenarioBriefing = (baseSetup, timingBriefing) => {
   };
 };
 
+const optionLabelKeys = {
+  Teacher: 'he.teacher',
+  'Assistant Principal': 'he.assistantPrincipal',
+  Principal: 'he.principal',
+  Elementary: 'he.elementary',
+  'Middle School': 'he.middleSchool',
+  'High School': 'he.highSchool',
+  'Parent calls you unexpectedly': 'he.parentCallsUnexpectedly',
+  'You call parent after initial investigation': 'he.youCallAfterInvestigation',
+  Discipline: 'he.discipline',
+  'Academic Concern': 'he.academicConcern',
+  Attendance: 'he.attendance',
+  'Teacher Complaint': 'he.teacherComplaint',
+};
+
 export default function HumanEquationExperience() {
+  const { t } = useLanguage();
+  const translateOption = (option) => t(optionLabelKeys[option] ?? option);
   const [stage, setStage] = useState('intro');
   const [callStartedAt, setCallStartedAt] = useState(null);
   const [now, setNow] = useState(Date.now());
@@ -858,7 +876,7 @@ export default function HumanEquationExperience() {
         {stage === 'intro' && (
           <div className={styles.panel}>
             <p className={styles.eyebrow}>The Human Equation</p>
-            <h1>Practice the conversations that determine trust.</h1>
+            <h1>{t('he.practiceHeading')}</h1>
             <p className={styles.lead}>A voice-first leadership simulator for difficult parent and school conversations. Rehearse how you respond under pressure before the real call happens.</p>
             <div className={styles.valueGrid}>
               <article><h3>Stay calm under pressure</h3></article>
@@ -867,52 +885,52 @@ export default function HumanEquationExperience() {
             </div>
             <div className={styles.pathChoiceGrid}>
               <button type="button" className={`${styles.pathCard} ${styles.pathCardPrimary}`} onClick={handleStartRandomCall}>
-                <p className={styles.pathTitle}>Realistic Random Call</p>
+                <p className={styles.pathTitle}>{t('he.randomCall')}</p>
                 <p>Enter an unpredictable leadership conversation with incomplete information, emotional pressure, and realistic parent dynamics.</p>
-                <span className={styles.ctaMini}>Start Random Call</span>
+                <span className={styles.ctaMini}>{t('he.startRandomCall')}</span>
               </button>
               <button type="button" className={`${styles.pathCard} ${styles.pathCardSecondary}`} onClick={handleConfigurePractice}>
-                <p className={styles.pathTitle}>Guided Practice</p>
+                <p className={styles.pathTitle}>{t('he.guidedPractice')}</p>
                 <p>Configure and rehearse a specific conversation type.</p>
-                <span className={styles.secondaryMini}>Configure Practice</span>
+                <span className={styles.secondaryMini}>{t('he.configurePractice')}</span>
               </button>
             </div>
           </div>
         )}
         {stage === 'setup' && (
           <div className={styles.panel}>
-            <p className={styles.eyebrow}>Simulation Setup</p>
-            <h2>{setup.practiceMode === 'random' ? 'Realistic Random Call' : 'Guided Practice'}</h2>
+            <p className={styles.eyebrow}>{t('he.simulationSetup')}</p>
+            <h2>{setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</h2>
             {setup.practiceMode === 'random' && <p className={styles.variationNote}>Scenario randomized for realistic uncertainty and pressure.</p>}
             {setup.practiceMode === 'guided' && (
               <>
                 <p className={styles.variationNote}>Intentional practice mode: customize conditions and build a targeted scenario.</p>
                 <div className={styles.setupActions}>
-                  <button type="button" className={styles.cta} onClick={buildGuidedScenario}>Build Practice Scenario</button>
-                  <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>Regenerate Parent</button>
+                  <button type="button" className={styles.cta} onClick={buildGuidedScenario}>{t('he.buildPracticeScenario')}</button>
+                  <button type="button" className={styles.secondaryAction} onClick={regenerateParentProfile}>{t('he.regenerateParent')}</button>
                 </div>
                 <div className={styles.setupGrid}>
-                  <Selector label="Role" options={setupOptions.roles} value={setup.role} onSelect={(value) => setField('role', value)} />
-                  <Selector label="Grade Band" options={setupOptions.gradeBands} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
-                  <Selector label="Call Type" options={setupOptions.callTypes} value={setup.callType} onSelect={(value) => setField('callType', value)} />
-                  <Selector label="Call Timing / Context" options={setupOptions.callTimings} value={setup.callTiming} onSelect={(value) => setField('callTiming', value)} />
-                  <Selector label="Scenario Type" options={setupOptions.scenarioTypes} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
-                  <Selector label="Parent Intensity" options={setupOptions.intensities} value={setup.intensity} onSelect={(value) => setField('intensity', value)} />
-                  <Selector label="Parent Voice" options={setupOptions.parentVoices} value={setup.parentVoice} onSelect={(value) => setField('parentVoice', value)} />
-                  <Selector label="Parent Tone" options={setupOptions.parentTones} value={setup.parentTone} onSelect={(value) => setField('parentTone', value)} />
-                  <Selector label="Communication Style" options={setupOptions.communicationStyles} value={setup.communicationStyle} onSelect={(value) => setField('communicationStyle', value)} />
-                  <Selector label="Parent Language" options={setupOptions.parentLanguages} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
+                  <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
+                  <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
+                  <Selector label={t('he.callType')} options={setupOptions.callTypes} translateOption={translateOption} value={setup.callType} onSelect={(value) => setField('callType', value)} />
+                  <Selector label="Call Timing / Context" options={setupOptions.callTimings} translateOption={translateOption} value={setup.callTiming} onSelect={(value) => setField('callTiming', value)} />
+                  <Selector label={t('he.scenarioType')} options={setupOptions.scenarioTypes} translateOption={translateOption} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
+                  <Selector label={t('he.parentIntensity')} options={setupOptions.intensities} translateOption={translateOption} value={setup.intensity} onSelect={(value) => setField('intensity', value)} />
+                  <Selector label={t('he.parentVoice')} options={setupOptions.parentVoices} translateOption={translateOption} value={setup.parentVoice} onSelect={(value) => setField('parentVoice', value)} />
+                  <Selector label={t('he.parentTone')} options={setupOptions.parentTones} translateOption={translateOption} value={setup.parentTone} onSelect={(value) => setField('parentTone', value)} />
+                  <Selector label={t('he.communicationStyle')} options={setupOptions.communicationStyles} translateOption={translateOption} value={setup.communicationStyle} onSelect={(value) => setField('communicationStyle', value)} />
+                  <Selector label={t('he.parentLanguage')} options={setupOptions.parentLanguages} translateOption={translateOption} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
                 </div>
               </>
             )}
             {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
               <div className={styles.briefingCard}>
-              <h3>Pre-Call Briefing</h3>
-              <p className={styles.contextLabel}><strong>Path:</strong> {setup.practiceMode === 'random' ? 'Realistic Random Call' : 'Guided Practice'}</p>
+              <h3>{t('he.preCallBriefing')}</h3>
+              <p className={styles.contextLabel}><strong>Path:</strong> {setup.practiceMode === 'random' ? t('he.randomCall') : t('he.guidedPractice')}</p>
               <p className={styles.contextLabel}><strong>Briefing depth:</strong> {setup.briefingDepth}</p>
               <p className={styles.contextLabel}><strong>Issue summary:</strong> {activeBriefing?.issueSummary ?? setup.scenarioType}</p>
               <p className={styles.contextLabel}><strong>Call Timing / Context:</strong> {setup.callTiming}</p>
-              <p className={styles.contextLabel}><strong>Parent Language:</strong> {setup.parentLanguage}</p>
+              <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {setup.parentLanguage}</p>
               <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
               <p><strong>What is known:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
               <p><strong>What is unknown:</strong> {activeBriefing ? activeBriefing.unknownFacts[0] : 'Clarify missing details directly during the call before making commitments.'}</p>
@@ -941,10 +959,10 @@ export default function HumanEquationExperience() {
               <p className={styles.subtle}><strong>Professional note:</strong> As in real leadership situations, you may not have every detail. Use the briefing, ask clarifying questions, and make reasonable assumptions when needed.</p>
               </div>
             )}
-            <label className={styles.notesLabel}>Private Administrator Notes</label>
+            <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
             <textarea className={styles.notes} placeholder="Private prep notes for this call (visible in call view and report)..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
             {(setup.practiceMode === 'random' || isGuidedScenarioBuilt) && (
-              <button className={styles.cta} onClick={nextStage}>Proceed to Incoming Call</button>
+              <button className={styles.cta} onClick={nextStage}>{t('he.proceedIncomingCall')}</button>
             )}
           </div>
         )}
@@ -975,7 +993,7 @@ export default function HumanEquationExperience() {
         {stage === 'active' && (
           <div className={styles.callLayout}>
             <div className={styles.callHeader}>
-              <p className={styles.eyebrow}>Live Voice Simulation</p>
+              <p className={styles.eyebrow}>{t('he.liveVoiceSimulation')}</p>
               <div className={styles.timer}>{callDuration}</div>
             </div>
             <p className={styles.subtle}><strong>Human Equation Build:</strong> {HUMAN_EQUATION_BUILD_VERSION}</p>
@@ -1003,7 +1021,7 @@ export default function HumanEquationExperience() {
             <div className={`${styles.waveform} ${isSpeaking ? styles.waveformActive : ''}`} aria-hidden />
             <label className={styles.notesLabel}>Private Notes (not shared)</label>
             <textarea className={styles.notes} placeholder="Capture key facts, commitments, and follow-up actions..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
-            <button className={styles.endCall} onClick={endCall}>End Call</button>
+            <button className={styles.endCall} onClick={endCall}>{t('he.endCall')}</button>
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
               {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
             </button>
@@ -1031,8 +1049,8 @@ export default function HumanEquationExperience() {
         )}
         {stage === 'report' && (
           <div className={styles.panel}>
-            <p className={styles.eyebrow}>Post-Call Coaching Report</p>
-            <h2>Transcript and Leadership Debrief</h2>
+            <p className={styles.eyebrow}>{t('he.postCallReport')}</p>
+            <h2>{t('he.transcript')}</h2>
             <p className={styles.subtle}>Full transcript appears after the call ends.</p>
             <p><strong>Scenario:</strong> {setup.scenarioType || 'Unknown scenario'}</p>
             <p><strong>Parent:</strong> {setup.parentVoice === 'Male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
@@ -1077,8 +1095,8 @@ export default function HumanEquationExperience() {
               )}
             </section>
             <div className={styles.reportActions}>
-              <button type="button" className={styles.secondaryAction} onClick={copyTranscript} disabled={transcriptLines.length === 0}>Copy Transcript</button>
-              <button className={styles.cta} onClick={startNewCall}>Start New Call</button>
+              <button type="button" className={styles.secondaryAction} onClick={copyTranscript} disabled={transcriptLines.length === 0}>{t('he.copyTranscript')}</button>
+              <button className={styles.cta} onClick={startNewCall}>{t('he.startNewCall')}</button>
             </div>
           </div>
         )}
@@ -1087,13 +1105,13 @@ export default function HumanEquationExperience() {
   );
 }
 
-function Selector({ label, options, value, onSelect }) {
+function Selector({ label, options, value, onSelect, translateOption = (option) => option }) {
   return (
     <div>
       <p className={styles.selectorLabel}>{label}</p>
       <div className={styles.selectorWrap}>
         {options.map((option) => (
-          <button key={option} type="button" className={`${styles.selectorBtn} ${option === value ? styles.selected : ''}`} onClick={() => onSelect(option)}>{option}</button>
+          <button key={option} type="button" className={`${styles.selectorBtn} ${option === value ? styles.selected : ''}`} onClick={() => onSelect(option)}>{translateOption(option)}</button>
         ))}
       </div>
     </div>
