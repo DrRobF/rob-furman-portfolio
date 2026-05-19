@@ -127,16 +127,17 @@
 
 .selectorNative { margin-top:.3rem; border:1px solid #c8d3de; border-radius:10px; padding:.45rem .55rem; background:#fff; color:#2f4357; }
 
-.reportSection { border:1px solid #d6dee7; border-radius:14px; padding:1rem; background:#f9fbfc; overflow-wrap:anywhere; }
-.dashboardGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.7rem; }
-.analysisGrid,.patternGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.8rem; }
-.lowerGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.reportSection { border:1px solid #d6dee7; border-radius:14px; padding:1.1rem; background:#f9fbfc; overflow-wrap:anywhere; margin-top:.9rem; }
+.executiveSummarySection { width:100%; padding:1.25rem 1.2rem; }
+.dashboardGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.7rem; }
+.analysisGrid,.patternGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:.9rem; align-items:start; }
+.lowerGrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
 .dashboardCard,.analysisCard,.patternCard { border:1px solid #d4dde7; border-radius:12px; background:#fff; padding:.85rem; }
-.dashboardCard { padding:.7rem .75rem; min-height:88px; }
+.dashboardCard { padding:.7rem .75rem; min-height:84px; }
 .cardTop { display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; margin-bottom:.4rem; }
 .cardTop h4 { margin:0; font-size:.96rem; color:#2f4357; }
 .compactNote { margin:.15rem 0 0; font-size:.86rem; color:#61768a; line-height:1.45; }
-.statusPill { border-radius:999px; padding:.2rem .55rem; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+.statusPill { border-radius:999px; padding:.16rem .52rem; font-size:.72rem; font-weight:700; white-space:nowrap; min-width:6.4rem; text-align:center; text-transform:none; letter-spacing:.01em; }
 .statusStrong { background:#dff3e3; color:#235a31; }
 .statusDeveloping { background:#e4edf7; color:#355575; }
 .statusWatch { background:#fbe7d6; color:#8a4d18; }
@@ -144,7 +145,14 @@
 .checklist li { position:relative; padding-left:1.35rem; }
 .checklist li::before { content:'☐'; position:absolute; left:0; top:0; color:#4e6c88; }
 .patternList { list-style:none; padding:0; margin:.35rem 0 0; display:grid; gap:.35rem; }
+.analysisBody p { margin:.3rem 0; line-height:1.5; }
+.analysisEvidence { margin:.55rem 0 0; font-size:.83rem; color:#5f7388; }
+.emptyMessage { margin:0; color:#5f7388; font-style:italic; }
+.quoteList { display:grid; gap:.55rem; }
+.quoteCard { margin:0; padding:.6rem .75rem; border-left:3px solid #8ea7bf; background:#fff; border-radius:8px; color:#334d64; }
+.debugMinimized { opacity:.86; font-size:.92rem; }
 
 @media (max-width:800px) {
   .lowerGrid { grid-template-columns:1fr; }
+  .statusPill { min-width:5.9rem; }
 }
