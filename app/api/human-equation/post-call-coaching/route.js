@@ -258,4 +258,3 @@ ${JSON.stringify(payload).slice(0, 18000)}`;
     return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'api-error' });
   }
 }
-  const scenarioSummary = normText(payload?.canonicalScenario?.issueSummary, normText(payload.setup?.scenarioType, 'an unresolved school concern'));
