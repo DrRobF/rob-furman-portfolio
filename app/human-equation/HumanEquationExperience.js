@@ -10,6 +10,7 @@ const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
 const briefingDepthOptions = ['low context', 'moderate context', 'detailed context'];
 const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
+const PARENT_CALLER_NAMES = ['Ms. Rivera', 'Mr. Jenkins', 'Mrs. Alvarez', 'Mr. Thompson', 'Ms. Patel', 'Mr. Baptiste', 'Mrs. Chen', 'Ms. Williams', 'Mr. Carter', 'Ms. Morgan'];
 
 const asText = (value, fallback = 'Unknown') => {
   if (typeof value === 'string') return value;
@@ -258,6 +259,23 @@ const scenarioTypeProfiles = {
 };
 
 const pickOne = (items = []) => randomFrom(items.filter(Boolean));
+const hashString = (value = '') => [...value].reduce((acc, char) => ((acc * 31) + char.charCodeAt(0)) >>> 0, 7);
+const selectParentCallerName = (setupSnapshot) => {
+  const seed = [
+    setupSnapshot?.role,
+    setupSnapshot?.gradeBand,
+    setupSnapshot?.callType,
+    setupSnapshot?.callTiming,
+    setupSnapshot?.scenarioType,
+    setupSnapshot?.intensity,
+    setupSnapshot?.parentTone,
+    setupSnapshot?.communicationStyle,
+    setupSnapshot?.parentLanguage,
+    setupSnapshot?.situationDescription,
+  ].map((part) => asText(part, '')).join('|');
+  const index = hashString(seed) % PARENT_CALLER_NAMES.length;
+  return PARENT_CALLER_NAMES[index];
+};
 
 const communicationStyleGuidance = {
   direct: 'Set a clear agenda early and keep each response focused on decisions and next steps.',
@@ -686,6 +704,7 @@ export default function HumanEquationExperience() {
   const [guidedValidationError, setGuidedValidationError] = useState('');
   const [coachingReport, setCoachingReport] = useState(null);
   const [coachingStatus, setCoachingStatus] = useState({ state: 'idle', source: 'none', fallbackReason: null });
+  const [activeParentCallerName, setActiveParentCallerName] = useState(selectParentCallerName(setup));
 
   const pcRef = useRef(null);
   const micStreamRef = useRef(null);
@@ -727,12 +746,23 @@ export default function HumanEquationExperience() {
     const secs = String(seconds % 60).padStart(2, '0');
     return `${mins}:${secs}`;
   }, [callEndedAt, callStartedAt, now]);
+  const userFacingCallStatus = useMemo(() => {
+    if (callStatus === 'Call ended') return 'Call ended';
+    if (/reconnect/i.test(callStatus)) return 'Reconnecting…';
+    if (/connect/i.test(callStatus) && !/ready/i.test(callStatus)) return 'Connecting…';
+    if (/active|in progress/i.test(callStatus)) return 'Call in progress';
+    return 'Ready — say hello to begin';
+  }, [callStatus]);
 
   useEffect(() => {
     if (stage !== 'active') return undefined;
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, [stage]);
+
+  useEffect(() => {
+    setActiveParentCallerName(selectParentCallerName(setup));
+  }, [setup]);
 
   const nextStage = () => setStage(stages[Math.min(stages.indexOf(stage) + 1, stages.length - 1)]);
 
@@ -1430,7 +1460,7 @@ export default function HumanEquationExperience() {
     const fileName = `human-equation-report-${stamp.getFullYear()}-${pad(stamp.getMonth() + 1)}-${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}.txt`;
     const scenarioMeta = [
       `- Scenario: ${(setup.practiceMode === 'guided' ? setup.situationDescription : translateOption(setup.scenarioType)) || fallback}`,
-      `- Parent: ${setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}`,
+      `- Parent: ${activeParentCallerName}`,
       `- Issue: ${translateOption(setup.callType) || fallback}`,
       `- Call duration: ${resolvedCallDuration || fallback}`,
       `- Parent language: ${translateOption(setup.parentLanguage) || fallback}`,
@@ -1776,7 +1806,7 @@ export default function HumanEquationExperience() {
           <div className={styles.panelCentered}>
             <p className={styles.eyebrow}>{t('he.incomingCall')}</p>
             <div className={styles.callOrb} />
-            <h2>Parent Caller: {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'} ({translateOption(setup.gradeBand)})</h2>
+            <h2>Parent Caller: {activeParentCallerName} ({translateOption(setup.gradeBand)})</h2>
             <p className={styles.subtle}>{translateOption(setup.scenarioType)} • {translateOption(setup.callType)}</p>
             <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
               <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
@@ -1805,25 +1835,13 @@ export default function HumanEquationExperience() {
               <p className={styles.eyebrow}>{t('he.liveVoiceSimulation')}</p>
               <div className={styles.timer}>{callDuration}</div>
             </div>
-            <p className={styles.subtle}><strong>Human Equation Build:</strong> {HUMAN_EQUATION_BUILD_VERSION}</p>
-            <h2>Ms. Rodriguez — Parent Caller</h2>
-            <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong> • {callStatus}</p>
+            <h2>{activeParentCallerName} — Parent Caller</h2>
+            <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong></p>
             <p className={styles.subtle}>When the call connects, say hello first to begin. The parent will respond after hearing your voice.</p>
             <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
               <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
             <div className={styles.callStatusGrid}>
-              <p><strong>Mic status:</strong> {micPermission}</p>
-              <p><strong>Mic stream status:</strong> {rtcDiagnostics.micStreamStatus}</p>
-              <p><strong>Audio tracks found:</strong> {rtcDiagnostics.audioTrackCount}</p>
-              <p><strong>First audio track enabled:</strong> {rtcDiagnostics.firstTrackEnabled}</p>
-              <p><strong>First audio track muted:</strong> {rtcDiagnostics.firstTrackMuted}</p>
-              <p><strong>WebRTC connection state:</strong> {rtcDiagnostics.peerConnectionState}</p>
-              <p><strong>ICE connection state:</strong> {rtcDiagnostics.iceConnectionState}</p>
-              <p><strong>Data channel state:</strong> {rtcDiagnostics.dataChannelState}</p>
-              <p><strong>Realtime session status:</strong> {rtcDiagnostics.realtimeSessionStatus}</p>
-              <p><strong>Realtime session started:</strong> {rtcDiagnostics.realtimeSessionStarted ? 'true' : 'false'}</p>
-              <p><strong>Peer connection created:</strong> {rtcDiagnostics.peerConnectionCreated ? 'true' : 'false'}</p>
-              <p><strong>Data channel open:</strong> {rtcDiagnostics.dataChannelOpen ? 'true' : 'false'}</p>
+              <p><strong>Status:</strong> {userFacingCallStatus}</p>
               <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
               {noiseWarning && <p className={styles.warningText}>{noiseWarning}</p>}
               {micError && <p className={styles.errorText}>{micError}</p>}
@@ -1875,7 +1893,7 @@ export default function HumanEquationExperience() {
                 </section>
               ) : null}
               <label className={styles.notesLabel}>Call Notes</label>
-              <textarea className={styles.notes} placeholder="Jot down what the parent says, follow-up items, or questions you need to revisit…" value={callNotes} onChange={(e) => setCallNotes(e.target.value)} />
+              <textarea className={`${styles.notes} ${styles.callNotesExpanded}`} placeholder="Jot down what the parent says, follow-up items, questions, or commitments…" value={callNotes} onChange={(e) => setCallNotes(e.target.value)} />
             </aside>
           </div>
         )}
@@ -1885,7 +1903,7 @@ export default function HumanEquationExperience() {
             <h2>Human Equation Post-Call Report</h2>
             <p className={styles.subtle}>{t('he.endReportTranscriptSubtle')}</p>
             <p><strong>Scenario:</strong> {(setup.practiceMode === 'guided' ? setup.situationDescription : translateOption(setup.scenarioType)) || 'Unknown scenario'}</p>
-            <p><strong>Parent:</strong> {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
+            <p><strong>Parent:</strong> {activeParentCallerName}</p>
             <p><strong>Issue:</strong> {translateOption(setup.callType) || 'Unknown issue'}</p>
             <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
             {previewFixtureId ? <p><strong>Preview sample:</strong> {previewFixtureId}</p> : null}
