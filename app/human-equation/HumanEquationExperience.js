@@ -309,11 +309,70 @@ const guidedPracticeFocusOptions = [
   'logistics_operations',
 ];
 
+const toBulletList = (items = []) => (Array.isArray(items) ? items.filter((item) => asText(item, '').trim()) : []);
+
+const buildGuidedEvidencePacketSections = (situationDescription, setup, timingBriefing, practiceFocusKey, parentConcernPrediction) => {
+  const situationText = asText(situationDescription, '').trim();
+  const lower = situationText.toLowerCase();
+  const sections = [];
+  const addSection = (title, items) => {
+    const cleaned = toBulletList(items);
+    if (cleaned.length) sections.push({ title, items: cleaned });
+  };
+  const issueType = /(attendance|absent|tardy|late)/i.test(lower) || practiceFocusKey === 'attendance'
+    ? 'attendance'
+    : /(grade|test|quiz|assignment|failing|class|retest|fair)/i.test(lower) || practiceFocusKey === 'academics_grades'
+      ? 'grades'
+      : /(fight|behavior|referral|discipline|suspend|detention)/i.test(lower) || practiceFocusKey === 'behavior_discipline'
+        ? 'behavior'
+        : /(iep|504|special\s*ed|special\s*education|evaluation|accommodation|support)/i.test(lower) || practiceFocusKey === 'support_needs_iep_504'
+          ? 'support'
+          : /(threat|weapon|safety|harass|bully)/i.test(lower) || practiceFocusKey === 'safety_threat'
+            ? 'safety'
+            : /(bus|transport|pickup|dropoff|arrival|dismissal)/i.test(lower) || practiceFocusKey === 'logistics_operations'
+              ? 'transportation'
+              : 'general';
+
+  addSection('Situation Overview', [
+    `Parent requested follow-up regarding: ${situationText}.`,
+    `This call is being held during ${setup.callTiming.toLowerCase()} after initial fact gathering.`,
+  ]);
+  if (issueType === 'grades') {
+    addSection('Relevant Data Snapshot', ['Current class average is below passing based on recent gradebook entries.', 'Recent assessment performance dropped compared with earlier classwork.', 'Incomplete or missing practice/review work may be contributing to the current grade trend.']);
+    addSection('Teacher / Staff Notes', ['Teacher reports the assessment aligned to current unit standards and review materials.', 'Teacher notes the student had partial completion of practice tasks before the assessment.']);
+    addSection('Previous Parent Communication', ['Parent asked whether the assessment was fair and requested clarification on grading expectations.']);
+  } else if (issueType === 'attendance') {
+    addSection('Relevant Data Snapshot', ['Attendance record shows a pattern of recent absences and/or tardies.', 'Instructional time loss appears concentrated in core academic periods.']);
+    addSection('Front Office Notes', ['Front office logged multiple attendance-related contacts and follow-up attempts.']);
+  } else if (issueType === 'behavior') {
+    addSection('Relevant Data Snapshot', ['Behavior referral entries indicate repeated concerns tied to a similar context.', 'Prior classroom interventions were documented before escalation.']);
+    addSection('Teacher / Staff Notes', ['Staff reports include differing views on student intent and peer involvement.']);
+  } else if (issueType === 'support') {
+    addSection('Relevant Data Snapshot', ['Current progress data shows uneven performance across classes/tasks.', 'Intervention notes indicate support needs were discussed prior to this concern.']);
+    addSection('Teacher / Staff Notes', ['Staff reports concern about access to supports while maintaining student dignity.']);
+    addSection('Previous Parent Communication', ['Parent has expressed concern about how supports may affect student labeling or placement.']);
+  } else if (issueType === 'safety') {
+    addSection('Relevant Data Snapshot', ['Incident timeline includes multiple accounts that are not fully aligned.', 'Immediate supervision and safety steps were initiated pending final review.']);
+    addSection('Administrator Notes', ['Current priority is safety stabilization while facts are still being verified.']);
+  } else if (issueType === 'transportation') {
+    addSection('Front Office Notes', ['Front office recorded transportation-related concerns and parent check-in requests.', 'Transportation information provided to family may not have matched student report.']);
+  }
+
+  addSection('Student Statement', ['Student reports their perspective differs from at least one adult account and wants the full context considered.']);
+  addSection('Known Facts', ['Initial fact gathering is complete, but not all accounts are fully aligned.', 'The family is requesting a clear explanation of what is confirmed and what will happen next.']);
+  addSection('Questions / Unknowns to Clarify', ['Which details are confirmed by records versus verbal accounts only.', 'Whether other students/staff reported similar concerns in the same timeframe.', 'What specific resolution or follow-up outcome the parent is requesting today.']);
+  addSection('Prior Actions Already Taken', [timingBriefing.summary, 'Initial staff/student check-ins were completed and follow-up options were drafted for this call.']);
+  addSection('Professional Note', ['Use this packet to guide clarifying questions; avoid final conclusions until discrepancies are resolved.']);
+  if (parentConcernPrediction) addSection('Administrator Notes', [`Potential parent opening concern to listen for: ${parentConcernPrediction}.`]);
+  return sections;
+};
+
 const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timingBriefing, practiceFocusKey) => {
   const situationText = situationDescription.trim();
   const lower = situationText.toLowerCase();
   const isSupportNeedsConcern = /(iep|504|special\s*ed|special\s*education|evaluation|services|label|stigma)/i.test(lower) || practiceFocusKey === 'support_needs_iep_504';
   const parentConcernPrediction = asText(setup.parentConcernPrediction, '').trim();
+  const evidencePacketSections = buildGuidedEvidencePacketSections(situationText, setup, timingBriefing, practiceFocusKey, parentConcernPrediction);
   return {
     issueSummary: `Core incident (administrator-entered): ${situationText}`,
     knownFacts: isSupportNeedsConcern
@@ -360,6 +419,7 @@ const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timin
     contextFocus: [...(timingBriefing.focus || []), 'Use the administrator-entered situation as the primary anchor for summary, facts, and parent concern.'],
     primaryGoal: timingBriefing.goal,
     timingSummary: timingBriefing.summary,
+    evidencePacketSections,
   };
 };
 
@@ -1556,22 +1616,12 @@ export default function HumanEquationExperience() {
                     ) : (
                       <div className={styles.briefingCard}>
                         <h3>{t('he.preCallBriefing')}</h3>
-                        <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {t('he.guidedPractice')}</p>
-                        <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
-                        <p className={styles.contextLabel}><strong>Practice focus (optional):</strong> {translateOption(setup.practiceFocus) || 'Not set'}</p>
-                        <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
-                        <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
-                        <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
-                        <p className={styles.contextLabel}><strong>{t('he.parentLanguage')}:</strong> {translateOption(setup.parentLanguage)}</p>
-                        <p>{activeBriefing?.timingSummary ?? selectedTimingBriefing.summary}</p>
-                        <p><strong>{t('he.whatKnown')}:</strong> {activeBriefing ? activeBriefing.knownFacts[0] : 'Use confirmed facts and observed behavior from current reports.'}</p>
-                        <p><strong>{t('he.parentConcernFear')}:</strong> {activeBriefing?.parentConcern ?? 'Their child may not be safe, heard, or treated fairly.'}</p>
-                        <p><strong>{t('he.knownFacts')}</strong></p>
-                        <ul>{(activeBriefing?.knownFacts ?? briefings.full.knownFacts).map((item) => <li key={item}>{item}</li>)}</ul>
-                        <p><strong>{t('he.staffReport')}</strong></p>
-                        <ul>{(activeBriefing?.staffReport ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
-                        <p><strong>{t('he.studentStatements')}</strong></p>
-                        <ul>{(activeBriefing?.studentStatements ?? []).map((item) => <li key={item}>{item}</li>)}</ul>
+                        {(activeBriefing?.evidencePacketSections ?? []).map((section) => (
+                          <div key={section.title}>
+                            <p><strong>{section.title}</strong></p>
+                            <ul>{section.items.map((item) => <li key={`${section.title}-${item}`}>{item}</li>)}</ul>
+                          </div>
+                        ))}
                         <p><strong>{t('he.questionsUnknownsToClarify')}</strong></p>
                         <p className={styles.subtle}>{t('he.questionsUnknownsHelper')}</p>
                         <textarea
