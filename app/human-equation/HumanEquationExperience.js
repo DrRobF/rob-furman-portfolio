@@ -457,6 +457,7 @@ export default function HumanEquationExperience() {
     parentOpeningTriggered: false,
   });
   const parentOpeningTimeoutRef = useRef(null);
+  const openingUserUtteranceReceivedRef = useRef(false);
 
   const callDuration = useMemo(() => {
     if (!callStartedAt) return '00:00';
@@ -493,6 +494,7 @@ export default function HumanEquationExperience() {
       peerConnected: false,
       dataChannelOpen: false,
       parentOpeningTriggered: false,
+      openingUserUtteranceReceived: false,
     };
     dcRef.current?.close();
     pcRef.current?.getSenders().forEach((sender) => sender.track?.stop());
@@ -588,6 +590,38 @@ export default function HumanEquationExperience() {
     return deduped;
   };
 
+
+  const appendTranscriptEntries = (entries = []) => {
+    if (!entries.length) return;
+    setTranscriptLines((prev) => {
+      const merged = [...prev];
+      entries.forEach((entry) => {
+        const normalizedText = asText(entry?.text, '').trim().toLowerCase().replace(/\s+/g, ' ');
+        if (!normalizedText) return;
+        const incomingTime = Number(entry?.timestamp || Date.now());
+        const incomingRole = asText(entry?.role, 'unknown');
+        const hasMatchingUser = merged.some((existing) => {
+          const existingText = asText(existing?.text, '').trim().toLowerCase().replace(/\s+/g, ' ');
+          const existingTime = Number(existing?.timestamp || 0);
+          return existingText === normalizedText && asText(existing?.role, 'unknown') === 'user' && Math.abs(existingTime - incomingTime) <= 2500;
+        });
+        if (incomingRole === 'unknown' && hasMatchingUser) return;
+        if (incomingRole === 'user') {
+          for (let i = merged.length - 1; i >= 0; i -= 1) {
+            const existing = merged[i];
+            const existingText = asText(existing?.text, '').trim().toLowerCase().replace(/\s+/g, ' ');
+            const existingTime = Number(existing?.timestamp || 0);
+            if (existingText === normalizedText && asText(existing?.role, 'unknown') === 'unknown' && Math.abs(existingTime - incomingTime) <= 2500) {
+              merged.splice(i, 1);
+            }
+          }
+        }
+        const duplicateSameRole = merged.some((existing) => asText(existing?.role, 'unknown') === incomingRole && asText(existing?.text, '').trim().toLowerCase().replace(/\s+/g, ' ') === normalizedText && Math.abs(Number(existing?.timestamp || 0) - incomingTime) <= 1200);
+        if (!duplicateSameRole) merged.push(entry);
+      });
+      return merged;
+    });
+  };
   useEffect(() => {
     const assessMicReadiness = async () => {
       try {
@@ -672,6 +706,7 @@ export default function HumanEquationExperience() {
       });
     }
     setCallStartedAt(Date.now());
+    openingUserUtteranceReceivedRef.current = false;
     setTranscriptLines([]);
     setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
     setShowDebugPanel(false);
@@ -683,7 +718,7 @@ export default function HumanEquationExperience() {
     setSessionError('');
     setRtcDiagnostics((prev) => ({
       ...prev,
-        peerConnectionCreated: false,
+      peerConnectionCreated: false,
       dataChannelOpen: false,
       realtimeSessionStarted: false,
       realtimeSessionStatus: 'not_started',
@@ -697,6 +732,7 @@ export default function HumanEquationExperience() {
         peerConnected: false,
         dataChannelOpen: false,
         parentOpeningTriggered: false,
+        openingUserUtteranceReceived: false,
       };
       const triggerParentOpeningWhenReady = () => {
         const readiness = callReadinessRef.current;
@@ -707,18 +743,33 @@ export default function HumanEquationExperience() {
           && readiness.dataChannelOpen;
         if (!readyForOpening) return;
         readiness.parentOpeningTriggered = true;
-        console.log('HUMAN_EQUATION_PARENT_OPENING_READINESS_CONFIRMED');
-        parentOpeningTimeoutRef.current = setTimeout(() => {
-          const dc = dcRef.current;
-          if (!dc || dc.readyState !== 'open') return;
-          console.log('HUMAN_EQUATION_PARENT_OPENING_TRIGGERED');
-          dc.send(JSON.stringify({
-            type: 'response.create',
-            response: {
-              modalities: ['audio', 'text'],
-            },
-          }));
-        }, 700);
+        console.log('HUMAN_EQUATION_PARENT_OPENING_READINESS_CONFIRMED_WAITING_FOR_USER');
+        setCallStatus('Live call connected — say hello to begin');
+      };
+
+      const maybeTriggerOpeningResponseFromFirstUserTurn = (message) => {
+        const eventType = asText(message?.type, '');
+        if (eventType !== 'conversation.item.input_audio_transcription.completed') return;
+        const utterance = asText(message?.transcript, '').trim();
+        if (!utterance) return;
+        const readiness = callReadinessRef.current;
+        if (openingUserUtteranceReceivedRef.current || readiness.openingUserUtteranceReceived) return;
+        const readyForOpening = readiness.remoteTrackReceived
+          && readiness.audioPlayAttempted
+          && readiness.peerConnected
+          && readiness.dataChannelOpen;
+        if (!readyForOpening) return;
+        openingUserUtteranceReceivedRef.current = true;
+        readiness.openingUserUtteranceReceived = true;
+        console.log('HUMAN_EQUATION_FIRST_USER_OPENING_TURN_CAPTURED', { utterance });
+        const dc = dcRef.current;
+        if (!dc || dc.readyState !== 'open') return;
+        dc.send(JSON.stringify({
+          type: 'response.create',
+          response: {
+            modalities: ['audio', 'text'],
+          },
+        }));
       };
       const stream = micStreamRef.current?.active ? micStreamRef.current : await ensureMicStream();
       micStreamRef.current = stream;
@@ -820,6 +871,8 @@ export default function HumanEquationExperience() {
           const eventType = asText(message?.type, '');
           if (!eventType) return;
 
+          maybeTriggerOpeningResponseFromFirstUserTurn(message);
+
           setRealtimeEventCounts((prev) => ({
             ...prev,
             [eventType]: (prev[eventType] || 0) + 1,
@@ -836,7 +889,7 @@ export default function HumanEquationExperience() {
             case 'response.done': {
               const transcriptEntries = extractTranscriptEntries(message);
               if (transcriptEntries.length) {
-                setTranscriptLines((prev) => [...prev, ...transcriptEntries]);
+                appendTranscriptEntries(transcriptEntries);
               }
               const fullText = rawPayload.toLowerCase();
               if (fullText.includes('i hear you') || fullText.includes('thank you for explaining')) {
@@ -850,7 +903,7 @@ export default function HumanEquationExperience() {
             case 'response.output_text.done': {
               const transcriptEntries = extractTranscriptEntries(message);
               if (transcriptEntries.length) {
-                setTranscriptLines((prev) => [...prev, ...transcriptEntries]);
+                appendTranscriptEntries(transcriptEntries);
               }
               return;
             }
@@ -862,7 +915,7 @@ export default function HumanEquationExperience() {
               if (TRANSCRIPT_EVENT_TYPES.has(eventType)) {
                 const transcriptEntries = extractTranscriptEntries(message);
                 if (transcriptEntries.length) {
-                  setTranscriptLines((prev) => [...prev, ...transcriptEntries]);
+                  appendTranscriptEntries(transcriptEntries);
                 }
               }
               // Ignore unknown realtime event types so new API events cannot crash the UI.
@@ -1409,6 +1462,7 @@ export default function HumanEquationExperience() {
               {!hasMicrophone && <p className={styles.errorText}>No microphone detected.</p>}
               <button type="button" className={styles.secondaryAction} onClick={testMicrophone}>{t('he.testMicrophone')}</button>
             </div>
+            <p className={styles.subtle}>When the call connects, say hello first to begin. The parent will respond after hearing your voice.</p>
             <button className={styles.cta} onClick={beginCall} disabled={Boolean(micError) || !hasMicrophone}>{t('he.answerBegin')}</button>
           </div>
         )}
@@ -1421,6 +1475,7 @@ export default function HumanEquationExperience() {
             <p className={styles.subtle}><strong>Human Equation Build:</strong> {HUMAN_EQUATION_BUILD_VERSION}</p>
             <h2>Ms. Rodriguez — Parent Caller</h2>
             <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong> • {callStatus}</p>
+            <p className={styles.subtle}>When the call connects, say hello first to begin. The parent will respond after hearing your voice.</p>
             <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
               <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
             <div className={styles.callStatusGrid}>
