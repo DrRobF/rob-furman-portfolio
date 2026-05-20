@@ -311,12 +311,11 @@ const guidedPracticeFocusOptions = [
 
 const toBulletList = (items = []) => (Array.isArray(items) ? items.filter((item) => asText(item, '').trim()) : []);
 
-const buildGuidedEvidencePacketSections = (situationDescription, setup, timingBriefing, practiceFocusKey, parentConcernPrediction) => {
-  const situationText = asText(situationDescription, '').trim();
+const buildGuidedEvidencePacketSections = (situationText, setup, timingBriefing, practiceFocusKey, parentConcernPrediction = '') => {
   const lower = situationText.toLowerCase();
   const sections = [];
-  const addSection = (title, items) => {
-    const cleaned = toBulletList(items);
+  const addSection = (title, items = []) => {
+    const cleaned = items.map((item) => asText(item, '').trim()).filter(Boolean);
     if (cleaned.length) sections.push({ title, items: cleaned });
   };
 
@@ -334,94 +333,83 @@ const buildGuidedEvidencePacketSections = (situationDescription, setup, timingBr
               ? 'transportation'
               : 'general';
 
-  addSection('Situation Overview', [
-    `Administrator-entered concern: ${situationText}.`,
-    `Call context: ${setup.callTiming.replaceAll('_', ' ')} (${setup.callType.replaceAll('_', ' ')}).`,
+  addSection('What We Know Going Into the Call', [
+    `Main concern from setup: ${situationText}.`,
+    `Conversation setup: ${setup.callTiming.replaceAll('_', ' ')} (${setup.callType.replaceAll('_', ' ')}).`,
   ]);
 
   if (issueType === 'support') {
-    addSection('Relevant Data Snapshot', [
-      'Reading benchmark remains below grade-level band in the two most recent windows.',
-      '5 missing assignments were recorded across core classes in the last 3 weeks.',
-      'Attendance is mostly stable; 1 absence and 2 tardies this month.',
-      'No active special education eligibility has been entered in records to date.',
+    addSection('Records Snapshot', [
+      'Reading benchmark trend: 18th percentile (winter) -> 16th percentile (spring).',
+      'Writing samples from April and May were both returned incomplete in ELA.',
+      'Intervention log shows 6 push-in supports this month; student accepted help in 4 of 6.',
+      'No signed consent form for a formal evaluation is on file yet.',
     ]);
-    addSection('Teacher / Staff Notes', [
-      "ELA teacher: 'Student can discuss text verbally but written responses are often incomplete unless prompted one-on-one.'",
-      "Math teacher: 'Work completion drops on multi-step tasks; student may stop after the first problem.'",
-      "Case manager note: 'Classroom interventions are documented, but progress is inconsistent by class.'",
-    ]);
-    addSection('Front Office Notes', [
-      'Parent called yesterday around 2:40 PM requesting an administrator callback before any meeting is scheduled.',
-      'Office log shows 2 prior family contacts this quarter related to academic support questions.',
-    ]);
-    addSection('Previous Parent Communication', [
-      "Parent email excerpt: 'I do not want my child labeled or pulled out of regular classes.'",
-      "Parent also asked what supports can happen in class before any formal evaluation step.",
-    ]);
-    addSection('Student Statement', [
-      "'I'm not dumb. I just need more time sometimes.'",
-    ]);
-    addSection('Known Facts', [
-      'Staff discussed additional support options; no formal special education evaluation has been started.',
-      'Family requested clarification on process before consenting to next steps.',
-    ]);
-    addSection('Questions / Unknowns to Clarify', [
-      'Which supports the family will accept immediately in general education classes.',
-      'Whether the parent concern is about labeling, placement, or prior experiences with services.',
-      'What timeline the family expects for written follow-up after this call.',
-    ]);
-    addSection('Prior Actions Already Taken', [
-      'Gradebook, benchmark, and intervention notes were pulled for administrator review.',
-      'Teachers submitted short written observations before this callback.',
+    addSection('Staff and Family Notes', [
+      "ELA teacher noted: 'He can explain the text out loud, but when the written response starts he freezes and asks to go to the nurse.'",
+      "Counselor wrote after 5/12 check-in: 'Student said he does not want classmates to know he might need extra help.'",
+      "Parent email excerpt: 'I don't want him pulled out and embarrassed. We need to talk about what this label would follow him for.'",
+      "Student comment to case manager: 'If I get special classes everyone is going to think I'm dumb.'",
     ]);
   } else if (issueType === 'grades') {
-    addSection('Relevant Data Snapshot', [
-      'Current course grade is below passing in at least one core class.',
-      'Missing assignment count increased over the current grading window.',
-      'Quiz scores are lower than classwork completion trend.',
+    addSection('Records Snapshot', [
+      'Current Algebra average: 58% (D/F border).',
+      'Last three quiz scores: 52%, 49%, 61%.',
+      'Classwork completion is higher than test performance (roughly 80% vs low-50s).',
+      'Missing assignments this week: Review Packet 4.2, Quiz Corrections, Linear Equations Homework.',
     ]);
-    addSection('Teacher / Staff Notes', [
-      "Teacher note: 'Student is respectful, but independent work often comes in late or incomplete.'",
-      "Intervention block teacher: 'Student attends support period, but follow-through is uneven week to week.'",
-    ]);
-    addSection('Previous Parent Communication', [
-      "Parent message: 'I need to know why this grade dropped so fast and what can be fixed now.'",
+    addSection('Teacher, Parent, and Student Notes', [
+      "Math teacher noted: 'Student participates during guided examples but shuts down once independent work starts.'",
+      "Math teacher follow-up: 'I offered lunch tutoring twice this month. Student attended once.'",
+      "Parent email excerpt: 'I don't understand how my child went from a B to failing this quickly.'",
+      "Student statement from class conference: 'I thought I understood it until the test.'",
     ]);
   } else if (issueType === 'attendance') {
-    addSection('Relevant Data Snapshot', [
-      'Absences and tardies increased over the last 4 instructional weeks.',
-      'Most missed time is in morning core periods.',
+    addSection('Attendance Picture', [
+      'Past 20 school days: 4 tardies, 2 absences.',
+      'Five of six attendance marks were in first period.',
+      'Attendance clerk logged 3 parent calls this month citing transportation delays.',
+      'Counselor outreach on 5/09 offered a morning check-in plan; family has not confirmed.',
     ]);
-    addSection('Front Office Notes', [
-      'Attendance clerk logged multiple same-day calls with mixed reasons for late arrival.',
-      'Family requested flexibility but has not submitted updated documentation yet.',
+    addSection('Family and Student Voice', [
+      "Front office call note: 'Parent said the bus has been missing the stop and mornings have been chaotic.'",
+      "Parent voicemail excerpt: 'We're trying, but by the time we get him there he's already marked late again.'",
+      "Student said during attendance conference: 'I hate walking in late when everyone stares.'",
     ]);
   } else if (issueType === 'behavior') {
-    addSection('Relevant Data Snapshot', [
-      'Referral entries show repeated incidents in similar settings/time blocks.',
-      'Prior classroom redirection strategies were attempted before office referral.',
+    addSection('Incident Pattern in Records', [
+      'Three referrals in nine school days, all in the last 20 minutes of class.',
+      'Two incidents involved peer comments escalating into verbal arguments.',
+      'Teacher documented redirection attempts before each office referral.',
     ]);
-    addSection('Teacher / Staff Notes', [
-      "Teacher note: 'Student responds to private redirection better than public correction.'",
-      "Dean note: 'Peer accounts are not fully aligned yet; follow-up interviews are still pending.'",
+    addSection('Different Adult Accounts', [
+      "Classroom teacher wrote: 'He cools down when I move him, but he reacts fast when peers laugh.'",
+      "Dean note from 5/14: 'Student says he was being targeted; two peer statements conflict on who started it.'",
+      "Parent call note: 'He's coming home saying nobody listens until he gets loud.'",
     ]);
   } else if (issueType === 'safety') {
-    addSection('Administrator Notes', [
-      'Immediate supervision and safety protocols were activated the same day.',
-      'Accounts were collected from involved staff; student interviews are partially complete.',
+    addSection('Safety Response Logged', [
+      'Student supervision plan was activated the same day; student was not left unsupervised.',
+      'Assistant principal collected staff statements from periods 2, 3, and lunch.',
+      'Two student witness statements are still pending as of this briefing.',
     ]);
-    addSection('Questions / Unknowns to Clarify', [
-      'Any remaining witness accounts that could change incident sequence.',
-      'What immediate reassurance the family needs before final findings are issued.',
+    addSection('Open Questions Before Final Findings', [
+      'Timeline mismatch remains between lunch monitor report and student account.',
+      'Parent is asking whether student can safely return to usual hallway transition tomorrow.',
+    ]);
+  } else {
+    addSection('Working Notes from Staff', [
+      'Team has partial information from staff notes and gradebook/attendance records.',
+      'Several details still need direct confirmation with family before next-step decisions.',
+      "Office note: 'Family asked for a straight answer, not another scripted update.'",
     ]);
   }
 
   if (parentConcernPrediction) {
-    addSection('Professional Note', [`Possible opening concern to prepare for: ${parentConcernPrediction}.`]);
+    addSection('Likely Opening Concern From Parent', [parentConcernPrediction]);
   }
 
-  return sections;
+  return sections.slice(0, 5);
 };
 
 const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timingBriefing, practiceFocusKey) => {
@@ -431,7 +419,7 @@ const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timin
   const parentConcernPrediction = asText(setup.parentConcernPrediction, '').trim();
   const evidencePacketSections = buildGuidedEvidencePacketSections(situationText, setup, timingBriefing, practiceFocusKey, parentConcernPrediction);
   return {
-    issueSummary: `Core incident (administrator-entered): ${situationText}`,
+    issueSummary: `Core issue for this call: ${situationText}`,
     knownFacts: isSupportNeedsConcern
       ? [
         `The parent is resisting or questioning special education supports/evaluation connected to this concern: "${situationText}".`,
@@ -439,7 +427,7 @@ const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timin
         'School staff see potential support needs and need to clarify process, rights, and next steps without pressure language.',
       ]
       : [
-        `Administrator-entered source-of-truth concern: "${situationText}".`,
+        `Reported concern: "${situationText}".`,
         `This call is taking place during ${setup.callTiming.toLowerCase()} and should stay anchored to the entered concern.`,
         'Known facts should remain narrow until clarifying questions confirm scope, impact, and required next steps.',
       ],
@@ -462,18 +450,18 @@ const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timin
       'Which specific details are confirmed versus inferred, and what evidence is still needed.',
       'What support options and communication approach will preserve trust while meeting school obligations.',
     ],
-    leadershipChallenge: 'Use the administrator-entered situation as the source of truth. Do not replace it with a generic issue card. Issue cards are supporting context only.',
+    leadershipChallenge: 'Stay grounded in the reported concern and avoid drifting into generic talking points.',
     priorActions: {
-      light: 'Initial context has been gathered; additional verification and family-centered clarification are still needed.',
-      detailed: 'Pre-call review flagged the entered situation as the primary anchor; follow-up questions and support pathways were prepared.',
+      light: 'Office team pulled basic records, but several details still need confirmation on the call.',
+      detailed: 'Before this call, staff reviewed gradebook/attendance/incident notes and flagged timeline gaps to clarify with family.',
     },
     parentConcern: parentConcernPrediction
-      ? `Likely parent concern (predicted): ${parentConcernPrediction}`
+      ? `Likely opening concern from parent: ${parentConcernPrediction}`
       : isSupportNeedsConcern
         ? 'The parent fears stigma, labeling, or inappropriate placement and wants to protect their child from being viewed negatively.'
         : 'The parent fears the school is missing the real issue and wants a fair, specific response tied to their stated concern.',
-    suggestedMindset: 'Validate emotion, preserve dignity, and translate process into plain language while staying anchored to the administrator-entered concern.',
-    contextFocus: [...(timingBriefing.focus || []), 'Use the administrator-entered situation as the primary anchor for summary, facts, and parent concern.'],
+    suggestedMindset: 'Acknowledge emotion, speak plainly, and keep the conversation tied to what was actually reported.',
+    contextFocus: [...(timingBriefing.focus || []), 'Keep summary, facts, and next steps tied to the reported concern.'],
     primaryGoal: timingBriefing.goal,
     timingSummary: timingBriefing.summary,
     evidencePacketSections,
@@ -547,7 +535,7 @@ const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'e
     leadershipChallenge: guidedSituationBriefing?.leadershipChallenge || pickOne(scenarioProfile.leadershipChallenge),
     priorActions: guidedSituationBriefing?.priorActions || scenarioProfile.priorActions,
     parentConcern: guidedSituationBriefing?.parentConcern || (isGuided && parentConcernPrediction
-      ? `Likely parent concern (predicted): ${parentConcernPrediction}`
+      ? `Likely opening concern from parent: ${parentConcernPrediction}`
       : `${scenarioProfile.parentConcern} Expect pressure for clear accountability, communication, and timelines.`),
     suggestedMindset: `${scenarioProfile.mindset} Keep your language practical, calm, and action-oriented for ${baseSetup.gradeBand.toLowerCase()} families.`,
     contextFocus: [...(guidedSituationBriefing?.contextFocus || timingBriefing.focus || []), ...dynamicFocus],
