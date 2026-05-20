@@ -54,16 +54,28 @@
 .subtle { color:#647d93; }
 
 .callLayout { padding:1.35rem; }
-.callLayout { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(360px,1fr); gap:1rem; align-items:start; }
+.callLayout { display:grid; grid-template-columns:minmax(0,1fr) minmax(380px,1fr); gap:1rem; align-items:start; }
 .callMainColumn,.callSideColumn { min-width:0; }
 .callHeader { display:flex; justify-content:space-between; align-items:center; }
 .callStatusGrid { margin-top:.8rem; display:grid; gap:.25rem; padding:.75rem; border:1px solid #d6dee6; border-radius:10px; background:#f8fafc; }
 .timer { font-size:1.1rem; font-variant-numeric: tabular-nums; color:#395268; }
-.waveform { margin:1.1rem 0; height:64px; border-radius:12px; background: repeating-linear-gradient(90deg, #94adbf 0 6px, #d6e0e8 6px 12px); opacity:.9; animation:pulse 2s ease-in-out infinite; }
-@keyframes pulse { 0%,100% { transform:scaleY(1);} 50% { transform:scaleY(1.05);} }
+.audioActivityPanel { margin:1rem 0 1.2rem; padding:.75rem .9rem; border:1px solid #d6dee6; border-radius:12px; background:#f8fafc; }
+.audioActivityLabel { margin:0 0 .55rem; color:#395268; font-weight:700; font-size:.88rem; letter-spacing:.02em; }
+.waveform { height:74px; border-radius:12px; padding:.45rem .6rem; background: linear-gradient(180deg, #e8eff5, #dbe5ee); display:flex; align-items:flex-end; gap:.28rem; overflow:hidden; }
+.waveformBar { flex:1; min-width:4px; max-width:10px; border-radius:999px; height:20%; background:linear-gradient(180deg, #7d9ab6, #4f6f8d); opacity:.4; transform-origin:bottom; }
+.waveformConnecting .waveformBar { animation:idlePulse 1.8s ease-in-out infinite; }
+.waveformActive .waveformBar { opacity:.95; animation:activeBars .75s ease-in-out infinite; }
+.waveformInactive .waveformBar { animation:none; opacity:.25; height:16%; }
+.waveformBar:nth-child(odd) { animation-delay:-.4s; }
+.waveformBar:nth-child(3n) { animation-delay:-.2s; }
+@keyframes idlePulse { 0%,100% { transform:scaleY(.35);} 50% { transform:scaleY(.55);} }
+@keyframes activeBars { 0%,100% { transform:scaleY(.35);} 25% { transform:scaleY(1);} 50% { transform:scaleY(.5);} 75% { transform:scaleY(.85);} }
 .notesLabel { display:block; margin-bottom:.45rem; color:#486077; font-weight:600; }
 .notes { width:100%; min-height:120px; border-radius:12px; border:1px solid #ccd6df; padding:.7rem; background:#fff; }
-.callNotesExpanded { min-height: 280px; resize: vertical; }
+.callNotesExpanded { min-height: 240px; max-height: 34vh; resize: vertical; }
+.callSideColumn { max-height: min(74vh, 760px); display:flex; flex-direction:column; gap:.85rem; }
+.callSideWorkspace { min-height:0; overflow:auto; padding-right:.15rem; }
+.callNotesDock { border:1px solid #d6dee6; border-radius:12px; padding:.85rem; background:#f8fafc; }
 
 .reportMeta { display:grid; gap:1rem; margin:1rem 0 1.1rem; }
 .transcriptBlock { border:1px solid #d6dee7; border-radius:12px; padding:.9rem; background:#f9fbfc; }
@@ -78,11 +90,6 @@
   .callHeader { flex-direction:column; align-items:flex-start; }
   .guidedLayout { grid-template-columns:1fr; }
   .callLayout { grid-template-columns:1fr; }
-}
-
-.waveformActive {
-  animation-duration: .6s;
-  filter: saturate(1.25);
 }
 
 .contextLabel { color:#395268; font-weight:600; margin:.45rem 0; }
