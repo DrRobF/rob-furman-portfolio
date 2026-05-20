@@ -333,9 +333,8 @@ const buildGuidedEvidencePacketSections = (situationText, setup, timingBriefing,
               ? 'transportation'
               : 'general';
 
-  addSection('What We Know Going Into the Call', [
-    `Main concern from setup: ${situationText}.`,
-    `Conversation setup: ${setup.callTiming.replaceAll('_', ' ')} (${setup.callType.replaceAll('_', ' ')}).`,
+  addSection('Situation Overview', [
+    `Parent requested follow-up regarding ${situationText}.`,
   ]);
 
   if (issueType === 'support') {
@@ -351,6 +350,11 @@ const buildGuidedEvidencePacketSections = (situationText, setup, timingBriefing,
       "Parent email excerpt: 'I don't want him pulled out and embarrassed. We need to talk about what this label would follow him for.'",
       "Student comment to case manager: 'If I get special classes everyone is going to think I'm dumb.'",
     ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'What does the parent believe support services or evaluation will change for their child?',
+      'Has the family had prior negative experiences with supports, labeling, or special education processes?',
+      'Which support options would the parent consider acceptable right now?',
+    ]);
   } else if (issueType === 'grades') {
     addSection('Records Snapshot', [
       'Current Algebra average: 58% (D/F border).',
@@ -364,6 +368,11 @@ const buildGuidedEvidencePacketSections = (situationText, setup, timingBriefing,
       "Parent email excerpt: 'I don't understand how my child went from a B to failing this quickly.'",
       "Student statement from class conference: 'I thought I understood it until the test.'",
     ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'Is the parent seeing similar frustration patterns during homework at home?',
+      'What barriers are keeping the student from using available tutoring and reteach supports consistently?',
+      'Which grading or reassessment expectations does the parent still need clarified?',
+    ]);
   } else if (issueType === 'attendance') {
     addSection('Attendance Picture', [
       'Past 20 school days: 4 tardies, 2 absences.',
@@ -376,6 +385,11 @@ const buildGuidedEvidencePacketSections = (situationText, setup, timingBriefing,
       "Parent voicemail excerpt: 'We're trying, but by the time we get him there he's already marked late again.'",
       "Student said during attendance conference: 'I hate walking in late when everyone stares.'",
     ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'What transportation or morning routine barriers are still unresolved at home?',
+      'Would the family accept an adjusted morning check-in or attendance support plan?',
+      'What first-period factors make late arrivals especially hard for this student?',
+    ]);
   } else if (issueType === 'behavior') {
     addSection('Incident Pattern in Records', [
       'Three referrals in nine school days, all in the last 20 minutes of class.',
@@ -387,6 +401,11 @@ const buildGuidedEvidencePacketSections = (situationText, setup, timingBriefing,
       "Dean note from 5/14: 'Student says he was being targeted; two peer statements conflict on who started it.'",
       "Parent call note: 'He's coming home saying nobody listens until he gets loud.'",
     ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'What does the parent believe is triggering the escalation pattern most often?',
+      'Which de-escalation approaches has the student responded to outside this classroom?',
+      'What consequences or supports does the family believe would help reduce repeat incidents?',
+    ]);
   } else if (issueType === 'safety') {
     addSection('Safety Response Logged', [
       'Student supervision plan was activated the same day; student was not left unsupervised.',
@@ -397,11 +416,21 @@ const buildGuidedEvidencePacketSections = (situationText, setup, timingBriefing,
       'Timeline mismatch remains between lunch monitor report and student account.',
       'Parent is asking whether student can safely return to usual hallway transition tomorrow.',
     ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'Which outstanding witness details are still needed before finalizing findings?',
+      'What immediate safety assurances does the family expect before regular transitions resume?',
+      'What temporary safeguards should be clarified with the parent for the next school day?',
+    ]);
   } else {
     addSection('Working Notes from Staff', [
       'Team has partial information from staff notes and gradebook/attendance records.',
       'Several details still need direct confirmation with family before next-step decisions.',
       "Office note: 'Family asked for a straight answer, not another scripted update.'",
+    ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'Which facts does the family have that are not yet documented by the school?',
+      'What specific outcome is the parent expecting from this follow-up call?',
+      'Which next steps can be confirmed during the call versus after further review?',
     ]);
   }
 
@@ -1581,6 +1610,8 @@ export default function HumanEquationExperience() {
 
     console.log('HUMAN_EQUATION_GUIDED_SELECTED_VALUES', forcedGuidedSetup);
     console.log('HUMAN_EQUATION_GUIDED_GENERATED_SCENARIO', generatedScenario);
+    const generatedUnknowns = (generatedScenario?.evidencePacketSections ?? []).find((section) => section?.title === 'Questions / Unknowns to Clarify');
+    setPrepUnknownsNotes((generatedUnknowns?.items ?? []).map((item) => `- ${item}`).join('\n'));
     setGuidedScenario(generatedScenario);
     setSetup((prev) => ({
       ...forcedGuidedSetup,
@@ -1697,14 +1728,6 @@ export default function HumanEquationExperience() {
                             <ul>{section.items.map((item) => <li key={`${section.title}-${item}`}>{item}</li>)}</ul>
                           </div>
                         ))}
-                        <p><strong>{t('he.questionsUnknownsToClarify')}</strong></p>
-                        <p className={styles.subtle}>{t('he.questionsUnknownsHelper')}</p>
-                        <textarea
-                          className={`${styles.notes} ${styles.setupNotes}`}
-                          placeholder={t('he.questionsUnknownsPlaceholder')}
-                          value={prepUnknownsNotes}
-                          onChange={(e) => setPrepUnknownsNotes(e.target.value)}
-                        />
                         <button className={styles.cta} onClick={nextStage}>{t('he.startCall')}</button>
                       </div>
                     )}
