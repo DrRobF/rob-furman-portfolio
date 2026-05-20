@@ -12,6 +12,13 @@ const projects = [
     linkText: 'Learn About Simulation →',
   },
   {
+    title: 'The Human Equation',
+    description:
+      'Practice high-pressure parent and school leadership conversations with realistic AI roleplay, post-call coaching, and reflection tools designed to help leaders build trust, clarity, and composure under pressure.',
+    href: '/human-equation',
+    linkText: 'Try The Human Equation →',
+  },
+  {
     title: 'VIC: Virtual Co-Teacher',
     description:
       'An AI-supported instructional system that functions as an additional teacher — guiding learning, adapting to students, and extending support beyond the classroom. Built to operate inside real instructional environments, VIC focuses on improving student understanding and teacher capacity.',

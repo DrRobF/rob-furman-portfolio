@@ -50,6 +50,13 @@ const featuredProjects = [
     linkText: 'Learn About Simulation →',
   },
   {
+    title: 'The Human Equation',
+    description:
+      'AI-powered leadership rehearsal for emotionally difficult school conversations.',
+    href: '/human-equation',
+    linkText: 'Try The Human Equation →',
+  },
+  {
     title: 'VIC: Virtual Co-Teacher',
     description:
       'An AI-supported co-teacher that guides instruction, adapts to students, and extends learning beyond the classroom.',
