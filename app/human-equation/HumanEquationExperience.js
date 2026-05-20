@@ -458,6 +458,10 @@ export default function HumanEquationExperience() {
   });
   const parentOpeningTimeoutRef = useRef(null);
   const openingUserUtteranceReceivedRef = useRef(false);
+  const openingUserTurnRef = useRef(null);
+  const pendingOpeningUserTurnRef = useRef(null);
+  const firstUserTurnCommittedRef = useRef(false);
+  const openingResponseTriggeredRef = useRef(false);
 
   const callDuration = useMemo(() => {
     if (!callStartedAt) return '00:00';
@@ -600,6 +604,16 @@ export default function HumanEquationExperience() {
         if (!normalizedText) return;
         const incomingTime = Number(entry?.timestamp || Date.now());
         const incomingRole = asText(entry?.role, 'unknown');
+        const openingTurn = openingUserTurnRef.current;
+        const openingTurnText = asText(openingTurn?.text, '').trim().toLowerCase().replace(/\s+/g, ' ');
+        if (openingTurnText && normalizedText === openingTurnText && (incomingRole === 'unknown' || incomingRole === 'user')) {
+          const existingOpeningUser = merged.some((existing) => {
+            const existingText = asText(existing?.text, '').trim().toLowerCase().replace(/\s+/g, ' ');
+            return asText(existing?.role, 'unknown') === 'user' && existingText === openingTurnText;
+          });
+          if (existingOpeningUser && incomingRole !== 'user') return;
+          if (existingOpeningUser && incomingRole === 'user') return;
+        }
         const hasMatchingUser = merged.some((existing) => {
           const existingText = asText(existing?.text, '').trim().toLowerCase().replace(/\s+/g, ' ');
           const existingTime = Number(existing?.timestamp || 0);
@@ -707,6 +721,10 @@ export default function HumanEquationExperience() {
     }
     setCallStartedAt(Date.now());
     openingUserUtteranceReceivedRef.current = false;
+    openingUserTurnRef.current = null;
+    pendingOpeningUserTurnRef.current = null;
+    firstUserTurnCommittedRef.current = false;
+    openingResponseTriggeredRef.current = false;
     setTranscriptLines([]);
     setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
     setShowDebugPanel(false);
@@ -734,6 +752,61 @@ export default function HumanEquationExperience() {
         parentOpeningTriggered: false,
         openingUserUtteranceReceived: false,
       };
+      openingUserTurnRef.current = null;
+      pendingOpeningUserTurnRef.current = null;
+      firstUserTurnCommittedRef.current = false;
+      openingResponseTriggeredRef.current = false;
+      const normalizeUtterance = (value) => asText(value, '').trim().replace(/\s+/g, ' ');
+      const triggerOpeningResponseIfReady = () => {
+        const pendingOpeningTurn = pendingOpeningUserTurnRef.current;
+        if (!pendingOpeningTurn) return;
+        if (openingResponseTriggeredRef.current) return;
+        const readiness = callReadinessRef.current;
+        const readyForOpening = readiness.remoteTrackReceived
+          && readiness.audioPlayAttempted
+          && readiness.peerConnected
+          && readiness.dataChannelOpen;
+        if (!readyForOpening) {
+          if (process.env.NODE_ENV !== 'production') console.log('HUMAN_EQUATION_OPENING_TURN_PENDING_UNTIL_TRANSPORT_READY');
+          return;
+        }
+        const dc = dcRef.current;
+        if (!dc || dc.readyState !== 'open') {
+          if (process.env.NODE_ENV !== 'production') console.log('HUMAN_EQUATION_OPENING_TURN_PENDING_UNTIL_TRANSPORT_READY');
+          return;
+        }
+        openingResponseTriggeredRef.current = true;
+        openingUserUtteranceReceivedRef.current = true;
+        readiness.openingUserUtteranceReceived = true;
+        if (process.env.NODE_ENV !== 'production') console.log('HUMAN_EQUATION_OPENING_RESPONSE_TRIGGERED_FROM_COMMITTED_FIRST_TURN');
+        dc.send(JSON.stringify({
+          type: 'response.create',
+          response: {
+            modalities: ['audio', 'text'],
+          },
+        }));
+      };
+
+      const commitFirstUserTurnIfNeeded = (utterance) => {
+        const normalized = normalizeUtterance(utterance);
+        if (!normalized) return;
+        const now = Date.now();
+        if (!firstUserTurnCommittedRef.current) {
+          firstUserTurnCommittedRef.current = true;
+          const openingTurn = {
+            id: `opening-user-turn-${now}`,
+            role: 'user',
+            text: normalized,
+            timestamp: now,
+            eventType: 'opening.user.turn',
+            isOpeningTurn: true,
+          };
+          openingUserTurnRef.current = openingTurn;
+          pendingOpeningUserTurnRef.current = openingTurn;
+          appendTranscriptEntries([openingTurn]);
+          if (process.env.NODE_ENV !== 'production') console.log('HUMAN_EQUATION_OPENING_USER_TURN_COMMITTED');
+        }
+      };
       const triggerParentOpeningWhenReady = () => {
         const readiness = callReadinessRef.current;
         if (readiness.parentOpeningTriggered) return;
@@ -745,31 +818,16 @@ export default function HumanEquationExperience() {
         readiness.parentOpeningTriggered = true;
         console.log('HUMAN_EQUATION_PARENT_OPENING_READINESS_CONFIRMED_WAITING_FOR_USER');
         setCallStatus('Live call connected — say hello to begin');
+        triggerOpeningResponseIfReady();
       };
 
       const maybeTriggerOpeningResponseFromFirstUserTurn = (message) => {
         const eventType = asText(message?.type, '');
         if (eventType !== 'conversation.item.input_audio_transcription.completed') return;
-        const utterance = asText(message?.transcript, '').trim();
+        const utterance = normalizeUtterance(message?.transcript);
         if (!utterance) return;
-        const readiness = callReadinessRef.current;
-        if (openingUserUtteranceReceivedRef.current || readiness.openingUserUtteranceReceived) return;
-        const readyForOpening = readiness.remoteTrackReceived
-          && readiness.audioPlayAttempted
-          && readiness.peerConnected
-          && readiness.dataChannelOpen;
-        if (!readyForOpening) return;
-        openingUserUtteranceReceivedRef.current = true;
-        readiness.openingUserUtteranceReceived = true;
-        console.log('HUMAN_EQUATION_FIRST_USER_OPENING_TURN_CAPTURED', { utterance });
-        const dc = dcRef.current;
-        if (!dc || dc.readyState !== 'open') return;
-        dc.send(JSON.stringify({
-          type: 'response.create',
-          response: {
-            modalities: ['audio', 'text'],
-          },
-        }));
+        commitFirstUserTurnIfNeeded(utterance);
+        triggerOpeningResponseIfReady();
       };
       const stream = micStreamRef.current?.active ? micStreamRef.current : await ensureMicStream();
       micStreamRef.current = stream;
@@ -853,6 +911,7 @@ export default function HumanEquationExperience() {
         setCallStatus('Live call connected');
         setRtcDiagnostics((prev) => ({ ...prev, dataChannelState: dc.readyState, dataChannelOpen: true, realtimeSessionStatus: 'connected' }));
         console.log('HUMAN_EQUATION_REALTIME_CONNECTED');
+        triggerOpeningResponseIfReady();
       };
 
       dc.onmessage = (event) => {
