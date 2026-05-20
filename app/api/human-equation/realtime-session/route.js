@@ -9,13 +9,34 @@ export async function POST(request) {
     }
 
     const setupHeader = request.headers.get('x-simulation-setup');
+    const canonicalScenarioHeader = request.headers.get('x-canonical-scenario');
     const setup = setupHeader ? JSON.parse(setupHeader) : {};
+    const canonicalScenario = canonicalScenarioHeader ? JSON.parse(canonicalScenarioHeader) : null;
+    if (!canonicalScenario || typeof canonicalScenario !== 'object') {
+      return new Response('Please generate and review a briefing before starting the call.', { status: 400 });
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('HUMAN_EQUATION_REALTIME_CANONICAL_SCENARIO', {
+        scenarioId: canonicalScenario.scenarioId || setup.scenarioNonce || null,
+        issueSummary: canonicalScenario.issueSummary || null,
+        scenarioType: setup.scenarioType || null,
+        parentArchetype: canonicalScenario.parentArchetype || null,
+        hasCanonicalScenario: true,
+      });
+    }
     const simulation = await buildSimulationPrompt(setup);
+    const canonicalScenarioBlock = `CANONICAL_SCENARIO:\n${JSON.stringify(canonicalScenario)}`;
+    const canonicalGuardrails = [
+      'You are the parent/guardian in this exact school incident.',
+      'You must stay consistent with the provided CANONICAL_SCENARIO block.',
+      'Do not invent a different incident, location, staff member, student concern, or timeline.',
+      'If the administrator mentions facts that do not match the scenario, respond naturally by correcting them from the parent perspective.',
+    ].join(' ');
 
     const session = {
       type: 'realtime',
       model: 'gpt-realtime',
-      instructions: simulation.prompt,
+      instructions: `${simulation.prompt}\n\n${canonicalGuardrails}\n\n${canonicalScenarioBlock}`,
       audio: {
         input: {
           transcription: {

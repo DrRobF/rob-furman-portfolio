@@ -655,6 +655,22 @@ export default function HumanEquationExperience() {
 
   const beginCall = async () => {
     console.log('HUMAN_EQUATION_BEGIN_CALL');
+    const canonicalScenario = setup.practiceMode === 'guided' ? guidedScenario : activeBriefing;
+    if (!canonicalScenario) {
+      console.warn('HUMAN_EQUATION_CANONICAL_SCENARIO_MISSING', { practiceMode: setup.practiceMode });
+      setSessionError('Please generate and review a briefing before starting the call.');
+      setCallStatus('Call not started');
+      return;
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('HUMAN_EQUATION_CANONICAL_SCENARIO_READY', {
+        scenarioId: canonicalScenario.scenarioId || setup.scenarioNonce || null,
+        issueSummary: canonicalScenario.issueSummary || null,
+        scenarioType: setup.scenarioType || null,
+        parentArchetype: canonicalScenario.parentArchetype || null,
+        hasCanonicalScenario: true,
+      });
+    }
     setCallStartedAt(Date.now());
     setTranscriptLines([]);
     setDebugInfo({ selectedCards: null, simulationPrompt: '', promptPreview: '', promptSource: 'unknown', fallbackReason: null, dataCounts: { parentArchetypes: 0, issueCards: 0 }, buildVersion: 'server-realtime-session' });
@@ -871,6 +887,7 @@ export default function HumanEquationExperience() {
         headers: {
           'Content-Type': 'application/sdp',
           'x-simulation-setup': JSON.stringify(setup),
+          'x-canonical-scenario': JSON.stringify(canonicalScenario),
         },
         body: localSdp,
       });
@@ -944,6 +961,7 @@ export default function HumanEquationExperience() {
 
 
   const requestCoachingReport = ({ setupSnapshot, notesSnapshot, prepUnknownsSnapshot, durationSnapshot, endedAt, transcriptSnapshot }) => {
+    const canonicalScenario = setupSnapshot?.practiceMode === 'guided' ? guidedScenario : buildScenarioBriefing(setupSnapshot, callTimingBriefings?.[setupSnapshot?.callTiming] ?? selectedTimingBriefing, language);
     setCoachingStatus({ state: 'loading', source: 'pending', fallbackReason: null });
     setCoachingReport(null);
     setCallEndedAt(endedAt);
@@ -954,6 +972,7 @@ export default function HumanEquationExperience() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         setup: setupSnapshot,
+        canonicalScenario,
         privateNotes: notesSnapshot,
         prepUnknownsNotes: prepUnknownsSnapshot,
         callDuration: durationSnapshot,
