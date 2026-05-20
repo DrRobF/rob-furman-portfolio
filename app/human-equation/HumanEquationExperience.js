@@ -298,8 +298,20 @@ const guidedScenarioProfileMap = {
   emotional_crisis: 'attendance',
 };
 
+const guidedPracticeFocusOptions = [
+  'behavior_discipline',
+  'academics_grades',
+  'attendance',
+  'parent_complaint',
+  'safety_threat',
+  'support_needs_iep_504',
+  'staff_teacher_concern',
+  'logistics_operations',
+];
+
 const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'en') => {
-  const scenarioProfileKey = guidedScenarioProfileMap[baseSetup.scenarioType] || baseSetup.scenarioType;
+  const practiceFocusKey = baseSetup.practiceFocus || baseSetup.scenarioType;
+  const scenarioProfileKey = guidedScenarioProfileMap[practiceFocusKey] || practiceFocusKey;
   const scenarioProfile = scenarioTypeProfiles[scenarioProfileKey] ?? scenarioTypeProfiles.discipline;
   const styleGuidance = toReadableLabel(baseSetup.communicationStyle, communicationStyleGuidance, 'Keep communication clear, practical, and next-step oriented.');
   const toneGuidance = toReadableLabel(baseSetup.parentTone, parentToneGuidance, 'Expect concern and pressure; keep your response calm and specific.');
@@ -338,8 +350,15 @@ const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'e
     };
   }
 
+  const isGuided = baseSetup.practiceMode === 'guided';
+  const userSituation = asText(baseSetup.situationDescription, '').trim();
+  const parentConcernPrediction = asText(baseSetup.parentConcernPrediction, '').trim();
+  const privateAdministratorNotes = asText(baseSetup.privateAdministratorNotes, '').trim();
+
   return {
-    issueSummary: `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
+    issueSummary: isGuided && userSituation
+      ? `Core incident: ${userSituation}`
+      : `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
     knownFacts: [
       `${scenarioProfile.knownFacts[0]} You are responding as the ${baseSetup.role.toLowerCase()} in ${withIndefiniteArticle(baseSetup.gradeBand.toLowerCase())} setting.`,
       `${scenarioProfile.knownFacts[1]} This call is taking place during ${baseSetup.callTiming.toLowerCase()}.`,
@@ -353,11 +372,17 @@ const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'e
     ],
     leadershipChallenge: pickOne(scenarioProfile.leadershipChallenge),
     priorActions: scenarioProfile.priorActions,
-    parentConcern: `${scenarioProfile.parentConcern} Expect pressure for clear accountability, communication, and timelines.`,
+    parentConcern: isGuided && parentConcernPrediction
+      ? `Likely parent concern (predicted): ${parentConcernPrediction}`
+      : `${scenarioProfile.parentConcern} Expect pressure for clear accountability, communication, and timelines.`,
     suggestedMindset: `${scenarioProfile.mindset} Keep your language practical, calm, and action-oriented for ${baseSetup.gradeBand.toLowerCase()} families.`,
     contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
     primaryGoal: timingBriefing.goal,
     timingSummary: timingBriefing.summary,
+    situationDescription: userSituation || null,
+    practiceFocus: asText(practiceFocusKey, '').trim() || null,
+    parentConcernPrediction: parentConcernPrediction || null,
+    privateAdministratorNotes: privateAdministratorNotes || null,
   };
 };
 
@@ -381,6 +406,14 @@ const optionLabelKeys = {
   staff_conduct_concern: 'he.staffConductConcern',
   communication_breakdown: 'he.communicationBreakdown',
   emotional_crisis: 'he.emotionalCrisis',
+  behavior_discipline: 'Behavior / Discipline',
+  academics_grades: 'Academics / Grades',
+  attendance: 'Attendance',
+  parent_complaint: 'Parent Complaint',
+  safety_threat: 'Safety / Threat',
+  support_needs_iep_504: 'Support Needs / IEP / 504',
+  staff_teacher_concern: 'Staff / Teacher Concern',
+  logistics_operations: 'Logistics / Operations',
   moderate: 'he.moderate',
   high: 'he.high',
   full_blaze: 'he.fullBlaze',
@@ -425,6 +458,9 @@ export default function HumanEquationExperience() {
     parentLanguage: setupOptions.parentLanguages[0],
     practiceMode: 'random',
     briefingDepth: 'moderate context',
+    practiceFocus: guidedPracticeFocusOptions[0],
+    situationDescription: '',
+    parentConcernPrediction: '',
   });
   const [isGuidedScenarioBuilt, setIsGuidedScenarioBuilt] = useState(false);
   const [micPermission, setMicPermission] = useState('Checking…');
@@ -453,6 +489,7 @@ export default function HumanEquationExperience() {
   const [previewFixtureId, setPreviewFixtureId] = useState(null);
   const [realtimeEventCounts, setRealtimeEventCounts] = useState({});
   const [guidedScenario, setGuidedScenario] = useState(null);
+  const [guidedValidationError, setGuidedValidationError] = useState('');
   const [coachingReport, setCoachingReport] = useState(null);
   const [coachingStatus, setCoachingStatus] = useState({ state: 'idle', source: 'none', fallbackReason: null });
 
@@ -1185,7 +1222,7 @@ export default function HumanEquationExperience() {
     const pad = (value) => String(value).padStart(2, '0');
     const fileName = `human-equation-report-${stamp.getFullYear()}-${pad(stamp.getMonth() + 1)}-${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}.txt`;
     const scenarioMeta = [
-      `- Scenario: ${translateOption(setup.scenarioType) || fallback}`,
+      `- Scenario: ${(setup.practiceMode === 'guided' ? setup.situationDescription : translateOption(setup.scenarioType)) || fallback}`,
       `- Parent: ${setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}`,
       `- Issue: ${translateOption(setup.callType) || fallback}`,
       `- Call duration: ${resolvedCallDuration || fallback}`,
@@ -1338,12 +1375,18 @@ export default function HumanEquationExperience() {
   };
 
   const buildGuidedScenario = () => {
+    if (!setup.situationDescription || !setup.situationDescription.trim()) {
+      setGuidedValidationError('Describe the situation you want to practice before generating a briefing.');
+      return;
+    }
+    setGuidedValidationError('');
     const forcedGuidedSetup = {
       ...setup,
       practiceMode: 'guided',
       callType: 'you_call_after_investigation',
       callTiming: 'administrator_callback_after_initial_investigation',
       briefingDepth: 'detailed context',
+      privateAdministratorNotes: privateNotes,
     };
     const timingBriefing = callTimingBriefings?.[forcedGuidedSetup.callTiming] ?? {
       summary: 'Context briefing unavailable.',
@@ -1432,11 +1475,16 @@ export default function HumanEquationExperience() {
                     <div className={styles.setupGrid}>
                       <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
                       <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
-                      <Selector label={t('he.scenarioType')} options={setupOptions.scenarioTypes} translateOption={translateOption} value={setup.scenarioType} onSelect={(value) => setField('scenarioType', value)} />
+                      <Selector label="Practice Focus (optional)" options={guidedPracticeFocusOptions} translateOption={translateOption} value={setup.practiceFocus} onSelect={(value) => setField('practiceFocus', value)} />
                       <Selector label={t('he.parentLanguage')} options={setupOptions.parentLanguages} translateOption={translateOption} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
                     </div>
+                    <label className={styles.notesLabel}>Describe the situation — required</label>
+                    <textarea className={`${styles.notes} ${styles.setupNotes}`} placeholder="Example: A parent is upset because their child says a teacher embarrassed them in class." value={setup.situationDescription} onChange={(e) => setField('situationDescription', e.target.value)} />
+                    <label className={styles.notesLabel}>What are you worried the parent might say? — optional</label>
+                    <textarea className={`${styles.notes} ${styles.setupNotes}`} placeholder="Example: They may accuse the school of targeting their child or threaten to call the district." value={setup.parentConcernPrediction} onChange={(e) => setField('parentConcernPrediction', e.target.value)} />
                     <label className={styles.notesLabel}>{t('he.privateAdminNotes')}</label>
                     <textarea className={`${styles.notes} ${styles.setupNotes}`} placeholder={t('he.notesPlaceholderSetup')} value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
+                    {guidedValidationError ? <p className={styles.errorText}>{guidedValidationError}</p> : null}
                     <div className={styles.setupActions}>
                       <button type="button" className={styles.cta} onClick={buildGuidedScenario}>{t('he.generateBriefing')}</button>
                     </div>
@@ -1457,6 +1505,7 @@ export default function HumanEquationExperience() {
                         <h3>{t('he.preCallBriefing')}</h3>
                         <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {t('he.guidedPractice')}</p>
                         <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
+                        <p className={styles.contextLabel}><strong>Practice focus:</strong> {translateOption(setup.practiceFocus) || 'Not set'}</p>
                         <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
                         <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
                         <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
@@ -1620,7 +1669,7 @@ export default function HumanEquationExperience() {
             <p className={styles.eyebrow}>{t('he.postCallReport')}</p>
             <h2>Human Equation Post-Call Report</h2>
             <p className={styles.subtle}>{t('he.endReportTranscriptSubtle')}</p>
-            <p><strong>Scenario:</strong> {translateOption(setup.scenarioType) || 'Unknown scenario'}</p>
+            <p><strong>Scenario:</strong> {(setup.practiceMode === 'guided' ? setup.situationDescription : translateOption(setup.scenarioType)) || 'Unknown scenario'}</p>
             <p><strong>Parent:</strong> {setup.parentVoice === 'male' ? 'Mr. Carter' : 'Ms. Rodriguez'}</p>
             <p><strong>Issue:</strong> {translateOption(setup.callType) || 'Unknown issue'}</p>
             <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
