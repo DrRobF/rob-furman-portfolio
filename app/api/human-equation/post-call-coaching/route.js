@@ -132,13 +132,14 @@ function buildFallbackReport(payload = {}, tacticCards = []) {
   const hasEscalationLanguage = /(lawyer|board|media|formal complaint|covering this up|not telling the truth|this is insane|unacceptable)/i.test(parentText);
   const hasContainmentLanguage = /(let me be direct|one step at a time|documented|written update|by tomorrow|verify|shared goal|student support|fair process)/i.test(userText);
   const hasTurningPoint = /(shared goal|student support|next step|written update|timeline|checkpoint|owner)/i.test(userText) && /(okay|fine|i hear you|if you follow through|i'll hold you to that|let's see)/i.test(parentText);
+  const scenarioSummary = normText(payload?.canonicalScenario?.issueSummary, normText(payload.setup?.scenarioType, 'an unresolved school concern'));
 
   return {
     source: transcriptLines.length ? 'rule-based-transcript' : 'fallback-limited-data',
     reportLanguage,
     languageNote: null,
     executiveSummary: [
-      `This call addressed ${normText(payload.setup?.scenarioType, 'an unresolved school concern')} in a high-pressure parent context.`,
+      `This call addressed ${scenarioSummary} in a high-pressure parent context.`,
       'The parent pattern analysis captures observed pressure dynamics independently from leader performance ratings.',
       'The leader stance was generally firm and process-oriented; strategic firmness and reality anchoring are treated as potential strengths when they create clearer commitments.',
       transcriptLines.length ? 'Outcome: conversation moved toward structure, but at least one thread appears unresolved and needs documented follow-up.' : 'Outcome is partially unresolved because transcript evidence was limited.',
@@ -257,3 +258,4 @@ ${JSON.stringify(payload).slice(0, 18000)}`;
     return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'api-error' });
   }
 }
+  const scenarioSummary = normText(payload?.canonicalScenario?.issueSummary, normText(payload.setup?.scenarioType, 'an unresolved school concern'));
