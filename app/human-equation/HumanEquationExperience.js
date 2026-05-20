@@ -10,7 +10,12 @@ const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
 const briefingDepthOptions = ['low context', 'moderate context', 'detailed context'];
 const HUMAN_EQUATION_BUILD_VERSION = '2026-05-15 GA-CLEAN-1';
-const PARENT_CALLER_NAMES = ['Ms. Rivera', 'Mr. Jenkins', 'Mrs. Alvarez', 'Mr. Thompson', 'Ms. Patel', 'Mr. Baptiste', 'Mrs. Chen', 'Ms. Williams', 'Mr. Carter', 'Ms. Morgan'];
+const PARENT_CALLER_NAMES_BY_LANGUAGE = {
+  english: ['Ms. Rivera', 'Mr. Jenkins', 'Mrs. Alvarez', 'Mr. Thompson', 'Ms. Patel', 'Mr. Baptiste', 'Mrs. Chen', 'Ms. Williams', 'Mr. Carter', 'Ms. Morgan'],
+  spanish: ['Sra. Rivera', 'Sr. Martínez', 'Sra. Gómez', 'Sr. Torres', 'Sra. Alvarez', 'Sr. Morales', 'Sra. Delgado', 'Sr. Hernández'],
+  portuguese: ['Sra. Silva', 'Sr. Santos', 'Sra. Oliveira', 'Sr. Pereira', 'Sra. Costa', 'Sr. Rodrigues'],
+  haitian_creole: ['Mme. Jean', 'Mesye Pierre', 'Mme. Louis', 'Mesye Joseph', 'Mme. Charles', 'Mesye Laurent'],
+};
 
 const asText = (value, fallback = 'Unknown') => {
   if (typeof value === 'string') return value;
@@ -261,6 +266,7 @@ const scenarioTypeProfiles = {
 
 const pickOne = (items = []) => randomFrom(items.filter(Boolean));
 const hashString = (value = '') => [...value].reduce((acc, char) => ((acc * 31) + char.charCodeAt(0)) >>> 0, 7);
+const normalizeParentLanguage = (value) => (typeof value === 'string' && value.trim() ? value : 'english');
 const selectParentCallerName = (setupSnapshot) => {
   const seed = [
     setupSnapshot?.role,
@@ -274,8 +280,29 @@ const selectParentCallerName = (setupSnapshot) => {
     setupSnapshot?.parentLanguage,
     setupSnapshot?.situationDescription,
   ].map((part) => asText(part, '')).join('|');
-  const index = hashString(seed) % PARENT_CALLER_NAMES.length;
-  return PARENT_CALLER_NAMES[index];
+  const parentLanguage = normalizeParentLanguage(setupSnapshot?.parentLanguage);
+  const namePool = PARENT_CALLER_NAMES_BY_LANGUAGE[parentLanguage] || PARENT_CALLER_NAMES_BY_LANGUAGE.english;
+  const index = hashString(seed) % namePool.length;
+  return namePool[index];
+};
+
+const parentLanguagePhrases = {
+  english: {
+    parentConcern: 'The parent fears the school is missing the real issue and wants a fair, specific response tied to their stated concern.',
+    parentQuote: "Parent email excerpt: 'I need direct answers. I do not want another vague update.'",
+  },
+  spanish: {
+    parentConcern: 'La familia teme que la escuela no esté atendiendo el problema real y exige una respuesta justa y específica.',
+    parentQuote: "Extracto de correo de la madre/padre: 'Necesito respuestas claras. No quiero otra actualización vaga.'",
+  },
+  portuguese: {
+    parentConcern: 'A família teme que a escola não esteja enfrentando o problema real e quer uma resposta justa e específica.',
+    parentQuote: "Trecho do e-mail da família: 'Preciso de respostas claras. Não quero outra atualização vaga.'",
+  },
+  haitian_creole: {
+    parentConcern: 'Paran an pè lekòl la pa adrese vrè pwoblèm nan e li bezwen yon repons klè ak jis.',
+    parentQuote: "Ekstrè imel paran an: 'Mwen bezwen repons klè. Mwen pa vle yon lòt mizajou vag.'",
+  },
 };
 
 const communicationStyleGuidance = {
@@ -517,6 +544,8 @@ const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timin
 };
 
 const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'en') => {
+  const parentLanguage = normalizeParentLanguage(baseSetup?.parentLanguage);
+  const languagePhrases = parentLanguagePhrases[parentLanguage] || parentLanguagePhrases.english;
   const practiceFocusKey = baseSetup.practiceFocus || baseSetup.scenarioType;
   const scenarioProfileKey = guidedScenarioProfileMap[practiceFocusKey] || practiceFocusKey;
   const scenarioProfile = scenarioTypeProfiles[scenarioProfileKey] ?? scenarioTypeProfiles.discipline;
@@ -554,6 +583,8 @@ const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'e
       ],
       primaryGoal: 'Alinear seguridad, claridad y plan de seguimiento sin escalar el conflicto.',
       timingSummary: 'Este informe previo se muestra en el idioma de la interfaz seleccionada.',
+      parentLanguage,
+      parentCallerName: selectParentCallerName(baseSetup),
     };
   }
 
@@ -584,15 +615,21 @@ const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'e
     priorActions: guidedSituationBriefing?.priorActions || scenarioProfile.priorActions,
     parentConcern: guidedSituationBriefing?.parentConcern || (isGuided && parentConcernPrediction
       ? `Likely opening concern from parent: ${parentConcernPrediction}`
-      : `${scenarioProfile.parentConcern} Expect pressure for clear accountability, communication, and timelines.`),
+      : `${languagePhrases.parentConcern} Expect pressure for clear accountability, communication, and timelines.`),
     suggestedMindset: `${scenarioProfile.mindset} Keep your language practical, calm, and action-oriented for ${baseSetup.gradeBand.toLowerCase()} families.`,
     contextFocus: [...(guidedSituationBriefing?.contextFocus || timingBriefing.focus || []), ...dynamicFocus],
     primaryGoal: timingBriefing.goal,
     timingSummary: timingBriefing.summary,
+    parentLanguage,
+    parentCallerName: selectParentCallerName(baseSetup),
     situationDescription: userSituation || null,
     practiceFocus: asText(practiceFocusKey, '').trim() || null,
     parentConcernPrediction: parentConcernPrediction || null,
     privateAdministratorNotes: privateAdministratorNotes || null,
+    evidencePacketSections: [
+      ...(guidedSituationBriefing?.evidencePacketSections || []),
+      { title: parentLanguage === 'spanish' ? 'Parent Voice Snapshot' : 'Parent Voice Snapshot', items: [languagePhrases.parentQuote] },
+    ],
   };
 };
 

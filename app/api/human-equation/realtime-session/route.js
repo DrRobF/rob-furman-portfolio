@@ -25,9 +25,18 @@ export async function POST(request) {
       });
     }
     const simulation = await buildSimulationPrompt(setup);
+    const parentLanguage = canonicalScenario?.parentLanguage || setup?.parentLanguage || 'english';
+    const languageGuardrails = {
+      spanish: 'You are the parent/guardian and must speak naturally in Spanish throughout the call unless the administrator explicitly asks you to switch languages.',
+      portuguese: 'You are the parent/guardian and must speak naturally in Portuguese throughout the call unless the administrator explicitly asks you to switch languages.',
+      haitian_creole: 'You are the parent/guardian and must speak naturally in Haitian Creole throughout the call unless the administrator explicitly asks you to switch languages.',
+      english: 'You are the parent/guardian and must speak naturally in English throughout the call unless the administrator explicitly asks you to switch languages.',
+    };
+    const enforcedLanguageGuardrail = languageGuardrails[parentLanguage] || languageGuardrails.english;
     const canonicalScenarioBlock = `CANONICAL_SCENARIO:\n${JSON.stringify(canonicalScenario)}`;
     const canonicalGuardrails = [
       'You are the parent/guardian in this exact school incident.',
+      enforcedLanguageGuardrail,
       'You must stay consistent with the provided CANONICAL_SCENARIO block.',
       'Do not invent a different incident, location, staff member, student concern, or timeline.',
       'If the administrator mentions facts that do not match the scenario, respond naturally by correcting them from the parent perspective.',
