@@ -101,6 +101,23 @@ const normalizeConversationTrajectory = (value) => {
   };
 };
 
+const normalizeLeadershipMoves = (value) => {
+  const raw = value && typeof value === 'object' ? value : {};
+  const movesYouUsed = (Array.isArray(raw?.movesYouUsed) ? raw.movesYouUsed : []).map((item) => ({
+    skillName: asText(item?.skillName, 'Leadership move'),
+    shortExplanation: asText(item?.shortExplanation, 'You appeared to use a useful leadership move.'),
+    transcriptEvidence: asText(item?.transcriptEvidence, '').trim(),
+    whyItHelped: asText(item?.whyItHelped, 'This helped create clearer structure for the conversation.'),
+  })).filter((item) => item.transcriptEvidence);
+  const movesToConsiderNextTime = (Array.isArray(raw?.movesToConsiderNextTime) ? raw.movesToConsiderNextTime : []).map((item) => ({
+    skillName: asText(item?.skillName, 'Leadership move'),
+    momentOpportunity: asText(item?.momentOpportunity, 'A possible move available here was to add one clear process anchor.'),
+    suggestedPhrasing: asText(item?.suggestedPhrasing, 'A strategy to consider next time is pairing empathy with one concrete next step.'),
+    whyItMayHelp: asText(item?.whyItMayHelp, 'Another option could have been to reinforce clarity while preserving trust.'),
+  }));
+  return { movesYouUsed, movesToConsiderNextTime };
+};
+
 const TRANSCRIPT_EVENT_TYPES = new Set([
   'conversation.item.input_audio_transcription.completed',
   'conversation.item.created',
@@ -1214,6 +1231,13 @@ export default function HumanEquationExperience() {
       '## Human Equation Leadership Analysis',
       leadershipSection,
       '',
+      '## Leadership Moves Observed & Available',
+      '### Moves You Used',
+      leadershipMoves.movesYouUsed.length ? leadershipMoves.movesYouUsed.map((item) => `- **${item.skillName || fallback}**\n  - Short explanation: ${item.shortExplanation || fallback}\n  - Transcript evidence: ${item.transcriptEvidence || fallback}\n  - Why it helped: ${item.whyItHelped || fallback}`).join('\n') : fallback,
+      '',
+      '### Moves to Consider Next Time',
+      leadershipMoves.movesToConsiderNextTime.length ? leadershipMoves.movesToConsiderNextTime.map((item) => `- **${item.skillName || fallback}**\n  - Moment/opportunity: ${item.momentOpportunity || fallback}\n  - Suggested phrasing: ${item.suggestedPhrasing || fallback}\n  - Why it may help: ${item.whyItMayHelp || fallback}`).join('\n') : fallback,
+      '',
       '## Parent Pattern Analysis',
       parentPatternSection,
       '',
@@ -1357,6 +1381,7 @@ export default function HumanEquationExperience() {
   const strongerPhrasing = toSafeList(coachingReport?.strongerAlternativePhrasing);
   const momentsToRevisit = toSafeList(coachingReport?.momentsToRevisit);
   const conversationTrajectory = normalizeConversationTrajectory(coachingReport?.conversationTrajectory);
+  const leadershipMoves = normalizeLeadershipMoves(coachingReport?.leadershipMovesObservedAndAvailable);
 
   return (
     <section className={styles.shell}>
@@ -1640,6 +1665,13 @@ export default function HumanEquationExperience() {
                         );
                       })}
                     </div>
+                  </section>
+                  <section className={styles.reportSection}>
+                    <h3>Leadership Moves Observed &amp; Available</h3>
+                    <h4>Moves You Used</h4>
+                    {leadershipMoves.movesYouUsed.length === 0 ? <p className={styles.emptyMessage}>No direct quote-level evidence was available for this subsection.</p> : <div className={styles.patternGrid}>{leadershipMoves.movesYouUsed.map((item, idx) => <article key={`leadership-used-${idx}-${item.skillName}`} className={styles.patternCard}><h4>{item.skillName}</h4><ul className={styles.patternList}><li><strong>Short explanation:</strong> {item.shortExplanation}</li><li><strong>Transcript evidence:</strong> {item.transcriptEvidence}</li><li><strong>Why it helped:</strong> {item.whyItHelped}</li></ul></article>)}</div>}
+                    <h4>Moves to Consider Next Time</h4>
+                    {leadershipMoves.movesToConsiderNextTime.length === 0 ? <p className={styles.emptyMessage}>No additional move suggestions were generated for this sample.</p> : <div className={styles.patternGrid}>{leadershipMoves.movesToConsiderNextTime.map((item, idx) => <article key={`leadership-consider-${idx}-${item.skillName}`} className={styles.patternCard}><h4>{item.skillName}</h4><ul className={styles.patternList}><li><strong>Moment/opportunity:</strong> {item.momentOpportunity}</li><li><strong>Suggested phrasing:</strong> {item.suggestedPhrasing}</li><li><strong>Why it may help:</strong> {item.whyItMayHelp}</li></ul></article>)}</div>}
                   </section>
                   <div className={styles.lowerGrid}>
                     <section className={styles.reportSection}><h3>Parent Pattern Analysis</h3>{parentPatterns.length === 0 ? <p className={styles.emptyMessage}>Limited parent pattern evidence available for this sample.</p> : <div className={styles.patternGrid}>{parentPatterns.map((item, idx) => <article key={`parent-pattern-${idx}-${item.pattern}`} className={styles.patternCard}><h4>{item.pattern}</h4><ul className={styles.patternList}><li><strong>Evidence:</strong> {item.evidence}</li><li><strong>Leadership implication:</strong> {item.implication}</li></ul></article>)}</div>}</section>
