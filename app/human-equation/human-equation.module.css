@@ -54,6 +54,8 @@
 .subtle { color:#647d93; }
 
 .callLayout { padding:1.35rem; }
+.callLayout { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(300px,1fr); gap:1rem; align-items:start; }
+.callMainColumn,.callSideColumn { min-width:0; }
 .callHeader { display:flex; justify-content:space-between; align-items:center; }
 .callStatusGrid { margin-top:.8rem; display:grid; gap:.25rem; padding:.75rem; border:1px solid #d6dee6; border-radius:10px; background:#f8fafc; }
 .timer { font-size:1.1rem; font-variant-numeric: tabular-nums; color:#395268; }
@@ -74,6 +76,7 @@
   .shell { padding-inline:.75rem; }
   .callHeader { flex-direction:column; align-items:flex-start; }
   .guidedLayout { grid-template-columns:1fr; }
+  .callLayout { grid-template-columns:1fr; }
 }
 
 .waveformActive {
