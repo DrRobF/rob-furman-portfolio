@@ -12,25 +12,28 @@ const LanguageContext = createContext({
 });
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState(defaultLanguage);
+  const normalizeLanguage = (value) => (typeof value === 'string' && translations[value] ? value : defaultLanguage);
+  const [language, setLanguageState] = useState(defaultLanguage);
+
+  const setLanguage = (value) => {
+    setLanguageState(normalizeLanguage(value));
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const savedLanguage = window.localStorage.getItem(STORAGE_KEY);
-    if (savedLanguage && translations[savedLanguage]) {
-      setLanguage(savedLanguage);
-    }
+    setLanguageState(normalizeLanguage(savedLanguage));
   }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(STORAGE_KEY, language);
+    window.localStorage.setItem(STORAGE_KEY, normalizeLanguage(language));
   }, [language]);
 
   const value = useMemo(() => ({
-    language,
+    language: normalizeLanguage(language),
     setLanguage,
-    t: (key) => translations[language]?.[key] ?? translations[defaultLanguage]?.[key] ?? key,
+    t: (key) => translations[normalizeLanguage(language)]?.[key] ?? translations[defaultLanguage]?.[key] ?? key,
   }), [language]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
