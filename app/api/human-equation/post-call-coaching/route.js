@@ -119,7 +119,16 @@ const inferParentPatterns = (transcriptLines, archetypeHints, tacticCards = []) 
   return merged;
 };
 
-function buildFallbackReport(payload = {}, tacticCards = []) {
+const normalizeLeadershipSkills = (rawSkills = []) => arr(rawSkills).map((skill) => ({
+  cardId: normText(skill?.cardId),
+  skillName: normText(skill?.skillName),
+  leadershipPurpose: normText(skill?.leadershipPurpose),
+  whenUseful: normText(skill?.whenUseful),
+  exampleLanguage: normText(skill?.exampleLanguage),
+  coreConcept: normText(skill?.coreConcept),
+})).filter((skill) => skill.cardId && skill.skillName);
+
+function buildFallbackReport(payload = {}, tacticCards = [], leadershipSkills = []) {
   const reportLanguage = payload.interfaceLanguage === 'es' ? 'es' : 'en';
   const transcriptLines = arr(payload.transcriptLines);
   const transcriptText = transcriptLines.map((line) => `${line.role || 'unknown'}: ${line.text || ''}`).join(' ').toLowerCase();
@@ -174,6 +183,20 @@ function buildFallbackReport(payload = {}, tacticCards = []) {
       { label: 'Instructional & Academic Leadership', level: inferFrameworkLevel(transcriptText, [/(catch-up plan|assignments|gradebook|student support|counselor)/i], [/(ignore academics|not about learning)/i], [/(teacher|class|submission)/i]), evidence: /(catch-up plan|assignments|gradebook|student support|counselor)/i.test(transcriptText) ? 'Leader connected response steps to student learning and support structures.' : 'Academic impact was referenced minimally; define instructional supports and monitoring more clearly.' },
       { label: 'Team & Systems Leadership', level: inferFrameworkLevel(transcriptText, [/(meeting with counselor|teacher notes|documented|written update|owner)/i], [/(no one knows|nobody follows up)/i], [/(conference|update)/i]), evidence: /(meeting with counselor|teacher notes|documented|written update)/i.test(transcriptText) ? 'Cross-team coordination and documentation were visible in commitments.' : 'System coordination is implied but thin; assign owners, communication cadence, and documentation steps.' },
     ],
+    leadershipMovesObservedAndAvailable: {
+      movesYouUsed: leadershipSkills.slice(0, 2).map((skill, idx) => ({
+        skillName: skill.skillName,
+        shortExplanation: `This resembled ${skill.skillName.toLowerCase()} through steady process language under pressure.`,
+        transcriptEvidence: userLines[idx]?.text ? `When you said, "${userLines[idx].text.slice(0, 180)}", this reflected a coaching move tied to structure and clarity.` : '',
+        whyItHelped: 'It helped keep the conversation anchored to actionable next steps instead of escalating emotionally.',
+      })).filter((move) => move.transcriptEvidence),
+      movesToConsiderNextTime: leadershipSkills.slice(2, 4).map((skill) => ({
+        skillName: skill.skillName,
+        momentOpportunity: 'A possible move available here is during moments where the parent requests certainty before verification is complete.',
+        suggestedPhrasing: skill.exampleLanguage || 'A strategy to consider next time is pairing empathy with one concrete next step and timeline.',
+        whyItMayHelp: 'Another option could have been to lower defensiveness while maintaining role clarity and follow-through credibility.',
+      })),
+    },
     parentPatternAnalysis: parentPatternAnalysis.length || isShortTranscript(transcriptLines)
       ? parentPatternAnalysis
       : [{ pattern: 'Limited evidence', evidence: 'Transcript did not contain enough parent turns to identify stable patterns.', implication: 'Collect additional transcript evidence before making pattern-level judgments.' }],
@@ -203,7 +226,9 @@ function buildFallbackReport(payload = {}, tacticCards = []) {
 export async function POST(request) {
   const payload = await request.json().catch(() => ({}));
   const tacticCards = (await loadJson('tactic-patterns.json').catch(() => ({ tactics: [] })))?.tactics || [];
-  const fallback = buildFallbackReport(payload, tacticCards);
+  const leadershipSkillsData = await loadJson('leadership-skills.json').catch(() => ({ skills: [] }));
+  const leadershipSkills = normalizeLeadershipSkills(leadershipSkillsData?.skills);
+  const fallback = buildFallbackReport(payload, tacticCards, leadershipSkills);
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ ...fallback, apiStatus: 'fallback', fallbackReason: 'missing-api-key' });
   const reportLanguageInstruction = payload.interfaceLanguage === 'es' ? 'Spanish' : 'English';
 
@@ -219,8 +244,15 @@ Implementation requirements:
 - Parent patterns must be analyzed separately from leader performance; include patterns when evidence exists.
 - Do not use "limited evidence" wording unless the transcript is very short or empty.
 - Use setup/cards archetype fields when present (Common Tactics Used, Escalation Triggers, Calming Factors, Hidden Fear/Vulnerability, Speech Pattern, Typical Phrases, Manipulation Style, Relationship to School, Likely Ending State) as pattern guidance, but still infer directly from transcript language.
+- Add a section named "Leadership Moves Observed & Available" as leadershipMovesObservedAndAvailable with exactly two keys:
+  - movesYouUsed: array of 2-4 objects with keys skillName, shortExplanation, transcriptEvidence, whyItHelped.
+  - movesToConsiderNextTime: array of 1-3 objects with keys skillName, momentOpportunity, suggestedPhrasing, whyItMayHelp.
+- Leadership skills are optional tools, not checklist requirements. Never grade skills as pass/fail, never use "failed to use", and never imply scenario-selected skills were required.
+- Use reflective language such as: "You appeared to use...", "This resembled...", "A possible move available here...", "A strategy to consider next time...", "Another option could have been...".
+- Every move claim must include concrete transcript evidence with a direct quote when available. If exact evidence is unavailable, omit that move claim instead of inventing it.
+- Leadership skills reference (optional suggestions only): ${JSON.stringify(leadershipSkills).slice(0, 7000)}
 
-Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (array of {label, level, evidence} in canonical order), parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan.
+Return JSON only with keys: executiveSummary, humanEquationLeadershipAnalysis (array of {label, level, evidence} in canonical order), leadershipMovesObservedAndAvailable, parentPatternAnalysis, momentsToRevisit, strongerAlternativePhrasing, suggestedFollowUpPlan.
 Add conversationTrajectory as an object with exactly these keys:
 - startingParentState
 - escalationPoints
