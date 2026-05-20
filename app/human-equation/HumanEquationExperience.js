@@ -309,6 +309,60 @@ const guidedPracticeFocusOptions = [
   'logistics_operations',
 ];
 
+const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timingBriefing, practiceFocusKey) => {
+  const situationText = situationDescription.trim();
+  const lower = situationText.toLowerCase();
+  const isSupportNeedsConcern = /(iep|504|special\s*ed|special\s*education|evaluation|services|label|stigma)/i.test(lower) || practiceFocusKey === 'support_needs_iep_504';
+  const parentConcernPrediction = asText(setup.parentConcernPrediction, '').trim();
+  return {
+    issueSummary: `Core incident (administrator-entered): ${situationText}`,
+    knownFacts: isSupportNeedsConcern
+      ? [
+        `The parent is resisting or questioning special education supports/evaluation connected to this concern: "${situationText}".`,
+        'The family may fear labeling, stigma, or restrictive placement for the student.',
+        'School staff see potential support needs and need to clarify process, rights, and next steps without pressure language.',
+      ]
+      : [
+        `Administrator-entered source-of-truth concern: "${situationText}".`,
+        `This call is taking place during ${setup.callTiming.toLowerCase()} and should stay anchored to the entered concern.`,
+        'Known facts should remain narrow until clarifying questions confirm scope, impact, and required next steps.',
+      ],
+    staffReport: isSupportNeedsConcern
+      ? [
+        "Case manager note: 'Staff have documented support concerns, but the family is hesitant about evaluation/services right now.'",
+        "Teacher note: 'We want the student to get support without feeling labeled or singled out.'",
+      ]
+      : [
+        "Staff note: 'The team has partial information and needs to verify details directly with the family.'",
+      ],
+    studentStatements: isSupportNeedsConcern
+      ? [
+        "Student signal: 'I don't want to be treated differently from everyone else.'",
+      ]
+      : [
+        "Student signal: 'I want adults to understand what happened from my perspective.'",
+      ],
+    unknownFacts: [
+      'Which specific details are confirmed versus inferred, and what evidence is still needed.',
+      'What support options and communication approach will preserve trust while meeting school obligations.',
+    ],
+    leadershipChallenge: 'Use the administrator-entered situation as the source of truth. Do not replace it with a generic issue card. Issue cards are supporting context only.',
+    priorActions: {
+      light: 'Initial context has been gathered; additional verification and family-centered clarification are still needed.',
+      detailed: 'Pre-call review flagged the entered situation as the primary anchor; follow-up questions and support pathways were prepared.',
+    },
+    parentConcern: parentConcernPrediction
+      ? `Likely parent concern (predicted): ${parentConcernPrediction}`
+      : isSupportNeedsConcern
+        ? 'The parent fears stigma, labeling, or inappropriate placement and wants to protect their child from being viewed negatively.'
+        : 'The parent fears the school is missing the real issue and wants a fair, specific response tied to their stated concern.',
+    suggestedMindset: 'Validate emotion, preserve dignity, and translate process into plain language while staying anchored to the administrator-entered concern.',
+    contextFocus: [...(timingBriefing.focus || []), 'Use the administrator-entered situation as the primary anchor for summary, facts, and parent concern.'],
+    primaryGoal: timingBriefing.goal,
+    timingSummary: timingBriefing.summary,
+  };
+};
+
 const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'en') => {
   const practiceFocusKey = baseSetup.practiceFocus || baseSetup.scenarioType;
   const scenarioProfileKey = guidedScenarioProfileMap[practiceFocusKey] || practiceFocusKey;
@@ -355,28 +409,31 @@ const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'e
   const parentConcernPrediction = asText(baseSetup.parentConcernPrediction, '').trim();
   const privateAdministratorNotes = asText(baseSetup.privateAdministratorNotes, '').trim();
 
+  const guidedSituationBriefing = isGuided && userSituation
+    ? buildGuidedSituationAnchoredBriefing(userSituation, baseSetup, timingBriefing, practiceFocusKey)
+    : null;
+
   return {
-    issueSummary: isGuided && userSituation
-      ? `Core incident: ${userSituation}`
-      : `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
-    knownFacts: [
+    ...(guidedSituationBriefing || {}),
+    issueSummary: guidedSituationBriefing?.issueSummary || `${pickOne(scenarioProfile.issueSummary)} (${baseSetup.scenarioType}; ${baseSetup.callType.toLowerCase()}).`,
+    knownFacts: guidedSituationBriefing?.knownFacts || [
       `${scenarioProfile.knownFacts[0]} You are responding as the ${baseSetup.role.toLowerCase()} in ${withIndefiniteArticle(baseSetup.gradeBand.toLowerCase())} setting.`,
       `${scenarioProfile.knownFacts[1]} This call is taking place during ${baseSetup.callTiming.toLowerCase()}.`,
       `${scenarioProfile.knownFacts[2]} Parent is likely to press for clarity on both communication and next steps.`,
     ],
-    staffReport: scenarioProfile.staffReport,
-    studentStatements: scenarioProfile.studentStatements,
-    unknownFacts: [
+    staffReport: guidedSituationBriefing?.staffReport || scenarioProfile.staffReport,
+    studentStatements: guidedSituationBriefing?.studentStatements || scenarioProfile.studentStatements,
+    unknownFacts: guidedSituationBriefing?.unknownFacts || [
       `${scenarioProfile.unknownFacts[0]} Clarify this early, given the ${baseSetup.callTiming.toLowerCase()} timing pressure.`,
       `${scenarioProfile.unknownFacts[1]} Clarify expectations early so the call stays focused on decisions and follow-through.`,
     ],
-    leadershipChallenge: pickOne(scenarioProfile.leadershipChallenge),
-    priorActions: scenarioProfile.priorActions,
-    parentConcern: isGuided && parentConcernPrediction
+    leadershipChallenge: guidedSituationBriefing?.leadershipChallenge || pickOne(scenarioProfile.leadershipChallenge),
+    priorActions: guidedSituationBriefing?.priorActions || scenarioProfile.priorActions,
+    parentConcern: guidedSituationBriefing?.parentConcern || (isGuided && parentConcernPrediction
       ? `Likely parent concern (predicted): ${parentConcernPrediction}`
-      : `${scenarioProfile.parentConcern} Expect pressure for clear accountability, communication, and timelines.`,
+      : `${scenarioProfile.parentConcern} Expect pressure for clear accountability, communication, and timelines.`),
     suggestedMindset: `${scenarioProfile.mindset} Keep your language practical, calm, and action-oriented for ${baseSetup.gradeBand.toLowerCase()} families.`,
-    contextFocus: [...(timingBriefing.focus || []), ...dynamicFocus],
+    contextFocus: [...(guidedSituationBriefing?.contextFocus || timingBriefing.focus || []), ...dynamicFocus],
     primaryGoal: timingBriefing.goal,
     timingSummary: timingBriefing.summary,
     situationDescription: userSituation || null,
@@ -1375,10 +1432,6 @@ export default function HumanEquationExperience() {
   };
 
   const buildGuidedScenario = () => {
-    if (!setup.situationDescription || !setup.situationDescription.trim()) {
-      setGuidedValidationError('Describe the situation you want to practice before generating a briefing.');
-      return;
-    }
     setGuidedValidationError('');
     const forcedGuidedSetup = {
       ...setup,
@@ -1475,10 +1528,10 @@ export default function HumanEquationExperience() {
                     <div className={styles.setupGrid}>
                       <Selector label={t('he.role')} options={setupOptions.roles} translateOption={translateOption} value={setup.role} onSelect={(value) => setField('role', value)} />
                       <Selector label={t('he.gradeBand')} options={setupOptions.gradeBands} translateOption={translateOption} value={setup.gradeBand} onSelect={(value) => setField('gradeBand', value)} />
-                      <Selector label="Practice Focus (optional)" options={guidedPracticeFocusOptions} translateOption={translateOption} value={setup.practiceFocus} onSelect={(value) => setField('practiceFocus', value)} />
+                      <OptionalSelector label="Practice focus (optional)" options={guidedPracticeFocusOptions} translateOption={translateOption} value={setup.practiceFocus} onSelect={(value) => setField('practiceFocus', value)} />
                       <Selector label={t('he.parentLanguage')} options={setupOptions.parentLanguages} translateOption={translateOption} value={setup.parentLanguage} onSelect={(value) => setField('parentLanguage', value)} />
                     </div>
-                    <label className={styles.notesLabel}>Describe the situation — required</label>
+                    <label className={styles.notesLabel}>Describe the situation (optional)</label>
                     <textarea className={`${styles.notes} ${styles.setupNotes}`} placeholder="Example: A parent is upset because their child says a teacher embarrassed them in class." value={setup.situationDescription} onChange={(e) => setField('situationDescription', e.target.value)} />
                     <label className={styles.notesLabel}>What are you worried the parent might say? — optional</label>
                     <textarea className={`${styles.notes} ${styles.setupNotes}`} placeholder="Example: They may accuse the school of targeting their child or threaten to call the district." value={setup.parentConcernPrediction} onChange={(e) => setField('parentConcernPrediction', e.target.value)} />
@@ -1505,7 +1558,7 @@ export default function HumanEquationExperience() {
                         <h3>{t('he.preCallBriefing')}</h3>
                         <p className={styles.contextLabel}><strong>{t('he.path')}:</strong> {t('he.guidedPractice')}</p>
                         <p className={styles.contextLabel}><strong>{t('he.briefingDepth')}:</strong> {setup.briefingDepth}</p>
-                        <p className={styles.contextLabel}><strong>Practice focus:</strong> {translateOption(setup.practiceFocus) || 'Not set'}</p>
+                        <p className={styles.contextLabel}><strong>Practice focus (optional):</strong> {translateOption(setup.practiceFocus) || 'Not set'}</p>
                         <p className={styles.contextLabel}><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
                         <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
                         <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
@@ -1769,6 +1822,19 @@ export default function HumanEquationExperience() {
         )}
       </div>
     </section>
+  );
+}
+
+
+function OptionalSelector({ label, options, value, onSelect, translateOption = (option) => option }) {
+  return (
+    <label>
+      <p className={styles.selectorLabel}>{label}</p>
+      <select className={styles.selectorNative} value={value || ''} onChange={(e) => onSelect(e.target.value || '')}>
+        <option value="">No specific focus</option>
+        {options.map((option) => <option key={option} value={option}>{translateOption(option)}</option>)}
+      </select>
+    </label>
   );
 }
 
