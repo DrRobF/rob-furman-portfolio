@@ -319,6 +319,7 @@ const buildGuidedEvidencePacketSections = (situationDescription, setup, timingBr
     const cleaned = toBulletList(items);
     if (cleaned.length) sections.push({ title, items: cleaned });
   };
+
   const issueType = /(attendance|absent|tardy|late)/i.test(lower) || practiceFocusKey === 'attendance'
     ? 'attendance'
     : /(grade|test|quiz|assignment|failing|class|retest|fair)/i.test(lower) || practiceFocusKey === 'academics_grades'
@@ -334,36 +335,92 @@ const buildGuidedEvidencePacketSections = (situationDescription, setup, timingBr
               : 'general';
 
   addSection('Situation Overview', [
-    `Parent requested follow-up regarding: ${situationText}.`,
-    `This call is being held during ${setup.callTiming.toLowerCase()} after initial fact gathering.`,
+    `Administrator-entered concern: ${situationText}.`,
+    `Call context: ${setup.callTiming.replaceAll('_', ' ')} (${setup.callType.replaceAll('_', ' ')}).`,
   ]);
-  if (issueType === 'grades') {
-    addSection('Relevant Data Snapshot', ['Current class average is below passing based on recent gradebook entries.', 'Recent assessment performance dropped compared with earlier classwork.', 'Incomplete or missing practice/review work may be contributing to the current grade trend.']);
-    addSection('Teacher / Staff Notes', ['Teacher reports the assessment aligned to current unit standards and review materials.', 'Teacher notes the student had partial completion of practice tasks before the assessment.']);
-    addSection('Previous Parent Communication', ['Parent asked whether the assessment was fair and requested clarification on grading expectations.']);
+
+  if (issueType === 'support') {
+    addSection('Relevant Data Snapshot', [
+      'Reading benchmark remains below grade-level band in the two most recent windows.',
+      '5 missing assignments were recorded across core classes in the last 3 weeks.',
+      'Attendance is mostly stable; 1 absence and 2 tardies this month.',
+      'No active special education eligibility has been entered in records to date.',
+    ]);
+    addSection('Teacher / Staff Notes', [
+      "ELA teacher: 'Student can discuss text verbally but written responses are often incomplete unless prompted one-on-one.'",
+      "Math teacher: 'Work completion drops on multi-step tasks; student may stop after the first problem.'",
+      "Case manager note: 'Classroom interventions are documented, but progress is inconsistent by class.'",
+    ]);
+    addSection('Front Office Notes', [
+      'Parent called yesterday around 2:40 PM requesting an administrator callback before any meeting is scheduled.',
+      'Office log shows 2 prior family contacts this quarter related to academic support questions.',
+    ]);
+    addSection('Previous Parent Communication', [
+      "Parent email excerpt: 'I do not want my child labeled or pulled out of regular classes.'",
+      "Parent also asked what supports can happen in class before any formal evaluation step.",
+    ]);
+    addSection('Student Statement', [
+      "'I'm not dumb. I just need more time sometimes.'",
+    ]);
+    addSection('Known Facts', [
+      'Staff discussed additional support options; no formal special education evaluation has been started.',
+      'Family requested clarification on process before consenting to next steps.',
+    ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'Which supports the family will accept immediately in general education classes.',
+      'Whether the parent concern is about labeling, placement, or prior experiences with services.',
+      'What timeline the family expects for written follow-up after this call.',
+    ]);
+    addSection('Prior Actions Already Taken', [
+      'Gradebook, benchmark, and intervention notes were pulled for administrator review.',
+      'Teachers submitted short written observations before this callback.',
+    ]);
+  } else if (issueType === 'grades') {
+    addSection('Relevant Data Snapshot', [
+      'Current course grade is below passing in at least one core class.',
+      'Missing assignment count increased over the current grading window.',
+      'Quiz scores are lower than classwork completion trend.',
+    ]);
+    addSection('Teacher / Staff Notes', [
+      "Teacher note: 'Student is respectful, but independent work often comes in late or incomplete.'",
+      "Intervention block teacher: 'Student attends support period, but follow-through is uneven week to week.'",
+    ]);
+    addSection('Previous Parent Communication', [
+      "Parent message: 'I need to know why this grade dropped so fast and what can be fixed now.'",
+    ]);
   } else if (issueType === 'attendance') {
-    addSection('Relevant Data Snapshot', ['Attendance record shows a pattern of recent absences and/or tardies.', 'Instructional time loss appears concentrated in core academic periods.']);
-    addSection('Front Office Notes', ['Front office logged multiple attendance-related contacts and follow-up attempts.']);
+    addSection('Relevant Data Snapshot', [
+      'Absences and tardies increased over the last 4 instructional weeks.',
+      'Most missed time is in morning core periods.',
+    ]);
+    addSection('Front Office Notes', [
+      'Attendance clerk logged multiple same-day calls with mixed reasons for late arrival.',
+      'Family requested flexibility but has not submitted updated documentation yet.',
+    ]);
   } else if (issueType === 'behavior') {
-    addSection('Relevant Data Snapshot', ['Behavior referral entries indicate repeated concerns tied to a similar context.', 'Prior classroom interventions were documented before escalation.']);
-    addSection('Teacher / Staff Notes', ['Staff reports include differing views on student intent and peer involvement.']);
-  } else if (issueType === 'support') {
-    addSection('Relevant Data Snapshot', ['Current progress data shows uneven performance across classes/tasks.', 'Intervention notes indicate support needs were discussed prior to this concern.']);
-    addSection('Teacher / Staff Notes', ['Staff reports concern about access to supports while maintaining student dignity.']);
-    addSection('Previous Parent Communication', ['Parent has expressed concern about how supports may affect student labeling or placement.']);
+    addSection('Relevant Data Snapshot', [
+      'Referral entries show repeated incidents in similar settings/time blocks.',
+      'Prior classroom redirection strategies were attempted before office referral.',
+    ]);
+    addSection('Teacher / Staff Notes', [
+      "Teacher note: 'Student responds to private redirection better than public correction.'",
+      "Dean note: 'Peer accounts are not fully aligned yet; follow-up interviews are still pending.'",
+    ]);
   } else if (issueType === 'safety') {
-    addSection('Relevant Data Snapshot', ['Incident timeline includes multiple accounts that are not fully aligned.', 'Immediate supervision and safety steps were initiated pending final review.']);
-    addSection('Administrator Notes', ['Current priority is safety stabilization while facts are still being verified.']);
-  } else if (issueType === 'transportation') {
-    addSection('Front Office Notes', ['Front office recorded transportation-related concerns and parent check-in requests.', 'Transportation information provided to family may not have matched student report.']);
+    addSection('Administrator Notes', [
+      'Immediate supervision and safety protocols were activated the same day.',
+      'Accounts were collected from involved staff; student interviews are partially complete.',
+    ]);
+    addSection('Questions / Unknowns to Clarify', [
+      'Any remaining witness accounts that could change incident sequence.',
+      'What immediate reassurance the family needs before final findings are issued.',
+    ]);
   }
 
-  addSection('Student Statement', ['Student reports their perspective differs from at least one adult account and wants the full context considered.']);
-  addSection('Known Facts', ['Initial fact gathering is complete, but not all accounts are fully aligned.', 'The family is requesting a clear explanation of what is confirmed and what will happen next.']);
-  addSection('Questions / Unknowns to Clarify', ['Which details are confirmed by records versus verbal accounts only.', 'Whether other students/staff reported similar concerns in the same timeframe.', 'What specific resolution or follow-up outcome the parent is requesting today.']);
-  addSection('Prior Actions Already Taken', [timingBriefing.summary, 'Initial staff/student check-ins were completed and follow-up options were drafted for this call.']);
-  addSection('Professional Note', ['Use this packet to guide clarifying questions; avoid final conclusions until discrepancies are resolved.']);
-  if (parentConcernPrediction) addSection('Administrator Notes', [`Potential parent opening concern to listen for: ${parentConcernPrediction}.`]);
+  if (parentConcernPrediction) {
+    addSection('Professional Note', [`Possible opening concern to prepare for: ${parentConcernPrediction}.`]);
+  }
+
   return sections;
 };
 
@@ -1630,8 +1687,6 @@ export default function HumanEquationExperience() {
                           value={prepUnknownsNotes}
                           onChange={(e) => setPrepUnknownsNotes(e.target.value)}
                         />
-                        <p><strong>{t('he.priorActions')}:</strong> {isDetailedBriefing ? (activeBriefing?.priorActions?.detailed ?? 'Staff and student statements were collected, supervision logs reviewed, and a follow-up timeline prepared.') : (activeBriefing?.priorActions?.light ?? 'Initial review in progress; timelines may still be developing.')}</p>
-                        <p className={styles.subtle}><strong>{t('he.professionalNote')}:</strong> {t('he.professionalNoteBody')}</p>
                         <button className={styles.cta} onClick={nextStage}>{t('he.startCall')}</button>
                       </div>
                     )}
