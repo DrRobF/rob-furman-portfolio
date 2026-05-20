@@ -560,7 +560,7 @@ const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'e
   ];
   if (interfaceLanguage === 'es') {
     return {
-      issueSummary: `Resumen del caso: ${baseSetup.scenarioType}. Contexto: ${baseSetup.callType}.`,
+      issueSummary: `Resumen del caso: ${translateOption(baseSetup.scenarioType)}. Contexto: ${translateOption(baseSetup.callType)}.`,
       knownFacts: [
         `Responderás como ${baseSetup.role} en ${baseSetup.gradeBand}.`,
         `La llamada ocurre en el contexto: ${baseSetup.callTiming}.`,
@@ -682,6 +682,22 @@ const optionLabelKeys = {
 export default function HumanEquationExperience() {
   const { t, language } = useLanguage();
   const translateOption = (option) => t(optionLabelKeys[option] ?? option);
+  const isSpanish = language === 'es';
+  const ui = {
+    parentCaller: isSpanish ? 'Familiar que llama' : 'Parent Caller',
+    emotionalTemperature: isSpanish ? 'Temperatura emocional' : 'Emotional temperature',
+    helloFirst: isSpanish ? 'Cuando se conecte la llamada, saluda primero. La madre/el padre responderá después de escuchar tu voz.' : 'When the call connects, say hello first to begin. The parent will respond after hearing your voice.',
+    status: isSpanish ? 'Estado' : 'Status',
+    yourAudio: isSpanish ? 'Tu audio' : 'Your audio',
+    detected: isSpanish ? 'Detectado' : 'Detected',
+    waitingVoice: isSpanish ? 'Esperando voz' : 'Waiting for voice',
+    liveAudio: isSpanish ? 'Actividad de audio en vivo' : 'Live audio activity',
+    showDebug: isSpanish ? 'Mostrar depuración técnica' : 'Show Developer Debug',
+    hideDebug: isSpanish ? 'Ocultar depuración técnica' : 'Hide Developer Debug',
+    briefingPacket: isSpanish ? 'Informe previo / Paquete de evidencia' : 'Briefing / Evidence Packet',
+    callNotes: isSpanish ? 'Notas de la llamada' : 'Call Notes',
+    callNotesPlaceholder: isSpanish ? 'Anota lo que diga la madre/el padre, compromisos, preguntas o próximos pasos...' : 'Jot down what the parent says, commitments, questions, or next steps...',
+  };
   const [stage, setStage] = useState('intro');
   const [callStartedAt, setCallStartedAt] = useState(null);
   const [now, setNow] = useState(Date.now());
@@ -785,11 +801,11 @@ export default function HumanEquationExperience() {
     return `${mins}:${secs}`;
   }, [callEndedAt, callStartedAt, now]);
   const userFacingCallStatus = useMemo(() => {
-    if (callStatus === 'Call ended') return 'Call ended';
-    if (/reconnect/i.test(callStatus)) return 'Reconnecting…';
-    if (/connect/i.test(callStatus) && !/ready/i.test(callStatus)) return 'Connecting…';
-    if (/active|in progress/i.test(callStatus)) return 'Call in progress';
-    return 'Ready — say hello to begin';
+    if (callStatus === 'Call ended') return t('he.callEnded');
+    if (/reconnect/i.test(callStatus)) return t('he.reconnecting');
+    if (/connect/i.test(callStatus) && !/ready/i.test(callStatus)) return t('he.connecting');
+    if (/active|in progress/i.test(callStatus)) return t('he.callInProgress');
+    return t('he.readySayHello');
   }, [callStatus]);
 
   useEffect(() => {
@@ -1824,7 +1840,7 @@ export default function HumanEquationExperience() {
             )}
 
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
-              {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
+              {showDebugPanel ? ui.hideDebug : ui.showDebug}
             </button>
             {showDebugPanel && (
               <div className={styles.debugPanel}>
@@ -1851,7 +1867,7 @@ export default function HumanEquationExperience() {
           <div className={styles.panelCentered}>
             <p className={styles.eyebrow}>{t('he.incomingCall')}</p>
             <div className={styles.callOrb} />
-            <h2>Parent Caller: {activeParentCallerName} ({translateOption(setup.gradeBand)})</h2>
+            <h2>{ui.parentCaller}: {activeParentCallerName} ({translateOption(setup.gradeBand)})</h2>
             <p className={styles.subtle}>{translateOption(setup.scenarioType)} • {translateOption(setup.callType)}</p>
             <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
               <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
@@ -1869,7 +1885,7 @@ export default function HumanEquationExperience() {
               {!hasMicrophone && <p className={styles.errorText}>No microphone detected.</p>}
               <button type="button" className={styles.secondaryAction} onClick={testMicrophone}>{t('he.testMicrophone')}</button>
             </div>
-            <p className={styles.subtle}>When the call connects, say hello first to begin. The parent will respond after hearing your voice.</p>
+            <p className={styles.subtle}>{ui.helloFirst}</p>
             <button className={styles.cta} onClick={beginCall} disabled={Boolean(micError) || !hasMicrophone}>{t('he.answerBegin')}</button>
           </div>
         )}
@@ -1880,20 +1896,20 @@ export default function HumanEquationExperience() {
               <p className={styles.eyebrow}>{t('he.liveVoiceSimulation')}</p>
               <div className={styles.timer}>{callDuration}</div>
             </div>
-            <h2>{activeParentCallerName} — Parent Caller</h2>
-            <p className={styles.subtle}>Emotional temperature: <strong>{emotionalTemperature}</strong></p>
-            <p className={styles.subtle}>When the call connects, say hello first to begin. The parent will respond after hearing your voice.</p>
+            <h2>{activeParentCallerName} — {ui.parentCaller}</h2>
+            <p className={styles.subtle}>{ui.emotionalTemperature}: <strong>{emotionalTemperature}</strong></p>
+            <p className={styles.subtle}>{ui.helloFirst}</p>
             <p className={styles.contextLabel}><strong>{t('he.callTimingContext')}:</strong> {translateOption(setup.callTiming)}</p>
               <p className={styles.contextLabel}><strong>{t('he.callType')}:</strong> {translateOption(setup.callType)}</p>
             <div className={styles.callStatusGrid}>
-              <p><strong>Status:</strong> {userFacingCallStatus}</p>
-              <p><strong>Your audio:</strong> {userAudioDetected ? 'Detected' : 'Waiting for voice'}</p>
+              <p><strong>{ui.status}:</strong> {userFacingCallStatus}</p>
+              <p><strong>{ui.yourAudio}:</strong> {userAudioDetected ? ui.detected : ui.waitingVoice}</p>
               {noiseWarning && <p className={styles.warningText}>{noiseWarning}</p>}
               {micError && <p className={styles.errorText}>{micError}</p>}
               {sessionError && <p className={styles.errorText}>{sessionError}</p>}
             </div>
-            <section className={styles.audioActivityPanel} aria-label="Live audio activity">
-              <p className={styles.audioActivityLabel}>Live audio activity</p>
+            <section className={styles.audioActivityPanel} aria-label={ui.liveAudio}>
+              <p className={styles.audioActivityLabel}>{ui.liveAudio}</p>
               <div className={`${styles.waveform} ${styles[`waveform${liveAudioState[0].toUpperCase()}${liveAudioState.slice(1)}`]}`} aria-hidden>
                 {activityBars.map((bar) => (
                   <span key={`live-audio-bar-${bar}`} className={styles.waveformBar} />
@@ -1902,7 +1918,7 @@ export default function HumanEquationExperience() {
             </section>
             <button className={styles.endCall} onClick={endCall}>{t('he.endCall')}</button>
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
-              {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
+              {showDebugPanel ? ui.hideDebug : ui.showDebug}
             </button>
             {showDebugPanel && (
               <div className={styles.debugPanel}>
@@ -1928,7 +1944,7 @@ export default function HumanEquationExperience() {
             <aside className={styles.callSideColumn}>
               <section className={styles.callSideWorkspace}>
               <section className={styles.briefingCard}>
-                <h3>Briefing / Evidence Packet</h3>
+                <h3>{ui.briefingPacket}</h3>
                 <p><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
                 {(activeBriefing?.evidencePacketSections ?? []).map((section) => (
                   <article key={`active-evidence-${section.title}`}>
@@ -1947,7 +1963,7 @@ export default function HumanEquationExperience() {
               ) : null}
               </section>
               <section className={styles.callNotesDock}>
-              <label className={styles.notesLabel}>Call Notes</label>
+              <label className={styles.notesLabel}>{ui.callNotes}</label>
               <textarea className={`${styles.notes} ${styles.callNotesExpanded}`} placeholder="Jot down what the parent says, follow-up items, questions, or commitments…" value={callNotes} onChange={(e) => setCallNotes(e.target.value)} />
               </section>
             </aside>
@@ -1956,28 +1972,28 @@ export default function HumanEquationExperience() {
         {stage === 'report' && (
           <div className={styles.panel}>
             <p className={styles.eyebrow}>{t('he.postCallReport')}</p>
-            <h2>Human Equation Post-Call Report</h2>
+            <h2>{t('he.postCallReportLocalized')}</h2>
             <p className={styles.subtle}>{t('he.endReportTranscriptSubtle')}</p>
-            <p><strong>Scenario:</strong> {(setup.practiceMode === 'guided' ? setup.situationDescription : translateOption(setup.scenarioType)) || 'Unknown scenario'}</p>
-            <p><strong>Parent:</strong> {activeParentCallerName}</p>
+            <p><strong>{t('he.scenarioLabel')}:</strong> {(setup.practiceMode === 'guided' ? setup.situationDescription : translateOption(setup.scenarioType)) || 'Unknown scenario'}</p>
+            <p><strong>{t('he.parentLabel')}:</strong> {activeParentCallerName}</p>
             <p><strong>Issue:</strong> {translateOption(setup.callType) || 'Unknown issue'}</p>
-            <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
+            <p><strong>{t('he.callDurationLabel')}:</strong> {resolvedCallDuration}</p>
             {previewFixtureId ? <p><strong>Preview sample:</strong> {previewFixtureId}</p> : null}
             <div className={styles.reportMeta}>
               <section className={styles.reportSection}>
-                <h3>User Reflection &amp; Notes</h3>
-                <label className={styles.notesLabel}>What stood out from this call?</label>
+                <h3>{t('he.userReflectionNotes')}</h3>
+                <label className={styles.notesLabel}>{t('he.whatStoodOut')}</label>
                 <textarea className={styles.notes} value={afterActionReflection} onChange={(e) => setAfterActionReflection(e.target.value)} />
-                <label className={styles.notesLabel}>Follow-up / action items</label>
+                <label className={styles.notesLabel}>{t('he.followUpActionItems')}</label>
                 <textarea className={styles.notes} value={followUpActionItems} onChange={(e) => setFollowUpActionItems(e.target.value)} />
               </section>
-              {coachingStatus.state === 'loading' && <section><h3>Generating coaching report…</h3><p>Analyzing transcript and call context.</p></section>}
+              {coachingStatus.state === 'loading' && <section><h3>{t('he.generatingCoachingReport')}</h3><p>{t('he.analyzingTranscriptContext')}</p></section>}
               {coachingStatus.state === 'ready' && !coachingReport && <section><h3>Coaching unavailable</h3><p>We could not generate a full report from transcript data. Limited report mode is active.</p></section>}
               {coachingReport && (
                 <>
-                  <section className={`${styles.reportSection} ${styles.executiveSummarySection}`}><h3>Executive Summary</h3><p>{conciseExecutiveSummary}</p></section>
+                  <section className={`${styles.reportSection} ${styles.executiveSummarySection}`}><h3>{t('he.executiveSummary')}</h3><p>{conciseExecutiveSummary}</p></section>
                   <section className={styles.reportSection}>
-                    <h3>Conversation Trajectory</h3>
+                    <h3>{t('he.conversationTrajectory')}</h3>
                     <ul>
                       <li><strong>Starting Parent State:</strong> {conversationTrajectory.startingParentState}</li>
                       <li><strong>Escalation Points:</strong> {conversationTrajectory.escalationPoints}</li>
@@ -2038,7 +2054,7 @@ export default function HumanEquationExperience() {
               {resolvedCallNotes ? <><h3>Call Notes</h3><p>{resolvedCallNotes}</p></> : null}
               {(resolvedAfterActionReflection || resolvedFollowUpActionItems) ? (
                 <>
-                  <h3>User Reflection &amp; Notes</h3>
+                  <h3>{t('he.userReflectionNotes')}</h3>
                   {resolvedAfterActionReflection ? <p><strong>What stood out from this call?</strong> {resolvedAfterActionReflection}</p> : null}
                   {resolvedFollowUpActionItems ? <p><strong>Follow-up / action items:</strong> {resolvedFollowUpActionItems}</p> : null}
                 </>

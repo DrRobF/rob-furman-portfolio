@@ -1,6 +1,10 @@
-import Link from 'next/link';
+'use client';
 
-const pathwaySteps = [
+import Link from 'next/link';
+import { useLanguage } from '../components/LanguageProvider';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
+
+const pathwayStepsEn = [
   {
     title: '1. Leadership Diagnostic',
     detail:
@@ -28,7 +32,7 @@ const pathwaySteps = [
   },
 ];
 
-const simulationCards = [
+const simulationCardsEn = [
   {
     title: 'Leadership Diagnostic',
     description: 'Begin with the full pathway entry point and profile baseline.',
@@ -59,35 +63,56 @@ const simulationCards = [
 ];
 
 export default function HumanEquationSuitePage() {
+  const { language } = useLanguage();
+  const es = language === 'es';
+  const copy = es
+    ? {
+      title: 'The Human Equation', subtitle: 'Ensayo de liderazgo con IA para los momentos que ponen a prueba el juicio, la confianza y el control emocional.',
+      body: 'The Human Equation ayuda a líderes escolares a practicar el lado humano del liderazgo: conversaciones difíciles con familias, decisiones bajo presión, perspectiva estudiantil y crecimiento reflexivo. Comienza con el Diagnóstico de Liderazgo para la ruta completa o entra directamente a cualquier simulación.',
+      startDiagnostic: 'Iniciar diagnóstico de liderazgo', trySim: 'Probar una simulación', recommended: 'Ruta recomendada', jump: 'Entrar directamente a la suite',
+      eyebrow: 'Human Equation Suite'
+    }
+    : {
+      title: 'The Human Equation', subtitle: 'AI-powered leadership rehearsal for the moments that test judgment, trust, and emotional control.',
+      body: 'The Human Equation helps school leaders practice the human side of leadership: difficult parent conversations, pressure-filled decisions, student-centered perspective, and reflective growth. Start with the Leadership Diagnostic for the full pathway, or jump directly into any simulation.',
+      startDiagnostic: 'Start the Leadership Diagnostic', trySim: 'Try a Simulation', recommended: 'Recommended Path', jump: 'Jump Directly into the Suite',
+      eyebrow: 'Human Equation Suite'
+    };
+  const pathwaySteps = es ? [
+    { title: '1. Diagnóstico de liderazgo', detail: 'Descubre tus patrones de presión de liderazgo antes de entrar en las simulaciones.' },
+    { title: '2. Ensayo de llamada con familia', detail: 'Practica conversaciones familiares emocionalmente realistas con voz de IA en vivo y coaching posterior.' },
+    { title: '3. Simulación de liderazgo escolar', detail: 'Recorre un día escolar bajo presión y observa cómo tus decisiones moldean confianza, seguridad y seguimiento.' },
+    { title: '4. Simulación de perspectiva estudiantil urbana', detail: 'Vive la escuela desde el día de un estudiante y reflexiona sobre empatía, sistemas y decisiones de liderazgo.' },
+    { title: '5. Informe maestro de Human Equation', detail: 'Combina resultados, desempeño y notas de reflexión en un perfil completo de crecimiento.' },
+  ] : pathwayStepsEn;
+  const simulationCards = es ? [
+    { title: 'Diagnóstico de liderazgo', description: 'Empieza por la entrada principal de la ruta y establece tu línea base.', href: '/human-equation-suite/diagnostic', linkText: 'Iniciar diagnóstico →' },
+    { title: 'Ensayo de llamada con familia', description: 'Ensaya conversaciones difíciles con interacción realista de IA y coaching.', href: '/human-equation', linkText: 'Abrir ensayo de llamada →' },
+    { title: 'Simulación de liderazgo escolar', description: 'Entra en un escenario escolar donde cada decisión cambia resultados.', href: '/simulation-overview', linkText: 'Iniciar simulación escolar →' },
+    { title: 'Simulación de perspectiva estudiantil urbana', description: 'Experimenta realidades estudiantiles y reflexiona sobre implicaciones sistémicas.', href: '/day-in-the-life-urban-student', linkText: 'Iniciar perspectiva estudiantil →' },
+  ] : simulationCardsEn;
   return (
     <section className="section section-light">
       <div className="container">
-        <p className="eyebrow">Human Equation Suite</p>
-        <h1>The Human Equation</h1>
-        <p className="lead">
-          AI-powered leadership rehearsal for the moments that test judgment, trust, and emotional
-          control.
-        </p>
-        <p>
-          The Human Equation helps school leaders practice the human side of leadership: difficult
-          parent conversations, pressure-filled decisions, student-centered perspective, and
-          reflective growth. Start with the Leadership Diagnostic for the full pathway, or jump
-          directly into any simulation.
-        </p>
+        <LanguageSwitcher />
+        <p className="eyebrow">{copy.eyebrow}</p>
+        <h1>{copy.title}</h1>
+        <p className="lead">{copy.subtitle}</p>
+        <p>{copy.body}</p>
 
         <div className="button-row top-space-sm">
           <Link href="/human-equation-suite/diagnostic" className="button primary">
-            Start the Leadership Diagnostic
+            {copy.startDiagnostic}
           </Link>
           <Link href="#suite-simulations" className="button secondary">
-            Try a Simulation
+            {copy.trySim}
           </Link>
         </div>
       </div>
 
       <div className="container top-space">
         <div className="card project-card">
-          <h2>Recommended Path</h2>
+          <h2>{copy.recommended}</h2>
           <p>
             Start with the diagnostic to establish your profile, then progress through rehearsal,
             school-day leadership scenarios, and student perspective before reviewing your full
@@ -105,7 +130,7 @@ export default function HumanEquationSuitePage() {
       </div>
 
       <div className="container top-space" id="suite-simulations">
-        <h2>Jump Directly into the Suite</h2>
+        <h2>{copy.jump}</h2>
         <div className="card-grid">
           {simulationCards.map((card) => (
             <article key={card.title} className="card project-card equal-card">
