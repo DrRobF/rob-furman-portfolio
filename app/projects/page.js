@@ -15,8 +15,8 @@ const projects = [
     title: 'The Human Equation',
     description:
       'Practice high-pressure parent and school leadership conversations with realistic AI roleplay, post-call coaching, and reflection tools designed to help leaders build trust, clarity, and composure under pressure.',
-    href: '/human-equation',
-    linkText: 'Try The Human Equation →',
+    href: '/human-equation-suite',
+    linkText: 'Explore Human Equation Suite →',
   },
   {
     title: 'VIC: Virtual Co-Teacher',
