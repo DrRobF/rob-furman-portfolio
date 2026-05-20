@@ -64,7 +64,17 @@ const simulationCardsEn = [
 
 export default function HumanEquationSuitePage() {
   const { language } = useLanguage();
-  const es = language === 'es';
+  const locale = language || 'en';
+  const es = locale === 'es';
+  const dictionary = {
+    en: {
+      recommendedBody: 'Start with the diagnostic to establish your profile, then progress through rehearsal, school-day leadership scenarios, and student perspective before reviewing your full growth report.',
+    },
+    es: {
+      recommendedBody: 'Comienza con el diagnóstico para establecer tu perfil, luego avanza por el ensayo, los escenarios de liderazgo escolar y la perspectiva estudiantil antes de revisar tu informe completo de crecimiento.',
+    },
+  };
+  const tr = (key, fallback) => dictionary?.[locale]?.[key] ?? dictionary?.en?.[key] ?? fallback ?? key;
   const copy = es
     ? {
       title: 'The Human Equation', subtitle: 'Ensayo de liderazgo con IA para los momentos que ponen a prueba el juicio, la confianza y el control emocional.',
@@ -113,11 +123,7 @@ export default function HumanEquationSuitePage() {
       <div className="container top-space">
         <div className="card project-card">
           <h2>{copy.recommended}</h2>
-          <p>
-            Start with the diagnostic to establish your profile, then progress through rehearsal,
-            school-day leadership scenarios, and student perspective before reviewing your full
-            growth report.
-          </p>
+          <p>{tr('recommendedBody', 'Start with the diagnostic to establish your profile.')}</p>
           <div className="card-grid top-space-sm">
             {pathwaySteps.map((step) => (
               <article key={step.title} className="card card-featured equal-card">
