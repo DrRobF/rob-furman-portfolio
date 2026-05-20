@@ -613,6 +613,9 @@ export default function HumanEquationExperience() {
   const [callStartedAt, setCallStartedAt] = useState(null);
   const [now, setNow] = useState(Date.now());
   const [privateNotes, setPrivateNotes] = useState('');
+  const [callNotes, setCallNotes] = useState('');
+  const [afterActionReflection, setAfterActionReflection] = useState('');
+  const [followUpActionItems, setFollowUpActionItems] = useState('');
   const [prepUnknownsNotes, setPrepUnknownsNotes] = useState('');
   const [callStatus, setCallStatus] = useState('Not connected');
   const [emotionalTemperature, setEmotionalTemperature] = useState('Escalated');
@@ -1300,7 +1303,7 @@ export default function HumanEquationExperience() {
   };
 
 
-  const requestCoachingReport = ({ setupSnapshot, notesSnapshot, prepUnknownsSnapshot, durationSnapshot, endedAt, transcriptSnapshot }) => {
+  const requestCoachingReport = ({ setupSnapshot, notesSnapshot, callNotesSnapshot, afterActionReflectionSnapshot, followUpActionItemsSnapshot, prepUnknownsSnapshot, durationSnapshot, endedAt, transcriptSnapshot }) => {
     const canonicalScenario = setupSnapshot?.practiceMode === 'guided' ? guidedScenario : buildScenarioBriefing(setupSnapshot, callTimingBriefings?.[setupSnapshot?.callTiming] ?? selectedTimingBriefing, language);
     setCoachingStatus({ state: 'loading', source: 'pending', fallbackReason: null });
     setCoachingReport(null);
@@ -1314,6 +1317,10 @@ export default function HumanEquationExperience() {
         setup: setupSnapshot,
         canonicalScenario,
         privateNotes: notesSnapshot,
+        privateAdministratorNotes: notesSnapshot,
+        callNotes: callNotesSnapshot,
+        afterActionReflection: afterActionReflectionSnapshot,
+        followUpActionItems: followUpActionItemsSnapshot,
         prepUnknownsNotes: prepUnknownsSnapshot,
         callDuration: durationSnapshot,
         callEndedAt: endedAt,
@@ -1364,6 +1371,9 @@ export default function HumanEquationExperience() {
     requestCoachingReport({
       setupSnapshot: fixtureSetup,
       notesSnapshot: asText(fixture?.privateNotes, ''),
+      callNotesSnapshot: '',
+      afterActionReflectionSnapshot: '',
+      followUpActionItemsSnapshot: '',
       prepUnknownsSnapshot: asText(fixture?.prepUnknownsNotes, ''),
       durationSnapshot: '12:00',
       endedAt,
@@ -1376,6 +1386,9 @@ export default function HumanEquationExperience() {
     const transcriptSnapshot = transcriptLines.map((line) => ({ role: line.role, text: line.text, timestamp: line.timestamp, eventType: line.eventType }));
     const setupSnapshot = { ...setup, prepUnknownsNotes };
     const notesSnapshot = privateNotes;
+    const callNotesSnapshot = callNotes;
+    const afterActionReflectionSnapshot = afterActionReflection;
+    const followUpActionItemsSnapshot = followUpActionItems;
     const prepUnknownsSnapshot = prepUnknownsNotes;
     const durationSnapshot = resolvedCallDuration;
 
@@ -1383,6 +1396,9 @@ export default function HumanEquationExperience() {
     requestCoachingReport({
       setupSnapshot,
       notesSnapshot,
+      callNotesSnapshot,
+      afterActionReflectionSnapshot,
+      followUpActionItemsSnapshot,
       prepUnknownsSnapshot,
       durationSnapshot,
       endedAt,
@@ -1414,8 +1430,18 @@ export default function HumanEquationExperience() {
         `- Overall Movement: ${conversationTrajectory.overallMovement || fallback}`,
       ].join('\n'));
     }
-    if (privateNotes || coachingReport?.privateAdministratorNotes) {
-      optionalSections.push(`## Private Administrator Notes\n${privateNotes || coachingReport?.privateAdministratorNotes || fallback}`);
+    if (resolvedPrivateAdministratorNotes) {
+      optionalSections.push(`## Private Administrator Notes\n${resolvedPrivateAdministratorNotes || fallback}`);
+    }
+    if (resolvedCallNotes) {
+      optionalSections.push(`## Call Notes\n${resolvedCallNotes || fallback}`);
+    }
+    if (resolvedAfterActionReflection || resolvedFollowUpActionItems) {
+      optionalSections.push([
+        '## User Reflection & Notes',
+        resolvedAfterActionReflection ? `### What stood out from this call?\n${resolvedAfterActionReflection}` : '',
+        resolvedFollowUpActionItems ? `### Follow-up / action items\n${resolvedFollowUpActionItems}` : '',
+      ].filter(Boolean).join('\n\n'));
     }
     if (prepUnknownsNotes) {
       optionalSections.push(`## Questions / Unknowns to Clarify\n${prepUnknownsNotes || fallback}`);
@@ -1595,6 +1621,10 @@ export default function HumanEquationExperience() {
   const momentsToRevisit = toSafeList(coachingReport?.momentsToRevisit);
   const conversationTrajectory = normalizeConversationTrajectory(coachingReport?.conversationTrajectory);
   const leadershipMoves = normalizeLeadershipMoves(coachingReport?.leadershipMovesObservedAndAvailable);
+  const resolvedPrivateAdministratorNotes = privateNotes || asText(coachingReport?.privateAdministratorNotes, '').trim();
+  const resolvedCallNotes = callNotes || asText(coachingReport?.callNotes, '').trim();
+  const resolvedAfterActionReflection = afterActionReflection || asText(coachingReport?.afterActionReflection, '').trim();
+  const resolvedFollowUpActionItems = followUpActionItems || asText(coachingReport?.followUpActionItems, '').trim();
 
   return (
     <section className={styles.shell}>
@@ -1759,6 +1789,7 @@ export default function HumanEquationExperience() {
         )}
         {stage === 'active' && (
           <div className={styles.callLayout}>
+            <div className={styles.callMainColumn}>
             <div className={styles.callHeader}>
               <p className={styles.eyebrow}>{t('he.liveVoiceSimulation')}</p>
               <div className={styles.timer}>{callDuration}</div>
@@ -1788,14 +1819,6 @@ export default function HumanEquationExperience() {
               {sessionError && <p className={styles.errorText}>{sessionError}</p>}
             </div>
             <div className={`${styles.waveform} ${isSpeaking ? styles.waveformActive : ''}`} aria-hidden />
-            <label className={styles.notesLabel}>{t('he.privateNotesNotShared')}</label>
-            <textarea className={styles.notes} placeholder="Capture key facts, commitments, and follow-up actions..." value={privateNotes} onChange={(e) => setPrivateNotes(e.target.value)} />
-            {prepUnknownsNotes ? (
-              <>
-                <label className={styles.notesLabel}>{t('he.questionsUnknownsToClarify')}</label>
-                <textarea className={styles.notes} value={prepUnknownsNotes} onChange={(e) => setPrepUnknownsNotes(e.target.value)} />
-              </>
-            ) : null}
             <button className={styles.endCall} onClick={endCall}>{t('he.endCall')}</button>
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
               {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
@@ -1820,6 +1843,29 @@ export default function HumanEquationExperience() {
                 <pre>{debugInfo.promptPreview || (debugInfo.simulationPrompt ? debugInfo.simulationPrompt.slice(0, 1500) : 'No prompt generated yet.')}</pre>
               </div>
             )}
+            </div>
+            <aside className={styles.callSideColumn}>
+              <section className={styles.briefingCard}>
+                <h3>Briefing / Evidence Packet</h3>
+                <p><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
+                {(activeBriefing?.evidencePacketSections ?? []).map((section) => (
+                  <article key={`active-evidence-${section.title}`}>
+                    <h4>{section.title}</h4>
+                    <ul>
+                      {(section.items ?? []).map((item) => <li key={`${section.title}-${item}`}>{item}</li>)}
+                    </ul>
+                  </article>
+                ))}
+              </section>
+              {privateNotes ? (
+                <section className={styles.briefingCard}>
+                  <h3>Private Administrator Notes</h3>
+                  <p>{privateNotes}</p>
+                </section>
+              ) : null}
+              <label className={styles.notesLabel}>Call Notes</label>
+              <textarea className={styles.notes} placeholder="Jot down what the parent says, follow-up items, or questions you need to revisit…" value={callNotes} onChange={(e) => setCallNotes(e.target.value)} />
+            </aside>
           </div>
         )}
         {stage === 'report' && (
@@ -1833,6 +1879,13 @@ export default function HumanEquationExperience() {
             <p><strong>Call duration:</strong> {resolvedCallDuration}</p>
             {previewFixtureId ? <p><strong>Preview sample:</strong> {previewFixtureId}</p> : null}
             <div className={styles.reportMeta}>
+              <section className={styles.reportSection}>
+                <h3>User Reflection &amp; Notes</h3>
+                <label className={styles.notesLabel}>What stood out from this call?</label>
+                <textarea className={styles.notes} value={afterActionReflection} onChange={(e) => setAfterActionReflection(e.target.value)} />
+                <label className={styles.notesLabel}>Follow-up / action items</label>
+                <textarea className={styles.notes} value={followUpActionItems} onChange={(e) => setFollowUpActionItems(e.target.value)} />
+              </section>
               {coachingStatus.state === 'loading' && <section><h3>Generating coaching report…</h3><p>Analyzing transcript and call context.</p></section>}
               {coachingStatus.state === 'ready' && !coachingReport && <section><h3>Coaching unavailable</h3><p>We could not generate a full report from transcript data. Limited report mode is active.</p></section>}
               {coachingReport && (
@@ -1896,8 +1949,15 @@ export default function HumanEquationExperience() {
               <p><strong>Fallback reason:</strong> {coachingStatus.fallbackReason || 'None'}</p>
             </section>
             <section className={styles.transcriptBlock}>
-              <h3>Private notes</h3>
-              <p>{privateNotes || 'No private notes captured for this call.'}</p>
+              {resolvedPrivateAdministratorNotes ? <><h3>Private Administrator Notes</h3><p>{resolvedPrivateAdministratorNotes}</p></> : null}
+              {resolvedCallNotes ? <><h3>Call Notes</h3><p>{resolvedCallNotes}</p></> : null}
+              {(resolvedAfterActionReflection || resolvedFollowUpActionItems) ? (
+                <>
+                  <h3>User Reflection &amp; Notes</h3>
+                  {resolvedAfterActionReflection ? <p><strong>What stood out from this call?</strong> {resolvedAfterActionReflection}</p> : null}
+                  {resolvedFollowUpActionItems ? <p><strong>Follow-up / action items:</strong> {resolvedFollowUpActionItems}</p> : null}
+                </>
+              ) : null}
               {prepUnknownsNotes ? (
                 <>
                   <h3>{t('he.questionsUnknownsToClarify')}</h3>
