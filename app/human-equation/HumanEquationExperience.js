@@ -126,6 +126,7 @@ const TRANSCRIPT_EVENT_TYPES = new Set([
   'response.output_text.done',
   'response.done',
 ]);
+const activityBars = Array.from({ length: 16 }, (_, index) => index);
 
 const scenarioTypeProfiles = {
   discipline: {
@@ -1651,6 +1652,13 @@ export default function HumanEquationExperience() {
   };
   const isUnexpectedCall = setup.practiceMode === 'random' && setup.briefingDepth === 'low context';
   const isDetailedBriefing = setup.briefingDepth === 'detailed context';
+  const liveAudioState = stage !== 'active'
+    ? 'inactive'
+    : callStatus === 'connected'
+      ? (isSpeaking || userAudioDetected ? 'active' : 'connecting')
+      : callStatus === 'connecting'
+        ? 'connecting'
+        : 'inactive';
   const selectedTimingBriefing = callTimingBriefings?.[setup.callTiming] ?? {
     summary: 'Context briefing unavailable.',
     goal: 'Clarify the call context and establish next steps.',
@@ -1847,7 +1855,14 @@ export default function HumanEquationExperience() {
               {micError && <p className={styles.errorText}>{micError}</p>}
               {sessionError && <p className={styles.errorText}>{sessionError}</p>}
             </div>
-            <div className={`${styles.waveform} ${isSpeaking ? styles.waveformActive : ''}`} aria-hidden />
+            <section className={styles.audioActivityPanel} aria-label="Live audio activity">
+              <p className={styles.audioActivityLabel}>Live audio activity</p>
+              <div className={`${styles.waveform} ${styles[`waveform${liveAudioState[0].toUpperCase()}${liveAudioState.slice(1)}`]}`} aria-hidden>
+                {activityBars.map((bar) => (
+                  <span key={`live-audio-bar-${bar}`} className={styles.waveformBar} />
+                ))}
+              </div>
+            </section>
             <button className={styles.endCall} onClick={endCall}>{t('he.endCall')}</button>
             <button type="button" className={styles.debugToggle} onClick={() => setShowDebugPanel((prev) => !prev)}>
               {showDebugPanel ? 'Hide Developer Debug' : 'Show Developer Debug'}
@@ -1874,6 +1889,7 @@ export default function HumanEquationExperience() {
             )}
             </div>
             <aside className={styles.callSideColumn}>
+              <section className={styles.callSideWorkspace}>
               <section className={styles.briefingCard}>
                 <h3>Briefing / Evidence Packet</h3>
                 <p><strong>{t('he.issueSummary')}:</strong> {activeBriefing?.issueSummary ?? translateOption(setup.scenarioType)}</p>
@@ -1892,8 +1908,11 @@ export default function HumanEquationExperience() {
                   <p>{privateNotes}</p>
                 </section>
               ) : null}
+              </section>
+              <section className={styles.callNotesDock}>
               <label className={styles.notesLabel}>Call Notes</label>
               <textarea className={`${styles.notes} ${styles.callNotesExpanded}`} placeholder="Jot down what the parent says, follow-up items, questions, or commitments…" value={callNotes} onChange={(e) => setCallNotes(e.target.value)} />
+              </section>
             </aside>
           </div>
         )}
