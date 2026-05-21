@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../human-equation-suite/dashboard/profileData';
+import { buildUrbanSimulationReport, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
 
 const urbanStudentScenes = [
   {
@@ -1857,6 +1859,19 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [microReflectionAnswers, setMicroReflectionAnswers] = useState({});
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (sceneId !== 'scene_reflection_conference_room') return;
+    const completedAt = new Date().toISOString();
+    const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt });
+    window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(urbanReport));
+
+    const existingMaster = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
+    const parsedMaster = existingMaster ? JSON.parse(existingMaster) : createEmptyMasterProfile();
+    const blended = blendUrbanEvidenceIntoProfile(parsedMaster, urbanReport);
+    window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(blended));
+  }, [sceneId, selectedChoices, cumulativeMetrics]);
 
 
   const scrollToTopOnSceneChange = () => {
