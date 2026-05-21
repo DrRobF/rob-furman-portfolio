@@ -1,4 +1,5 @@
 export const DASHBOARD_PROFILE_STORAGE_KEY = 'heq_master_profile_v1';
+export const DIAGNOSTIC_RESULT_STORAGE_KEY = 'humanEquationDiagnosticResult';
 
 export const dimensionDefinitions = [
   { key: 'regulationUnderPressure', label: 'Regulation Under Pressure' },
@@ -52,24 +53,25 @@ export const toMasterProfileFromDiagnostic = (diagnosticResult) => {
       strongestEvidenceSource: Number.isFinite(score) ? 'Leadership Diagnostic baseline' : 'Awaiting simulation blend',
       statusProgress: Number.isFinite(score) ? Math.round((score / 5) * 100) : 0,
       evidenceWeights: { diagnostic: Number.isFinite(score) ? 1 : 0, parentCall: 0, leadershipSim: 0, urbanSim: 0, observationLab: 0 },
-      history: Number.isFinite(score) ? [{ source: 'diagnostic', value: score, capturedAt: diagnosticResult.timestamp || null }] : [],
+      history: Number.isFinite(score) ? [{ source: 'diagnostic', value: score, capturedAt: diagnosticResult.completedAt || diagnosticResult.timestamp || null }] : [],
     };
   });
 
-  base.generatedAt = diagnosticResult.timestamp || null;
+  base.generatedAt = diagnosticResult.completedAt || diagnosticResult.timestamp || null;
   base.profileTitle = diagnosticResult.pressureProfileTitle || base.profileTitle;
   base.confidenceLevels = { baseline: diagnosticResult.baselineConfidence === 'Stronger initial signal' ? 0.7 : 0.45, blended: 0.3 };
-  base.evidenceSources.diagnostic = { ...base.evidenceSources.diagnostic, status: 'complete', completion: 100, contribution: 'Baseline dimension signal captured', latestUpdate: diagnosticResult.timestamp ? new Date(diagnosticResult.timestamp).toLocaleDateString('en-US') : 'Just now' };
+  base.evidenceSources.diagnostic = { ...base.evidenceSources.diagnostic, status: 'completed', completion: 100, contribution: 'Baseline self-perception + pressure scenario data', latestUpdate: diagnosticResult.completedAt ? new Date(diagnosticResult.completedAt).toLocaleString('en-US') : 'Just now' };
 
-  const distortionNarratives = (diagnosticResult.topDistortions || []).map((distortion) => `${distortion.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()).trim()} tendencies may emerge when relational tension rises.`);
+  const distortionNarratives = (diagnosticResult.topDistortions || []).map((distortion) => `${distortion.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()).trim()} may show up gently when pressure rises.`);
   base.distortions = {
     emerging: distortionNarratives.slice(0, 1),
     observed: distortionNarratives.slice(1, 2),
     mild: diagnosticResult.topDistortions?.length ? ['Mild tendencies are visible in baseline responses and may shift under live pressure.'] : [],
-    needsMoreEvidence: ['Simulation behavior is needed before naming persistent pressure patterns.'],
+    needsMoreEvidence: ['Needs simulation confirmation'],
   };
 
-  base.simulationHistory = [{ source: 'Leadership Diagnostic', completedAt: diagnosticResult.timestamp || null, status: 'complete' }];
-  base.trends = { overall: 'Baseline snapshot captured from diagnostic self-perception and scenario responses.', trajectory: 'Trend detection begins after two or more simulation evidence points.' };
+  base.simulationHistory = [{ source: 'Leadership Diagnostic', completedAt: diagnosticResult.completedAt || diagnosticResult.timestamp || null, status: 'completed' }];
+  base.trends = { overall: 'Leadership Diagnostic baseline captured.', trajectory: 'Trend detection begins after two or more simulation evidence points.' };
+  base.recommendations = { nextSimulation: diagnosticResult.recommendedNextStep || 'Parent Call Rehearsal', reason: 'Behavioral pressure evidence will deepen profile confidence.' };
   return base;
 };

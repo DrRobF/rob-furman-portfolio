@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
-import { DASHBOARD_PROFILE_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
+import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
 
 const dimensions = [
   { key: 'trustConstruction', label: 'Trust Construction' },
@@ -356,10 +356,25 @@ export default function HumanEquationDiagnosticPage() {
 
   useEffect(() => {
     if (!isComplete || typeof window === 'undefined') return;
-    const payload = { ...result, timestamp: new Date().toISOString() };
-    window.localStorage.setItem('heq_latest_diagnostic_result_v1', JSON.stringify(payload));
-    window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(toMasterProfileFromDiagnostic(payload)));
-  }, [isComplete, result]);
+    try {
+      const completedAt = new Date().toISOString();
+      const payload = {
+        dimensions: result.dimensions,
+        distortions: result.distortions,
+        topDistortions: result.topDistortions,
+        topStrengths: result.topStrengths,
+        growthEdges: result.growthEdges,
+        pressureProfileTitle: result.pressureProfileTitle,
+        recommendedNextStep: 'Parent Call Rehearsal',
+        baselineConfidence: result.baselineConfidence,
+        completedAt,
+        answeredQuestionCount: completedCount,
+        triggeredProbeCategories: triggeredProbeCategories.length ? triggeredProbeCategories : undefined,
+      };
+      window.localStorage.setItem(DIAGNOSTIC_RESULT_STORAGE_KEY, JSON.stringify(payload));
+      window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(toMasterProfileFromDiagnostic(payload)));
+    } catch {}
+  }, [isComplete, result, completedCount, triggeredProbeCategories]);
   return (<section className="section section-light"><div className="container"><LanguageSwitcher />
     <p className="eyebrow">Human Equation Suite</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
     <p className="lead">{es ? 'Establece tu perfil base antes de las simulaciones. Este diagnóstico refleja lo que valoras, cómo lideras bajo presión y hacia qué puedes derivar en tensión.' : 'Establish your baseline profile before simulations. This diagnostic reflects what you value, how you implement under pressure, and where you may drift in tension.'}</p>
@@ -391,7 +406,7 @@ export default function HumanEquationDiagnosticPage() {
       <h3 className="top-space-sm">Likely Pressure Distortions</h3>{result.topDistortions.length ? result.topDistortions.map((distortion) => <div key={distortion}><p><strong>{titleCase(distortion)}</strong></p><p>{distortionDetails[distortion]}</p></div>) : <p>{result.distortionConfidenceLabel}</p>}
       <h3 className="top-space-sm">Strengths</h3><p>Your strongest baseline areas appear to be {result.topStrengths.join(', ')}.</p>
       <h3 className="top-space-sm">Growth Edges</h3><p>{result.growthEdges[0]} may be a useful growth edge.</p><p>Additional growth edges to watch: {result.growthEdges.slice(1).join(', ')}.</p>
-      <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3><p>This diagnostic is a self-perception baseline. The simulations will test how these patterns hold under live pressure.</p><Link href="/human-equation" className="button primary">Continue to Parent Call Rehearsal</Link>
+      <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3><p>This diagnostic is a self-perception baseline. The simulations will test how these patterns hold under live pressure.</p><div className="button-row"><Link href="/human-equation-suite/dashboard" className="button primary">Open Master Dashboard</Link><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link></div>
       <div className="top-space-sm"><button className="button secondary" onClick={() => setShowDebugData((prev) => !prev)}>{showDebugData ? 'Hide' : 'Show'} Debug Data</button>{showDebugData && <pre>{JSON.stringify({ ...result, adaptiveSignals: signalScores, completionReason, answeredQuestionCount: completedCount, triggeredProbeCategories, signalCountsByDimension: Object.fromEntries(dimensions.map((d) => [d.key, result.dimensions[d.key].totalSignalCount])) }, null, 2)}</pre>}</div>
     </div>}
   </div></section>);
