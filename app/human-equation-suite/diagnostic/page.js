@@ -18,36 +18,36 @@ const dimensions = [
 
 const dimensionPromptCopy = {
   trustConstruction: {
-    belief: 'People do their best work when they feel safe, respected, and protected by leadership.',
-    self: 'When tensions rise, I still lead in ways that build trust, not fear.',
+    belief: 'Teachers and families trust leaders more when they remain consistent, even when individual situations feel emotionally compelling.',
+    self: 'When people are upset with my decision, I can still make them feel heard and respected.',
   },
   humanAwareness: {
-    belief: 'Strong leadership includes understanding what people are carrying, not just what they produce.',
-    self: 'Even in hard moments, I stay aware of people’s needs, stress, and context.',
+    belief: 'Understanding the emotion underneath a conflict is just as important as resolving the surface problem.',
+    self: 'Under pressure, I can usually tell whether the real issue is fear, shame, frustration, or something deeper than the complaint itself.',
   },
   realityAnchoring: {
-    belief: 'Healthy teams need leaders who ground decisions in clear facts and honest signals.',
-    self: 'When conversations get emotional, I can still separate facts from assumptions.',
+    belief: 'When conflict escalates publicly, leaders should project certainty quickly, even before every detail is known.',
+    self: 'When stories conflict, I slow down enough to separate facts, assumptions, and emotions.',
   },
   regulationUnderPressure: {
-    belief: 'A leader’s calm presence can lower the temperature for everyone else.',
-    self: 'Under pressure, I can steady myself before reacting.',
+    belief: 'A leader’s calm presence matters more than having the perfect answer in the first difficult moment.',
+    self: 'When someone challenges me directly, I can stay engaged without becoming defensive or reactive.',
   },
   grayAreaLeadership: {
-    belief: 'Leadership often requires making fair decisions when there is no perfect option.',
-    self: 'I can hold competing truths without becoming rigid or avoidant.',
+    belief: 'Strict consistency can sometimes create unfair outcomes when context is ignored.',
+    self: 'When fairness and flexibility collide, I can explain my decision without sounding inconsistent or rigid.',
   },
   visionChangeLeadership: {
-    belief: 'People commit more deeply when leaders connect today’s effort to a meaningful future.',
-    self: 'In uncertainty, I can keep people oriented to purpose and next steps.',
+    belief: 'People will follow difficult changes if they trust the leader’s intent, even before every detail is clear.',
+    self: 'When people resist change, I can connect the change back to purpose instead of just pushing compliance.',
   },
   instructionalAcademicLeadership: {
-    belief: 'Leaders should protect high-quality teaching and learning, even when conditions are hard.',
-    self: 'When pressure builds, I still keep instructional quality and student outcomes in focus.',
+    belief: 'Instructional growth requires teachers to feel safe enough to take risks and be imperfect.',
+    self: 'When giving academic or instructional feedback, I can be honest without making the other person feel attacked.',
   },
   teamSystemsLeadership: {
-    belief: 'Effective leadership creates clarity, ownership, and follow-through across teams.',
-    self: 'In busy or stressful periods, I still create clear priorities and coordinated action.',
+    belief: 'Strong leaders absorb pressure upward so teachers can focus on doing their work well.',
+    self: 'When pressure rises, I protect my team without hiding problems or pretending everything is fine.',
   },
 };
 
@@ -83,6 +83,8 @@ const beliefItems = dimensions.map((dimension) => ({
   id: `belief-${dimension.key}`,
   dimension: dimension.key,
   prompt: dimensionPromptCopy[dimension.key].belief,
+  // Reverse-scored so agreement with premature certainty lowers Reality Anchoring belief score.
+  reverseScore: dimension.key === 'realityAnchoring',
 }));
 
 const selfItems = dimensions.map((dimension) => ({
@@ -194,7 +196,9 @@ export default function HumanEquationDiagnosticPage() {
       dimensions.map((d) => [d.key, { belief: 0, selfImplementation: 0, scenarioSignal: 0, composite: 0 }]),
     );
     beliefItems.forEach((item) => {
-      dimensionScores[item.dimension].belief = Number(beliefAnswers[item.id] || 0);
+      const rawScore = Number(beliefAnswers[item.id] || 0);
+      const scoredValue = item.reverseScore && rawScore ? 6 - rawScore : rawScore;
+      dimensionScores[item.dimension].belief = scoredValue;
     });
     selfItems.forEach((item) => {
       dimensionScores[item.dimension].selfImplementation = Number(selfAnswers[item.id] || 0);
@@ -264,14 +268,16 @@ export default function HumanEquationDiagnosticPage() {
             <p className="eyebrow">Progress</p>
             <p>{Object.keys(beliefAnswers).length + Object.keys(selfAnswers).length + Object.keys(scenarioAnswers).length} / 24 complete</p>
             <hr />
-            <h3>A. Belief / Importance</h3>
+            <h3>A. Leadership Belief Tensions</h3>
+            <p className="top-space-sm"><strong>Scale:</strong> 1 = Strongly disagree, 2 = Disagree, 3 = It depends / mixed, 4 = Agree, 5 = Strongly agree</p>
             {beliefItems.map((q) => (
               <div key={q.id} className="top-space-sm">
                 <p>{q.prompt}</p>
                 <div className="button-row">{[1, 2, 3, 4, 5].map((n) => <button key={n} className={`button secondary ${beliefAnswers[q.id] === n ? 'active' : ''}`} onClick={() => setBeliefAnswers((prev) => ({ ...prev, [q.id]: n }))}>{n}</button>)}</div>
               </div>
             ))}
-            <h3 className="top-space">B. Self-Implementation</h3>
+            <h3 className="top-space">B. Self-Perception Under Pressure</h3>
+            <p className="top-space-sm"><strong>Scale:</strong> 1 = Strongly disagree, 2 = Disagree, 3 = It depends / mixed, 4 = Agree, 5 = Strongly agree</p>
             {selfItems.map((q) => (
               <div key={q.id} className="top-space-sm">
                 <p>{q.prompt}</p>
@@ -336,7 +342,7 @@ export default function HumanEquationDiagnosticPage() {
             <p>Additional growth edges to watch: {result.growthEdges.slice(1).join(', ')}.</p>
 
             <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3>
-            <p>This diagnostic is your self-perception baseline. The simulations add behavioral evidence. As you complete each experience, your dashboard will eventually blend what you believe, what you report doing, and what shows up under pressure.</p>
+            <p>This diagnostic is a self-perception baseline. The simulations will test how these patterns hold under live pressure.</p>
             <Link href="/human-equation" className="button primary">Continue to Parent Call Rehearsal</Link>
 
             <div className="top-space-sm">
