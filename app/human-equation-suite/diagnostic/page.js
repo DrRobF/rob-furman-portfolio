@@ -16,16 +16,79 @@ const dimensions = [
   { key: 'teamSystemsLeadership', label: 'Team & Systems Leadership' },
 ];
 
+const dimensionPromptCopy = {
+  trustConstruction: {
+    belief: 'People do their best work when they feel safe, respected, and protected by leadership.',
+    self: 'When tensions rise, I still lead in ways that build trust, not fear.',
+  },
+  humanAwareness: {
+    belief: 'Strong leadership includes understanding what people are carrying, not just what they produce.',
+    self: 'Even in hard moments, I stay aware of people’s needs, stress, and context.',
+  },
+  realityAnchoring: {
+    belief: 'Healthy teams need leaders who ground decisions in clear facts and honest signals.',
+    self: 'When conversations get emotional, I can still separate facts from assumptions.',
+  },
+  regulationUnderPressure: {
+    belief: 'A leader’s calm presence can lower the temperature for everyone else.',
+    self: 'Under pressure, I can steady myself before reacting.',
+  },
+  grayAreaLeadership: {
+    belief: 'Leadership often requires making fair decisions when there is no perfect option.',
+    self: 'I can hold competing truths without becoming rigid or avoidant.',
+  },
+  visionChangeLeadership: {
+    belief: 'People commit more deeply when leaders connect today’s effort to a meaningful future.',
+    self: 'In uncertainty, I can keep people oriented to purpose and next steps.',
+  },
+  instructionalAcademicLeadership: {
+    belief: 'Leaders should protect high-quality teaching and learning, even when conditions are hard.',
+    self: 'When pressure builds, I still keep instructional quality and student outcomes in focus.',
+  },
+  teamSystemsLeadership: {
+    belief: 'Effective leadership creates clarity, ownership, and follow-through across teams.',
+    self: 'In busy or stressful periods, I still create clear priorities and coordinated action.',
+  },
+};
+
+const dimensionLayers = [
+  {
+    title: 'Foundational Human Capacities',
+    keys: ['regulationUnderPressure', 'humanAwareness', 'trustConstruction'],
+  },
+  {
+    title: 'Applied Leadership Judgment',
+    keys: ['realityAnchoring', 'grayAreaLeadership'],
+  },
+  {
+    title: 'Organizational Leadership Expression',
+    keys: ['teamSystemsLeadership', 'instructionalAcademicLeadership', 'visionChangeLeadership'],
+  },
+];
+
+const distortionDetails = {
+  harmonizer: 'May over-prioritize immediate peace or approval.',
+  loyalist: 'May over-index on alignment to authority, even when local realities need adaptation.',
+  controller: 'May tighten control too quickly and reduce shared ownership.',
+  performer: 'May protect image, polish, or external confidence before fully facing messy reality.',
+  martyr: 'May carry too much personally and underuse distributed leadership.',
+  reactor: 'May move into urgency responses before deeper reflection.',
+  avoider: 'May delay hard conversations that need timely engagement.',
+  hero: 'May over-function instead of building sustainable team capacity.',
+  defender: 'May protect people or positions so strongly that learning is reduced.',
+  detachedLeader: 'May default to distance and analysis when relational presence is needed most.',
+};
+
 const beliefItems = dimensions.map((dimension) => ({
   id: `belief-${dimension.key}`,
   dimension: dimension.key,
-  prompt: `How important is ${dimension.label.toLowerCase()} in your leadership practice?`,
+  prompt: dimensionPromptCopy[dimension.key].belief,
 }));
 
 const selfItems = dimensions.map((dimension) => ({
   id: `self-${dimension.key}`,
   dimension: dimension.key,
-  prompt: `Under pressure, how consistently do you practice ${dimension.label.toLowerCase()}?`,
+  prompt: dimensionPromptCopy[dimension.key].self,
 }));
 
 const scenarioItems = [
@@ -112,6 +175,7 @@ const scenarioItems = [
 ];
 
 const distortionsList = ['harmonizer', 'loyalist', 'controller', 'performer', 'martyr', 'reactor', 'avoider', 'hero', 'defender', 'detachedLeader'];
+const titleCase = (value) => value.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()).trim();
 
 export default function HumanEquationDiagnosticPage() {
   const { language } = useLanguage();
@@ -121,6 +185,7 @@ export default function HumanEquationDiagnosticPage() {
   const [beliefAnswers, setBeliefAnswers] = useState({});
   const [selfAnswers, setSelfAnswers] = useState({});
   const [scenarioAnswers, setScenarioAnswers] = useState({});
+  const [showDebugData, setShowDebugData] = useState(false);
 
   const isComplete = beliefItems.every((q) => beliefAnswers[q.id]) && selfItems.every((q) => selfAnswers[q.id]) && scenarioItems.every((q) => scenarioAnswers[q.id]);
 
@@ -162,6 +227,8 @@ export default function HumanEquationDiagnosticPage() {
         ? 'Developing Adaptive Leadership Profile'
         : 'Emerging Leadership Pressure Profile';
 
+    const narrativeSummary = `Your current profile suggests strongest baseline capacity in ${ranked.slice(0, 2).map((r) => r.label).join(' and ')}. You show clear leadership intent across the framework, and the simulations can pressure-test whether these patterns stay consistent when conflict, ambiguity, and competing demands rise.`;
+
     return {
       dimensions: dimensionScores,
       distortions,
@@ -171,6 +238,7 @@ export default function HumanEquationDiagnosticPage() {
       recommendedNextStep: 'Continue to Parent Call Rehearsal to test your pressure patterns in live dialogue.',
       gaps: ranked.map((r) => ({ dimension: r.label, gap: r.gap, belief: r.belief, selfImplementation: r.selfImplementation, composite: r.composite })),
       topDistortions,
+      narrativeSummary,
     };
   }, [beliefAnswers, selfAnswers, scenarioAnswers]);
 
@@ -227,22 +295,54 @@ export default function HumanEquationDiagnosticPage() {
         {viewResults && isComplete && (
           <div className="top-space card project-card">
             <h2>{result.pressureProfileTitle}</h2>
-            <p>Your current profile suggests a baseline pattern that can strengthen through deliberate practice under pressure.</p>
-            <h3 className="top-space-sm">8-Dimension Scores</h3>
-            {dimensions.map((d) => (
-              <p key={d.key}><strong>{d.label}:</strong> belief {result.dimensions[d.key].belief}, self-implementation {result.dimensions[d.key].selfImplementation}, scenario signal {result.dimensions[d.key].scenarioSignal}, composite {result.dimensions[d.key].composite}</p>
+            <h2>Leadership Pressure Profile</h2>
+            <p>{result.narrativeSummary}</p>
+
+            <h3 className="top-space-sm">Framework Layers</h3>
+            {dimensionLayers.map((layer) => (
+              <div key={layer.title} className="top-space-sm">
+                <p className="eyebrow">{layer.title}</p>
+                <div className="card-grid">
+                  {layer.keys.map((key) => {
+                    const dim = dimensions.find((d) => d.key === key);
+                    const score = result.dimensions[key];
+                    return (
+                      <div key={key} className="card project-card">
+                        <p><strong>{dim.label}</strong></p>
+                        <p>Composite: {score.composite} / 5</p>
+                        <progress max="5" value={score.composite} style={{ width: '100%' }} />
+                        <p>Belief: {score.belief}</p>
+                        <p>Self-perception: {score.selfImplementation}</p>
+                        <p>Scenario signal: {score.scenarioSignal}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
-            <h3 className="top-space-sm">Belief vs Self-Implementation Gaps</h3>
-            {result.gaps.map((g) => <p key={g.dimension}>{g.dimension}: gap {g.gap} (belief {g.belief} vs self {g.selfImplementation})</p>)}
+
             <h3 className="top-space-sm">Likely Pressure Distortions</h3>
-            <p>Under pressure, you may drift toward <strong>{result.topDistortions[0]}</strong> and <strong>{result.topDistortions[1]}</strong>.</p>
+            {result.topDistortions.map((distortion) => (
+              <div key={distortion}>
+                <p><strong>{titleCase(distortion)}</strong></p>
+                <p>{distortionDetails[distortion]}</p>
+              </div>
+            ))}
+
             <h3 className="top-space-sm">Strengths</h3>
-            <p>Your strongest baseline areas appear to be: {result.topStrengths.join(', ')}.</p>
+            <p>Your strongest baseline areas appear to be {result.topStrengths.join(', ')}. This suggests meaningful capacity to lead with relational awareness, clarity, and forward movement.</p>
             <h3 className="top-space-sm">Growth Edges</h3>
-            <p>A useful growth edge may be strengthening: {result.growthEdges.join(', ')}.</p>
-            <h3 className="top-space-sm">Recommended Next Simulation</h3>
-            <p>{result.recommendedNextStep}</p>
-            <pre>{JSON.stringify(result, null, 2)}</pre>
+            <p>{result.growthEdges[0]} may be a useful growth edge. This does not mean weakness; it means the simulations may test how consistently this dimension holds under pressure.</p>
+            <p>Additional growth edges to watch: {result.growthEdges.slice(1).join(', ')}.</p>
+
+            <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3>
+            <p>This diagnostic is your self-perception baseline. The simulations add behavioral evidence. As you complete each experience, your dashboard will eventually blend what you believe, what you report doing, and what shows up under pressure.</p>
+            <Link href="/human-equation" className="button primary">Continue to Parent Call Rehearsal</Link>
+
+            <div className="top-space-sm">
+              <button className="button secondary" onClick={() => setShowDebugData((prev) => !prev)}>{showDebugData ? 'Hide' : 'Show'} Debug Data</button>
+              {showDebugData && <pre>{JSON.stringify(result, null, 2)}</pre>}
+            </div>
           </div>
         )}
       </div>
