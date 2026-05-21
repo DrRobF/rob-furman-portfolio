@@ -524,6 +524,7 @@ const urbanStudentScenes = [
         ],
         metrics: { sleep: 0, stress: -2, time: -1, care: -1 },
         nextSceneId: 'scene_technology_computer_search',
+        hiddenFromChoices: true,
       },
     ],
   },
@@ -706,6 +707,7 @@ No one asks.` },
         ],
         metrics: { sleep: 0, stress: -2, time: -1, care: -2 },
         nextSceneId: 'scene_second_period_math',
+        hiddenFromChoices: true,
       },
     ],
   },
@@ -1074,6 +1076,7 @@ No one asks.` },
         result: [{ type: 'paragraph', text: 'You hit that familiar wall again. This is too much, and you want out.' }],
         metrics: { sleep: 0, stress: -2, time: -1, care: -1 },
         nextSceneId: 'scene_science_class',
+        hiddenFromChoices: true,
       },
     ],
   },
@@ -1677,7 +1680,8 @@ No one asks.` },
           { type: 'paragraph', text: 'But there is nowhere to go that makes the weight disappear, and you are left facing it anyway.' },
         ],
         metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
-        nextSceneId: 'scene_no_exit_room',
+        nextSceneId: 'scene_reflection_conference_room',
+        hiddenFromChoices: true,
       },
     ],
   },
@@ -1736,9 +1740,30 @@ No one asks.` },
           { type: 'paragraph', text: 'The simulation ends, but the responsibility to respond differently does not.' },
         ],
         metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
-        nextSceneId: 'scene_no_exit_room',
+        nextSceneId: 'scene_urban_report_complete',
       },
     ],
+  },
+  {
+    id: 'scene_urban_report_complete',
+    sceneNumber: 21,
+    totalScenes: 21,
+    time: 'Completion',
+    heading: 'Urban Simulation Complete / Reflection Report',
+    revealGroups: [[
+      { type: 'paragraph', text: 'You have reached the end of the Urban Student Simulation.' },
+      { type: 'paragraph', text: 'Use the report actions below to capture this evidence in the Human Equation dashboard.' },
+    ]],
+    question: 'What do you do next?',
+    reflection: {
+      questions: ['What adult decisions in this simulation were most preventable?', 'What will you do differently tomorrow?', 'What system change should happen first?'],
+      writingPrompt: 'Write one immediate action and one 30-day systems action.',
+      insight: 'Completion is intended to turn reflection into action and evidence.',
+      expandedInsight: 'The simulation report is captured and can be saved to your dashboard for blended Human Equation evidence.',
+      facilitatorLens: 'Prioritize high-leverage actions that improve student safety, trust, and adult response quality.',
+      manuscriptExcerpt: '[PASTE MANUSCRIPT EXCERPT HERE]',
+    },
+    choices: [{ id: 'restart_from_report', label: 'Start the simulation again', resultTitle: 'Restarting.', result: [{ type: 'paragraph', text: 'You return to the beginning.' }], metrics: { sleep: 0, stress: 0, time: 0, care: 0 }, nextSceneId: 'scene_2am_bedroom' }],
   },
   {
     id: 'scene_no_exit_room',
@@ -1820,6 +1845,7 @@ const LOOP_PROTECTION_WINDOW_LIMIT = 3;
 const LOOP_PROTECTION_WINDOW_SIZE = 8;
 const LOOP_ESCAPE_SCENES = {
   scene_second_period_math: 'scene_hallway_internal_reflection',
+  scene_no_exit_room: 'scene_urban_report_complete',
 };
 
 const renderBlocks = (blocks) =>
@@ -1864,21 +1890,22 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [showStoryFlowMap, setShowStoryFlowMap] = useState(false);
   const [hiddenSceneImages, setHiddenSceneImages] = useState({});
   const [microReflectionAnswers, setMicroReflectionAnswers] = useState({});
+  const [completionReason, setCompletionReason] = useState('completed');
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (sceneId !== 'scene_reflection_conference_room') return;
+    if (sceneId !== 'scene_urban_report_complete') return;
     const completedAt = new Date().toISOString();
-    const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt });
+    const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt, completionReason });
     window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(urbanReport));
 
     const existingMaster = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
     const parsedMaster = existingMaster ? JSON.parse(existingMaster) : createEmptyMasterProfile();
     const blended = blendUrbanEvidenceIntoProfile(parsedMaster, urbanReport);
     window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(blended));
-  }, [sceneId, selectedChoices, cumulativeMetrics]);
+  }, [sceneId, selectedChoices, cumulativeMetrics, completionReason]);
 
 
   const scrollToTopOnSceneChange = () => {
@@ -1935,6 +1962,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
     setShowInsights({});
     setMicroReflectionAnswers({});
+    setCompletionReason('completed');
   };
 
 
@@ -1986,6 +2014,15 @@ export default function DayInTheLifeUrbanStudentPage() {
       return;
     }
     navigateToScene('scene_placeholder_end');
+  };
+
+  const handleEndEarly = () => {
+    if (typeof window !== 'undefined') {
+      const confirmed = window.confirm('End the simulation and generate an early reflection report?');
+      if (!confirmed) return;
+    }
+    setCompletionReason('ended_early');
+    navigateToScene('scene_urban_report_complete');
   };
 
   const handleJumpToScene = (targetSceneId) => {
@@ -2257,6 +2294,36 @@ export default function DayInTheLifeUrbanStudentPage() {
   if (sceneId === 'scene_placeholder_end') {
     return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
   }
+  if (sceneId === 'scene_urban_report_complete') {
+    const reportPreview = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completionReason });
+    return (
+      <main className="urban-student-page">
+        <section className="experience-shell">
+          <article className="scene-card">
+            <p className="section-label">Completion</p>
+            <h1>Urban Simulation Complete / Reflection Report</h1>
+            <p className="paragraph-card"><strong>Completion summary:</strong> {completionReason === 'ended_early' ? 'Ended early by user request.' : 'Completed full simulation flow.'}</p>
+            <p className="paragraph-card"><strong>Key student-experience insights:</strong> {reportPreview.evidenceSummary}</p>
+            <h2>Human Equation dimension contribution</h2>
+            <div className="card-grid top-space-sm">
+              {Object.values(reportPreview.dimensions).map((d) => <article key={d.label} className="card"><p><strong>{d.label}</strong></p><p>Score: {d.score} / 5</p><p>{d.narrative}</p></article>)}
+            </div>
+            <h2>Suggested reflection</h2>
+            <p className="paragraph-card">What specific adult action would most reduce repeated escalation in Adam’s day, and what system routine would keep it consistent?</p>
+            <div className="button-group">
+              <button type="button" onClick={() => {
+                const completedAt = new Date().toISOString();
+                const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt, completionReason });
+                window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(urbanReport));
+              }}>Save to Dashboard</button>
+              <a className="continue-button" href="/human-equation-suite/dashboard?tab=urban-student">Open Human Equation Dashboard</a>
+            </div>
+            <button type="button" className="reset-button" onClick={handleReset}>Start Over</button>
+          </article>
+        </section>
+      </main>
+    );
+  }
 
   const changedMetrics = metricOrder
     .map((metric) => [metric, selectedChoice?.metrics?.[metric] ?? 0])
@@ -2379,8 +2446,9 @@ export default function DayInTheLifeUrbanStudentPage() {
               <p className="section-label section-divider">YOUR CHOICE</p>
               <h2>{scene.question}</h2>
               <div className="button-group">
-                {scene.choices.map((choice) => <button key={choice.id} type="button" onClick={() => handleChoose(choice.id)}>{choice.label}</button>)}
+                {scene.choices.filter((choice) => !choice.hiddenFromChoices).map((choice) => <button key={choice.id} type="button" onClick={() => handleChoose(choice.id)}>{choice.label}</button>)}
               </div>
+              {scene.id !== 'scene_urban_report_complete' && <button type="button" className="reset-button" onClick={handleEndEarly}>End Simulation Early</button>}
             </div>
           )}
 
