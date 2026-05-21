@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 
@@ -164,10 +164,14 @@ export default function HumanEquationDiagnosticPage() {
   const [signalScores, setSignalScores] = useState({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 });
   const [questionFlow, setQuestionFlow] = useState(coreQuestions.map((q) => q.id));
   const [startedAt, setStartedAt] = useState(null);
+  const [completionReason, setCompletionReason] = useState(null);
+  const [triggeredProbeCategories, setTriggeredProbeCategories] = useState([]);
+  const alreadyAdvancingRef = useRef(false);
 
   const currentQuestion = questionById[questionFlow[currentQuestionIndex]];
   const completedCount = Object.keys(answers).length;
-  const isComplete = questionFlow.length > 0 && questionFlow.every((qid) => answers[qid] !== undefined);
+  const unansweredQuestionExists = questionFlow.some((qid) => answers[qid] === undefined);
+  const isComplete = Boolean(completionReason) || (!unansweredQuestionExists && !questionById[questionFlow[currentQuestionIndex]]);
   const coverageProgress = useMemo(() => {
     const { normalized } = computeResults(answers, questionFlow);
     const points = dimensions.reduce((total, d) => {
@@ -178,10 +182,23 @@ export default function HumanEquationDiagnosticPage() {
     }, 0);
     return (points / dimensions.length) * 100;
   }, [answers, questionFlow]);
-  const progressPercent = clamp(Math.round((Math.min(completedCount, coreQuestions.length) / coreQuestions.length) * 55 + (coverageProgress * 0.45)), 0, 100);
+  const progressPercent = isComplete
+    ? 100
+    : clamp(Math.round((Math.min(completedCount, coreQuestions.length) / coreQuestions.length) * 55 + (coverageProgress * 0.45)), 0, 100);
   const progressMessage = progressMessages[Math.min(progressMessages.length - 1, Math.floor(progressPercent / 25))];
 
+  const resolveCompletionReason = (nextAnswers, nextFlow) => {
+    if (nextFlow.length >= HARD_QUESTION_CAP) return 'max_questions';
+    const { normalized, distortions } = computeResults(nextAnswers, nextFlow);
+    const missingSignals = dimensions.some((d) => !normalized[d.key].hasMeaningful || !normalized[d.key].preferredCoverage);
+    const strongDistortions = Object.values(distortions).filter((score) => score >= 2).length >= 1;
+    if (!missingSignals && strongDistortions) return 'sufficient_signal';
+    return null;
+  };
+
   const setAnswer = (question, value) => {
+    if (alreadyAdvancingRef.current || isComplete) return;
+    alreadyAdvancingRef.current = true;
     setAnswers((prev) => ({ ...prev, [question.id]: value }));
     setSignalScores((prev) => {
       const next = { ...prev };
@@ -204,21 +221,37 @@ export default function HumanEquationDiagnosticPage() {
     setInsightMessage('Interesting tension.');
     setTimeout(() => setInsightMessage(''), 1000);
     const nextAnswers = { ...answers, [question.id]: value };
-    const allAnswered = questionFlow.every((qid) => nextAnswers[qid] !== undefined);
-    if (allAnswered && questionFlow.length < HARD_QUESTION_CAP) {
-      const { normalized, distortions } = computeResults(nextAnswers, questionFlow);
-      const missingSignals = dimensions.some((d) => !normalized[d.key].hasMeaningful || !normalized[d.key].preferredCoverage);
-      const strongDistortions = Object.values(distortions).filter((score) => score >= 2).length >= 1;
+    let nextFlow = [...questionFlow];
+    const allAnswered = nextFlow.every((qid) => nextAnswers[qid] !== undefined);
+    if (allAnswered && nextFlow.length < HARD_QUESTION_CAP) {
       const elapsedSeconds = startedAt ? (Date.now() - startedAt) / 1000 : 0;
-      const canEnd = !missingSignals && strongDistortions;
+      const canEnd = resolveCompletionReason(nextAnswers, nextFlow) === 'sufficient_signal';
       if (!canEnd && elapsedSeconds < SOFT_TARGET_SECONDS + 120) {
-        const nextProbeId = chooseNextProbe(nextAnswers, questionFlow);
+        const nextProbeId = chooseNextProbe(nextAnswers, nextFlow);
         if (nextProbeId) {
-          setQuestionFlow((prev) => [...prev, nextProbeId]);
+          nextFlow = [...nextFlow, nextProbeId];
+          setQuestionFlow(nextFlow);
+          const probeCategory = questionById[nextProbeId]?.probeCategory;
+          if (probeCategory) {
+            setTriggeredProbeCategories((prev) => (prev.includes(probeCategory) ? prev : [...prev, probeCategory]));
+          }
+        } else {
+          setCompletionReason('no_questions_available');
         }
+      } else if (!canEnd && nextFlow.length >= HARD_QUESTION_CAP) {
+        setCompletionReason('max_questions');
       }
     }
-    if (currentQuestionIndex < questionFlow.length - 1) setTimeout(() => setCurrentQuestionIndex((idx) => Math.min(idx + 1, questionFlow.length - 1)), 180);
+    const resolved = resolveCompletionReason(nextAnswers, nextFlow);
+    if (resolved) setCompletionReason(resolved);
+    if (!resolved && currentQuestionIndex < nextFlow.length - 1) {
+      setCurrentQuestionIndex((idx) => Math.min(idx + 1, nextFlow.length - 1));
+    } else if (!resolved && !questionById[nextFlow[currentQuestionIndex]]) {
+      setCompletionReason('no_questions_available');
+    }
+    setTimeout(() => {
+      alreadyAdvancingRef.current = false;
+    }, 0);
   };
 
   const result = useMemo(() => {
@@ -244,9 +277,9 @@ export default function HumanEquationDiagnosticPage() {
   return (<section className="section section-light"><div className="container"><LanguageSwitcher />
     <p className="eyebrow">Human Equation Suite</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
     <p className="lead">{es ? 'Establece tu perfil base antes de las simulaciones. Este diagnóstico refleja lo que valoras, cómo lideras bajo presión y hacia qué puedes derivar en tensión.' : 'Establish your baseline profile before simulations. This diagnostic reflects what you value, how you implement under pressure, and where you may drift in tension.'}</p>
-    <div className="button-row"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); }}>Start Diagnostic</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>View Results</button><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link><Link href="/human-equation-suite" className="button secondary">Back to Human Equation Suite</Link></div>
+    <div className="button-row"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); }}>Start Diagnostic</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>View Results</button><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link><Link href="/human-equation-suite" className="button secondary">Back to Human Equation Suite</Link></div>
 
-    {started && !viewResults && currentQuestion && (<div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
+    {started && !viewResults && currentQuestion && !isComplete && (<div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
       <progress max="100" value={progressPercent} style={{ width: '100%' }} />
       <p className="top-space-sm"><em>{progressMessage}</em></p>
@@ -258,15 +291,22 @@ export default function HumanEquationDiagnosticPage() {
       {insightMessage && <p className="top-space-sm" style={{ opacity: 0.85 }}><em>{insightMessage}</em></p>}
       <div className="button-row top-space-sm"><button className="button secondary" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex((idx) => Math.max(0, idx - 1))}>Back</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>Finish & View Results</button></div>
     </div>)}
+    {started && !viewResults && isComplete && <div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto' }}>
+      <progress max="100" value={100} style={{ width: '100%' }} />
+      <h3 className="top-space">Your baseline profile is ready.</h3>
+      <p>We have enough signal to generate your first Human Equation profile. Simulations will add behavioral evidence over time.</p>
+      <button className="button primary top-space-sm" onClick={() => setViewResults(true)}>View Results</button>
+    </div>}
 
     {viewResults && isComplete && <div className="top-space card project-card"><h2>{result.pressureProfileTitle}</h2><h2>Leadership Pressure Profile</h2><p>{result.narrativeSummary}</p>
       <p><em>Baseline confidence: {result.baselineConfidence}</em></p>
-      <h3 className="top-space-sm">Framework Layers</h3>{dimensionLayers.map((layer) => <div key={layer.title} className="top-space-sm"><p className="eyebrow">{layer.title}</p><div className="card-grid">{layer.keys.map((key) => { const dim = dimensions.find((d) => d.key === key); const score = result.dimensions[key]; const c = score.composite; return <div key={key} className="card project-card"><p><strong>{dim.label}</strong></p><p>Composite: {c === null ? 'Not enough signal yet' : `${c} / 5`}</p>{c !== null && <progress max="5" value={c} style={{ width: '100%' }} />}<p>Belief: {score.belief ?? 'Not enough signal yet'}</p><p>Self-perception: {score.selfImplementation ?? 'Not enough signal yet'}</p><p>Scenario signal: {score.scenarioSignal ?? 'Not enough signal yet'}</p></div>; })}</div></div>)}
+      {result.baselineConfidence === 'Early profile' && <p><em>Some areas will become clearer after simulations.</em></p>}
+      <h3 className="top-space-sm">Framework Layers</h3>{dimensionLayers.map((layer) => <div key={layer.title} className="top-space-sm"><p className="eyebrow">{layer.title}</p><div className="card-grid">{layer.keys.map((key) => { const dim = dimensions.find((d) => d.key === key); const score = result.dimensions[key]; const c = score.composite; return <div key={key} className="card project-card"><p><strong>{dim.label}</strong></p><p>Composite: {c === null ? 'Developing signal' : `${c} / 5`}</p>{c !== null && <progress max="5" value={c} style={{ width: '100%' }} />}<p>Belief: {score.belief ?? 'Developing signal'}</p><p>Self-perception: {score.selfImplementation ?? 'Developing signal'}</p><p>Scenario signal: {score.scenarioSignal ?? 'Developing signal'}</p></div>; })}</div></div>)}
       <h3 className="top-space-sm">Likely Pressure Distortions</h3>{result.topDistortions.length ? result.topDistortions.map((distortion) => <div key={distortion}><p><strong>{titleCase(distortion)}</strong></p><p>{distortionDetails[distortion]}</p></div>) : <p>{result.distortionConfidenceLabel}</p>}
       <h3 className="top-space-sm">Strengths</h3><p>Your strongest baseline areas appear to be {result.topStrengths.join(', ')}.</p>
       <h3 className="top-space-sm">Growth Edges</h3><p>{result.growthEdges[0]} may be a useful growth edge.</p><p>Additional growth edges to watch: {result.growthEdges.slice(1).join(', ')}.</p>
       <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3><p>This diagnostic is a self-perception baseline. The simulations will test how these patterns hold under live pressure.</p><Link href="/human-equation" className="button primary">Continue to Parent Call Rehearsal</Link>
-      <div className="top-space-sm"><button className="button secondary" onClick={() => setShowDebugData((prev) => !prev)}>{showDebugData ? 'Hide' : 'Show'} Debug Data</button>{showDebugData && <pre>{JSON.stringify({ ...result, adaptiveSignals: signalScores }, null, 2)}</pre>}</div>
+      <div className="top-space-sm"><button className="button secondary" onClick={() => setShowDebugData((prev) => !prev)}>{showDebugData ? 'Hide' : 'Show'} Debug Data</button>{showDebugData && <pre>{JSON.stringify({ ...result, adaptiveSignals: signalScores, completionReason, answeredQuestionCount: completedCount, triggeredProbeCategories, signalCountsByDimension: Object.fromEntries(dimensions.map((d) => [d.key, result.dimensions[d.key].totalSignalCount])) }, null, 2)}</pre>}</div>
     </div>}
   </div></section>);
 }
