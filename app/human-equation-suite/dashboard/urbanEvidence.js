@@ -1,6 +1,6 @@
 import { dimensionDefinitions } from './profileData';
 
-export const URBAN_REPORT_STORAGE_KEY = 'heq_urban_sim_report_v1';
+export const URBAN_REPORT_STORAGE_KEY = 'humanEquationUrbanReport';
 
 const weightedDimensionInputs = {
   regulationUnderPressure: ['stress', 'time', 'sleep'],
@@ -16,7 +16,7 @@ const weightedDimensionInputs = {
 const normalizeMetric = (value) => Math.max(-10, Math.min(10, value || 0));
 const toScore = (value) => +(Math.max(1, Math.min(5, 3 + (value / 10))).toFixed(1));
 
-export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMetrics = {}, completedAt = new Date().toISOString() }) => {
+export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMetrics = {}, completedAt = new Date().toISOString(), completionReason = 'completed' }) => {
   const metrics = {
     sleep: normalizeMetric(cumulativeMetrics.sleep),
     stress: normalizeMetric(cumulativeMetrics.stress),
@@ -49,13 +49,16 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
   ].filter(Boolean);
 
   return {
-    source: 'urban_simulation',
+    source: 'urban_student_simulation',
     completedAt,
+    completionReason,
     dimensions,
     distortions,
     strengths,
     growthEdges,
-    evidenceSummary: 'Observed behavior suggests this leader is being shaped more by live emotional load than by stated leadership intent.',
+    evidenceSummary: completionReason === 'ended_early'
+      ? 'Early completion captured preliminary evidence under partial pathway exposure.'
+      : 'Observed behavior suggests this leader is being shaped more by live emotional load than by stated leadership intent.',
     emotionalInterpretationPatterns: [
       'Decision speed increases when emotional ambiguity rises.',
       'Context attention strengthens when relational cues are made explicit.',
