@@ -1815,6 +1815,12 @@ const tocItems = [
 ];
 
 const sceneById = Object.fromEntries(urbanStudentScenes.map((scene) => [scene.id, scene]));
+const LOOP_PROTECTION_CONSECUTIVE_LIMIT = 2;
+const LOOP_PROTECTION_WINDOW_LIMIT = 3;
+const LOOP_PROTECTION_WINDOW_SIZE = 8;
+const LOOP_ESCAPE_SCENES = {
+  scene_second_period_math: 'scene_hallway_internal_reflection',
+};
 
 const renderBlocks = (blocks) =>
   blocks.map((block, index) =>
@@ -1848,6 +1854,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [hasStartedExperience, setHasStartedExperience] = useState(false);
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [previousSceneId, setPreviousSceneId] = useState(null);
+  const [sceneHistory, setSceneHistory] = useState(['scene_2am_bedroom']);
   const [selectedChoices, setSelectedChoices] = useState({});
   const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
@@ -1921,6 +1928,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     setHasStartedExperience(false);
     setSceneId('scene_2am_bedroom');
     setPreviousSceneId(null);
+    setSceneHistory(['scene_2am_bedroom']);
     scrollToTopOnSceneChange();
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
@@ -1935,7 +1943,36 @@ export default function DayInTheLifeUrbanStudentPage() {
     setHasStartedExperience(true);
     setSceneId('scene_2am_bedroom');
     setPreviousSceneId(null);
+    setSceneHistory(['scene_2am_bedroom']);
     scrollToTopOnSceneChange();
+  };
+
+  const detectLoopForTarget = (targetSceneId) => {
+    const recentHistory = [...sceneHistory.slice(-LOOP_PROTECTION_WINDOW_SIZE), targetSceneId];
+    let consecutiveVisits = 0;
+    for (let i = recentHistory.length - 1; i >= 0; i -= 1) {
+      if (recentHistory[i] !== targetSceneId) break;
+      consecutiveVisits += 1;
+    }
+    const windowVisits = recentHistory.filter((id) => id === targetSceneId).length;
+    return consecutiveVisits > LOOP_PROTECTION_CONSECUTIVE_LIMIT || windowVisits > LOOP_PROTECTION_WINDOW_LIMIT;
+  };
+
+  const navigateToScene = (targetSceneId) => {
+    const fallbackSceneId = LOOP_ESCAPE_SCENES[targetSceneId];
+    const hasLoop = detectLoopForTarget(targetSceneId);
+    const targetAfterProtection = hasLoop && fallbackSceneId && sceneById[fallbackSceneId] ? fallbackSceneId : targetSceneId;
+
+    if (hasLoop && process.env.NODE_ENV !== 'production') {
+      console.warn('Urban simulation loop detected:', targetSceneId);
+    }
+
+    setPreviousSceneId(scene.id);
+    setSceneId(targetAfterProtection);
+    setSceneHistory((prev) => [...prev.slice(-(LOOP_PROTECTION_WINDOW_SIZE * 2)), targetAfterProtection]);
+    scrollToTopOnSceneChange();
+    setRevealedGroupCounts((prev) => ({ ...prev, [targetAfterProtection]: prev[targetAfterProtection] ?? 1 }));
+    return targetAfterProtection;
   };
 
   const handleContinue = () => {
@@ -1945,22 +1982,15 @@ export default function DayInTheLifeUrbanStudentPage() {
           `[Urban Student Simulation] Potential backward loop detected: ${scene.id} routes back to previous scene ${previousSceneId}. Choice: ${selectedChoice.id}`,
         );
       }
-      setPreviousSceneId(scene.id);
-      setSceneId(selectedChoice.nextSceneId);
-      scrollToTopOnSceneChange();
-      setRevealedGroupCounts((prev) => ({ ...prev, [selectedChoice.nextSceneId]: prev[selectedChoice.nextSceneId] ?? 1 }));
+      navigateToScene(selectedChoice.nextSceneId);
       return;
     }
-    setPreviousSceneId(scene.id);
-    setSceneId('scene_placeholder_end');
-    scrollToTopOnSceneChange();
+    navigateToScene('scene_placeholder_end');
   };
 
   const handleJumpToScene = (targetSceneId) => {
     if (!sceneById[targetSceneId] || targetSceneId === sceneId) return;
-    setPreviousSceneId(scene.id);
-    setSceneId(targetSceneId);
-    scrollToTopOnSceneChange();
+    navigateToScene(targetSceneId);
     setSelectedChoices((prev) => {
       const nextChoices = { ...prev };
       delete nextChoices[targetSceneId];
