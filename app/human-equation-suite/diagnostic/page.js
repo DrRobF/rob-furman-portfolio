@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
+import { DASHBOARD_PROFILE_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
 
 const dimensions = [
   { key: 'trustConstruction', label: 'Trust Construction' },
@@ -352,6 +353,13 @@ export default function HumanEquationDiagnosticPage() {
     };
   }, [answers, questionFlow, completedCount]);
 
+
+  useEffect(() => {
+    if (!isComplete || typeof window === 'undefined') return;
+    const payload = { ...result, timestamp: new Date().toISOString() };
+    window.localStorage.setItem('heq_latest_diagnostic_result_v1', JSON.stringify(payload));
+    window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(toMasterProfileFromDiagnostic(payload)));
+  }, [isComplete, result]);
   return (<section className="section section-light"><div className="container"><LanguageSwitcher />
     <p className="eyebrow">Human Equation Suite</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
     <p className="lead">{es ? 'Establece tu perfil base antes de las simulaciones. Este diagnóstico refleja lo que valoras, cómo lideras bajo presión y hacia qué puedes derivar en tensión.' : 'Establish your baseline profile before simulations. This diagnostic reflects what you value, how you implement under pressure, and where you may drift in tension.'}</p>
