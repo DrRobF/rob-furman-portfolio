@@ -544,6 +544,10 @@ const buildGuidedSituationAnchoredBriefing = (situationDescription, setup, timin
 };
 
 const buildScenarioBriefing = (baseSetup, timingBriefing, interfaceLanguage = 'en') => {
+  const translateOption = (value) => {
+    if (!value) return '';
+    return String(value);
+  };
   const parentLanguage = normalizeParentLanguage(baseSetup?.parentLanguage);
   const languagePhrases = parentLanguagePhrases[parentLanguage] || parentLanguagePhrases.english;
   const practiceFocusKey = baseSetup.practiceFocus || baseSetup.scenarioType;
