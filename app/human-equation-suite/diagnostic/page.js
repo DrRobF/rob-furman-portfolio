@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
@@ -230,6 +231,7 @@ const chooseNextProbe = (answers, questionFlow) => {
 };
 
 export default function HumanEquationDiagnosticPage() {
+  const router = useRouter();
   const { language } = useLanguage();
   const es = language === 'es';
   const [started, setStarted] = useState(false);
@@ -238,6 +240,7 @@ export default function HumanEquationDiagnosticPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [insightMessage, setInsightMessage] = useState('');
   const [showDebugData, setShowDebugData] = useState(false);
+  const [redirectingToDashboard, setRedirectingToDashboard] = useState(false);
   const [signalScores, setSignalScores] = useState({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 });
   const [questionFlow, setQuestionFlow] = useState(coreQuestions.map((q) => q.id));
   const [startedAt, setStartedAt] = useState(null);
@@ -373,12 +376,17 @@ export default function HumanEquationDiagnosticPage() {
       };
       window.localStorage.setItem(DIAGNOSTIC_RESULT_STORAGE_KEY, JSON.stringify(payload));
       window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(toMasterProfileFromDiagnostic(payload)));
+      setRedirectingToDashboard(true);
+      const timer = window.setTimeout(() => {
+        router.push('/human-equation-suite/dashboard?tab=diagnostic');
+      }, 900);
+      return () => window.clearTimeout(timer);
     } catch {}
-  }, [isComplete, result, completedCount, triggeredProbeCategories]);
+  }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
   return (<section className="section section-light"><div className="container"><LanguageSwitcher />
     <p className="eyebrow">Human Equation Suite</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
     <p className="lead">{es ? 'Establece tu perfil base antes de las simulaciones. Este diagnóstico refleja lo que valoras, cómo lideras bajo presión y hacia qué puedes derivar en tensión.' : 'Establish your baseline profile before simulations. This diagnostic reflects what you value, how you implement under pressure, and where you may drift in tension.'}</p>
-    <div className="button-row"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); }}>Start Diagnostic</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>View Results</button><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link><Link href="/human-equation-suite" className="button secondary">Back to Human Equation Suite</Link></div>
+    <div className="button-row"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); setRedirectingToDashboard(false); }}>Start Diagnostic</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>View Results</button><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link><Link href="/human-equation-suite" className="button secondary">Back to Human Equation Suite</Link></div>
 
     {started && !viewResults && currentQuestion && !isComplete && (<div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
@@ -395,8 +403,8 @@ export default function HumanEquationDiagnosticPage() {
     {started && !viewResults && isComplete && <div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto' }}>
       <progress max="100" value={100} style={{ width: '100%' }} />
       <h3 className="top-space">Your baseline profile is ready.</h3>
-      <p>We have enough signal to generate your first Human Equation profile. Simulations will add behavioral evidence over time.</p>
-      <button className="button primary top-space-sm" onClick={() => setViewResults(true)}>View Results</button>
+      <p>We saved your diagnostic report in the Human Equation Dashboard.</p>
+      {redirectingToDashboard ? <p><em>Opening dashboard report tab…</em></p> : <button className="button primary top-space-sm" onClick={() => router.push('/human-equation-suite/dashboard?tab=diagnostic')}>Open Dashboard Report</button>}
     </div>}
 
     {viewResults && isComplete && <div className="top-space card project-card"><h2>{result.pressureProfileTitle}</h2><h2>Leadership Pressure Profile</h2><p>{result.narrativeSummary}</p>
