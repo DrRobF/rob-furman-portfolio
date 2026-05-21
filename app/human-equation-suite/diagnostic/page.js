@@ -69,6 +69,42 @@ const questionPool = [
     { id: 'c', label: 'Redirect quickly to protect confidence in your leadership image.', dims: { visionChangeLeadership: 1 }, distortions: { performer: 2 } },
     { id: 'd', label: 'Table the issue and continue agenda to avoid escalation.', dims: { grayAreaLeadership: 1 }, distortions: { detachedLeader: 1, avoider: 1 } },
   ], reverseScored: false, tags: ['scenario'], distortionSignals: {}, followUpTriggers: ['imagePolish'], isCore: true },
+  { id: 'scenario-5', section: 'Pressure Scenarios', sectionKey: 'scenario', dimension: 'multi', prompt: 'A parent demands immediate severe discipline after a hallway conflict, while your team recommends a restorative path. What do you protect first?', type: 'scenario', options: [
+    { id: 'a', label: 'Name safety boundaries now while outlining a transparent restorative process with checkpoints.', dims: { grayAreaLeadership: 2, trustConstruction: 1 }, distortions: { harmonizer: 1 } },
+    { id: 'b', label: 'Back the teacher recommendation publicly to preserve staff trust, then revisit with the family privately.', dims: { teamSystemsLeadership: 2, trustConstruction: 1 }, distortions: { defender: 1, loyalist: 1 } },
+    { id: 'c', label: 'Pause final consequence and gather additional witness context before committing either way.', dims: { realityAnchoring: 2, regulationUnderPressure: 1 }, distortions: { avoider: 1 } },
+    { id: 'd', label: 'Apply the strictest available consequence now to prevent future parent pressure campaigns.', dims: { realityAnchoring: 1, teamSystemsLeadership: 2 }, distortions: { controller: 2, reactor: 1 } },
+  ], reverseScored: false, tags: ['scenario'], distortionSignals: {}, followUpTriggers: ['consistencyAccountability', 'controlCertainty'], isCore: true },
+  { id: 'scenario-6', section: 'Pressure Scenarios', sectionKey: 'scenario', dimension: 'multi', prompt: 'A strong teacher is beloved by families but frequently ignores agreed systems. Your assistant principal wants immediate correction; staff fear morale fallout. What is your first move?', type: 'scenario', options: [
+    { id: 'a', label: 'Hold a direct coaching conversation tied to student impact and clear non-negotiables.', dims: { instructionalAcademicLeadership: 2, teamSystemsLeadership: 1 }, distortions: { controller: 1 } },
+    { id: 'b', label: 'Sequence support first: clarify patterns with examples, then co-create a short accountability cycle.', dims: { trustConstruction: 1, instructionalAcademicLeadership: 2 }, distortions: { harmonizer: 1 } },
+    { id: 'c', label: 'Shield the teacher publicly and handle adjustments quietly to avoid community destabilization.', dims: { regulationUnderPressure: 1, visionChangeLeadership: 1 }, distortions: { defender: 2, performer: 1 } },
+    { id: 'd', label: 'Reassign responsibilities immediately so the inconsistency no longer affects the team.', dims: { teamSystemsLeadership: 2, grayAreaLeadership: 1 }, distortions: { reactor: 1, hero: 1 } },
+  ], reverseScored: false, tags: ['scenario'], distortionSignals: {}, followUpTriggers: ['selfSacrifice', 'consistencyAccountability'], isCore: true },
+  { id: 'scenario-7', section: 'Pressure Scenarios', sectionKey: 'scenario', dimension: 'multi', prompt: 'Observation data shows uneven rigor in several classrooms, but staff are exhausted after repeated initiative shifts. How do you proceed?', type: 'scenario', options: [
+    { id: 'a', label: 'Prioritize one high-leverage instructional practice and provide protected coaching time.', dims: { instructionalAcademicLeadership: 2, visionChangeLeadership: 1 }, distortions: { hero: 1 } },
+    { id: 'b', label: 'Maintain full rigor expectations now, while redistributing operational burdens from teachers.', dims: { teamSystemsLeadership: 2, instructionalAcademicLeadership: 1 }, distortions: { martyr: 1, controller: 1 } },
+    { id: 'c', label: 'Delay tighter rigor work until staff morale recovers to avoid compliance-only implementation.', dims: { humanAwareness: 2, regulationUnderPressure: 1 }, distortions: { avoider: 1 } },
+    { id: 'd', label: 'Co-design a phased plan with teacher leaders and publicly tie phases to student evidence.', dims: { visionChangeLeadership: 2, trustConstruction: 1 }, distortions: { harmonizer: 1 } },
+  ], reverseScored: false, tags: ['scenario'], distortionSignals: {}, followUpTriggers: ['detachedUrgency', 'selfSacrifice'], isCore: true },
+  { id: 'scenario-8', section: 'Pressure Scenarios', sectionKey: 'scenario', dimension: 'multi', prompt: 'A student safety incident has conflicting accounts from staff and students, and community rumors are spreading. What do you do first?', type: 'scenario', options: [
+    { id: 'a', label: 'Issue a brief safety-centered update and commit to a timeline for verified findings.', dims: { realityAnchoring: 2, regulationUnderPressure: 2 }, distortions: { performer: 1 } },
+    { id: 'b', label: 'Focus internal effort on fact-finding first; communicate only once the account is complete.', dims: { realityAnchoring: 2, grayAreaLeadership: 1 }, distortions: { detachedLeader: 1 } },
+    { id: 'c', label: 'Publicly defend staff credibility early to reduce escalation while investigation continues.', dims: { teamSystemsLeadership: 2, trustConstruction: 1 }, distortions: { defender: 2 } },
+    { id: 'd', label: 'Invite family representatives into a structured review process before final conclusions.', dims: { trustConstruction: 2, humanAwareness: 1 }, distortions: { harmonizer: 1 } },
+  ], reverseScored: false, tags: ['scenario'], distortionSignals: {}, followUpTriggers: ['imagePolish', 'controlCertainty'], isCore: true },
+  { id: 'scenario-9', section: 'Pressure Scenarios', sectionKey: 'scenario', dimension: 'multi', prompt: 'A special education disagreement escalates: family believes supports are insufficient, while staff say legal requirements are being met. What do you prioritize?', type: 'scenario', options: [
+    { id: 'a', label: 'Anchor in compliance and documented data first, then discuss expanded supports.', dims: { realityAnchoring: 2, grayAreaLeadership: 1 }, distortions: { loyalist: 1 } },
+    { id: 'b', label: 'Convene a joint problem-solving meeting centered on student function and family experience.', dims: { trustConstruction: 2, humanAwareness: 2 }, distortions: { harmonizer: 1 } },
+    { id: 'c', label: 'Assign a case lead and short-cycle review plan to reduce confusion and improve consistency.', dims: { teamSystemsLeadership: 2, visionChangeLeadership: 1 }, distortions: { controller: 1 } },
+    { id: 'd', label: 'Escalate to district support immediately to avoid local bias and ensure procedural clarity.', dims: { visionChangeLeadership: 1, regulationUnderPressure: 1 }, distortions: { detachedLeader: 1, avoider: 1 } },
+  ], reverseScored: false, tags: ['scenario'], distortionSignals: {}, followUpTriggers: ['consistencyAccountability', 'controlCertainty'], isCore: true },
+  { id: 'scenario-10', section: 'Pressure Scenarios', sectionKey: 'scenario', dimension: 'multi', prompt: 'A veteran staff member is beloved by families but repeatedly inconsistent with deadlines and follow-through. What leadership move comes first?', type: 'scenario', options: [
+    { id: 'a', label: 'Set explicit expectations and support structures, then monitor weekly for follow-through.', dims: { teamSystemsLeadership: 2, instructionalAcademicLeadership: 1 }, distortions: { controller: 1 } },
+    { id: 'b', label: 'Start with relational conversation about barriers, then co-design an accountability plan.', dims: { humanAwareness: 2, trustConstruction: 1 }, distortions: { harmonizer: 1 } },
+    { id: 'c', label: 'Rebalance duties across the team so student experience is protected while coaching continues.', dims: { teamSystemsLeadership: 2, regulationUnderPressure: 1 }, distortions: { martyr: 1, hero: 1 } },
+    { id: 'd', label: 'Tolerate short-term inconsistency while preserving community confidence in the staff member.', dims: { trustConstruction: 1, visionChangeLeadership: 1 }, distortions: { performer: 1, defender: 1 } },
+  ], reverseScored: false, tags: ['scenario'], distortionSignals: {}, followUpTriggers: ['selfSacrifice', 'consistencyAccountability'], isCore: true },
 
   { id: 'probe-control-1', section: 'Adaptive Probe', sectionKey: 'probe', dimension: 'realityAnchoring', prompt: 'Leaders sometimes need to sound certain before they feel certain, because people need stability in the moment.', type: 'likert', options: likertOptions, reverseScored: true, tags: ['control'], distortionSignals: { controller: 1, performer: 1 }, followUpTriggers: [], isCore: false, probeCategory: 'controlCertainty' },
   { id: 'probe-control-2', section: 'Adaptive Probe', sectionKey: 'probe', dimension: 'grayAreaLeadership', prompt: 'Treating similar situations differently can still be fair if the underlying principle is clear.', type: 'likert', options: likertOptions, reverseScored: false, tags: ['ambiguity'], distortionSignals: { loyalist: 1 }, followUpTriggers: [], isCore: false, probeCategory: 'controlCertainty' },
@@ -86,8 +122,11 @@ const questionPool = [
 
 const coreQuestions = questionPool.filter((q) => q.isCore);
 const questionById = Object.fromEntries(questionPool.map((q) => [q.id, q]));
-const HARD_QUESTION_CAP = 32;
-const MIN_SCENARIO_PROBE_QUESTIONS = 6;
+const MIN_TOTAL_QUESTIONS = 22;
+const TARGET_TOTAL_QUESTIONS_MIN = 24;
+const TARGET_TOTAL_QUESTIONS_MAX = 30;
+const HARD_QUESTION_CAP = 36;
+const MIN_SCENARIO_QUESTIONS = 8;
 const SOFT_TARGET_SECONDS = 600;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -133,24 +172,33 @@ const computeResults = (answers, questionFlow) => {
     if (!q || answers[qid] === undefined) return count;
     return (q.sectionKey === 'scenario' || q.sectionKey === 'probe') ? count + 1 : count;
   }, 0);
-  return { normalized, distortions, scenarioProbeAnsweredCount };
+  const scenarioAnsweredCount = questionFlow.reduce((count, qid) => {
+    const q = questionById[qid];
+    if (!q || answers[qid] === undefined) return count;
+    return q.sectionKey === 'scenario' ? count + 1 : count;
+  }, 0);
+  return { normalized, distortions, scenarioProbeAnsweredCount, scenarioAnsweredCount };
 };
 
 const evaluateSignalSufficiency = (answers, questionFlow) => {
-  const { normalized, scenarioProbeAnsweredCount } = computeResults(answers, questionFlow);
+  const { normalized, scenarioProbeAnsweredCount, scenarioAnsweredCount } = computeResults(answers, questionFlow);
   const dimensionsMissingSufficiency = dimensions.filter((d) => {
     const item = normalized[d.key];
     const hasTwoSignals = item.totalSignalCount >= 2;
     const hasBehaviorOrSelfSignal = (item.scenarioCount + item.probeCount) >= 1 || item.selfImplementationCount >= 1;
     return !hasTwoSignals || !hasBehaviorOrSelfSignal;
   }).map((d) => d.key);
-  const hasMinScenarioProbe = scenarioProbeAnsweredCount >= MIN_SCENARIO_PROBE_QUESTIONS;
-  return { isSufficient: dimensionsMissingSufficiency.length === 0 && hasMinScenarioProbe, dimensionsMissingSufficiency, hasMinScenarioProbe, scenarioProbeAnsweredCount, normalized };
+  const hasMinScenario = scenarioAnsweredCount >= MIN_SCENARIO_QUESTIONS;
+  return { isSufficient: dimensionsMissingSufficiency.length === 0 && hasMinScenario, dimensionsMissingSufficiency, hasMinScenario, scenarioProbeAnsweredCount, scenarioAnsweredCount, normalized };
 };
 
 const chooseNextProbe = (answers, questionFlow) => {
   const asked = new Set(questionFlow);
-  const { normalized, distortions } = computeResults(answers, questionFlow);
+  const { normalized, distortions, scenarioAnsweredCount } = computeResults(answers, questionFlow);
+  if (scenarioAnsweredCount < MIN_SCENARIO_QUESTIONS) {
+    const scenarioCandidate = questionPool.find((q) => q.sectionKey === 'scenario' && !asked.has(q.id));
+    if (scenarioCandidate) return scenarioCandidate.id;
+  }
   const distortionRank = Object.entries(distortions).sort((a, b) => b[1] - a[1]).map(([key]) => key);
   const distortionCategoryMap = {
     controller: ['controlCertainty'], performer: ['imagePolish'], harmonizer: ['consistencyAccountability'], loyalist: ['controlCertainty', 'imagePolish'],
@@ -217,8 +265,9 @@ export default function HumanEquationDiagnosticPage() {
 
   const resolveCompletionReason = (nextAnswers, nextFlow) => {
     if (nextFlow.length >= HARD_QUESTION_CAP) return 'max_questions';
+    if (Object.keys(nextAnswers).length < MIN_TOTAL_QUESTIONS) return null;
     const sufficiency = evaluateSignalSufficiency(nextAnswers, nextFlow);
-    if (sufficiency.isSufficient) return 'sufficient_signal';
+    if (sufficiency.isSufficient && Object.keys(nextAnswers).length >= MIN_TOTAL_QUESTIONS) return 'sufficient_signal';
     return null;
   };
 
@@ -252,7 +301,10 @@ export default function HumanEquationDiagnosticPage() {
     if (allAnswered && nextFlow.length < HARD_QUESTION_CAP) {
       const elapsedSeconds = startedAt ? (Date.now() - startedAt) / 1000 : 0;
       const canEnd = resolveCompletionReason(nextAnswers, nextFlow) === 'sufficient_signal';
-      if (!canEnd && elapsedSeconds < SOFT_TARGET_SECONDS + 120) {
+      const answeredCount = Object.keys(nextAnswers).length;
+      const belowTargetRangeFloor = answeredCount < TARGET_TOTAL_QUESTIONS_MIN;
+      const withinTargetExpansion = answeredCount < TARGET_TOTAL_QUESTIONS_MAX;
+      if ((!canEnd || belowTargetRangeFloor) && withinTargetExpansion && elapsedSeconds < SOFT_TARGET_SECONDS + 120) {
         const nextProbeId = chooseNextProbe(nextAnswers, nextFlow);
         if (nextProbeId) {
           nextFlow = [...nextFlow, nextProbeId];
