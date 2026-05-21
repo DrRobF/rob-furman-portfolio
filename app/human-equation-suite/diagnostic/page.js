@@ -85,15 +85,71 @@ const questionPool = [
 ];
 
 const coreQuestions = questionPool.filter((q) => q.isCore);
-const probeQuestions = questionPool.filter((q) => !q.isCore);
+const questionById = Object.fromEntries(questionPool.map((q) => [q.id, q]));
+const HARD_QUESTION_CAP = 32;
+const SOFT_TARGET_SECONDS = 600;
 
-const chooseAdaptiveQuestions = (signals) => {
-  const categoryOrder = ['controlCertainty', 'consistencyAccountability', 'selfSacrifice', 'imagePolish', 'detachedUrgency'];
-  const triggered = categoryOrder.filter((key) => signals[key] >= 2);
-  const fallback = categoryOrder.filter((key) => !triggered.includes(key)).slice(0, 2);
-  const selectedCategories = [...triggered, ...fallback].slice(0, 5);
-  const pickedProbes = selectedCategories.flatMap((category) => probeQuestions.filter((q) => q.probeCategory === category).slice(0, 2));
-  return { selectedCategories, pickedProbes: pickedProbes.slice(0, 12) };
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+const computeResults = (answers, questionFlow) => {
+  const seed = Object.fromEntries(dimensions.map((d) => [d.key, { beliefTotal: 0, beliefCount: 0, selfTotal: 0, selfCount: 0, scenarioSignalTotal: 0, scenarioCount: 0, probeTotal: 0, probeCount: 0 }]));
+  const distortions = Object.fromEntries(distortionsList.map((d) => [d, 0]));
+  questionFlow.forEach((qid) => {
+    const q = questionById[qid];
+    const answer = answers[qid];
+    if (!q || answer === undefined) return;
+    if (q.type === 'likert' && q.dimension && q.dimension !== 'multi') {
+      const raw = Number(answer || 0);
+      const scored = q.reverseScored && raw ? 6 - raw : raw;
+      if (q.sectionKey === 'belief') { seed[q.dimension].beliefTotal += scored; seed[q.dimension].beliefCount += 1; }
+      if (q.sectionKey === 'self') { seed[q.dimension].selfTotal += scored; seed[q.dimension].selfCount += 1; }
+      if (q.sectionKey === 'probe') { seed[q.dimension].probeTotal += scored; seed[q.dimension].probeCount += 1; }
+      Object.entries(q.distortionSignals || {}).forEach(([key, val]) => { distortions[key] += val * (scored >= 4 ? 1 : 0.5); });
+    }
+    if (q.sectionKey === 'scenario') {
+      const picked = q.options.find((opt) => opt.id === answer);
+      if (!picked) return;
+      Object.entries(picked.dims || {}).forEach(([key, val]) => { seed[key].scenarioSignalTotal += val; seed[key].scenarioCount += 1; });
+      Object.entries(picked.distortions || {}).forEach(([key, val]) => { distortions[key] += val; });
+    }
+  });
+  const normalized = Object.fromEntries(dimensions.map((d) => {
+    const item = seed[d.key];
+    const belief = item.beliefCount ? item.beliefTotal / item.beliefCount : null;
+    const selfImplementation = item.selfCount ? item.selfTotal / item.selfCount : null;
+    const scenarioSignal = item.scenarioCount ? clamp(2 + (item.scenarioSignalTotal / item.scenarioCount), 1, 5) : null;
+    const probeSignal = item.probeCount ? item.probeTotal / item.probeCount : null;
+    const present = [belief, selfImplementation, scenarioSignal, probeSignal].filter((v) => Number.isFinite(v));
+    const totalSignalCount = item.beliefCount + item.selfCount + item.scenarioCount + item.probeCount;
+    const hasMeaningful = totalSignalCount >= 1;
+    const preferredCoverage = totalSignalCount >= 2;
+    const composite = present.length ? clamp(Number((present.reduce((a, b) => a + b, 0) / present.length).toFixed(2)), 1, 5) : null;
+    const confidenceLevel = totalSignalCount >= 4 ? 'strong' : totalSignalCount >= 2 ? 'baseline' : totalSignalCount >= 1 ? 'early' : 'insufficient';
+    return [d.key, { belief: belief ? Number(belief.toFixed(2)) : null, selfImplementation: selfImplementation ? Number(selfImplementation.toFixed(2)) : null, scenarioSignal: scenarioSignal ? Number(scenarioSignal.toFixed(2)) : null, probeSignal: probeSignal ? Number(probeSignal.toFixed(2)) : null, composite, confidenceLevel, beliefCount: item.beliefCount, selfImplementationCount: item.selfCount, scenarioCount: item.scenarioCount, probeCount: item.probeCount, totalSignalCount, hasMeaningful, preferredCoverage }];
+  }));
+  return { normalized, distortions };
+};
+
+const chooseNextProbe = (answers, questionFlow) => {
+  const asked = new Set(questionFlow);
+  const { normalized } = computeResults(answers, questionFlow);
+  const weakest = [...dimensions].sort((a, b) => (normalized[a.key].totalSignalCount - normalized[b.key].totalSignalCount) || ((normalized[a.key].composite || 0) - (normalized[b.key].composite || 0)))[0];
+  const mapping = {
+    realityAnchoring: ['controlCertainty', 'imagePolish'],
+    humanAwareness: ['consistencyAccountability'],
+    regulationUnderPressure: ['detachedUrgency'],
+    teamSystemsLeadership: ['selfSacrifice', 'consistencyAccountability'],
+    trustConstruction: ['consistencyAccountability', 'imagePolish'],
+    grayAreaLeadership: ['controlCertainty'],
+    visionChangeLeadership: ['selfSacrifice', 'detachedUrgency'],
+    instructionalAcademicLeadership: ['consistencyAccountability'],
+  };
+  const categoryPreference = mapping[weakest.key] || [];
+  for (const category of categoryPreference) {
+    const candidate = questionPool.find((q) => !q.isCore && q.probeCategory === category && !asked.has(q.id));
+    if (candidate) return candidate.id;
+  }
+  return questionPool.find((q) => !q.isCore && !asked.has(q.id))?.id || null;
 };
 
 export default function HumanEquationDiagnosticPage() {
@@ -106,13 +162,23 @@ export default function HumanEquationDiagnosticPage() {
   const [insightMessage, setInsightMessage] = useState('');
   const [showDebugData, setShowDebugData] = useState(false);
   const [signalScores, setSignalScores] = useState({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 });
+  const [questionFlow, setQuestionFlow] = useState(coreQuestions.map((q) => q.id));
+  const [startedAt, setStartedAt] = useState(null);
 
-  const adaptivePack = useMemo(() => chooseAdaptiveQuestions(signalScores), [signalScores]);
-  const questionFlow = useMemo(() => [...coreQuestions, ...adaptivePack.pickedProbes], [adaptivePack]);
-  const currentQuestion = questionFlow[currentQuestionIndex];
+  const currentQuestion = questionById[questionFlow[currentQuestionIndex]];
   const completedCount = Object.keys(answers).length;
-  const isComplete = questionFlow.length > 0 && questionFlow.every((q) => answers[q.id] !== undefined);
-  const progressPercent = questionFlow.length ? Math.round((completedCount / questionFlow.length) * 100) : 0;
+  const isComplete = questionFlow.length > 0 && questionFlow.every((qid) => answers[qid] !== undefined);
+  const coverageProgress = useMemo(() => {
+    const { normalized } = computeResults(answers, questionFlow);
+    const points = dimensions.reduce((total, d) => {
+      const item = normalized[d.key];
+      if (item.totalSignalCount >= 2) return total + 1;
+      if (item.totalSignalCount >= 1) return total + 0.5;
+      return total;
+    }, 0);
+    return (points / dimensions.length) * 100;
+  }, [answers, questionFlow]);
+  const progressPercent = clamp(Math.round((Math.min(completedCount, coreQuestions.length) / coreQuestions.length) * 55 + (coverageProgress * 0.45)), 0, 100);
   const progressMessage = progressMessages[Math.min(progressMessages.length - 1, Math.floor(progressPercent / 25))];
 
   const setAnswer = (question, value) => {
@@ -137,46 +203,29 @@ export default function HumanEquationDiagnosticPage() {
 
     setInsightMessage('Interesting tension.');
     setTimeout(() => setInsightMessage(''), 1000);
+    const nextAnswers = { ...answers, [question.id]: value };
+    const allAnswered = questionFlow.every((qid) => nextAnswers[qid] !== undefined);
+    if (allAnswered && questionFlow.length < HARD_QUESTION_CAP) {
+      const { normalized, distortions } = computeResults(nextAnswers, questionFlow);
+      const missingSignals = dimensions.some((d) => !normalized[d.key].hasMeaningful || !normalized[d.key].preferredCoverage);
+      const strongDistortions = Object.values(distortions).filter((score) => score >= 2).length >= 1;
+      const elapsedSeconds = startedAt ? (Date.now() - startedAt) / 1000 : 0;
+      const canEnd = !missingSignals && strongDistortions;
+      if (!canEnd && elapsedSeconds < SOFT_TARGET_SECONDS + 120) {
+        const nextProbeId = chooseNextProbe(nextAnswers, questionFlow);
+        if (nextProbeId) {
+          setQuestionFlow((prev) => [...prev, nextProbeId]);
+        }
+      }
+    }
     if (currentQuestionIndex < questionFlow.length - 1) setTimeout(() => setCurrentQuestionIndex((idx) => Math.min(idx + 1, questionFlow.length - 1)), 180);
   };
 
   const result = useMemo(() => {
-    const seed = Object.fromEntries(dimensions.map((d) => [d.key, { beliefTotal: 0, beliefCount: 0, selfTotal: 0, selfCount: 0, scenarioSignal: 0, scenarioCount: 0, probeTotal: 0, probeCount: 0, composite: 0, confidence: 'emerging' }]));
-    const distortions = Object.fromEntries(distortionsList.map((d) => [d, 0]));
+    const { normalized, distortions } = computeResults(answers, questionFlow);
 
-    questionFlow.forEach((q) => {
-      const answer = answers[q.id];
-      if (answer === undefined) return;
-      if (q.type === 'likert' && q.dimension && q.dimension !== 'multi') {
-        const raw = Number(answer || 0);
-        const scored = q.reverseScored && raw ? 6 - raw : raw;
-        if (q.sectionKey === 'belief') { seed[q.dimension].beliefTotal += scored; seed[q.dimension].beliefCount += 1; }
-        if (q.sectionKey === 'self') { seed[q.dimension].selfTotal += scored; seed[q.dimension].selfCount += 1; }
-        if (q.sectionKey === 'probe') { seed[q.dimension].probeTotal += scored; seed[q.dimension].probeCount += 1; }
-      }
-      if (q.sectionKey === 'scenario') {
-        const picked = q.options.find((opt) => opt.id === answer);
-        if (!picked) return;
-        Object.entries(picked.dims || {}).forEach(([key, val]) => { seed[key].scenarioSignal += val; seed[key].scenarioCount += 1; });
-        Object.entries(picked.distortions || {}).forEach(([key, val]) => { distortions[key] += val; });
-      }
-    });
-
-    const normalized = Object.fromEntries(dimensions.map((d) => {
-      const item = seed[d.key];
-      const belief = item.beliefCount ? item.beliefTotal / item.beliefCount : 0;
-      const selfImplementation = item.selfCount ? item.selfTotal / item.selfCount : 0;
-      const scenarioSignal = item.scenarioCount ? Math.min(5, 2 + item.scenarioSignal / item.scenarioCount) : 0;
-      const probeSignal = item.probeCount ? item.probeTotal / item.probeCount : 0;
-      const denominator = [belief, selfImplementation, scenarioSignal, probeSignal].filter((v) => v > 0).length || 1;
-      const composite = Number(((belief + selfImplementation + scenarioSignal + probeSignal) / denominator).toFixed(2));
-      const answeredForDimension = item.beliefCount + item.selfCount + item.scenarioCount + item.probeCount;
-      const confidence = answeredForDimension >= 4 ? 'high' : answeredForDimension >= 2 ? 'medium' : 'low';
-      return [d.key, { belief: Number(belief.toFixed(2)), selfImplementation: Number(selfImplementation.toFixed(2)), scenarioSignal: Number(scenarioSignal.toFixed(2)), probeSignal: Number(probeSignal.toFixed(2)), composite, confidence }];
-    }));
-
-    const ranked = dimensions.map((d) => ({ key: d.key, label: d.label, ...normalized[d.key], gap: Number((normalized[d.key].belief - normalized[d.key].selfImplementation).toFixed(2)) })).sort((a, b) => b.composite - a.composite);
-    const topDistortions = Object.entries(distortions).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([key]) => key);
+    const ranked = dimensions.map((d) => ({ key: d.key, label: d.label, ...normalized[d.key], gap: Number((((normalized[d.key].belief || 0) - (normalized[d.key].selfImplementation || 0)).toFixed(2)) ) })).sort((a, b) => (b.composite || 0) - (a.composite || 0));
+    const topDistortions = Object.entries(distortions).filter(([, v]) => v >= 2).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([key]) => key);
 
     return {
       dimensions: normalized,
@@ -184,16 +233,18 @@ export default function HumanEquationDiagnosticPage() {
       topDistortions,
       topStrengths: ranked.slice(0, 3).map((r) => r.label),
       growthEdges: ranked.slice(-3).map((r) => r.label),
-      pressureProfileTitle: ranked[0]?.composite >= 4 ? 'Anchored Integrative Leadership Profile' : ranked[0]?.composite >= 3 ? 'Developing Adaptive Leadership Profile' : 'Emerging Leadership Pressure Profile',
+      pressureProfileTitle: (ranked[0]?.composite || 0) >= 4 ? 'Anchored Integrative Leadership Profile' : (ranked[0]?.composite || 0) >= 3 ? 'Developing Adaptive Leadership Profile' : 'Emerging Leadership Pressure Profile',
       narrativeSummary: `Your current profile suggests strongest baseline capacity in ${ranked.slice(0, 2).map((r) => r.label).join(' and ')}.`,
-      metadata: { questionsAnswered: completedCount, triggeredProbeCategories: adaptivePack.selectedCategories, dimensionConfidence: Object.fromEntries(dimensions.map((d) => [d.key, normalized[d.key].confidence])) },
+      baselineConfidence: dimensions.every((d) => normalized[d.key].totalSignalCount >= 2) ? 'Stronger initial signal' : 'Early profile',
+      distortionConfidenceLabel: topDistortions.length ? null : 'Pressure drift is still emerging',
+      metadata: { questionsAnswered: completedCount, dimensionConfidence: Object.fromEntries(dimensions.map((d) => [d.key, normalized[d.key].confidenceLevel])) },
     };
-  }, [answers, questionFlow, adaptivePack.selectedCategories, completedCount]);
+  }, [answers, questionFlow, completedCount]);
 
   return (<section className="section section-light"><div className="container"><LanguageSwitcher />
     <p className="eyebrow">Human Equation Suite</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
     <p className="lead">{es ? 'Establece tu perfil base antes de las simulaciones. Este diagnóstico refleja lo que valoras, cómo lideras bajo presión y hacia qué puedes derivar en tensión.' : 'Establish your baseline profile before simulations. This diagnostic reflects what you value, how you implement under pressure, and where you may drift in tension.'}</p>
-    <div className="button-row"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); }}>Start Diagnostic</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>View Results</button><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link><Link href="/human-equation-suite" className="button secondary">Back to Human Equation Suite</Link></div>
+    <div className="button-row"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); }}>Start Diagnostic</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>View Results</button><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link><Link href="/human-equation-suite" className="button secondary">Back to Human Equation Suite</Link></div>
 
     {started && !viewResults && currentQuestion && (<div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
@@ -209,8 +260,9 @@ export default function HumanEquationDiagnosticPage() {
     </div>)}
 
     {viewResults && isComplete && <div className="top-space card project-card"><h2>{result.pressureProfileTitle}</h2><h2>Leadership Pressure Profile</h2><p>{result.narrativeSummary}</p>
-      <h3 className="top-space-sm">Framework Layers</h3>{dimensionLayers.map((layer) => <div key={layer.title} className="top-space-sm"><p className="eyebrow">{layer.title}</p><div className="card-grid">{layer.keys.map((key) => { const dim = dimensions.find((d) => d.key === key); const score = result.dimensions[key]; return <div key={key} className="card project-card"><p><strong>{dim.label}</strong></p><p>Composite: {score.composite} / 5</p><progress max="5" value={score.composite} style={{ width: '100%' }} /><p>Belief: {score.belief}</p><p>Self-perception: {score.selfImplementation}</p><p>Scenario signal: {score.scenarioSignal}</p></div>; })}</div></div>)}
-      <h3 className="top-space-sm">Likely Pressure Distortions</h3>{result.topDistortions.map((distortion) => <div key={distortion}><p><strong>{titleCase(distortion)}</strong></p><p>{distortionDetails[distortion]}</p></div>)}
+      <p><em>Baseline confidence: {result.baselineConfidence}</em></p>
+      <h3 className="top-space-sm">Framework Layers</h3>{dimensionLayers.map((layer) => <div key={layer.title} className="top-space-sm"><p className="eyebrow">{layer.title}</p><div className="card-grid">{layer.keys.map((key) => { const dim = dimensions.find((d) => d.key === key); const score = result.dimensions[key]; const c = score.composite; return <div key={key} className="card project-card"><p><strong>{dim.label}</strong></p><p>Composite: {c === null ? 'Not enough signal yet' : `${c} / 5`}</p>{c !== null && <progress max="5" value={c} style={{ width: '100%' }} />}<p>Belief: {score.belief ?? 'Not enough signal yet'}</p><p>Self-perception: {score.selfImplementation ?? 'Not enough signal yet'}</p><p>Scenario signal: {score.scenarioSignal ?? 'Not enough signal yet'}</p></div>; })}</div></div>)}
+      <h3 className="top-space-sm">Likely Pressure Distortions</h3>{result.topDistortions.length ? result.topDistortions.map((distortion) => <div key={distortion}><p><strong>{titleCase(distortion)}</strong></p><p>{distortionDetails[distortion]}</p></div>) : <p>{result.distortionConfidenceLabel}</p>}
       <h3 className="top-space-sm">Strengths</h3><p>Your strongest baseline areas appear to be {result.topStrengths.join(', ')}.</p>
       <h3 className="top-space-sm">Growth Edges</h3><p>{result.growthEdges[0]} may be a useful growth edge.</p><p>Additional growth edges to watch: {result.growthEdges.slice(1).join(', ')}.</p>
       <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3><p>This diagnostic is a self-perception baseline. The simulations will test how these patterns hold under live pressure.</p><Link href="/human-equation" className="button primary">Continue to Parent Call Rehearsal</Link>
