@@ -6,6 +6,11 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 const pathwayStepsEn = [
   {
+    title: '0. Human Equation Dashboard',
+    detail:
+      'Review your evolving leadership pressure profile as evidence accumulates across simulations.',
+  },
+  {
     title: '1. Leadership Diagnostic',
     detail:
       'Discover your leadership pressure patterns before entering the simulations.',
@@ -33,6 +38,12 @@ const pathwayStepsEn = [
 ];
 
 const simulationCardsEn = [
+  {
+    title: 'Human Equation Dashboard',
+    description: 'Open your long-term leadership intelligence hub and blended evidence profile.',
+    href: '/human-equation-suite/dashboard',
+    linkText: 'Open Dashboard →',
+  },
   {
     title: 'Leadership Diagnostic',
     description: 'Begin with the full pathway entry point and profile baseline.',
@@ -89,6 +100,7 @@ export default function HumanEquationSuitePage() {
       eyebrow: 'Human Equation Suite'
     };
   const pathwaySteps = es ? [
+    { title: '0. Dashboard Human Equation', detail: 'Revisa tu perfil evolutivo de liderazgo bajo presión mientras se acumula evidencia entre simulaciones.' },
     { title: '1. Diagnóstico de liderazgo', detail: 'Descubre tus patrones de presión de liderazgo antes de entrar en las simulaciones.' },
     { title: '2. Ensayo de llamada con familia', detail: 'Practica conversaciones familiares emocionalmente realistas con voz de IA en vivo y coaching posterior.' },
     { title: '3. Simulación de liderazgo escolar', detail: 'Recorre un día escolar bajo presión y observa cómo tus decisiones moldean confianza, seguridad y seguimiento.' },
@@ -96,6 +108,7 @@ export default function HumanEquationSuitePage() {
     { title: '5. Informe maestro de Human Equation', detail: 'Combina resultados, desempeño y notas de reflexión en un perfil completo de crecimiento.' },
   ] : pathwayStepsEn;
   const simulationCards = es ? [
+    { title: 'Dashboard Human Equation', description: 'Abre tu centro de inteligencia de liderazgo y perfil de evidencia combinada.', href: '/human-equation-suite/dashboard', linkText: 'Abrir dashboard →' },
     { title: 'Diagnóstico de liderazgo', description: 'Empieza por la entrada principal de la ruta y establece tu línea base.', href: '/human-equation-suite/diagnostic', linkText: 'Iniciar diagnóstico →' },
     { title: 'Ensayo de llamada con familia', description: 'Ensaya conversaciones difíciles con interacción realista de IA y coaching.', href: '/human-equation', linkText: 'Abrir ensayo de llamada →' },
     { title: 'Simulación de liderazgo escolar', description: 'Entra en un escenario escolar donde cada decisión cambia resultados.', href: '/simulation-overview', linkText: 'Iniciar simulación escolar →' },
