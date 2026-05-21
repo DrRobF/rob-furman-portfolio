@@ -32,7 +32,7 @@ const distortionDetails = {
 
 const distortionsList = ['harmonizer', 'loyalist', 'controller', 'performer', 'martyr', 'reactor', 'avoider', 'hero', 'defender', 'detachedLeader'];
 const titleCase = (value) => value.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()).trim();
-const progressMessages = ['Building your leadership profile…', 'Reading pressure patterns…', 'Refining your baseline…', 'Almost there…'];
+const progressMessages = ['Building your leadership profile…', 'Refining your profile…', 'Checking pressure patterns…', 'Filling in missing signals…'];
 
 const likertOptions = [1, 2, 3, 4, 5];
 
@@ -87,6 +87,7 @@ const questionPool = [
 const coreQuestions = questionPool.filter((q) => q.isCore);
 const questionById = Object.fromEntries(questionPool.map((q) => [q.id, q]));
 const HARD_QUESTION_CAP = 32;
+const MIN_SCENARIO_PROBE_QUESTIONS = 6;
 const SOFT_TARGET_SECONDS = 600;
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -127,25 +128,52 @@ const computeResults = (answers, questionFlow) => {
     const confidenceLevel = totalSignalCount >= 4 ? 'strong' : totalSignalCount >= 2 ? 'baseline' : totalSignalCount >= 1 ? 'early' : 'insufficient';
     return [d.key, { belief: belief ? Number(belief.toFixed(2)) : null, selfImplementation: selfImplementation ? Number(selfImplementation.toFixed(2)) : null, scenarioSignal: scenarioSignal ? Number(scenarioSignal.toFixed(2)) : null, probeSignal: probeSignal ? Number(probeSignal.toFixed(2)) : null, composite, confidenceLevel, beliefCount: item.beliefCount, selfImplementationCount: item.selfCount, scenarioCount: item.scenarioCount, probeCount: item.probeCount, totalSignalCount, hasMeaningful, preferredCoverage }];
   }));
-  return { normalized, distortions };
+  const scenarioProbeAnsweredCount = questionFlow.reduce((count, qid) => {
+    const q = questionById[qid];
+    if (!q || answers[qid] === undefined) return count;
+    return (q.sectionKey === 'scenario' || q.sectionKey === 'probe') ? count + 1 : count;
+  }, 0);
+  return { normalized, distortions, scenarioProbeAnsweredCount };
+};
+
+const evaluateSignalSufficiency = (answers, questionFlow) => {
+  const { normalized, scenarioProbeAnsweredCount } = computeResults(answers, questionFlow);
+  const dimensionsMissingSufficiency = dimensions.filter((d) => {
+    const item = normalized[d.key];
+    const hasTwoSignals = item.totalSignalCount >= 2;
+    const hasBehaviorOrSelfSignal = (item.scenarioCount + item.probeCount) >= 1 || item.selfImplementationCount >= 1;
+    return !hasTwoSignals || !hasBehaviorOrSelfSignal;
+  }).map((d) => d.key);
+  const hasMinScenarioProbe = scenarioProbeAnsweredCount >= MIN_SCENARIO_PROBE_QUESTIONS;
+  return { isSufficient: dimensionsMissingSufficiency.length === 0 && hasMinScenarioProbe, dimensionsMissingSufficiency, hasMinScenarioProbe, scenarioProbeAnsweredCount, normalized };
 };
 
 const chooseNextProbe = (answers, questionFlow) => {
   const asked = new Set(questionFlow);
-  const { normalized } = computeResults(answers, questionFlow);
-  const weakest = [...dimensions].sort((a, b) => (normalized[a.key].totalSignalCount - normalized[b.key].totalSignalCount) || ((normalized[a.key].composite || 0) - (normalized[b.key].composite || 0)))[0];
-  const mapping = {
-    realityAnchoring: ['controlCertainty', 'imagePolish'],
-    humanAwareness: ['consistencyAccountability'],
-    regulationUnderPressure: ['detachedUrgency'],
-    teamSystemsLeadership: ['selfSacrifice', 'consistencyAccountability'],
-    trustConstruction: ['consistencyAccountability', 'imagePolish'],
-    grayAreaLeadership: ['controlCertainty'],
-    visionChangeLeadership: ['selfSacrifice', 'detachedUrgency'],
-    instructionalAcademicLeadership: ['consistencyAccountability'],
+  const { normalized, distortions } = computeResults(answers, questionFlow);
+  const distortionRank = Object.entries(distortions).sort((a, b) => b[1] - a[1]).map(([key]) => key);
+  const distortionCategoryMap = {
+    controller: ['controlCertainty'], performer: ['imagePolish'], harmonizer: ['consistencyAccountability'], loyalist: ['controlCertainty', 'imagePolish'],
+    martyr: ['selfSacrifice'], hero: ['selfSacrifice'], detachedLeader: ['detachedUrgency'], avoider: ['detachedUrgency', 'consistencyAccountability'], defender: ['consistencyAccountability'], reactor: ['detachedUrgency'],
   };
-  const categoryPreference = mapping[weakest.key] || [];
-  for (const category of categoryPreference) {
+  const dimensionPriority = [...dimensions].sort((a, b) => {
+    const aN = normalized[a.key];
+    const bN = normalized[b.key];
+    const aMissingScenario = (aN.scenarioCount + aN.probeCount) === 0 ? -1 : 0;
+    const bMissingScenario = (bN.scenarioCount + bN.probeCount) === 0 ? -1 : 0;
+    const aGap = Math.abs((aN.belief ?? 0) - (aN.selfImplementation ?? 0));
+    const bGap = Math.abs((bN.belief ?? 0) - (bN.selfImplementation ?? 0));
+    return (aN.totalSignalCount - bN.totalSignalCount) || (aMissingScenario - bMissingScenario) || (bGap - aGap);
+  });
+  const mapping = {
+    realityAnchoring: ['controlCertainty', 'imagePolish'], humanAwareness: ['consistencyAccountability'], regulationUnderPressure: ['detachedUrgency'],
+    teamSystemsLeadership: ['selfSacrifice', 'consistencyAccountability', 'detachedUrgency'], trustConstruction: ['consistencyAccountability', 'imagePolish'],
+    grayAreaLeadership: ['controlCertainty', 'consistencyAccountability'], visionChangeLeadership: ['selfSacrifice', 'detachedUrgency'], instructionalAcademicLeadership: ['consistencyAccountability', 'controlCertainty'],
+  };
+  const preferredCategories = [];
+  dimensionPriority.forEach((d) => (mapping[d.key] || []).forEach((c) => preferredCategories.push(c)));
+  distortionRank.slice(0, 3).forEach((dist) => (distortionCategoryMap[dist] || []).forEach((c) => preferredCategories.push(c)));
+  for (const category of preferredCategories) {
     const candidate = questionPool.find((q) => !q.isCore && q.probeCategory === category && !asked.has(q.id));
     if (candidate) return candidate.id;
   }
@@ -189,10 +217,8 @@ export default function HumanEquationDiagnosticPage() {
 
   const resolveCompletionReason = (nextAnswers, nextFlow) => {
     if (nextFlow.length >= HARD_QUESTION_CAP) return 'max_questions';
-    const { normalized, distortions } = computeResults(nextAnswers, nextFlow);
-    const missingSignals = dimensions.some((d) => !normalized[d.key].hasMeaningful || !normalized[d.key].preferredCoverage);
-    const strongDistortions = Object.values(distortions).filter((score) => score >= 2).length >= 1;
-    if (!missingSignals && strongDistortions) return 'sufficient_signal';
+    const sufficiency = evaluateSignalSufficiency(nextAnswers, nextFlow);
+    if (sufficiency.isSufficient) return 'sufficient_signal';
     return null;
   };
 
@@ -301,7 +327,7 @@ export default function HumanEquationDiagnosticPage() {
     {viewResults && isComplete && <div className="top-space card project-card"><h2>{result.pressureProfileTitle}</h2><h2>Leadership Pressure Profile</h2><p>{result.narrativeSummary}</p>
       <p><em>Baseline confidence: {result.baselineConfidence}</em></p>
       {result.baselineConfidence === 'Early profile' && <p><em>Some areas will become clearer after simulations.</em></p>}
-      <h3 className="top-space-sm">Framework Layers</h3>{dimensionLayers.map((layer) => <div key={layer.title} className="top-space-sm"><p className="eyebrow">{layer.title}</p><div className="card-grid">{layer.keys.map((key) => { const dim = dimensions.find((d) => d.key === key); const score = result.dimensions[key]; const c = score.composite; return <div key={key} className="card project-card"><p><strong>{dim.label}</strong></p><p>Composite: {c === null ? 'Developing signal' : `${c} / 5`}</p>{c !== null && <progress max="5" value={c} style={{ width: '100%' }} />}<p>Belief: {score.belief ?? 'Developing signal'}</p><p>Self-perception: {score.selfImplementation ?? 'Developing signal'}</p><p>Scenario signal: {score.scenarioSignal ?? 'Developing signal'}</p></div>; })}</div></div>)}
+      <h3 className="top-space-sm">Framework Layers</h3>{dimensionLayers.map((layer) => <div key={layer.title} className="top-space-sm"><p className="eyebrow">{layer.title}</p><div className="card-grid">{layer.keys.map((key) => { const dim = dimensions.find((d) => d.key === key); const score = result.dimensions[key]; const c = score.composite; return <div key={key} className="card project-card"><p><strong>{dim.label}</strong></p>{c !== null && <><p>Composite: {`${c} / 5`}</p><progress max="5" value={c} style={{ width: '100%' }} /></>}{score.belief !== null && <p>Belief: {score.belief}</p>}{score.selfImplementation !== null && <p>Self-perception: {score.selfImplementation}</p>}{score.scenarioSignal !== null && <p>Scenario signal: {score.scenarioSignal}</p>}</div>; })}</div></div>)}
       <h3 className="top-space-sm">Likely Pressure Distortions</h3>{result.topDistortions.length ? result.topDistortions.map((distortion) => <div key={distortion}><p><strong>{titleCase(distortion)}</strong></p><p>{distortionDetails[distortion]}</p></div>) : <p>{result.distortionConfidenceLabel}</p>}
       <h3 className="top-space-sm">Strengths</h3><p>Your strongest baseline areas appear to be {result.topStrengths.join(', ')}.</p>
       <h3 className="top-space-sm">Growth Edges</h3><p>{result.growthEdges[0]} may be a useful growth edge.</p><p>Additional growth edges to watch: {result.growthEdges.slice(1).join(', ')}.</p>
