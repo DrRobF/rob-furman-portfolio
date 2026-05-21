@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
-import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, createEmptyMasterProfile, dimensionDefinitions, toMasterProfileFromDiagnostic } from './profileData';
+import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile, dimensionDefinitions, toMasterProfileFromDiagnostic } from './profileData';
 import { DEV_PROFILE_PRESETS } from './devProfiles';
+import { URBAN_REPORT_STORAGE_KEY } from './urbanEvidence';
 
 const tabs = [
   { key: 'master', label: 'Master Profile' },
@@ -24,6 +25,7 @@ const layerKey = (index) => index < 3 ? 'foundational' : index < 5 ? 'applied' :
 export default function HumanEquationDashboardPage() {
   const [profile, setProfile] = useState(createEmptyMasterProfile());
   const [diagnostic, setDiagnostic] = useState(null);
+  const [urbanReport, setUrbanReport] = useState(null);
   const [activeTab, setActiveTab] = useState('master');
   const [selectedDevProfile, setSelectedDevProfile] = useState('');
   const isDevMode = process.env.NODE_ENV !== 'production';
@@ -41,9 +43,25 @@ export default function HumanEquationDashboardPage() {
       try { setDiagnostic(JSON.parse(rawDiagnostic)); } catch {}
     }
 
+    const rawUrbanReport = window.localStorage.getItem(URBAN_REPORT_STORAGE_KEY);
+    if (rawUrbanReport) {
+      try { setUrbanReport(JSON.parse(rawUrbanReport)); } catch {}
+    }
+
     const cached = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
     if (cached) {
-      try { setProfile(JSON.parse(cached)); return; } catch {}
+      try {
+        const parsed = JSON.parse(cached);
+        if (rawUrbanReport) {
+          const urbanParsed = JSON.parse(rawUrbanReport);
+          const blended = blendUrbanEvidenceIntoProfile(parsed, urbanParsed);
+          setProfile(blended);
+          window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(blended));
+          return;
+        }
+        setProfile(parsed);
+        return;
+      } catch {}
     }
     if (!rawDiagnostic) return;
     try {
@@ -98,6 +116,7 @@ export default function HumanEquationDashboardPage() {
 
     {activeTab === 'master' && <div className="top-space"><h2>Growth + Timeline</h2><div className="card-grid top-space-sm"><article className="card"><p className="eyebrow">Growth edges</p><p>{(profile.growthEdges || []).join(' • ') || 'Evidence still forming for growth edge detection.'}</p></article><article className="card"><p className="eyebrow">Growth notes</p><p>{(profile.growthNotes || []).join(' ') || 'Collect additional scenario evidence for sharper coaching notes.'}</p></article><article className="card"><p className="eyebrow">Timeline</p><p>{profile.simulationHistory.map((event) => `${event.source} (${event.completedAt ? new Date(event.completedAt).toLocaleDateString('en-US') : 'pending'})`).join(' • ') || 'No timeline events yet.'}</p></article></div></div>}
 
-    {activeTab !== 'master' && activeTab !== 'diagnostic' && <div className="top-space card project-card"><h2>{tabs.find((t) => t.key === activeTab)?.label}</h2><p>{activeTab === 'parent-call' ? 'No parent call report captured yet.' : activeTab === 'leadership-simulation' ? 'No leadership simulation report captured yet.' : activeTab === 'urban-student' ? 'No urban student report captured yet.' : 'No observation lab report captured yet.'}</p><Link href={activeTab === 'parent-call' ? '/human-equation' : activeTab === 'leadership-simulation' ? '/simulation-overview' : activeTab === 'urban-student' ? '/day-in-the-life-urban-student' : '/human-equation-suite/dashboard'} className="button secondary">Launch</Link></div>}
+    {activeTab === 'urban-student' && <div className="top-space card project-card">{!urbanReport ? <><h2>Urban Student Report</h2><p>No urban student report captured yet.</p><Link href="/day-in-the-life-urban-student" className="button secondary">Launch</Link></> : <><h2>Urban Student Behavioral Evidence</h2><p><strong>Date completed:</strong> {urbanReport.completedAt ? new Date(urbanReport.completedAt).toLocaleString('en-US') : 'Unavailable'}</p><p>{urbanReport.evidenceSummary}</p><h3 className="top-space-sm">Dimension contribution cards</h3><div className="card-grid top-space-sm">{dimensionDefinitions.map(({ key, label }) => <article key={key} className="card"><p><strong>{label}</strong></p><p>Observed score: {urbanReport.dimensions?.[key]?.score ?? 'N/A'} / 5</p><p>{urbanReport.dimensions?.[key]?.narrative || 'Interpretive signal still forming.'}</p></article>)}</div><h3 className="top-space-sm">Emotional interpretation patterns</h3><p>{urbanReport.emotionalInterpretationPatterns?.join(' • ') || 'No pattern signature recorded yet.'}</p><h3 className="top-space-sm">Pressure tendencies observed</h3><p>{urbanReport.pressureTendencies?.join(' • ') || 'No pressure tendencies recorded yet.'}</p><h3 className="top-space-sm">Student-awareness indicators</h3><p>{urbanReport.studentAwarenessIndicators?.join(' • ') || 'No awareness indicators captured yet.'}</p><h3 className="top-space-sm">Growth opportunities</h3><p>{urbanReport.growthEdges?.join(' • ') || 'No growth opportunities identified yet.'}</p><h3 className="top-space-sm">Key moments from simulation</h3><p>{urbanReport.keyMoments?.map((m) => `${m.sceneId} → ${m.choiceId}`).join(' • ') || 'No key moments available.'}</p><h3 className="top-space-sm">Timeline events</h3><p>{urbanReport.timelineEvents?.map((event) => `${event.type} (${new Date(event.occurredAt).toLocaleString('en-US')})`).join(' • ') || 'No timeline events yet.'}</p></>}</div>}
+    {activeTab !== 'master' && activeTab !== 'diagnostic' && activeTab !== 'urban-student' && <div className="top-space card project-card"><h2>{tabs.find((t) => t.key === activeTab)?.label}</h2><p>{activeTab === 'parent-call' ? 'No parent call report captured yet.' : activeTab === 'leadership-simulation' ? 'No leadership simulation report captured yet.' : 'No observation lab report captured yet.'}</p><Link href={activeTab === 'parent-call' ? '/human-equation' : activeTab === 'leadership-simulation' ? '/simulation-overview' : '/human-equation-suite/dashboard'} className="button secondary">Launch</Link></div>}
   </div></section>;
 }
