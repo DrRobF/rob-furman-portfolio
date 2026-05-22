@@ -20,6 +20,7 @@ export default function TranslatePage() {
   const [activeSpeaker, setActiveSpeaker] = useState(null);
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [blockedAudioTurnId, setBlockedAudioTurnId] = useState(null);
 
   const mediaRecorderRef = useRef(null);
   const mediaStreamRef = useRef(null);
@@ -81,6 +82,17 @@ export default function TranslatePage() {
       reader.readAsDataURL(blob);
     });
 
+  const playTranslationAudio = useCallback(async (audioBase64, turnId = null) => {
+    const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
+    activeAudioRef.current = audio;
+    try {
+      await audio.play();
+      setBlockedAudioTurnId(null);
+    } catch {
+      if (turnId) setBlockedAudioTurnId(turnId);
+    }
+  }, []);
+
   const startRecording = useCallback(async (speaker) => {
     if (mediaRecorderRef.current?.state === 'recording' || isProcessing) return;
     setError('');
@@ -135,12 +147,11 @@ export default function TranslatePage() {
       }
 
       setStatus('Speaking translation');
-      setTurns((prev) => [...prev, { id: crypto.randomUUID(), ...data }]);
+      const nextTurn = { id: crypto.randomUUID(), ...data };
+      setTurns((prev) => [...prev, nextTurn]);
 
       if (data.audioBase64) {
-        const audio = new Audio(`data:audio/mp3;base64,${data.audioBase64}`);
-        activeAudioRef.current = audio;
-        await audio.play().catch(() => {});
+        await playTranslationAudio(data.audioBase64, nextTurn.id);
       }
       setStatus('Ready');
     } catch (err) {
@@ -152,7 +163,7 @@ export default function TranslatePage() {
       mediaRecorderRef.current = null;
       setIsProcessing(false);
     }
-  }, [sourceLanguage, targetLanguage]);
+  }, [sourceLanguage, targetLanguage, playTranslationAudio]);
 
   const handlePressStart = (speaker) => {
     if (!isProcessing) startRecording(speaker);
@@ -214,6 +225,7 @@ export default function TranslatePage() {
     setLesson(null);
     setError('');
     setStatus('Ready');
+    setBlockedAudioTurnId(null);
   };
 
   return (
@@ -234,7 +246,7 @@ export default function TranslatePage() {
               </option>
             ))}
           </select>
-          <button type="button" className="button secondary" onClick={swapLanguages}>
+          <button type="button" className={`button secondary ${styles.swapButton}`} onClick={swapLanguages}>
             Swap ({sourceLanguage} → {targetLanguage})
           </button>
         </div>
@@ -247,28 +259,6 @@ export default function TranslatePage() {
 
         {error ? <p className={styles.error}>{error}</p> : null}
 
-        <div className={styles.speakerRow}>
-          {[
-            { key: 'me', label: 'I’m Speaking' },
-            { key: 'them', label: 'They’re Speaking' },
-          ].map((speaker) => (
-            <button
-              key={speaker.key}
-              type="button"
-              className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`}
-              onMouseDown={() => handlePressStart(speaker.key)}
-              onMouseUp={handlePressEnd}
-              onMouseLeave={handlePressEnd}
-              onTouchStart={() => handlePressStart(speaker.key)}
-              onTouchEnd={handlePressEnd}
-              onClick={() => toggleSpeaker(speaker.key)}
-              disabled={isProcessing}
-            >
-              {speaker.label}
-            </button>
-          ))}
-        </div>
-
         <div className={styles.feed}>
           {turns.map((turn) => (
             <article className={styles.turnCard} key={turn.id}>
@@ -278,13 +268,10 @@ export default function TranslatePage() {
               {turn.audioBase64 ? (
                 <button
                   type="button"
-                  className="button secondary"
-                  onClick={() => {
-                    const audio = new Audio(`data:audio/mp3;base64,${turn.audioBase64}`);
-                    audio.play();
-                  }}
+                  className={`button secondary ${styles.playButton}`}
+                  onClick={() => playTranslationAudio(turn.audioBase64, turn.id)}
                 >
-                  Replay Translation
+                  {blockedAudioTurnId === turn.id ? 'Play Translation' : 'Replay Translation'}
                 </button>
               ) : null}
             </article>
@@ -292,7 +279,7 @@ export default function TranslatePage() {
           {!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}
         </div>
 
-        <div className="button-row">
+        <div className={styles.actionsRow}>
           <button type="button" className="button secondary" onClick={clearConversation}>
             Clear Conversation
           </button>
@@ -318,6 +305,31 @@ export default function TranslatePage() {
             <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>
           </section>
         ) : null}
+
+        <div className={styles.speakerDock}>
+          <div className={styles.speakerRow}>
+            {[
+              { key: 'me', label: 'I’m Speaking' },
+              { key: 'them', label: 'They’re Speaking' },
+            ].map((speaker) => (
+              <button
+                key={speaker.key}
+                type="button"
+                className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`}
+                onMouseDown={() => handlePressStart(speaker.key)}
+                onMouseUp={handlePressEnd}
+                onMouseLeave={handlePressEnd}
+                onTouchStart={() => handlePressStart(speaker.key)}
+                onTouchEnd={handlePressEnd}
+                onClick={() => toggleSpeaker(speaker.key)}
+                disabled={isProcessing}
+              >
+                <span>{speaker.label}</span>
+                {activeSpeaker === speaker.key ? <small>Listening… Tap to stop</small> : <small>Tap to start or hold to talk</small>}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
