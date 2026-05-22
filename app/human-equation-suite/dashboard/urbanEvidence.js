@@ -16,6 +16,18 @@ const weightedDimensionInputs = {
 const normalizeMetric = (value) => Math.max(-10, Math.min(10, value || 0));
 const toScore = (value) => +(Math.max(1, Math.min(5, 3 + (value / 10))).toFixed(1));
 
+export const urbanReflectionQuestions = [
+  { id: 'shaped_behavior', prompt: 'What most shaped Adam’s behavior across the day?', options: [{ text: 'Personal defiance', dims: ['realityAnchoring'] }, { text: 'Accumulated fatigue and environmental stress', dims: ['humanAwareness', 'realityAnchoring', 'teamSystemsLeadership'] }, { text: 'Lack of consequences', dims: ['teamSystemsLeadership'] }, { text: 'Unclear adult authority', dims: ['teamSystemsLeadership', 'trustConstruction'] }] },
+  { id: 'early_intervention', prompt: 'Where was the earliest high-leverage adult intervention?', options: [{ text: 'Before school arrival', dims: ['teamSystemsLeadership', 'trustConstruction'] }, { text: 'First classroom interaction', dims: ['instructionalAcademicLeadership'] }, { text: 'Hallway/transition moment', dims: ['teamSystemsLeadership', 'trustConstruction'] }, { text: 'Office response', dims: ['instructionalAcademicLeadership'] }] },
+  { id: 'leader_response', prompt: 'How should a leader respond when behavior is real but context is also real?', options: [{ text: 'Consequence first, context later', dims: ['realityAnchoring'] }, { text: 'Context first, consequence later', dims: ['trustConstruction'] }, { text: 'Hold accountability while adjusting support', dims: ['grayAreaLeadership', 'trustConstruction', 'realityAnchoring'] }, { text: 'Avoid consequence to preserve relationship', dims: ['humanAwareness'] }] },
+  { id: 'harmful_pattern', prompt: 'Which adult pattern was most harmful?', options: [{ text: 'Assuming motive too quickly', dims: ['humanAwareness', 'realityAnchoring'] }, { text: 'Delaying intervention', dims: ['teamSystemsLeadership'] }, { text: 'Focusing only on compliance', dims: ['instructionalAcademicLeadership', 'trustConstruction'] }, { text: 'Treating the student as already known', dims: ['humanAwareness', 'visionChangeLeadership'] }] },
+  { id: 'staff_understand', prompt: 'What would you want staff to understand after this simulation?', options: [{ text: 'Behavior may be communication', dims: ['humanAwareness', 'trustConstruction'] }, { text: 'Systems shape student choices', dims: ['visionChangeLeadership', 'teamSystemsLeadership'] }, { text: 'Expectations still matter', dims: ['instructionalAcademicLeadership'] }, { text: 'Relationships affect interpretation', dims: ['trustConstruction', 'grayAreaLeadership'] }] },
+  { id: 'system_routine', prompt: 'What system routine could reduce repeated escalation?', options: [{ text: 'Morning check-in', dims: ['teamSystemsLeadership'] }, { text: 'Adult handoff notes', dims: ['teamSystemsLeadership', 'realityAnchoring'] }, { text: 'Restorative reset routine', dims: ['trustConstruction', 'grayAreaLeadership'] }, { text: 'Targeted academic support', dims: ['instructionalAcademicLeadership'] }] },
+  { id: 'leadership_risk', prompt: 'Which leadership risk is most visible in this scenario?', options: [{ text: 'Narrowing interpretation under urgency', dims: ['regulationUnderPressure', 'realityAnchoring'] }, { text: 'Over-accommodating behavior', dims: ['grayAreaLeadership'] }, { text: 'Blaming staff too quickly', dims: ['visionChangeLeadership'] }, { text: 'Delaying action too long', dims: ['teamSystemsLeadership'] }] },
+  { id: 'protect_most', prompt: 'What should be protected most in the response?', options: [{ text: 'Student dignity', dims: ['trustConstruction', 'humanAwareness'] }, { text: 'Classroom learning environment', dims: ['instructionalAcademicLeadership'] }, { text: 'Adult consistency', dims: ['teamSystemsLeadership'] }, { text: 'Long-term trust', dims: ['trustConstruction', 'grayAreaLeadership'] }] },
+  { id: 'next_move', prompt: 'What is the strongest next leadership move after this scenario?', options: [{ text: 'Name the pattern and reset routines with staff', dims: ['visionChangeLeadership', 'teamSystemsLeadership'] }, { text: 'Issue consequences and move on', dims: ['instructionalAcademicLeadership'] }, { text: 'Focus only on individual teacher performance', dims: ['teamSystemsLeadership'] }, { text: 'Wait for another incident for more data', dims: ['realityAnchoring'] }] },
+];
+
 export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMetrics = {}, completedAt = new Date().toISOString(), completionReason = 'completed', postReflectionAnswers = {}, reflectionQuestions = [] }) => {
   const metrics = {
     sleep: normalizeMetric(cumulativeMetrics.sleep),
@@ -50,7 +62,7 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
 
   const simulationPathEvidence = Object.entries(selectedChoices).map(([sceneId, choiceId]) => ({ sceneId, choiceId }));
   const postReflectionEvidence = Object.entries(postReflectionAnswers).map(([questionId, response]) => ({ questionId, response }));
-  const reflectionSummary = `${postReflectionEvidence.length} post-simulation reflection responses added to strengthen interpretive confidence.`;
+  const reflectionSummary = `${postReflectionEvidence.length} reflection responses added to strengthen interpretive confidence and leadership narrative depth.`;
   return {
     source: 'urban_student_simulation',
     completedAt,
@@ -67,7 +79,9 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
     distortions,
     strengths,
     growthEdges,
-    evidenceSummary: completionReason === 'ended_early'
+    evidenceSummary: completionReason === 'reflection_only'
+      ? 'Urban reflection evidence captured. Full simulation evidence can deepen this profile later.'
+      : completionReason === 'ended_early'
       ? 'Urban evidence captured from a partial pathway, highlighting how pressure interrupts reflective decision-making.'
       : 'Urban evidence captured across a full student-day pathway, revealing how cumulative stress conditions decision quality and empathy access.',
     emotionalInterpretationPatterns: [
@@ -94,8 +108,8 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
     ],
     dashboardContribution: 'Urban evidence contributes behavioral signal strength to awareness, regulation, trust construction, and reality anchoring dimensions.',
     timelineEvents: [
-      { type: 'urban_simulation_started', label: 'Urban simulation started', occurredAt: completedAt, detail: 'Urban simulation evidence sequence initiated.' },
-      { type: 'urban_simulation_completed', label: 'Urban simulation completed', occurredAt: completedAt, detail: `Completed with ${Object.keys(selectedChoices).length} behavioral decision points.` },
+      { type: 'urban_simulation_started', label: 'Urban simulation started', occurredAt: completedAt, detail: completionReason === 'reflection_only' ? 'Direct reflection evidence pathway launched without full simulation run.' : 'Urban simulation evidence sequence initiated.' },
+      { type: 'urban_simulation_completed', label: 'Urban simulation completed', occurredAt: completedAt, detail: completionReason === 'reflection_only' ? `Reflection-only completion with ${postReflectionEvidence.length} responses.` : `Completed with ${Object.keys(selectedChoices).length} behavioral decision points.` },
     ],
     keyMoments: simulationPathEvidence.slice(0, 8),
     confidenceScore: Math.min(0.95, 0.42 + (Object.keys(selectedChoices).length / 26)),

@@ -102,6 +102,13 @@ export default function HumanEquationDashboardPage() {
       <div className="hes-evidence-grid top-space">
         {Object.values(profile.evidenceSources).map((source) => { const completed = source.status === 'completed'; return <article key={source.key} className={`evidence-card ${completed ? 'is-complete' : 'is-pending'}`}><div className="evidence-header"><h3>{source.label}</h3><span className="status-chip">{completed ? 'Completed' : 'Not Started'}</span></div><p>{source.contribution}</p><p><strong>Latest date:</strong> {source.latestUpdate}</p><Link href={source.key === 'urbanSim' && completed ? '/human-equation-suite/dashboard?tab=urban' : source.route} className="button secondary">{completed ? 'View Report' : 'Launch'}</Link></article>; })}
       </div>
+      <article className="card top-space-sm">
+        <h3>Urban Testing Shortcuts</h3>
+        <div className="button-row">
+          <Link href="/human-equation-suite/urban-reflection" className="button secondary">Open Urban Reflection Quiz</Link>
+          <Link href="/human-equation-suite/urban-reflection" className="button secondary">Test Urban Reflection Only</Link>
+        </div>
+      </article>
 
       <article className="card top-space">
         <h2>Pressure Distortions & Recovery Practice</h2>
@@ -120,6 +127,20 @@ export default function HumanEquationDashboardPage() {
       <div className="top-space hes-dashboard-tabs">{tabs.map((tab) => <button key={tab.key} className={`button ${activeTab === tab.key ? 'primary' : 'secondary'}`} onClick={() => setActiveTab(tab.key)}>{tab.label}</button>)}</div>
 
       <article className="card timeline-panel top-space"><h2>Timeline + Trends</h2><p>{(profile.simulationHistory || []).map((event) => `${event.source} (${event.completedAt ? new Date(event.completedAt).toLocaleDateString('en-US') : 'pending'})`).join(' • ')}</p><p>Future: Parent call rehearsal pending • Future: Leadership simulation pending</p></article>
+      {activeTab === 'urban' && <article className="card top-space"><h2>Urban Evidence Report</h2>
+        {urbanReport ? <>
+          <p><strong>Evidence source:</strong> {urbanReport.completionReason === 'reflection_only' ? 'Reflection only' : urbanReport.completionReason === 'ended_early' ? 'Partial simulation + reflection' : 'Full simulation + reflection'}</p>
+          <p>{urbanReport.evidenceSummary}</p>
+          <p><strong>Leadership implications:</strong> {(urbanReport.leadershipImplications || []).join(' ')}</p>
+          <p><strong>Reflection insights:</strong> {(urbanReport.pressureTendencies || []).join(' ')}</p>
+          <p><strong>Recommended growth focus:</strong> {(urbanReport.growthEdges || []).join(' • ') || 'Continue collecting Urban evidence.'}</p>
+          <p><strong>Dimension contribution summary:</strong> {Object.values(urbanReport.dimensions || {}).map((d) => `${d.label}: ${d.score}/5`).join(' | ')}</p>
+        </> : <p>No Urban evidence found yet.</p>}
+        <div className="button-row top-space-sm">
+          <Link href="/day-in-the-life-urban-student" className="button secondary">Run Full Urban Simulation</Link>
+          <Link href="/human-equation-suite/urban-reflection" className="button secondary">Retake Urban Reflection</Link>
+        </div>
+      </article>}
 
     </div>
   </div></section>;
