@@ -83,14 +83,6 @@ export default function TranslatePage() {
     return stream;
   };
 
-  const blobToBase64 = (blob) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(String(reader.result).split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-
   const playTranslationAudio = useCallback(async (audioBase64, turnId = null) => {
     const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
     activeAudioRef.current = audio;
@@ -182,7 +174,11 @@ export default function TranslatePage() {
         recordingDurationMs,
       }));
 
-      const audioBase64 = await blobToBase64(audioFile);
+      const formData = new FormData();
+      formData.append('audio', audioFile, 'recording.webm');
+      formData.append('sourceLanguage', sourceLanguage);
+      formData.append('targetLanguage', targetLanguage);
+      formData.append('speaker', speaker);
       console.log('[translate] upload started', {
         speaker,
         blobSize: audioBlob.size,
@@ -190,8 +186,7 @@ export default function TranslatePage() {
       });
       const response = await fetch('/api/translate-turn', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audioBase64, mimeType: blobType, sourceLanguage, targetLanguage, speaker }),
+        body: formData,
       });
 
       const data = await response.json();
