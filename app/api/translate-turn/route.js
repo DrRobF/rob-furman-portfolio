@@ -73,8 +73,19 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No speech detected. Please try again.', step: 'transcription' }, { status: 400 });
     }
 
-    let translation = '';
-    try {
+    console.log('[translate-turn] transcript text', { transcript });
+
+    const extractTranslationText = (payload) => {
+      if (!payload || typeof payload !== 'object') return '';
+      if (typeof payload.output_text === 'string' && payload.output_text.trim()) return payload.output_text.trim();
+      if (Array.isArray(payload.choices)) {
+        const content = payload.choices?.[0]?.message?.content;
+        if (typeof content === 'string' && content.trim()) return content.trim();
+      }
+      return '';
+    };
+
+    const requestTranslation = async (prompt) => {
       const translationRes = await fetch('https://api.openai.com/v1/responses', {
         method: 'POST',
         headers: { ...headers(), 'Content-Type': 'application/json' },
@@ -83,25 +94,50 @@ export async function POST(request) {
           input: [
             {
               role: 'system',
-              content: 'You are a concise translator. Translate only, no explanation. Preserve meaning and tone.',
+              content: 'You are a translation engine. Return only the translated text. Do not explain.',
             },
-            { role: 'user', content: `Translate from ${sourceLanguage} to ${targetLanguage}: ${transcript}` },
+            { role: 'user', content: prompt },
           ],
         }),
       });
+      return translationRes;
+    };
+
+    let translation = '';
+    try {
+      const primaryPrompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}: ${transcript}`;
+      const translationRes = await requestTranslation(primaryPrompt);
 
       if (!translationRes.ok) {
         const detail = await safeDetail(translationRes, 'Translation failed.');
-        return NextResponse.json({ error: 'Translation failed', step: 'translation', detail }, { status: 500 });
+        return NextResponse.json({ error: 'Translation failed', step: 'translation', detail, transcript }, { status: 500 });
       }
 
       const translationJson = await translationRes.json();
-      translation = translationJson.output_text?.trim() || '';
+      translation = extractTranslationText(translationJson);
       if (!translation) {
-        return NextResponse.json({ error: 'Translation failed', step: 'translation', detail: 'Model returned blank translation.' }, { status: 400 });
+        console.error('[translate-turn] blank translation on primary prompt', { translationJson });
+        const retryPrompt = `Translate to ${targetLanguage}: ${transcript}`;
+        const retryRes = await requestTranslation(retryPrompt);
+        if (!retryRes.ok) {
+          const detail = await safeDetail(retryRes, 'Translation failed.');
+          return NextResponse.json({ error: 'Translation failed', step: 'translation', detail, transcript }, { status: 500 });
+        }
+        const retryJson = await retryRes.json();
+        translation = extractTranslationText(retryJson);
+        if (!translation) {
+          console.error('[translate-turn] blank translation on retry prompt', { retryJson });
+          return NextResponse.json(
+            { error: 'Translation failed', step: 'translation', detail: 'Model returned blank translation.', transcript },
+            { status: 400 }
+          );
+        }
       }
     } catch (error) {
-      return NextResponse.json({ error: 'Translation failed', step: 'translation', detail: error?.message || 'Unknown translation error.' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Translation failed', step: 'translation', detail: error?.message || 'Unknown translation error.', transcript },
+        { status: 500 }
+      );
     }
 
     try {
