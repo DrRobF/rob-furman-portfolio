@@ -21,6 +21,14 @@ export default function TranslatePage() {
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [blockedAudioTurnId, setBlockedAudioTurnId] = useState(null);
+  const [debugInfo, setDebugInfo] = useState({
+    recorderMimeType: '',
+    blobType: '',
+    blobSize: 0,
+    fileSize: 0,
+    recordingDurationMs: 0,
+    transcript: '',
+  });
 
   const mediaRecorderRef = useRef(null);
   const recordingStartTimeRef = useRef(0);
@@ -99,13 +107,15 @@ export default function TranslatePage() {
     setError('');
     try {
       const stream = await getMediaStream();
-      const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/wav'];
+      const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
       const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
       const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       audioChunksRef.current = [];
       recordingSpeakerRef.current = speaker;
       recordingStartTimeRef.current = Date.now();
-      console.log('[translate] recording started', { speaker, mimeType: recorder.mimeType || mimeType || 'default' });
+      const selectedRecorderMimeType = recorder.mimeType || mimeType || 'default';
+      console.log('[translate] recording started', { speaker, mimeType: selectedRecorderMimeType });
+      setDebugInfo((prev) => ({ ...prev, recorderMimeType: selectedRecorderMimeType, transcript: '' }));
       recorder.ondataavailable = (event) => {
         console.log('[translate] chunk received', { size: event.data?.size || 0, type: event.data?.type || 'unknown' });
         if (event.data?.size > 0) {
@@ -148,22 +158,40 @@ export default function TranslatePage() {
         throw new Error('No speech detected. Please try again.');
       }
 
-      const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-      console.log('[translate] blob finalized', { size: blob.size, type: blob.type || recorder.mimeType || 'audio/webm' });
-      if (!blob.size) {
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: recorder.mimeType || 'audio/webm',
+      });
+      const blobType = audioBlob.type || recorder.mimeType || 'audio/webm';
+      const recordingDurationMs = Date.now() - recordingStartTimeRef.current;
+      if (!audioBlob.type) {
+        throw new Error('Audio format not supported. Please try again.');
+      }
+      if (audioBlob.size === 0) {
         throw new Error('No audio recorded. Please try again.');
       }
+      const audioFile = new File([audioBlob], 'recording.webm', { type: audioBlob.type });
+      console.log('[translate] recorder mimeType', recorder.mimeType || 'unknown');
+      console.log('[translate] blob.type', blobType);
+      console.log('[translate] blob.size', audioBlob.size);
+      console.log('[translate] file.size', audioFile.size);
+      setDebugInfo((prev) => ({
+        ...prev,
+        blobType,
+        blobSize: audioBlob.size,
+        fileSize: audioFile.size,
+        recordingDurationMs,
+      }));
 
-      const audioBase64 = await blobToBase64(blob);
+      const audioBase64 = await blobToBase64(audioFile);
       console.log('[translate] upload started', {
         speaker,
-        blobSize: blob.size,
-        mimeType: blob.type || recorder.mimeType || 'audio/webm',
+        blobSize: audioBlob.size,
+        mimeType: blobType,
       });
       const response = await fetch('/api/translate-turn', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audioBase64, mimeType: blob.type || recorder.mimeType || 'audio/webm', sourceLanguage, targetLanguage, speaker }),
+        body: JSON.stringify({ audioBase64, mimeType: blobType, sourceLanguage, targetLanguage, speaker }),
       });
 
       const data = await response.json();
@@ -176,6 +204,7 @@ export default function TranslatePage() {
       }
 
       console.log('[translate] upload success', { transcriptLength: data.transcript.length });
+      setDebugInfo((prev) => ({ ...prev, transcript: data.transcript }));
 
       setStatus('Speaking translation');
       const nextTurn = { id: crypto.randomUUID(), ...data };
@@ -338,6 +367,19 @@ export default function TranslatePage() {
             <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>
           </section>
         ) : null}
+
+
+        <section className={styles.debugPanel}>
+          <h3>Recorder Debug (temporary)</h3>
+          <ul>
+            <li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li>
+            <li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li>
+            <li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li>
+            <li><strong>File size:</strong> {debugInfo.fileSize} bytes</li>
+            <li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li>
+            <li><strong>Transcript:</strong> {debugInfo.transcript || 'n/a'}</li>
+          </ul>
+        </section>
 
         <div className={styles.speakerDock}>
           <div className={styles.speakerRow}>
