@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server';
+
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const headers = () => ({ Authorization: `Bearer ${OPENAI_API_KEY}` });
@@ -26,11 +28,15 @@ export async function POST(request) {
     const { audioBase64, mimeType, sourceLanguage, targetLanguage, speaker } = body || {};
 
     if (!audioBase64 || !sourceLanguage || !targetLanguage || !speaker) {
-      return Response.json({ error: 'Missing required fields.' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
 
     const audioBytes = Buffer.from(audioBase64, 'base64');
     const safeMimeType = normalizeMimeType(mimeType) || 'audio/webm';
+
+    console.log('[translate-turn] received audioBase64 length', audioBase64.length);
+    console.log('[translate-turn] decoded audio buffer size', audioBytes.byteLength);
+    console.log('[translate-turn] selected languages', { sourceLanguage, targetLanguage });
 
     console.log('[translate-turn] Incoming audio payload', {
       blobSize: audioBytes.byteLength,
@@ -38,7 +44,7 @@ export async function POST(request) {
     });
 
     if (!audioBytes.byteLength) {
-      return Response.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
+      return NextResponse.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
     }
 
     const form = new FormData();
@@ -59,13 +65,14 @@ export async function POST(request) {
       body: transcriptionText,
     });
 
-    const transcript = transcriptionText.trim();
+    const transcript = transcriptionText?.trim() || '';
+    console.log('[translate-turn] transcription text', transcript);
     if (!transcriptionRes.ok) {
       throw new Error(transcript || 'Transcription failed.');
     }
 
     if (!transcript) {
-      return Response.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
+      return NextResponse.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
     }
 
     const translationRes = await fetch('https://api.openai.com/v1/responses', {
@@ -91,6 +98,10 @@ export async function POST(request) {
 
     const translation = translationJson.output_text?.trim() || '';
 
+    if (!translation.length) {
+      return NextResponse.json({ error: 'Translation failed. Please try again.' }, { status: 400 });
+    }
+
     const ttsRes = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
       headers: { ...headers(), 'Content-Type': 'application/json' },
@@ -104,8 +115,8 @@ export async function POST(request) {
 
     const ttsBase64 = Buffer.from(await ttsRes.arrayBuffer()).toString('base64');
 
-    return Response.json({ transcript, translation, audioBase64: ttsBase64, speaker, sourceLanguage, targetLanguage });
+    return NextResponse.json({ transcript, translation, audioBase64: ttsBase64, speaker, sourceLanguage, targetLanguage });
   } catch (error) {
-    return Response.json({ error: error.message || 'Translation request failed.' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Translation request failed.' }, { status: 500 });
   }
 }

@@ -151,7 +151,7 @@ export default function TranslatePage() {
       const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
       console.log('[translate] blob finalized', { size: blob.size, type: blob.type || recorder.mimeType || 'audio/webm' });
       if (!blob.size) {
-        throw new Error('No speech detected. Please try again.');
+        throw new Error('No audio recorded. Please try again.');
       }
 
       const audioBase64 = await blobToBase64(blob);
@@ -187,8 +187,9 @@ export default function TranslatePage() {
       setStatus('Ready');
     } catch (err) {
       console.error('[translate] upload failed', err);
-      setStatus('Error');
-      setError(err?.message?.includes('No speech detected') ? 'No speech detected. Please try again.' : (err.message || 'Something went wrong while translating.'));
+      const message = err?.message || 'Something went wrong while translating.';
+      setError(message);
+      setStatus('Ready');
     } finally {
       setActiveSpeaker(null);
       recordingSpeakerRef.current = null;
