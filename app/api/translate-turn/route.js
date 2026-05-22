@@ -2,6 +2,26 @@ import { NextResponse } from 'next/server';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const headers = () => ({ Authorization: `Bearer ${OPENAI_API_KEY}` });
+const openai = {
+  chat: {
+    completions: {
+      create: async ({ model, messages }) => {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { ...headers(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, messages }),
+        });
+
+        if (!res.ok) {
+          const detail = await safeDetail(res, 'Translation failed.');
+          throw new Error(detail);
+        }
+
+        return res.json();
+      },
+    },
+  },
+};
 
 const safeDetail = async (response, fallback) => {
   const text = await response.text();
@@ -75,58 +95,54 @@ export async function POST(request) {
 
     console.log('[translate-turn] transcript text', { transcript });
 
-    const extractTranslationText = (payload) => {
-      if (!payload || typeof payload !== 'object') return '';
-      if (typeof payload.output_text === 'string' && payload.output_text.trim()) return payload.output_text.trim();
-      if (Array.isArray(payload.choices)) {
-        const content = payload.choices?.[0]?.message?.content;
-        if (typeof content === 'string' && content.trim()) return content.trim();
-      }
-      return '';
-    };
-
-    const requestTranslation = async (prompt) => {
-      const translationRes = await fetch('https://api.openai.com/v1/responses', {
-        method: 'POST',
-        headers: { ...headers(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'gpt-4.1-mini',
-          input: [
-            {
-              role: 'system',
-              content: 'You are a translation engine. Return only the translated text. Do not explain.',
+    const sanitizeTranslationResponse = (response) => ({
+      id: response?.id || null,
+      model: response?.model || null,
+      created: response?.created || null,
+      usage: response?.usage || null,
+      choices: Array.isArray(response?.choices)
+        ? response.choices.map((choice, index) => ({
+            index: choice?.index ?? index,
+            finish_reason: choice?.finish_reason || null,
+            message: {
+              role: choice?.message?.role || null,
+              contentType: typeof choice?.message?.content,
+              hasContent: Boolean(choice?.message?.content),
             },
-            { role: 'user', content: prompt },
-          ],
-        }),
-      });
-      return translationRes;
-    };
+          }))
+        : [],
+    });
 
     let translation = '';
+    let usedFallbackTranslation = false;
+
     try {
-      const primaryPrompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}: ${transcript}`;
-      const translationRes = await requestTranslation(primaryPrompt);
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a translation engine. Return only the translated text. Do not explain.',
+          },
+          {
+            role: 'user',
+            content: `Translate this from ${sourceLanguage} to ${targetLanguage}: ${transcript}`,
+          },
+        ],
+      });
 
-      if (!translationRes.ok) {
-        const detail = await safeDetail(translationRes, 'Translation failed.');
-        return NextResponse.json({ error: 'Translation failed', step: 'translation', detail, transcript }, { status: 500 });
-      }
+      translation = response.choices?.[0]?.message?.content?.trim() || '';
 
-      const translationJson = await translationRes.json();
-      translation = extractTranslationText(translationJson);
       if (!translation) {
-        console.error('[translate-turn] blank translation on primary prompt', { translationJson });
-        const retryPrompt = `Translate to ${targetLanguage}: ${transcript}`;
-        const retryRes = await requestTranslation(retryPrompt);
-        if (!retryRes.ok) {
-          const detail = await safeDetail(retryRes, 'Translation failed.');
-          return NextResponse.json({ error: 'Translation failed', step: 'translation', detail, transcript }, { status: 500 });
-        }
-        const retryJson = await retryRes.json();
-        translation = extractTranslationText(retryJson);
-        if (!translation) {
-          console.error('[translate-turn] blank translation on retry prompt', { retryJson });
+        console.error('[translate-turn] blank translation response shape', {
+          transcript,
+          response: sanitizeTranslationResponse(response),
+        });
+
+        if (transcript) {
+          usedFallbackTranslation = true;
+          translation = `[Translation unavailable] ${transcript}`;
+        } else {
           return NextResponse.json(
             { error: 'Translation failed', step: 'translation', detail: 'Model returned blank translation.', transcript },
             { status: 400 }
@@ -138,6 +154,17 @@ export async function POST(request) {
         { error: 'Translation failed', step: 'translation', detail: error?.message || 'Unknown translation error.', transcript },
         { status: 500 }
       );
+    }
+
+    if (usedFallbackTranslation) {
+      return NextResponse.json({
+        transcript,
+        translation,
+        speaker,
+        sourceLanguage,
+        targetLanguage,
+        step: 'translation_fallback',
+      });
     }
 
     try {
