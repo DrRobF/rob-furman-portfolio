@@ -33,6 +33,8 @@ export default function TranslatePage() {
     lastApiErrorDetail: '',
     lastApiErrorTranscript: '',
     audioSizeWarning: '',
+    micInputLevel: 0,
+    micLevelWarning: '',
   });
 
   const recorderRef = useRef(null);
@@ -45,6 +47,10 @@ export default function TranslatePage() {
   const isCleaningUpRef = useRef(false);
   const isUploadingRef = useRef(false);
   const requestDataIntervalRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const micMeterAnimationRef = useRef(null);
+  const micStreamSourceRef = useRef(null);
 
   const statusClass = status.toLowerCase().replace(/\s+/g, '-');
 
@@ -55,6 +61,59 @@ export default function TranslatePage() {
     }
   }, []);
 
+  const stopMicMeter = useCallback(() => {
+    if (micMeterAnimationRef.current) {
+      cancelAnimationFrame(micMeterAnimationRef.current);
+      micMeterAnimationRef.current = null;
+    }
+    if (micStreamSourceRef.current) {
+      micStreamSourceRef.current.disconnect();
+      micStreamSourceRef.current = null;
+    }
+    if (analyserRef.current) {
+      analyserRef.current.disconnect();
+      analyserRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    setDebugInfo((prev) => ({ ...prev, micInputLevel: 0, micLevelWarning: '' }));
+  }, []);
+
+  const startMicMeter = useCallback(async (stream) => {
+    stopMicMeter();
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const audioContext = new AudioContextClass();
+    const source = audioContext.createMediaStreamSource(stream);
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 1024;
+    source.connect(analyser);
+    audioContextRef.current = audioContext;
+    micStreamSourceRef.current = source;
+    analyserRef.current = analyser;
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const tick = () => {
+      analyser.getByteTimeDomainData(dataArray);
+      let sumSquares = 0;
+      for (let i = 0; i < dataArray.length; i += 1) {
+        const normalized = (dataArray[i] - 128) / 128;
+        sumSquares += normalized * normalized;
+      }
+      const rms = Math.sqrt(sumSquares / dataArray.length);
+      const level = Math.min(100, Math.round(rms * 280));
+      setDebugInfo((prev) => ({
+        ...prev,
+        micInputLevel: level,
+        micLevelWarning: status === 'Recording' && level < 8 ? 'Microphone input appears very low.' : '',
+      }));
+      micMeterAnimationRef.current = requestAnimationFrame(tick);
+    };
+    tick();
+  }, [status, stopMicMeter]);
+
   const fullCleanup = useCallback((nextStatus = 'Ready', options = { forceStop: false }) => {
     if (options.forceStop) isForceStoppingRef.current = true;
     isCleaningUpRef.current = true;
@@ -64,6 +123,7 @@ export default function TranslatePage() {
     if (recorder && recorder.state === 'recording') recorder.stop();
 
     streamRef.current?.getTracks().forEach((track) => track.stop());
+    stopMicMeter();
     chunksRef.current = [];
     recorderRef.current = null;
     streamRef.current = null;
@@ -77,7 +137,7 @@ export default function TranslatePage() {
       isForceStoppingRef.current = false;
       isCleaningUpRef.current = false;
     }, 150);
-  }, [clearRequestTimer]);
+  }, [clearRequestTimer, stopMicMeter]);
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -101,11 +161,12 @@ export default function TranslatePage() {
     clearRequestTimer();
     if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
     streamRef.current?.getTracks().forEach((track) => track.stop());
+    stopMicMeter();
     chunksRef.current = [];
     recorderRef.current = null;
     streamRef.current = null;
     activeAudioRef.current?.pause();
-  }, [clearRequestTimer]);
+  }, [clearRequestTimer, stopMicMeter]);
 
   const selectedPairId = useMemo(() => {
     const match = LANGUAGE_PAIRS.find((pair) =>
@@ -154,9 +215,12 @@ export default function TranslatePage() {
         lastApiErrorDetail: '',
         lastApiErrorTranscript: '',
         audioSizeWarning: '',
+        micInputLevel: 0,
+        micLevelWarning: '',
       }));
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+      await startMicMeter(stream);
 
       const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
       const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
@@ -261,7 +325,7 @@ export default function TranslatePage() {
       fullCleanup('Error');
       setError('Microphone permission is needed to translate speech.');
     }
-  }, [clearRequestTimer, fullCleanup, playTranslationAudio, sourceLanguage, status, targetLanguage]);
+  }, [clearRequestTimer, fullCleanup, playTranslationAudio, sourceLanguage, startMicMeter, status, targetLanguage]);
 
   const stopRecording = useCallback(() => {
     const recorder = recorderRef.current;
@@ -315,7 +379,7 @@ export default function TranslatePage() {
     setLesson(null);
     setError('');
     setBlockedAudioTurnId(null);
-    setDebugInfo((prev) => ({ ...prev, lastApiErrorStep: '', lastApiErrorDetail: '' }));
+    setDebugInfo((prev) => ({ ...prev, lastApiErrorStep: '', lastApiErrorDetail: '', lastApiErrorTranscript: '', transcript: '' }));
   };
 
   return (<section className={`${styles.wrapper} section`}><div className={`container ${styles.container}`}>
@@ -342,7 +406,7 @@ export default function TranslatePage() {
             <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>
           </section>
         ) : null}
-    <section className={styles.debugPanel}><h3>Recorder Debug (temporary)</h3><ul><li><strong>Current status:</strong> {status}</li><li><strong>Active speaker:</strong> {activeSpeaker || 'n/a'}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li><li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>File size:</strong> {debugInfo.fileSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Chunk count:</strong> {debugInfo.chunkCount}</li><li><strong>Transcript:</strong> {debugInfo.transcript || 'n/a'}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li><li><strong>Last API error transcript:</strong> {debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Audio warning:</strong> {debugInfo.audioSizeWarning || 'n/a'}</li></ul></section>
+    <section className={styles.debugPanel}><h3>Recorder Debug (temporary)</h3><ul><li><strong>Current status:</strong> {status}</li><li><strong>Active speaker:</strong> {activeSpeaker || 'n/a'}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li><li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>File size:</strong> {debugInfo.fileSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Chunk count:</strong> {debugInfo.chunkCount}</li><li><strong>Live mic input level:</strong> {debugInfo.micInputLevel || 0}/100<div className={styles.micMeter}><div className={styles.micMeterFill} style={{ width: `${debugInfo.micInputLevel || 0}%` }} /></div>{debugInfo.micLevelWarning ? <div className={styles.micMeterWarning}>{debugInfo.micLevelWarning}</div> : null}</li><li><strong>Transcript:</strong> {debugInfo.transcript || debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li><li><strong>Last API error transcript:</strong> {debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Audio warning:</strong> {debugInfo.audioSizeWarning || 'n/a'}</li></ul></section>
     <div className={styles.speakerDock}><div className={styles.speakerRow}>{[{ key: 'me', label: 'I’m Speaking' }, { key: 'them', label: 'They’re Speaking' }].map((speaker) => <button key={speaker.key} id={`speaker-${speaker.key}`} name={`speaker-${speaker.key}`} type="button" className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`} onClick={() => toggleSpeaker(speaker.key)} disabled={isProcessing}><span>{speaker.label}</span>{activeSpeaker === speaker.key ? <small>Listening… Click to stop</small> : <small>Click to start</small>}</button>)}</div></div>
   </div></section>);
 }

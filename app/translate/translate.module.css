@@ -169,3 +169,23 @@
   color: #d6e2fb;
   margin: 0.2rem 0;
 }
+
+.micMeter {
+  margin-top: 0.35rem;
+  width: 100%;
+  max-width: 260px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.micMeterFill {
+  height: 100%;
+  background: linear-gradient(90deg, #55d57f 0%, #6fa2ff 60%, #8a78ff 100%);
+}
+
+.micMeterWarning {
+  margin-top: 0.35rem;
+  color: #ffd39f;
+}
