@@ -62,7 +62,7 @@ export const calculateFactorProfile = (events = [], factorId) => {
   const averageConfidence = impacts.reduce((s, i) => s + (i.confidence ?? 0.6), 0) / impacts.length;
   const sourceTypes = [...new Set(related.map((e) => e.sourceType))];
   const count = impacts.length;
-  const maturityLevel = count === 0 ? 'No evidence yet' : count === 1 ? 'Early signal' : count <= 3 ? 'Emerging' : count <= 7 ? 'Developing' : (count >= 12 && sourceTypes.length >= 3) ? 'Strongly supported' : (count >= 8 && sourceTypes.length >= 2) ? 'Supported' : 'Developing';
+  const maturityLevel = count === 0 ? 'No evidence yet' : count === 1 ? 'Baseline signal' : count === 2 ? 'Early profile' : count <= 4 ? 'Developing pattern' : 'Supported pattern';
   const score = Math.max(1, Math.min(5, +(3 + (weightedDelta / Math.max(1, weightedEvidence)) * 1.8).toFixed(2)));
   return {
     totalEvidenceEvents: count,
@@ -74,7 +74,13 @@ export const calculateFactorProfile = (events = [], factorId) => {
     sourceTypes,
     score,
     maturityLevel,
-    currentRead: maturityLevel === 'No evidence yet' ? 'Not enough evidence yet' : maturityLevel === 'Early signal' ? 'More behavioral data needed.' : 'Pattern improving with accumulating evidence.',
+    currentRead: maturityLevel === 'No evidence yet'
+      ? 'No evidence yet.'
+      : maturityLevel === 'Baseline signal'
+        ? 'Baseline signal from one source. A second experience will sharpen this.'
+        : maturityLevel === 'Early profile'
+          ? 'Early profile — useful, but still forming.'
+          : 'Pattern is strengthening with repeated evidence.',
   };
 };
 

@@ -23,7 +23,18 @@ const reportTabs = [
   { key: 'executive', label: 'Executive Reports' },
 ];
 
-const confidenceLabel = (eventCount) => (eventCount < 4 ? 'Early read' : eventCount < 10 ? 'Developing' : 'Supported');
+const confidenceLabel = (eventCount) => (eventCount === 0 ? 'No evidence yet' : eventCount === 1 ? 'Baseline signal' : eventCount === 2 ? 'Early profile' : eventCount <= 4 ? 'Developing pattern' : 'Supported pattern');
+const directUrbanFactors = new Set(['humanAwareness', 'regulationUnderPressure', 'realityAnchoring', 'trustConstruction', 'grayAreaLeadership']);
+const factorCoachingCopy = {
+  regulationUnderPressure: { see: 'You appear able to stay outwardly steady, but pressure may still speed up interpretation underneath.', drift: 'Looking calm while deciding too quickly.', move: 'Slow the moment before you name the problem.' },
+  humanAwareness: { see: 'You are paying attention to the person behind the behavior, not just the behavior itself.', drift: 'Turning a human situation into a task too quickly.', move: 'Ask what the person may be protecting before deciding what they need.' },
+  trustConstruction: { see: 'You tend to preserve dignity, but trust will depend on how clearly you name next steps.', drift: 'Soothing before clarifying.', move: 'Say what is known, what is not known, and what happens next.' },
+  realityAnchoring: { see: 'You are beginning to separate story from evidence.', drift: 'Mistaking urgency for clarity.', move: 'Name what is known, unknown, and still needs checking.' },
+  grayAreaLeadership: { see: 'You can sit with complexity without immediately forcing a clean answer.', drift: 'Waiting too long for certainty.', move: 'Name the competing truths and choose the least harmful next step.' },
+  teamSystemsLeadership: { see: 'Mostly baseline evidence so far; future leadership simulations will sharpen how you organize adults, roles, and follow-through.', drift: 'Solving the moment without fixing the pattern.', move: 'Ask what system allowed the problem to repeat.' },
+  instructionalAcademicLeadership: { see: 'Mostly baseline evidence so far. The profile needs more live evidence about how you protect learning when the day gets noisy.', drift: 'Letting the crisis fully displace the learning purpose.', move: 'Reconnect the response to what students and teachers need next.' },
+  visionChangeLeadership: { see: 'Mostly baseline evidence so far. We need more evidence about how you keep direction visible during uncertainty.', drift: 'Managing the present so tightly that the future disappears.', move: 'Name the destination and the next visible step.' },
+};
 
 export default function HumanEquationDashboardPage() {
   const [events, setEvents] = useState([]);
@@ -61,6 +72,7 @@ export default function HumanEquationDashboardPage() {
   const growthTension = scoredFactors.filter((x) => x.totalEvidenceEvents > 0).sort((a, b) => a.totalEvidenceEvents - b.totalEvidenceEvents)[0];
   const recommendedRecovery = scoredFactors.filter((x) => x.riskMarkers > 0).sort((a, b) => b.riskMarkers - a.riskMarkers)[0];
   const confidence = confidenceLabel(events.length);
+  const profileStatus = confidence === 'Early profile' ? 'Early profile — useful, but still forming.' : confidence;
   const hasRadarData = scoredFactors.filter((f) => f.score !== null).length >= 3;
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return;
@@ -69,15 +81,17 @@ export default function HumanEquationDashboardPage() {
 
   const renderReportPanel = () => {
     if (activeReport === 'timeline') {
-      return <article className="card hes-report-card hes-active-report"><h2>Evidence Timeline</h2>{timeline.length === 0 ? <p>No evidence captured yet. Complete the diagnostic or a simulation to begin building your profile.</p> : <div className="hes-timeline">{timeline.map((event) => <article key={event.id}><div className="node">•</div><h4>{event.sourceLabel}</h4><p>{new Date(event.timestamp).toLocaleString('en-US')} · {title(event.sourceType)} · {event.evidenceType === 'diagnostic_self_report' ? 'Self-report baseline' : 'Behavioral evidence'}</p><p>Factors: {event.factorImpacts.map((x) => x.factorId).join(', ')}</p><p>{event.summary}</p></article>)}</div>}</article>;
+      return <article className="card hes-report-card hes-active-report"><h2>Evidence Timeline</h2>{timeline.length === 0 ? <p>No evidence captured yet. Complete the diagnostic or a simulation to begin building your profile.</p> : <div className="hes-timeline">{timeline.map((event) => <article key={event.id}><div className="node">•</div><h4>{event.sourceLabel}</h4><p>{new Date(event.timestamp).toLocaleString('en-US')} · {event.evidenceType === 'diagnostic_self_report' ? 'Self-report baseline' : 'Behavioral evidence'}</p><p><strong>Factors touched:</strong> {event.factorImpacts.map((x) => x.factorId).join(', ')}</p><p><strong>What it added:</strong> {event.sourceType === 'urban_sim' ? 'Added behavioral evidence around human awareness, regulation, trust, reality anchoring, and gray-area judgment.' : event.sourceType === 'diagnostic' ? 'Created baseline self-perception across all eight factors.' : event.summary}</p></article>)}</div>}</article>;
     }
     if (activeReport === 'recovery') {
-      return <article className="card hes-report-card hes-active-report"><h2>Recovery Practices</h2><div className="hes-ladder"><p><strong>Recommended next simulation:</strong> {getNextRecommendedSimulation(events)}</p><p><strong>Primary recovery move:</strong> {recommendedRecovery ? `Build micro-recovery routines for ${recommendedRecovery.label}.` : 'Early read — more evidence needed.'}</p><p><strong>Signal hygiene:</strong> Label diagnostic inputs as self-report baseline; treat simulation artifacts as behavioral evidence.</p></div></article>;
+      return <article className="card hes-report-card hes-active-report"><h2>Recovery Practices</h2><div className="hes-ladder"><p><strong>Best next move:</strong> Keep slowing the moment before deciding what it means.</p><p><strong>In the moment:</strong> Name what is known, what is not known, and what can wait.</p><p><strong>After the moment:</strong> Close the loop with one clear next step.</p><p><strong>What to practice in the next sim:</strong> {getNextRecommendedSimulation(events)}</p></div></article>;
     }
     if (activeReport === 'executive') {
-      return <article className="card hes-report-card hes-active-report"><h2>Executive Pressure Report</h2><div className="hes-exec-grid"><article><h4>Profile confidence</h4><p>{confidence} {events.length < 4 ? '— Current evidence is not yet broad enough for a stable behavioral profile.' : '— Pattern is strengthening with accumulated events.'}</p></article><article><h4>Strongest supported factors</h4><p>{strongest ? strongest.label : 'No dominant pattern yet.'}</p></article><article><h4>Evidence mix</h4><p>Self-report baseline: {events.filter((e) => e.sourceType === 'diagnostic').length} · Behavioral evidence: {events.filter((e) => e.sourceType !== 'diagnostic').length}</p></article><article><h4>Next evidence target</h4><p>Add parent call and leadership artifacts to strengthen interpersonal and systems evidence depth.</p></article></div></article>;
+      return <article className="card hes-report-card hes-active-report"><h2>Executive Pressure Report</h2><div className="hes-exec-grid"><article><h4>Profile status</h4><p>{profileStatus}</p></article><article><h4>Evidence used</h4><p>Self-report baseline: Leadership Diagnostic<br />Behavioral evidence: Urban Student Simulation</p></article><article><h4>What this already suggests</h4><p>Your early profile suggests a leader who notices human context and can stay steady in emotionally loaded moments. The strongest early signal is {strongest ? strongest.label : 'still forming'}, and the next best evidence target is how you organize adults, systems, and follow-through under pressure.</p></article><article><h4>Pressure drift to watch</h4><p>No major drift has repeated yet, but the current profile should watch for solving too quickly once urgency rises.</p></article></div></article>;
     }
-    return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-trigger-map">{scoredFactors.map((factor) => <span key={factor.key} style={{ '--w': `${Math.min(100, 25 + (factor.riskMarkers * 12))}%` }}>{factor.label}: {factor.riskMarkers > factor.positiveMarkers ? 'Pressure risk active' : 'No dominant distortion yet'}</span>)}</div></article>;
+    const driftFactor = activeDistortion || scoredFactors.find((f) => f.totalEvidenceEvents > 0);
+    const copy = driftFactor ? factorCoachingCopy[driftFactor.key] : null;
+    return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-ladder"><p><strong>Current early read:</strong> This is not a fixed pattern yet. It is the drift most worth watching next.</p><p><strong>Likely drift to watch:</strong> {copy?.drift || 'Solving too quickly once urgency rises.'}</p><p><strong>What could trigger it:</strong> High urgency, emotional ambiguity, and incomplete information.</p><p><strong>How to interrupt it:</strong> {copy?.move || 'Pause, name knowns/unknowns, then decide.'}</p><p><strong>Factors most connected:</strong> {driftFactor?.label || 'Regulation Under Pressure'} + Reality Anchoring + Trust Construction.</p></div></article>;
   };
 
   return <section className="section section-light"><div className="container"><LanguageSwitcher /><HumanEquationNav />
@@ -124,9 +138,11 @@ export default function HumanEquationDashboardPage() {
           {!p.score ? <><p><strong>No evidence yet</strong></p><p>More behavioral data needed.</p></> : <><p><strong>{p.score.toFixed(2)} / 5</strong></p><p><span className="badge badge-blue">{p.maturityLevel}</span></p></>}
           <p><strong>Sources:</strong> {sourceLabel}</p>
           <p><strong>Evidence count:</strong> {p.totalEvidenceEvents} · <strong>Last updated:</strong> {p.latestUpdatedAt ? new Date(p.latestUpdatedAt).toLocaleString('en-US') : 'Not yet'}</p>
-          <p><strong>Current read:</strong> {p.totalEvidenceEvents <= 1 ? 'Early read — more behavioral data needed.' : p.currentRead}</p>
-          <p><strong>Pressure risk:</strong> {p.riskMarkers > p.positiveMarkers ? 'Emerging pressure risk' : 'No dominant pressure risk yet'}</p>
-          <p><strong>Recovery move:</strong> {p.riskMarkers ? 'Pause-label-reframe before next high-stakes interaction.' : 'Maintain current stabilizing routine.'}</p>
+          <p><strong>What we can already see:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].see}</p>
+          <p><strong>Pressure drift to watch:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].drift}</p>
+          <p><strong>Next practice move:</strong> {p.totalEvidenceEvents === 0 ? 'Complete Diagnostic and Urban Simulation.' : factorCoachingCopy[key].move}</p>
+          <p><strong>Current read:</strong> {p.currentRead}</p>
+          <p><strong>Maturity:</strong> <span className="badge badge-blue">{p.maturityLevel}</span> {p.sourceTypes.includes('urban_sim') && directUrbanFactors.has(key) ? <span className="badge badge-green">Direct behavioral signal</span> : null}</p>
           <details><summary>View deeper analysis</summary><p>{factor.shortDefinition}</p><p>Confidence: {(p.averageConfidence * 100).toFixed(0)}% · Weighted evidence: {p.weightedEvidence}</p></details>
         </article>;
       })}</div></article>
