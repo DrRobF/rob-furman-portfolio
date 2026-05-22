@@ -4,51 +4,35 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const headers = () => ({ Authorization: `Bearer ${OPENAI_API_KEY}` });
 
-const normalizeMimeType = (mimeType = '') => mimeType.toLowerCase().split(';')[0].trim();
-
-const base64ByteLength = (base64 = '') => {
-  const sanitized = base64.replace(/\s/g, '');
-  const padding = sanitized.endsWith('==') ? 2 : sanitized.endsWith('=') ? 1 : 0;
-  return Math.floor((sanitized.length * 3) / 4) - padding;
-};
-
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const { audioBase64, mimeType, sourceLanguage, targetLanguage, speaker } = body || {};
+    const formData = await request.formData();
+    const audio = formData.get('audio');
+    const sourceLanguage = formData.get('sourceLanguage');
+    const targetLanguage = formData.get('targetLanguage');
+    const speaker = formData.get('speaker');
 
-    if (!audioBase64 || !sourceLanguage || !targetLanguage || !speaker) {
+    if (!audio || !sourceLanguage || !targetLanguage || !speaker) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
 
-    const safeMimeType = normalizeMimeType(mimeType) || 'audio/webm';
-    const base64Data = audioBase64.includes(',') ? audioBase64.split(',')[1] : audioBase64;
-    const audioBuffer = Buffer.from(base64Data, 'base64');
+    if (!(audio instanceof File)) {
+      return NextResponse.json({ error: 'Invalid audio upload.' }, { status: 400 });
+    }
 
-    console.log('[translate-turn] received audioBase64 length', audioBase64.length);
-    console.log('[translate-turn] audioBase64 startsWith data:', audioBase64.startsWith('data:'));
-    console.log('[translate-turn] decoded audioBuffer.length', audioBuffer.length);
-    console.log('[translate-turn] expected decoded bytes from base64', base64ByteLength(base64Data));
-    console.log('[translate-turn] selected languages', { sourceLanguage, targetLanguage });
-
-    console.log('[translate-turn] Incoming audio payload', {
-      blobSize: audioBuffer.byteLength,
-      mimeType: safeMimeType,
-    });
-
-    if (!audioBuffer.byteLength) {
+    if (audio.size <= 0) {
       return NextResponse.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
     }
 
-    const audioFile = new File([audioBuffer], 'recording.webm', { type: 'audio/webm' });
-    console.log('[translate-turn] file reconstruction', {
-      audioFileName: audioFile.name,
-      audioFileType: audioFile.type,
-      audioFileSize: audioFile.size,
+    console.log('[translate-turn] uploaded file', {
+      audioFileName: audio.name,
+      audioFileType: audio.type,
+      audioFileSize: audio.size,
     });
+    console.log('[translate-turn] selected languages', { sourceLanguage, targetLanguage });
 
     const form = new FormData();
-    form.append('file', audioFile);
+    form.append('file', audio);
     form.append('model', 'gpt-4o-transcribe');
     form.append('response_format', 'text');
 
