@@ -50,6 +50,7 @@ export const toMasterProfileFromDiagnostic = (diagnosticResult) => {
       blendedCompositeScore: Number.isFinite(score) ? score : null,
       confidence: confidenceMap[dimension?.confidenceLevel] || 'needs_more_evidence',
       trend: 'Baseline established; awaiting simulation trendline',
+      growthNote: DIMENSION_INSIGHTS[key],
       strongestEvidenceSource: Number.isFinite(score) ? 'Leadership Diagnostic baseline' : 'Awaiting simulation blend',
       statusProgress: Number.isFinite(score) ? Math.round((score / 5) * 100) : 0,
       evidenceWeights: { diagnostic: Number.isFinite(score) ? 1 : 0, parentCall: 0, leadershipSim: 0, urbanSim: 0, observationLab: 0 },
@@ -81,7 +82,7 @@ export const blendUrbanEvidenceIntoProfile = (profile, urbanReport) => {
   const next = profile ? { ...profile } : createEmptyMasterProfile();
   next.profileVersion = 2;
   next.generatedAt = urbanReport.completedAt || new Date().toISOString();
-  next.simulationHistory = [...(next.simulationHistory || []), { source: 'Urban Student Simulation', completedAt: urbanReport.completedAt || null, status: 'completed' }];
+  next.simulationHistory = [...new Map([...(next.simulationHistory || []), { source: 'Urban Student Simulation', completedAt: urbanReport.completedAt || null, status: 'completed' }].map((e)=>[e.source,e])).values()];
   next.evidenceSources = { ...next.evidenceSources, urbanSim: { ...next.evidenceSources.urbanSim, status: 'completed', completion: 100, latestUpdate: urbanReport.completedAt ? new Date(urbanReport.completedAt).toLocaleString('en-US') : 'Just now', contribution: 'Observed human interpretation under emotional load; weighted heavily for awareness, regulation, trust, and anchoring.' } };
 
   const urbanDimensionWeights = {
@@ -109,7 +110,7 @@ export const blendUrbanEvidenceIntoProfile = (profile, urbanReport) => {
       blendedCompositeScore: Number.isFinite(blended) ? blended : null,
       strongestEvidenceSource: Number.isFinite(urbanScore) ? 'Urban Student Simulation behavioral evidence' : baseDimension.strongestEvidenceSource,
       confidence: urbanReport.confidenceScore >= 0.75 ? 'high' : urbanReport.confidenceScore >= 0.58 ? 'moderate' : 'early',
-      growthNote: urbanReport.dimensions?.[key]?.narrative || baseDimension.growthNote,
+      growthNote: urbanReport.dimensions?.[key]?.narrative || DIMENSION_INSIGHTS[key] || baseDimension.growthNote,
       trend: Number.isFinite(urbanScore) ? 'Behavioral evidence now active under emotional load.' : baseDimension.trend,
       evidenceWeights: { ...(baseDimension.evidenceWeights || {}), diagnostic: Number.isFinite(baseline) ? diagnosticWeight : 0, urbanSim: Number.isFinite(urbanScore) ? urbanWeight : 0 },
       statusProgress: Number.isFinite(blended) ? Math.round((blended / 5) * 100) : (baseDimension.statusProgress || 0),
@@ -136,4 +137,64 @@ export const blendUrbanEvidenceIntoProfile = (profile, urbanReport) => {
     confidenceNarrative: 'Urban simulation evidence increased interpretive confidence most in awareness, regulation, trust, and reality anchoring.',
   };
   return next;
+};
+
+
+const DISTORTION_LIBRARY = {
+  avoider: {
+    name: 'Avoider',
+    pattern: 'Protecting stability by delaying direct tension.',
+    looksLike: 'Difficult feedback or conflict conversations get postponed until urgency escalates.',
+    why: 'Delay can erode trust because people feel uncertainty and mixed signals.',
+    practice: 'Name the hard truth earlier, then pair it with a dignity-preserving path forward.',
+  },
+  controller: {
+    name: 'Controller',
+    pattern: 'Narrowing options to regain certainty under pressure.',
+    looksLike: 'Fast decisions with limited input and reduced curiosity when stakes feel high.',
+    why: 'Speed without shared meaning can weaken commitment and execution quality.',
+    practice: 'Pause for one evidence check and one perspective check before final direction.',
+  },
+  rescuer: {
+    name: 'Rescuer',
+    pattern: 'Over-functioning for others to prevent discomfort.',
+    looksLike: 'Taking on too much ownership and softening accountability language.',
+    why: 'Short-term relief can reduce long-term growth and role clarity.',
+    practice: 'Support clearly while returning ownership of next steps to the right person.',
+  },
+};
+
+const DIMENSION_INSIGHTS = {
+  regulationUnderPressure: 'Stability under pressure is forming, but live ambiguity still affects pacing.',
+  humanAwareness: 'Evidence suggests growing attention to context behind surface behavior.',
+  trustConstruction: 'Trust may weaken when urgency pushes interpretation too quickly.',
+  realityAnchoring: 'Watch for moments where emotional load narrows evidence-gathering.',
+  grayAreaLeadership: 'Context is being considered, but consistency still needs clearer explanation.',
+  teamSystemsLeadership: 'System routines appear important but not yet fully developed in evidence.',
+  instructionalAcademicLeadership: 'Instructional evidence is still early; future observation work will sharpen this.',
+  visionChangeLeadership: 'Purpose language is present, but change leadership needs more behavioral evidence.',
+};
+
+export const createInterpretation = (profile, diagnosticResult, urbanReport) => {
+  const values = Object.values(profile?.dimensions || {}).filter((d) => Number.isFinite(d.blendedCompositeScore));
+  const sorted = [...values].sort((a,b)=>b.blendedCompositeScore-a.blendedCompositeScore);
+  const top = sorted[0];
+  const low = sorted[sorted.length-1];
+  const distortionKey = (urbanReport?.distortions?.[0] || diagnosticResult?.topDistortions?.[0] || 'controller').toLowerCase();
+  const distortion = DISTORTION_LIBRARY[distortionKey] || DISTORTION_LIBRARY.controller;
+  const confidence = Math.round(((profile?.confidenceLevels?.blended || 0.35) * 100));
+  return {
+    pressureIdentity: distortion.name,
+    emergingPattern: top ? `${top.label} is currently the strongest demonstrated capacity.` : 'Early evidence is still forming a clear strength pattern.',
+    keyContradiction: top && low ? `You can show ${top.label.toLowerCase()} while ${low.label.toLowerCase()} softens under pressure.` : 'Need more evidence to define a core tension.',
+    trustUnderStress: 'Under combined urgency and ambiguity, trust can drop when interpretation outruns inquiry.',
+    mostFragileCapacity: low?.label || 'Needs more evidence',
+    strongestCapacity: top?.label || 'Needs more evidence',
+    recommendedCoachingFocus: `Coach for ${low?.label || 'trust construction'} with short cycles of evidence-check, intent naming, and clear next-step framing.`,
+    nextBestStep: profile?.recommendations?.nextSimulation || 'Run Parent Call Rehearsal next to stress-test trust language.',
+    confidenceNarrative: confidence >= 70 ? 'Confidence is strengthening because self-report and simulation evidence are converging.' : 'Confidence is moderate; additional simulations will sharpen signal reliability.',
+    summary: `Your current evidence suggests a leader who values human context while pressure can narrow interpretation speed. ${top ? `${top.label} is the clearest current strength, and ${low?.label || 'a lower-capacity area'} is the key growth tension.` : 'The profile is still developing across dimensions.'} The next growth target is building trust while keeping reality anchoring active under live urgency.`,
+    reflectionQuestion: `When urgency rises this week, how will you protect ${low?.label || 'your growth edge'} without losing relational trust?`,
+    pressureIdentityDetails: [distortion],
+  };
 };
