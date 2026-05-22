@@ -1870,6 +1870,14 @@ const metricOrder = ['sleep', 'stress', 'time', 'care'];
 const initialMetrics = { sleep: 0, stress: 0, time: 0, care: 0 };
 const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 const dayProgressLabels = ['Morning', 'Early School Day', 'Midday', 'Afternoon', 'End of Day', 'Reflection'];
+const postSimReflectionQuestions = [
+  { id: 'shaped_behavior', prompt: 'What most shaped Adam’s behavior during the day?', options: [{ text: 'Unaddressed emotional and safety stressors', dims: ['humanAwareness', 'realityAnchoring'] }, { text: 'Mainly individual motivation and effort', dims: ['instructionalAcademicLeadership'] }, { text: 'System routines and intervention gaps', dims: ['teamSystemsLeadership', 'realityAnchoring'] }] },
+  { id: 'adult_intervention', prompt: 'Where was the first adult intervention most likely to change the day?', options: [{ text: 'Arrival and first-contact transitions', dims: ['teamSystemsLeadership', 'trustConstruction'] }, { text: 'Only after visible behavior escalation', dims: ['realityAnchoring'] }, { text: 'During instruction with dignity-preserving redirection', dims: ['instructionalAcademicLeadership', 'trustConstruction'] }] },
+  { id: 'dignity_response', prompt: 'Which response best preserves student dignity and expectations?', options: [{ text: 'Clear boundaries with context-aware support', dims: ['grayAreaLeadership', 'regulationUnderPressure'] }, { text: 'Immediate compliance-first correction', dims: ['teamSystemsLeadership'] }, { text: 'Delay response until behavior passes', dims: ['humanAwareness'] }] },
+  { id: 'system_routine', prompt: 'What system routine could reduce repeated escalation?', options: [{ text: 'Predictable check-ins and adult handoff routines', dims: ['teamSystemsLeadership', 'visionChangeLeadership'] }, { text: 'Stricter consequence ladder only', dims: ['realityAnchoring'] }, { text: 'Teacher-by-teacher improvisation', dims: ['grayAreaLeadership'] }] },
+  { id: 'leader_response', prompt: 'How should a leader respond when behavior and context are both real?', options: [{ text: 'Hold accountability and context together', dims: ['grayAreaLeadership', 'trustConstruction'] }, { text: 'Prioritize policy optics first', dims: ['visionChangeLeadership'] }, { text: 'Avoid decision until complete certainty', dims: ['realityAnchoring'] }] },
+  { id: 'staff_understand', prompt: 'What should staff understand after this simulation?', options: [{ text: 'Behavior is often the surface of accumulated stress', dims: ['humanAwareness', 'instructionalAcademicLeadership'] }, { text: 'Fast correction is always the best intervention', dims: ['regulationUnderPressure'] }, { text: 'Most moments are isolated incidents', dims: ['realityAnchoring'] }] },
+];
 
 export default function DayInTheLifeUrbanStudentPage() {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
@@ -1892,14 +1900,17 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [hiddenSceneImages, setHiddenSceneImages] = useState({});
   const [microReflectionAnswers, setMicroReflectionAnswers] = useState({});
   const [completionReason, setCompletionReason] = useState('completed');
+  const [postReflectionAnswers, setPostReflectionAnswers] = useState({});
 
   const scene = sceneById[sceneId] ?? urbanStudentScenes[0];
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (sceneId !== 'scene_urban_report_complete') return;
+    const answered = Object.keys(postReflectionAnswers).length === postSimReflectionQuestions.length;
+    if (!answered) return;
     const completedAt = new Date().toISOString();
-    const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt, completionReason });
+    const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt, completionReason, postReflectionAnswers, reflectionQuestions: postSimReflectionQuestions });
     window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(urbanReport));
 
     const existingMaster = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
@@ -1909,7 +1920,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     window.setTimeout(() => {
       window.location.assign('/human-equation-suite/dashboard?tab=urban');
     }, 1200);
-  }, [sceneId, selectedChoices, cumulativeMetrics, completionReason]);
+  }, [sceneId, selectedChoices, cumulativeMetrics, completionReason, postReflectionAnswers]);
 
 
   const scrollToTopOnSceneChange = () => {
@@ -1963,6 +1974,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     scrollToTopOnSceneChange();
     setSelectedChoices({});
     setCumulativeMetrics(initialMetrics);
+    setPostReflectionAnswers({});
     setRevealedGroupCounts({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
     setShowInsights({});
     setMicroReflectionAnswers({});
@@ -2301,14 +2313,34 @@ export default function DayInTheLifeUrbanStudentPage() {
         <article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
   }
   if (sceneId === 'scene_urban_report_complete') {
+    const answeredCount = Object.keys(postReflectionAnswers).length;
+    const allAnswered = answeredCount === postSimReflectionQuestions.length;
     return (
       <main className="urban-student-page">
         <section className="experience-shell">
           <HumanEquationNav />
           <article className="scene-card">
             <p className="section-label">Completion</p>
-            <h1>Urban Simulation complete. Opening your dashboard…</h1>
-            <p className="paragraph-card">Your Urban evidence was automatically saved and added to your Human Equation dashboard.</p>
+            <h1>Urban Simulation complete: Post-simulation reflection</h1>
+            <p className="paragraph-card">Answer all reflection questions to finalize Urban evidence and open your dashboard report tab.</p>
+            {postSimReflectionQuestions.map((question) => (
+              <div key={question.id}>
+                <p><strong>{question.prompt}</strong></p>
+                {question.options.map((option) => (
+                  <button
+                    key={option.text}
+                    type="button"
+                    className="button secondary"
+                    style={{ textAlign: 'left', marginTop: 6 }}
+                    onClick={() => setPostReflectionAnswers((prev) => ({ ...prev, [question.id]: option.text }))}
+                  >
+                    {postReflectionAnswers[question.id] === option.text ? '✓ ' : ''}{option.text}
+                  </button>
+                ))}
+              </div>
+            ))}
+            <p className="paragraph-card">Progress: {answeredCount} / {postSimReflectionQuestions.length}</p>
+            {!allAnswered ? <p className="paragraph-card"><em>Complete all items to save Urban evidence.</em></p> : <p className="paragraph-card"><em>Saving and redirecting to dashboard…</em></p>}
           </article>
         </section>
       </main>

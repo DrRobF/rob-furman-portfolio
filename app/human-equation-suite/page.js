@@ -95,9 +95,9 @@ export default function HumanEquationSuitePage() {
       eyebrow: 'Human Equation Suite'
     }
     : {
-      title: 'The Human Equation', subtitle: 'AI-powered leadership rehearsal for the moments that test judgment, trust, and emotional control.',
-      body: 'The Human Equation helps school leaders practice the human side of leadership: difficult parent conversations, pressure-filled decisions, student-centered perspective, and reflective growth. Start with the Leadership Diagnostic for the full pathway, or jump directly into any simulation.',
-      startDiagnostic: 'Start the Leadership Diagnostic', trySim: 'Try a Simulation', recommended: 'Recommended Path', jump: 'Jump Directly into the Suite',
+      title: 'The Human Equation Suite', subtitle: 'Leadership rehearsal, diagnostics, and simulation-based growth for the human side of school leadership.',
+      body: 'Dashboard is your home base. The diagnostic creates your baseline. Simulations add behavioral evidence. All reports live inside the dashboard tabs.',
+      startDiagnostic: 'Start Leadership Diagnostic', trySim: 'Open Dashboard', recommended: 'Recommended Path', jump: 'Suite Modules',
       eyebrow: 'Human Equation Suite'
     };
   const pathwaySteps = es ? [
@@ -126,12 +126,10 @@ export default function HumanEquationSuitePage() {
         <p>{copy.body}</p>
 
         <div className="button-row top-space-sm">
-          <Link href="/human-equation-suite/diagnostic" className="button primary">
-            {copy.startDiagnostic}
-          </Link>
-          <Link href="#suite-simulations" className="button secondary">
+          <Link href="/human-equation-suite/dashboard" className="button primary">
             {copy.trySim}
           </Link>
+          <Link href="/human-equation-suite/diagnostic" className="button secondary">{copy.startDiagnostic}</Link>
         </div>
       </div>
 

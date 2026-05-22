@@ -8,13 +8,13 @@ const projects = [
     title: 'School Leader Simulation',
     description:
       'A leadership training system that places administrators inside a full school day, requiring real decisions across instruction, behavior, and communication. Developed from real school leadership experience, this simulation focuses on judgment, writing, and decision-making under pressure.',
-    href: '/simulation-overview',
-    linkText: 'Learn About Simulation →',
+    href: '/human-equation-suite',
+    linkText: 'Part of the Human Equation Suite →',
   },
   {
     title: 'Human Equation Suite',
     description:
-      'Leadership rehearsal, diagnostics, and simulation-based growth.',
+      'Leadership rehearsal, diagnostics, parent-call rehearsal, school leadership simulation, urban student perspective simulation, and dashboard reporting in one unified pathway.',
     href: '/human-equation-suite',
     linkText: 'Explore Human Equation Suite →',
   },
@@ -30,8 +30,8 @@ const projects = [
     title: 'A Day in the Life of an Urban Student',
     description:
       'An interactive professional learning simulation that follows one student through a school day and asks educators to examine trauma, assumptions, adult responses, and missed intervention points.',
-    href: '/day-in-the-life-urban-student',
-    linkText: 'Launch Simulation',
+    href: '/human-equation-suite',
+    linkText: 'Part of the Human Equation Suite →',
   },
 ];
 
