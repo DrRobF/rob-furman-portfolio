@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
+import HumanEquationNav from '../../components/HumanEquationNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
 
 const dimensions = [
@@ -384,6 +385,7 @@ export default function HumanEquationDiagnosticPage() {
     } catch {}
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
   return (<section className="section section-light"><div className="container"><LanguageSwitcher />
+        <HumanEquationNav />
     <p className="eyebrow">Human Equation Suite</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
     <p className="lead">{es ? 'Establece tu perfil base antes de las simulaciones. Este diagnóstico refleja lo que valoras, cómo lideras bajo presión y hacia qué puedes derivar en tensión.' : 'Establish your baseline profile before simulations. This diagnostic reflects what you value, how you implement under pressure, and where you may drift in tension.'}</p>
     <div className="button-row"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); setRedirectingToDashboard(false); }}>Start Diagnostic</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>View Results</button><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link><Link href="/human-equation-suite" className="button secondary">Back to Human Equation Suite</Link></div>

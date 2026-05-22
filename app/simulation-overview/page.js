@@ -1,9 +1,11 @@
 import Link from 'next/link';
+import HumanEquationNav from '../components/HumanEquationNav';
 
 export default function SimulationOverviewPage() {
   return (
     <section className="section section-light">
       <div className="container">
+        <HumanEquationNav />
         <h1>School Leader Simulation Overview</h1>
         <p className="lead">Most leadership training talks about what you should do.</p>
         <p>This simulation puts you in the moment where you actually have to decide.</p>

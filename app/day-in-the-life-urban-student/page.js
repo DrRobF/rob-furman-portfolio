@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import HumanEquationNav from '../components/HumanEquationNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../human-equation-suite/dashboard/profileData';
 import { buildUrbanSimulationReport, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
 
@@ -1905,6 +1906,9 @@ export default function DayInTheLifeUrbanStudentPage() {
     const parsedMaster = existingMaster ? JSON.parse(existingMaster) : createEmptyMasterProfile();
     const blended = blendUrbanEvidenceIntoProfile(parsedMaster, urbanReport);
     window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(blended));
+    window.setTimeout(() => {
+      window.location.assign('/human-equation-suite/dashboard?tab=urban');
+    }, 1200);
   }, [sceneId, selectedChoices, cumulativeMetrics, completionReason]);
 
 
@@ -2253,6 +2257,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     return (
       <main className="urban-student-page">
         <section className="experience-shell">
+          <HumanEquationNav />
           <article className="scene-card intro-card">
             <p className="section-label">Introduction</p>
             <h1>A Day in the Life of an Urban Student</h1>
@@ -2292,38 +2297,24 @@ export default function DayInTheLifeUrbanStudentPage() {
   }
 
   if (sceneId === 'scene_placeholder_end') {
-    return <main className="urban-student-page"><section className="experience-shell"><article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
+    return <main className="urban-student-page"><section className="experience-shell"><HumanEquationNav />
+        <article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
   }
   if (sceneId === 'scene_urban_report_complete') {
-    const reportPreview = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completionReason });
     return (
       <main className="urban-student-page">
         <section className="experience-shell">
+          <HumanEquationNav />
           <article className="scene-card">
             <p className="section-label">Completion</p>
-            <h1>Urban Simulation Complete / Reflection Report</h1>
-            <p className="paragraph-card"><strong>Completion summary:</strong> {completionReason === 'ended_early' ? 'Ended early by user request.' : 'Completed full simulation flow.'}</p>
-            <p className="paragraph-card"><strong>Key student-experience insights:</strong> {reportPreview.evidenceSummary}</p>
-            <h2>Human Equation dimension contribution</h2>
-            <div className="card-grid top-space-sm">
-              {Object.values(reportPreview.dimensions).map((d) => <article key={d.label} className="card"><p><strong>{d.label}</strong></p><p>Score: {d.score} / 5</p><p>{d.narrative}</p></article>)}
-            </div>
-            <h2>Suggested reflection</h2>
-            <p className="paragraph-card">What specific adult action would most reduce repeated escalation in Adam’s day, and what system routine would keep it consistent?</p>
-            <div className="button-group">
-              <button type="button" onClick={() => {
-                const completedAt = new Date().toISOString();
-                const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt, completionReason });
-                window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(urbanReport));
-              }}>Save to Dashboard</button>
-              <a className="continue-button" href="/human-equation-suite/dashboard?tab=urban-student">Open Human Equation Dashboard</a>
-            </div>
-            <button type="button" className="reset-button" onClick={handleReset}>Start Over</button>
+            <h1>Urban Simulation complete. Opening your dashboard…</h1>
+            <p className="paragraph-card">Your Urban evidence was automatically saved and added to your Human Equation dashboard.</p>
           </article>
         </section>
       </main>
     );
   }
+
 
   const changedMetrics = metricOrder
     .map((metric) => [metric, selectedChoice?.metrics?.[metric] ?? 0])
