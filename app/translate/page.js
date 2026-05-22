@@ -36,6 +36,8 @@ export default function TranslatePage() {
   const recordingSpeakerRef = useRef(null);
   const audioChunksRef = useRef([]);
   const activeAudioRef = useRef(null);
+  const stopResolveRef = useRef(null);
+  const stopRejectRef = useRef(null);
 
   const statusClass = status.toLowerCase().replace(/\s+/g, '-');
 
@@ -62,7 +64,12 @@ export default function TranslatePage() {
 
   useEffect(() => {
     return () => {
+      const recorder = mediaRecorderRef.current;
+      if (recorder && recorder.state === 'recording') {
+        recorder.stop();
+      }
       mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      audioChunksRef.current = [];
       activeAudioRef.current?.pause();
     };
   }, []);
@@ -76,12 +83,27 @@ export default function TranslatePage() {
     return match?.id || 'custom';
   }, [sourceLanguage, targetLanguage]);
 
-  const getMediaStream = async () => {
-    if (mediaStreamRef.current) return mediaStreamRef.current;
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaStreamRef.current = stream;
-    return stream;
-  };
+  const cleanupRecording = useCallback((nextStatus = 'Ready') => {
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state === 'recording') {
+      console.log('[translate] cleanup stopping active recorder');
+      recorder.stop();
+    }
+    mediaRecorderRef.current = null;
+    recordingSpeakerRef.current = null;
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      console.log('[translate] tracks stopped');
+    }
+    mediaStreamRef.current = null;
+    audioChunksRef.current = [];
+    console.log('[translate] chunks cleared');
+    stopResolveRef.current = null;
+    stopRejectRef.current = null;
+    setActiveSpeaker(null);
+    setIsProcessing(false);
+    setStatus(nextStatus);
+  }, []);
 
   const playTranslationAudio = useCallback(async (audioBase64, turnId = null) => {
     const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
@@ -95,17 +117,23 @@ export default function TranslatePage() {
   }, []);
 
   const startRecording = useCallback(async (speaker) => {
-    if (mediaRecorderRef.current?.state === 'recording' || isProcessing) return;
+    console.log('[translate] recording start requested', { speaker });
+    if (mediaRecorderRef.current?.state === 'recording' || isProcessing) {
+      console.log('[translate] recorder state on start', mediaRecorderRef.current?.state || 'none');
+      return;
+    }
     setError('');
     try {
-      const stream = await getMediaStream();
+      audioChunksRef.current = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
       const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
       const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
       const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-      audioChunksRef.current = [];
       recordingSpeakerRef.current = speaker;
       recordingStartTimeRef.current = Date.now();
       const selectedRecorderMimeType = recorder.mimeType || mimeType || 'default';
+      console.log('[translate] recorder state on start', recorder.state);
       console.log('[translate] recording started', { speaker, mimeType: selectedRecorderMimeType });
       setDebugInfo((prev) => ({ ...prev, recorderMimeType: selectedRecorderMimeType, transcript: '' }));
       recorder.ondataavailable = (event) => {
@@ -113,6 +141,70 @@ export default function TranslatePage() {
         if (event.data?.size > 0) {
           audioChunksRef.current.push(event.data);
           console.log('[translate] chunks buffered', { count: audioChunksRef.current.length });
+        }
+      };
+      recorder.onstop = async () => {
+        console.log('[translate] onstop fired');
+        const speakerFromRef = recordingSpeakerRef.current;
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: recorder.mimeType || 'audio/webm',
+        });
+        const blobType = audioBlob.type || recorder.mimeType || 'audio/webm';
+        const recordingDurationMs = Date.now() - recordingStartTimeRef.current;
+        console.log('[translate] blob size/type', { size: audioBlob.size, type: blobType });
+        try {
+          if (audioBlob.size === 0) {
+            throw new Error('No speech detected. Please try again.');
+          }
+          const audioFile = new File([audioBlob], 'recording.webm', { type: audioBlob.type || blobType });
+          setDebugInfo((prev) => ({
+            ...prev,
+            blobType,
+            blobSize: audioBlob.size,
+            fileSize: audioFile.size,
+            recordingDurationMs,
+          }));
+          console.log('[translate] upload beginning');
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'recording.webm');
+          formData.append('sourceLanguage', sourceLanguage);
+          formData.append('targetLanguage', targetLanguage);
+          formData.append('speaker', speakerFromRef);
+          const response = await fetch('/api/translate-turn', { method: 'POST', body: formData });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || 'Translation failed.');
+          }
+          if (!data?.transcript?.trim()) {
+            throw new Error('No speech detected. Please try again.');
+          }
+          console.log('[translate] upload finished', { transcriptLength: data.transcript.length });
+          setDebugInfo((prev) => ({ ...prev, transcript: data.transcript }));
+          setStatus('Speaking translation');
+          const nextTurn = { id: crypto.randomUUID(), ...data };
+          setTurns((prev) => [...prev, nextTurn]);
+          if (data.audioBase64) {
+            await playTranslationAudio(data.audioBase64, nextTurn.id);
+          }
+          setStatus('Ready');
+          stopResolveRef.current?.();
+        } catch (err) {
+          console.error('[translate] upload error', err);
+          setError(err?.message || 'Something went wrong while translating.');
+          setStatus('Ready');
+          stopRejectRef.current?.(err);
+        } finally {
+          audioChunksRef.current = [];
+          console.log('[translate] chunks cleared');
+          mediaRecorderRef.current = null;
+          if (mediaStreamRef.current) {
+            mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+            console.log('[translate] tracks stopped');
+          }
+          mediaStreamRef.current = null;
+          setActiveSpeaker(null);
+          recordingSpeakerRef.current = null;
+          setIsProcessing(false);
         }
       };
       recorder.start(250);
@@ -123,10 +215,12 @@ export default function TranslatePage() {
       setStatus('Error');
       setError('Microphone permission is needed to translate speech.');
     }
-  }, [isProcessing]);
+  }, [isProcessing, playTranslationAudio, sourceLanguage, targetLanguage]);
 
   const stopRecording = useCallback(async () => {
     const recorder = mediaRecorderRef.current;
+    console.log('[translate] stop requested');
+    console.log('[translate] recorder state on stop request', recorder?.state || 'none');
     if (!recorder || recorder.state !== 'recording') return;
 
     setIsProcessing(true);
@@ -137,90 +231,14 @@ export default function TranslatePage() {
       await new Promise((resolve) => setTimeout(resolve, 500 - recordingMs));
     }
 
-    const done = new Promise((resolve) => {
-      recorder.onstop = resolve;
+    const done = new Promise((resolve, reject) => {
+      stopResolveRef.current = resolve;
+      stopRejectRef.current = reject;
       recorder.stop();
     });
 
     await done;
-
-    try {
-      const speaker = recordingSpeakerRef.current;
-      if (!audioChunksRef.current.length) {
-        throw new Error('No speech detected. Please try again.');
-      }
-
-      const audioBlob = new Blob(audioChunksRef.current, {
-        type: recorder.mimeType || 'audio/webm',
-      });
-      const blobType = audioBlob.type || recorder.mimeType || 'audio/webm';
-      const recordingDurationMs = Date.now() - recordingStartTimeRef.current;
-      if (!audioBlob.type) {
-        throw new Error('Audio format not supported. Please try again.');
-      }
-      if (audioBlob.size === 0) {
-        throw new Error('No audio recorded. Please try again.');
-      }
-      const audioFile = new File([audioBlob], 'recording.webm', { type: audioBlob.type });
-      console.log('[translate] recorder mimeType', recorder.mimeType || 'unknown');
-      console.log('[translate] blob.type', blobType);
-      console.log('[translate] blob.size', audioBlob.size);
-      console.log('[translate] file.size', audioFile.size);
-      setDebugInfo((prev) => ({
-        ...prev,
-        blobType,
-        blobSize: audioBlob.size,
-        fileSize: audioFile.size,
-        recordingDurationMs,
-      }));
-
-      const formData = new FormData();
-      formData.append('audio', audioFile, 'recording.webm');
-      formData.append('sourceLanguage', sourceLanguage);
-      formData.append('targetLanguage', targetLanguage);
-      formData.append('speaker', speaker);
-      console.log('[translate] upload started', {
-        speaker,
-        blobSize: audioBlob.size,
-        mimeType: blobType,
-      });
-      const response = await fetch('/api/translate-turn', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Translation failed.');
-      }
-
-      if (!data?.transcript?.trim() || data.transcript.trim().length < 1) {
-        throw new Error('No speech detected. Please try again.');
-      }
-
-      console.log('[translate] upload success', { transcriptLength: data.transcript.length });
-      setDebugInfo((prev) => ({ ...prev, transcript: data.transcript }));
-
-      setStatus('Speaking translation');
-      const nextTurn = { id: crypto.randomUUID(), ...data };
-      setTurns((prev) => [...prev, nextTurn]);
-
-      if (data.audioBase64) {
-        await playTranslationAudio(data.audioBase64, nextTurn.id);
-      }
-      setStatus('Ready');
-    } catch (err) {
-      console.error('[translate] upload failed', err);
-      const message = err?.message || 'Something went wrong while translating.';
-      setError(message);
-      setStatus('Ready');
-    } finally {
-      setActiveSpeaker(null);
-      recordingSpeakerRef.current = null;
-      mediaRecorderRef.current = null;
-      setIsProcessing(false);
-    }
-  }, [sourceLanguage, targetLanguage, playTranslationAudio]);
+  }, []);
 
   const handlePressStart = (speaker) => {
     if (!isProcessing) startRecording(speaker);
@@ -278,6 +296,7 @@ export default function TranslatePage() {
   };
 
   const clearConversation = () => {
+    cleanupRecording('Ready');
     setTurns([]);
     setLesson(null);
     setError('');
@@ -293,6 +312,8 @@ export default function TranslatePage() {
 
         <div className={styles.toolbar}>
           <select
+            id="translate-language-pair"
+            name="translateLanguagePair"
             className={styles.select}
             value={selectedPairId}
             onChange={(event) => onSelectPair(event.target.value)}
@@ -339,6 +360,9 @@ export default function TranslatePage() {
         <div className={styles.actionsRow}>
           <button type="button" className="button secondary" onClick={clearConversation}>
             Clear Conversation
+          </button>
+          <button type="button" className="button secondary" onClick={() => cleanupRecording('Ready')}>
+            Force Stop Mic
           </button>
           <button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>
             Create Lesson From This Conversation
