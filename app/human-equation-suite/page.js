@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useLanguage } from '../components/LanguageProvider';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import HumanEquationNav from '../components/HumanEquationNav';
 
 const pathwayStepsEn = [
   {
@@ -118,6 +119,7 @@ export default function HumanEquationSuitePage() {
     <section className="section section-light">
       <div className="container">
         <LanguageSwitcher />
+        <HumanEquationNav />
         <p className="eyebrow">{copy.eyebrow}</p>
         <h1>{copy.title}</h1>
         <p className="lead">{copy.subtitle}</p>

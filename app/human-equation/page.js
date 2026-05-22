@@ -1,4 +1,5 @@
 import HumanEquationExperience from './HumanEquationExperience';
+import HumanEquationNav from '../components/HumanEquationNav';
 
 export const metadata = {
   title: 'The Human Equation | Rob Furman',
@@ -6,5 +7,14 @@ export const metadata = {
 };
 
 export default function HumanEquationPage() {
-  return <HumanEquationExperience />;
+  return (
+    <>
+      <section className="section section-light" style={{ paddingBottom: 0 }}>
+        <div className="container">
+          <HumanEquationNav />
+        </div>
+      </section>
+      <HumanEquationExperience />
+    </>
+  );
 }

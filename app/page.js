@@ -50,9 +50,9 @@ const featuredProjects = [
     linkText: 'Learn About Simulation →',
   },
   {
-    title: 'The Human Equation',
+    title: 'Human Equation Suite',
     description:
-      'AI-powered leadership rehearsal for emotionally difficult school conversations.',
+      'Leadership rehearsal, diagnostics, and simulation-based growth.',
     href: '/human-equation-suite',
     linkText: 'Explore Human Equation Suite →',
   },

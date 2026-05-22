@@ -12,9 +12,9 @@ const projects = [
     linkText: 'Learn About Simulation →',
   },
   {
-    title: 'The Human Equation',
+    title: 'Human Equation Suite',
     description:
-      'Practice high-pressure parent and school leadership conversations with realistic AI roleplay, post-call coaching, and reflection tools designed to help leaders build trust, clarity, and composure under pressure.',
+      'Leadership rehearsal, diagnostics, and simulation-based growth.',
     href: '/human-equation-suite',
     linkText: 'Explore Human Equation Suite →',
   },

@@ -57,8 +57,8 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
     strengths,
     growthEdges,
     evidenceSummary: completionReason === 'ended_early'
-      ? 'Early completion captured preliminary evidence under partial pathway exposure.'
-      : 'Observed behavior suggests this leader is being shaped more by live emotional load than by stated leadership intent.',
+      ? 'Urban evidence captured from a partial pathway, highlighting how pressure interrupts reflective decision-making.'
+      : 'Urban evidence captured across a full student-day pathway, revealing how cumulative stress conditions decision quality and empathy access.',
     emotionalInterpretationPatterns: [
       'Decision speed increases when emotional ambiguity rises.',
       'Context attention strengthens when relational cues are made explicit.',
@@ -69,9 +69,22 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
       metrics.care >= 0 ? 'Protects student dignity language even in tense moments.' : 'Student dignity drops out of frame when urgency spikes.',
       metrics.sleep < -2 ? 'May misread fatigue-based behavior as motivation or compliance failure.' : 'Shows signs of considering context behind surface behavior.',
     ],
+    completionSummary: completionReason === 'ended_early' ? 'Urban simulation ended early; evidence still captured and blended into your dashboard.' : 'Urban simulation completed and evidence is now integrated into your dashboard profile.',
+    studentExperienceInterpretation: 'The student\'s school-day behavior appears shaped by accumulated fatigue, environmental stress, urgency, and social pressure rather than single-moment intent.',
+    leadershipEvidenceObserved: [
+      'Adult response opportunities were present during arrival, transitions, and office interactions.',
+      'Pressure appeared to narrow interpretation bandwidth during high-urgency moments.',
+      'Context-aware responses increased when relational safety and time were present.',
+    ],
+    growthOpportunities: [
+      'Strengthen pause-and-interpret routines before consequence decisions.',
+      'Increase proactive support checkpoints during predictable stress transitions.',
+      'Use dignity-preserving language under pressure to sustain trust and regulation.',
+    ],
+    dashboardContribution: 'Urban evidence contributes behavioral signal strength to awareness, regulation, trust construction, and reality anchoring dimensions.',
     timelineEvents: [
-      { type: 'urban_simulation_started', occurredAt: completedAt, detail: 'Urban simulation evidence sequence initiated.' },
-      { type: 'urban_simulation_completed', occurredAt: completedAt, detail: `Completed with ${Object.keys(selectedChoices).length} behavioral decision points.` },
+      { type: 'urban_simulation_started', label: 'Urban simulation started', occurredAt: completedAt, detail: 'Urban simulation evidence sequence initiated.' },
+      { type: 'urban_simulation_completed', label: 'Urban simulation completed', occurredAt: completedAt, detail: `Completed with ${Object.keys(selectedChoices).length} behavioral decision points.` },
     ],
     keyMoments: Object.entries(selectedChoices).slice(0, 8).map(([sceneId, choiceId]) => ({ sceneId, choiceId })),
     confidenceScore: Math.min(0.95, 0.42 + (Object.keys(selectedChoices).length / 26)),
