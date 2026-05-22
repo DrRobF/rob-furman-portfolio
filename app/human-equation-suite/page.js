@@ -5,13 +5,7 @@ import { useLanguage } from '../components/LanguageProvider';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import HumanEquationNav from '../components/HumanEquationNav';
 
-const moduleOverview = [
-  'Diagnostic baseline',
-  'Parent call rehearsal',
-  'Leadership simulation',
-  'Urban student evidence',
-  'Executive growth reporting',
-];
+const moduleOverview = ['Start Here: Learn the 8 Factors', 'Leadership Diagnostic', 'Practice Lab Simulations', 'Growth Center', 'Executive Evolution Tracking'];
 
 export default function HumanEquationSuitePage() {
   const { language } = useLanguage();
@@ -29,11 +23,11 @@ export default function HumanEquationSuitePage() {
           <p className="lead">
             {isEs
               ? 'Una sola entrada para medir, practicar y hacer seguimiento de tu crecimiento de liderazgo bajo presión.'
-              : 'A single front door to measure, rehearse, and track leadership performance under pressure.'}
+              : 'A progression-based leadership operating system: learn the framework, generate evidence under pressure, and evolve your executive profile over time.'}
           </p>
           <div className="button-row top-space-sm">
-            <Link href="/human-equation-suite/dashboard" className="button primary">Enter Dashboard</Link>
-            <Link href="/human-equation-suite/diagnostic" className="button secondary">Start Diagnostic</Link>
+            <Link href="/human-equation-suite/learn" className="button primary">Start Here: Learn the 8 Factors</Link>
+            <Link href="/human-equation-suite/dashboard" className="button secondary">Open Executive Dashboard</Link>
           </div>
           <div className="hes-suite-modules top-space-sm">
             {moduleOverview.map((item) => <span key={item} className="status-chip">{item}</span>)}
