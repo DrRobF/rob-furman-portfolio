@@ -1832,10 +1832,10 @@ p {
   .hes-command-sidebar { position: static; }
 }
 
-.hes-hero-profile{background:linear-gradient(135deg,#0f1b33,#1f3c6d);color:#eef4ff;border:0}
-.hes-hero-profile p,.hes-hero-profile h1,.hes-hero-profile h3{color:#eef4ff}
+.hes-hero-profile{background:linear-gradient(135deg,#f7faff,#e7eefc);color:#10213f;border:1px solid #c5d3ea}
+.hes-hero-profile p,.hes-hero-profile h1,.hes-hero-profile h3,.hes-hero-profile .eyebrow{color:#10213f}
 .hes-hero-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin-top:.8rem}
-.hes-hero-grid>div{padding:.7rem;border:1px solid #45608a;border-radius:10px;background:rgba(255,255,255,.04)}
+.hes-hero-grid>div{padding:.7rem;border:1px solid #b4c6e4;border-radius:10px;background:#fdfefe}
 .hes-factor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}
 .hes-factor-panel{border:1px solid #c9d5ea;border-radius:14px;padding:1rem;background:linear-gradient(180deg,#fff,#f8fbff)}
 .hes-learning-shell{max-width:1000px;margin:0 auto}
