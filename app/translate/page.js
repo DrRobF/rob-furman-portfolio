@@ -22,6 +22,7 @@ export default function TranslatePage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const mediaRecorderRef = useRef(null);
+  const recordingStartTimeRef = useRef(0);
   const mediaStreamRef = useRef(null);
   const recordingSpeakerRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -86,16 +87,21 @@ export default function TranslatePage() {
     setError('');
     try {
       const stream = await getMediaStream();
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : 'audio/webm';
-      const recorder = new MediaRecorder(stream, { mimeType });
+      const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/wav'];
+      const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       audioChunksRef.current = [];
       recordingSpeakerRef.current = speaker;
+      recordingStartTimeRef.current = Date.now();
+      console.log('[translate] recording started', { speaker, mimeType: recorder.mimeType || mimeType || 'default' });
       recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) audioChunksRef.current.push(event.data);
+        console.log('[translate] chunk received', { size: event.data?.size || 0, type: event.data?.type || 'unknown' });
+        if (event.data?.size > 0) {
+          audioChunksRef.current.push(event.data);
+          console.log('[translate] chunks buffered', { count: audioChunksRef.current.length });
+        }
       };
-      recorder.start();
+      recorder.start(250);
       mediaRecorderRef.current = recorder;
       setActiveSpeaker(speaker);
       setStatus('Recording');
@@ -112,6 +118,11 @@ export default function TranslatePage() {
     setIsProcessing(true);
     setStatus('Translating');
 
+    const recordingMs = Date.now() - recordingStartTimeRef.current;
+    if (recordingMs < 500) {
+      await new Promise((resolve) => setTimeout(resolve, 500 - recordingMs));
+    }
+
     const done = new Promise((resolve) => {
       recorder.onstop = resolve;
       recorder.stop();
@@ -121,18 +132,38 @@ export default function TranslatePage() {
 
     try {
       const speaker = recordingSpeakerRef.current;
+      if (!audioChunksRef.current.length) {
+        throw new Error('No speech detected. Please try again.');
+      }
+
       const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+      console.log('[translate] blob finalized', { size: blob.size, type: blob.type || recorder.mimeType || 'audio/webm' });
+      if (!blob.size) {
+        throw new Error('No speech detected. Please try again.');
+      }
+
       const audioBase64 = await blobToBase64(blob);
+      console.log('[translate] upload started', {
+        speaker,
+        blobSize: blob.size,
+        mimeType: blob.type || recorder.mimeType || 'audio/webm',
+      });
       const response = await fetch('/api/translate-turn', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audioBase64, sourceLanguage, targetLanguage, speaker }),
+        body: JSON.stringify({ audioBase64, mimeType: blob.type || recorder.mimeType || 'audio/webm', sourceLanguage, targetLanguage, speaker }),
       });
 
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Translation failed.');
       }
+
+      if (!data?.transcript?.trim() || data.transcript.trim().length < 1) {
+        throw new Error('No speech detected. Please try again.');
+      }
+
+      console.log('[translate] upload success', { transcriptLength: data.transcript.length });
 
       setStatus('Speaking translation');
       setTurns((prev) => [...prev, { id: crypto.randomUUID(), ...data }]);
@@ -144,8 +175,9 @@ export default function TranslatePage() {
       }
       setStatus('Ready');
     } catch (err) {
+      console.error('[translate] upload failed', err);
       setStatus('Error');
-      setError(err.message || 'Something went wrong while translating.');
+      setError(err?.message?.includes('No speech detected') ? 'No speech detected. Please try again.' : (err.message || 'Something went wrong while translating.'));
     } finally {
       setActiveSpeaker(null);
       recordingSpeakerRef.current = null;

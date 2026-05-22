@@ -2,18 +2,47 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const headers = () => ({ Authorization: `Bearer ${OPENAI_API_KEY}` });
 
+const MIME_EXTENSION_MAP = {
+  'audio/webm;codecs=opus': 'webm',
+  'audio/webm': 'webm',
+  'audio/mp4': 'mp4',
+  'audio/wav': 'wav',
+  'audio/wave': 'wav',
+  'audio/x-wav': 'wav',
+};
+
+const normalizeMimeType = (mimeType = '') => mimeType.toLowerCase().split(';')[0].trim();
+
+const getAudioFileName = (mimeType = '') => {
+  const normalized = mimeType.toLowerCase().trim();
+  const base = normalizeMimeType(normalized);
+  const extension = MIME_EXTENSION_MAP[normalized] || MIME_EXTENSION_MAP[base] || 'webm';
+  return `turn.${extension}`;
+};
+
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { audioBase64, sourceLanguage, targetLanguage, speaker } = body || {};
+    const { audioBase64, mimeType, sourceLanguage, targetLanguage, speaker } = body || {};
 
     if (!audioBase64 || !sourceLanguage || !targetLanguage || !speaker) {
       return Response.json({ error: 'Missing required fields.' }, { status: 400 });
     }
 
     const audioBytes = Buffer.from(audioBase64, 'base64');
+    const safeMimeType = normalizeMimeType(mimeType) || 'audio/webm';
+
+    console.log('[translate-turn] Incoming audio payload', {
+      blobSize: audioBytes.byteLength,
+      mimeType: safeMimeType,
+    });
+
+    if (!audioBytes.byteLength) {
+      return Response.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
+    }
+
     const form = new FormData();
-    form.append('file', new Blob([audioBytes], { type: 'audio/webm' }), 'turn.webm');
+    form.append('file', new Blob([audioBytes], { type: safeMimeType }), getAudioFileName(safeMimeType));
     form.append('model', 'gpt-4o-transcribe');
     form.append('response_format', 'text');
 
@@ -23,9 +52,20 @@ export async function POST(request) {
       body: form,
     });
 
-    const transcript = (await transcriptionRes.text()).trim();
+    const transcriptionText = await transcriptionRes.text();
+    console.log('[translate-turn] Transcription API response', {
+      ok: transcriptionRes.ok,
+      status: transcriptionRes.status,
+      body: transcriptionText,
+    });
+
+    const transcript = transcriptionText.trim();
     if (!transcriptionRes.ok) {
       throw new Error(transcript || 'Transcription failed.');
+    }
+
+    if (!transcript) {
+      return Response.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
     }
 
     const translationRes = await fetch('https://api.openai.com/v1/responses', {
