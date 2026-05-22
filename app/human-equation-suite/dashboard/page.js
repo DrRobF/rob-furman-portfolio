@@ -9,19 +9,10 @@ import { DEV_PROFILE_PRESETS } from './devProfiles';
 import { URBAN_REPORT_STORAGE_KEY } from './urbanEvidence';
 
 const tabs = [
-  { key: 'master', label: 'Master Profile' },
-  { key: 'diagnostic', label: 'Diagnostic Report' },
-  { key: 'parent-call', label: 'Parent Call Report' },
-  { key: 'leadership-simulation', label: 'Leadership Simulation Report' },
-  { key: 'urban', label: 'Urban Student Report' },
-  { key: 'observation-lab', label: 'Observation Lab' },
+  { key: 'master', label: 'Master Profile' }, { key: 'diagnostic', label: 'Diagnostic Report' }, { key: 'parent-call', label: 'Parent Call Report' }, { key: 'leadership-simulation', label: 'Leadership Simulation Report' }, { key: 'urban', label: 'Urban Student Report' }, { key: 'observation-lab', label: 'Observation Lab' },
 ];
-const layerStyles = {
-  foundational: { bg: 'rgba(59,130,246,0.08)', border: '4px solid #3b82f6' },
-  applied: { bg: 'rgba(20,184,166,0.10)', border: '4px solid #0f766e' },
-  organizational: { bg: 'rgba(139,92,246,0.10)', border: '4px solid #7c3aed' },
-};
 const layerKey = (index) => index < 3 ? 'foundational' : index < 5 ? 'applied' : 'organizational';
+const layerMeta = { foundational: { cls: 'dim-foundational', color: '#2563eb' }, applied: { cls: 'dim-applied', color: '#0f766e' }, organizational: { cls: 'dim-organizational', color: '#7c3aed' } };
 
 export default function HumanEquationDashboardPage() {
   const [profile, setProfile] = useState(createEmptyMasterProfile());
@@ -40,39 +31,29 @@ export default function HumanEquationDashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const rawDiagnostic = window.localStorage.getItem(DIAGNOSTIC_RESULT_STORAGE_KEY);
-    if (rawDiagnostic) {
-      try { setDiagnostic(JSON.parse(rawDiagnostic)); } catch {}
-    }
-
+    if (rawDiagnostic) { try { setDiagnostic(JSON.parse(rawDiagnostic)); } catch {} }
     const rawUrbanReport = window.localStorage.getItem(URBAN_REPORT_STORAGE_KEY);
-    if (rawUrbanReport) {
-      try { setUrbanReport(JSON.parse(rawUrbanReport)); } catch {}
-    }
-
+    if (rawUrbanReport) { try { setUrbanReport(JSON.parse(rawUrbanReport)); } catch {} }
     const cached = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
         if (rawUrbanReport) {
-          const urbanParsed = JSON.parse(rawUrbanReport);
-          const blended = blendUrbanEvidenceIntoProfile(parsed, urbanParsed);
+          const blended = blendUrbanEvidenceIntoProfile(parsed, JSON.parse(rawUrbanReport));
           setProfile(blended);
           window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(blended));
           return;
         }
-        setProfile(parsed);
-        return;
+        setProfile(parsed); return;
       } catch {}
     }
     if (!rawDiagnostic) return;
     try {
-      const parsed = JSON.parse(rawDiagnostic);
-      const built = toMasterProfileFromDiagnostic(parsed);
+      const built = toMasterProfileFromDiagnostic(JSON.parse(rawDiagnostic));
       setProfile(built);
       window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(built));
     } catch {}
   }, []);
-
 
   const loadDevProfile = (profileKey) => {
     setSelectedDevProfile(profileKey);
@@ -82,45 +63,50 @@ export default function HumanEquationDashboardPage() {
     if (typeof window !== 'undefined') window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(preset.profile));
   };
 
-  const strongest = useMemo(() => Object.values(profile.dimensions).filter((d) => Number.isFinite(d.blendedCompositeScore)).sort((a, b) => b.blendedCompositeScore - a.blendedCompositeScore).slice(0, 2).map((d) => d.label), [profile]);
+  const strongest = useMemo(() => Object.values(profile.dimensions).filter((d) => Number.isFinite(d.blendedCompositeScore)).sort((a, b) => b.blendedCompositeScore - a.blendedCompositeScore)[0], [profile]);
+  const growthEdge = useMemo(() => Object.values(profile.dimensions).filter((d) => Number.isFinite(d.blendedCompositeScore)).sort((a, b) => a.blendedCompositeScore - b.blendedCompositeScore)[0], [profile]);
+  const completedSources = Object.values(profile.evidenceSources).filter((s) => s.status === 'completed').length;
 
-  return <section className="section section-light"><div className="container"><LanguageSwitcher />
-    <HumanEquationNav />
-    <div className="card project-card" style={{ border: '1px solid rgba(37,99,235,0.18)', background: 'linear-gradient(120deg, #eef4ff, #f8fafc)' }}>
-      <p className="eyebrow">Human Equation Dashboard</p><h1>Leadership Pressure Profile</h1><p className="lead">{profile.interpretation?.summary || 'Central home for all Human Equation reports, diagnostics, and simulation evidence.'}</p>
-      {isDevMode && <div className="top-space-sm" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}><label htmlFor="dev-profile"><strong>Load Dev Profile</strong></label><select id="dev-profile" value={selectedDevProfile} onChange={(e) => loadDevProfile(e.target.value)} style={{ padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid #93c5fd' }}><option value="">Select preset...</option>{DEV_PROFILE_PRESETS.map((preset) => <option key={preset.key} value={preset.key}>{preset.label}</option>)}</select></div>}
-      <div className="card-grid top-space-sm">
-        <div className="card"><p><strong>Baseline confidence</strong></p><p>{Math.round(profile.confidenceLevels.baseline * 100)}%</p></div>
-        <div className="card"><p><strong>Completed evidence sources</strong></p><p>{Object.values(profile.evidenceSources).filter((s) => s.status === 'completed').length}</p></div>
-        <div className="card"><p><strong>Strongest dimensions</strong></p><p>{strongest.length ? strongest.join(' • ') : 'Awaiting baseline signal'}</p></div>
-        <div className="card"><p><strong>Emerging pressure risks</strong></p><p>{profile.distortions.emerging[0] || profile.interpretation?.confidenceNarrative}</p></div>
-        <div className="card"><p><strong>Last completed source</strong></p><p>{profile.simulationHistory.at(-1)?.source || 'No reports completed yet'}</p></div>
-        <div className="card"><p><strong>Recommended next step</strong></p><p>{profile.recommendations?.nextSimulation || 'Parent Call Rehearsal'}</p></div>
+  return <section className="section section-light"><div className="container"><LanguageSwitcher /><HumanEquationNav />
+    <div className="dashboard-shell top-space-sm">
+      <div className="dashboard-hero">
+        <p className="eyebrow">Human Equation Dashboard</p><h1>Leadership Pressure Profile</h1>
+        <p className="lead">{profile.interpretation?.summary || 'Executive view of leadership capacities, pressure drift, and multi-source evidence.'}</p>
       </div>
+
+      <div className="kpi-strip">
+        <article className="kpi-card kpi-blue"><p>Profile confidence</p><h3>{Math.round(profile.confidenceLevels.baseline * 100)}%</h3></article>
+        <article className="kpi-card kpi-green"><p>Evidence sources completed</p><h3>{completedSources} / {Object.keys(profile.evidenceSources).length}</h3></article>
+        <article className="kpi-card kpi-purple"><p>Strongest dimension</p><h3>{strongest?.label || 'Awaiting signal'}</h3></article>
+        <article className="kpi-card kpi-teal"><p>Growth edge</p><h3>{growthEdge?.label || 'Collect baseline'}</h3></article>
+        <article className="kpi-card kpi-rose"><p>Current pressure drift</p><h3>{profile.distortions.emerging[0] || 'Low drift signal'}</h3></article>
+        <article className="kpi-card kpi-amber"><p>Recommended next action</p><h3>{profile.recommendations?.nextSimulation || 'Start Parent Call'}</h3></article>
+      </div>
+
+      <div className="dashboard-row-two top-space">
+        <article className="card leadership-snapshot"><h2>Leadership Profile Snapshot</h2><p>{profile.interpretation?.summary || 'Synthesis updates as evidence accumulates.'}</p><p><strong>Strongest pattern:</strong> {strongest?.growthNote || 'No clear pattern yet.'}</p><p><strong>Growth warning:</strong> {profile.distortions.emerging[0] || 'No strong risk pattern yet.'}</p><p><strong>Confidence note:</strong> {profile.interpretation?.confidenceNarrative || 'Confidence strengthens with completed evidence sources.'}</p></article>
+        <article className="card profile-chart"><h2>Visual Profile Chart</h2>{dimensionDefinitions.map(({ key, label }, i) => { const score = profile.dimensions[key]?.blendedCompositeScore || 0; const meta = layerMeta[layerKey(i)]; return <div key={key} className="bar-row"><div className="bar-label">{label}</div><div className="bar-track"><div className={`bar-fill ${meta.cls}`} style={{ width: `${(score / 5) * 100}%` }} /></div><span>{score ? score.toFixed(1) : '—'}</span></div>; })}</article>
+      </div>
+
+      <div className="dimension-grid top-space">
+        {dimensionDefinitions.map(({ key, label }, i) => { const d = profile.dimensions[key]; const m = layerMeta[layerKey(i)]; return <article key={key} className={`dimension-tile ${m.cls}`}><header><h3>{label}</h3><span className="score-pill">{Number.isFinite(d.blendedCompositeScore) ? `${d.blendedCompositeScore.toFixed(1)} / 5` : 'Pending'}</span></header><div className="tile-meta"><span>{d.confidence.replaceAll('_', ' ')}</span><span>{d.strongestEvidenceSource}</span></div><p>{d.growthNote || 'Signal forming as evidence grows.'}</p><progress max="100" value={d.statusProgress} style={{ accentColor: m.color }} /></article>; })}
+      </div>
+
+      <div className="evidence-grid top-space">
+        {Object.values(profile.evidenceSources).map((source) => { const completed = source.status === 'completed'; return <article key={source.key} className={`evidence-card ${completed ? 'is-complete' : 'is-pending'}`}><div className="evidence-header"><h3>{source.label}</h3><span className="status-chip">{completed ? 'Completed' : 'Not Started'}</span></div><p><strong>Feeds dimensions:</strong> {source.contribution}</p><p><strong>Latest date:</strong> {source.latestUpdate}</p><Link href={source.key === 'urbanSim' && completed ? '/human-equation-suite/dashboard?tab=urban' : source.route} className="button secondary">{completed ? 'View Report' : 'Launch'}</Link></article>; })}
+      </div>
+
+      <div className="top-space-sm dashboard-tabs">{tabs.map((tab) => <button key={tab.key} className={`button ${activeTab === tab.key ? 'primary' : 'secondary'}`} onClick={() => setActiveTab(tab.key)}>{tab.label}</button>)}</div>
+
+      <article className="card timeline-panel top-space-sm"><h2>Timeline + Trends</h2><p>{profile.simulationHistory.map((event) => `${event.source} (${event.completedAt ? new Date(event.completedAt).toLocaleDateString('en-US') : 'pending'})`).join(' • ') || 'No timeline events yet.'}</p><p><strong>Growth notes:</strong> {(profile.growthNotes || []).join(' ') || 'Additional completed sources unlock trend recommendations.'}</p></article>
+
+      {activeTab === 'diagnostic' && <article className="card report-panel top-space-sm"><h2>Diagnostic Report</h2>{!diagnostic ? <><p>Diagnostic not completed yet.</p><Link href="/human-equation-suite/diagnostic" className="button primary">Take Diagnostic</Link></> : <><p><strong>Summary:</strong> {diagnostic.pressureProfileTitle}</p><div className="card-grid"><article className="card"><h3>Dimension Contribution</h3><p>{dimensionDefinitions.map((d) => `${d.label}: ${diagnostic.dimensions?.[d.key]?.composite ?? 'N/A'}`).join(' • ')}</p></article><article className="card"><h3>Distortions</h3><p>{diagnostic.topDistortions?.join(', ') || 'No clear distortion signature yet.'}</p></article><article className="card"><h3>Growth Recommendations</h3><p>{diagnostic.growthEdges?.join(', ') || 'Awaiting clearer growth edge signal.'}</p></article></div></>}</article>}
+
+      {activeTab === 'urban' && <article className="card report-panel top-space-sm"><h2>Urban Student Report</h2>{!urbanReport ? <><p>Urban Student Simulation has not been completed yet.</p><Link href="/day-in-the-life-urban-student" className="button secondary">Launch Urban Student Simulation</Link></> : <><p>{urbanReport.evidenceSummary}</p><div className="card-grid">{dimensionDefinitions.map(({ key, label }) => <article key={key} className="card"><h3>{label}</h3><p>{urbanReport.dimensions?.[key]?.narrative || 'Behavioral evidence still forming.'}</p></article>)}</div></>}</article>}
+
+      {activeTab !== 'master' && activeTab !== 'diagnostic' && activeTab !== 'urban' && <article className="card report-panel top-space-sm"><h2>{tabs.find((t) => t.key === activeTab)?.label}</h2><p>{activeTab === 'parent-call' ? 'No parent call report captured yet.' : activeTab === 'leadership-simulation' ? 'No leadership simulation report captured yet.' : 'No observation lab report captured yet.'}</p><Link href={activeTab === 'parent-call' ? '/human-equation' : activeTab === 'leadership-simulation' ? '/simulation-overview' : '/human-equation-suite/dashboard'} className="button secondary">Launch</Link></article>}
+
+      {isDevMode && <div className="top-space-sm"><label htmlFor="dev-profile"><strong>Load Dev Profile:</strong></label> <select id="dev-profile" value={selectedDevProfile} onChange={(e) => loadDevProfile(e.target.value)}><option value="">Select preset...</option>{DEV_PROFILE_PRESETS.map((preset) => <option key={preset.key} value={preset.key}>{preset.label}</option>)}</select></div>}
     </div>
-
-    <div className="top-space-sm" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{tabs.map((tab) => <button key={tab.key} className={`button ${activeTab === tab.key ? 'primary' : 'secondary'}`} onClick={() => setActiveTab(tab.key)}>{tab.label}</button>)}</div>
-
-    {activeTab === 'master' && <>
-      <div className="top-space"><h2>8-Dimension Leadership Grid</h2><div className="card-grid top-space-sm">{dimensionDefinitions.map((dimension, index) => {
-        const item = profile.dimensions[dimension.key];
-        const layer = layerStyles[layerKey(index)];
-        return <article key={dimension.key} className="card project-card equal-card" style={{ background: layer.bg, borderLeft: layer.border }}><h3>{dimension.label}</h3><p><strong>Baseline</strong> {Number.isFinite(item.baselineDiagnosticScore) ? `${item.baselineDiagnosticScore} / 5` : 'Pending baseline'}</p><p><strong>Simulation</strong> {Number.isFinite(item.simulationEvidenceScore) ? `${item.simulationEvidenceScore} / 5` : 'Pending simulation'}</p><p><strong>Blended</strong> {Number.isFinite(item.blendedCompositeScore) ? `${item.blendedCompositeScore} / 5` : 'Pending blend'}</p><p><strong>Confidence</strong> {item.confidence.replaceAll('_', ' ')}</p><p><strong>Source</strong> {item.strongestEvidenceSource}</p><p><strong>Growth note</strong> {item.growthNote || 'Continue collecting evidence for clearer growth signals.'}</p><progress max="100" value={item.statusProgress} style={{ width: '100%', accentColor: layer.border.split(' ')[2] }} /></article>;
-      })}</div></div>
-
-      <div className="top-space"><h2>Evidence Sources</h2><div className="card-grid top-space-sm">{Object.values(profile.evidenceSources).map((source) => {
-        const completed = source.status === 'completed';
-        return <article key={source.key} className="card project-card equal-card" style={{ opacity: completed ? 1 : 0.82, borderTop: completed ? '4px solid #16a34a' : '4px solid #cbd5e1' }}><h3>{source.label}</h3><p><strong>Status:</strong> {completed ? 'Completed' : 'Not started'}</p><p><strong>Contribution:</strong> {source.contribution}</p><p><strong>Date:</strong> {source.latestUpdate}</p><Link href={source.key === 'urbanSim' && completed ? '/human-equation-suite/dashboard?tab=urban' : source.route} className="button secondary">{completed ? 'View report' : 'Launch'}</Link></article>;
-      })}</div></div>
-
-      <div className="top-space"><h2>Pressure Distortions</h2><div className="card-grid top-space-sm"><article className="card" style={{ background: 'rgba(251,191,36,0.12)' }}><p className="eyebrow">Emerging</p><p>{profile.distortions.emerging[0] || 'No clear distortion signature yet.'}</p></article><article className="card" style={{ background: 'rgba(251,113,133,0.10)' }}><p className="eyebrow">Mild tendency</p><p>{profile.distortions.mild[0] || 'Mild tendency'}</p></article><article className="card" style={{ background: 'rgba(251,191,36,0.08)' }}><p className="eyebrow">Needs more evidence</p><p>{profile.distortions.needsMoreEvidence[0] || profile.interpretation?.confidenceNarrative}</p></article></div></div>
-    </>}
-
-    {activeTab === 'diagnostic' && <div className="top-space card project-card">{!diagnostic ? <><h2>Diagnostic Report</h2><p>Diagnostic not completed yet.</p><Link href="/human-equation-suite/diagnostic" className="button primary">Take Diagnostic</Link></> : <><h2>{diagnostic.pressureProfileTitle || 'Diagnostic Report'}</h2><p><strong>Date completed:</strong> {diagnostic.completedAt ? new Date(diagnostic.completedAt).toLocaleString('en-US') : 'Unavailable'}</p><p><strong>Leadership Pressure Profile:</strong> {diagnostic.pressureProfileTitle}</p><h3>Framework layer scores</h3><div className="card-grid top-space-sm">{dimensionDefinitions.map(({ key, label }) => <article key={key} className="card"><p><strong>{label}</strong></p><p>Composite: {diagnostic.dimensions?.[key]?.composite ?? 'N/A'} / 5</p></article>)}</div><h3 className="top-space-sm">Pressure distortions</h3><p>{diagnostic.topDistortions?.length ? diagnostic.topDistortions.join(', ') : 'No clear distortion signature yet'}</p><h3 className="top-space-sm">Strengths</h3><p>{diagnostic.topStrengths?.join(', ') || 'Awaiting signal'}</p><h3 className="top-space-sm">Growth edges</h3><p>{diagnostic.growthEdges?.join(', ') || 'Awaiting signal'}</p><h3 className="top-space-sm">Recommended next simulation</h3><p>{diagnostic.recommendedNextStep || 'Parent Call Rehearsal'}</p></>}</div>}
-
-    {activeTab === 'master' && <div className="top-space"><h2>Growth + Timeline</h2><div className="card-grid top-space-sm"><article className="card"><p className="eyebrow">Growth edges</p><p>{(profile.growthEdges || []).join(' • ') || 'Evidence still forming for growth edge detection.'}</p></article><article className="card"><p className="eyebrow">Growth notes</p><p>{(profile.growthNotes || []).join(' ') || 'Collect additional scenario evidence for sharper coaching notes.'}</p></article><article className="card"><p className="eyebrow">Timeline</p><p>{profile.simulationHistory.map((event) => `${event.source} (${event.completedAt ? new Date(event.completedAt).toLocaleDateString('en-US') : 'pending'})`).join(' • ') || 'No timeline events yet.'}</p></article></div></div>}
-
-    {activeTab === 'urban' && <div className="top-space card project-card">{!urbanReport ? <><h2>Urban Student Report</h2><p>Urban Student Simulation has not been completed yet.</p><Link href="/day-in-the-life-urban-student" className="button secondary">Launch Urban Student Simulation</Link></> : <><h2>Urban Student Behavioral Evidence</h2><p><strong>Date completed:</strong> {urbanReport.completedAt ? new Date(urbanReport.completedAt).toLocaleString('en-US') : 'Unavailable'}</p><p><strong>Urban evidence includes simulation path + post-simulation reflection.</strong></p><p>{urbanReport.evidenceSummary}</p><h3 className="top-space-sm">Dimension contribution cards</h3><div className="card-grid top-space-sm">{dimensionDefinitions.map(({ key, label }) => <article key={key} className="card"><p><strong>{label}</strong></p><p>Observed score: {urbanReport.dimensions?.[key]?.score ?? 'N/A'} / 5</p><p>{urbanReport.dimensions?.[key]?.narrative || 'Interpretive signal still forming.'}</p></article>)}</div><h3 className="top-space-sm">Reflection summary</h3><p>{urbanReport.reflectionSummary || 'No post-simulation reflection captured yet.'}</p><h3 className="top-space-sm">Student-experience interpretation</h3><p>{urbanReport.studentExperienceInterpretation || 'Interpretation is still forming as additional evidence is captured.'}</p><h3 className="top-space-sm">Leadership implications</h3><p>{urbanReport.leadershipImplications?.join(' • ') || 'Leadership implications will appear as evidence accumulates.'}</p><h3 className="top-space-sm">Growth opportunities</h3><p>{urbanReport.growthOpportunities?.join(' • ') || urbanReport.growthEdges?.join(' • ') || 'No growth opportunities identified yet.'}</p></>}</div>}
-    {activeTab !== 'master' && activeTab !== 'diagnostic' && activeTab !== 'urban-student' && <div className="top-space card project-card"><h2>{tabs.find((t) => t.key === activeTab)?.label}</h2><p>{activeTab === 'parent-call' ? 'No parent call report captured yet.' : activeTab === 'leadership-simulation' ? 'No leadership simulation report captured yet.' : 'No observation lab report captured yet.'}</p><Link href={activeTab === 'parent-call' ? '/human-equation' : activeTab === 'leadership-simulation' ? '/simulation-overview' : '/human-equation-suite/dashboard'} className="button secondary">Launch</Link></div>}
   </div></section>;
 }
