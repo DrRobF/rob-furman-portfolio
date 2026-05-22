@@ -21,6 +21,7 @@ export default function TranslatePage() {
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [blockedAudioTurnId, setBlockedAudioTurnId] = useState(null);
+  const [showDebug, setShowDebug] = useState(false);
   const [debugInfo, setDebugInfo] = useState({
     recorderMimeType: '',
     blobType: '',
@@ -177,6 +178,7 @@ export default function TranslatePage() {
 
   const playTranslationAudio = useCallback(async (audioBase64, turnId = null) => {
     const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
+    activeAudioRef.current?.pause();
     activeAudioRef.current = audio;
     try {
       await audio.play();
@@ -187,14 +189,6 @@ export default function TranslatePage() {
   }, []);
 
   const startRecording = useCallback(async (speaker, origin = 'click-toggle') => {
-    console.log('[translate] startRecording called', {
-      origin,
-      speaker,
-      status,
-      recorderState: recorderRef.current?.state || 'none',
-      hasStream: Boolean(streamRef.current),
-    });
-
     if (
       isForceStoppingRef.current ||
       isCleaningUpRef.current ||
@@ -236,13 +230,11 @@ export default function TranslatePage() {
         if (isForceStoppingRef.current || isCleaningUpRef.current) return;
         if (event.data && event.data.size > 0) {
           chunksRef.current.push(event.data);
-          console.log('[translate] chunk received', { count: chunksRef.current.length, size: event.data.size });
           setDebugInfo((prev) => ({ ...prev, chunkCount: chunksRef.current.length }));
         }
       };
 
       recorder.onstop = async () => {
-        console.log('[translate] onstop fired');
         clearRequestTimer();
 
         if (isForceStoppingRef.current || isCleaningUpRef.current) {
@@ -276,9 +268,6 @@ export default function TranslatePage() {
             recordingDurationMs > 2000 && blob.size < 10000
               ? 'Audio file is unusually small. Microphone may not be capturing clearly.'
               : '';
-          if (audioSizeWarning) {
-            console.warn('[translate] small audio blob warning', { blobSize: blob.size, recordingDurationMs });
-          }
           setDebugInfo((prev) => ({ ...prev, blobType, blobSize: blob.size, fileSize: audioFile.size, recordingDurationMs, audioSizeWarning }));
 
           const formData = new FormData();
@@ -290,7 +279,6 @@ export default function TranslatePage() {
           const response = await fetch('/api/translate-turn', { method: 'POST', body: formData });
           const data = await response.json();
           if (!response.ok) {
-            console.error('[translate] API error', { status: response.status, data });
             setDebugInfo((prev) => ({
               ...prev,
               lastApiErrorStep: data?.step || 'unknown',
@@ -366,8 +354,8 @@ export default function TranslatePage() {
       setLesson(data);
       setStatus('Ready');
     } catch (err) {
-      setStatus('Error');
-      setError(err.message || 'Could not create lesson.');
+      setStatus('Ready');
+      setError(`Lesson creation failed: ${err.message || 'Could not create lesson.'}`);
     } finally {
       setIsProcessing(false);
     }
@@ -385,10 +373,10 @@ export default function TranslatePage() {
   return (<section className={`${styles.wrapper} section`}><div className={`container ${styles.container}`}>
     <h1>Translate</h1><p className={styles.subtitle}>Speak. Translate. Learn.</p>
     <div className={styles.toolbar}><select id="translate-language-pair" name="translateLanguagePair" className={styles.select} value={selectedPairId} onChange={(event) => onSelectPair(event.target.value)}>{LANGUAGE_PAIRS.map((pair) => <option key={pair.id} value={pair.id}>{pair.label}</option>)}</select><button type="button" className={`button secondary ${styles.swapButton}`} onClick={swapLanguages}>Swap ({sourceLanguage} → {targetLanguage})</button></div>
-    <div className={`${styles.state} ${styles[statusClass] || ''}`}><span>{status === 'Recording' ? 'Listening…' : status}</span>{activeSpeaker && <strong>{activeSpeaker === 'me' ? 'I’m Speaking' : 'They’re Speaking'}</strong>}{status === 'Recording' && <span className={styles.pulse} aria-hidden />}</div>
+    <div className={`${styles.state} ${styles[statusClass] || ''}`}><span>{status === 'Recording' ? 'Listening…' : status}</span>{activeSpeaker && <strong>{activeSpeaker === 'me' ? 'Me recording' : 'Them recording'}</strong>}{status === 'Recording' && <span className={styles.pulse} aria-hidden />}</div>
     {error ? <p className={styles.error}>{error}</p> : null}
-    <div className={styles.feed}>{turns.map((turn) => <article className={styles.turnCard} key={turn.id}><h3>{turn.speaker === 'me' ? 'You' : 'Other Person'}</h3><p><strong>{turn.sourceLanguage}:</strong> {turn.transcript}</p><p><strong>{turn.targetLanguage}:</strong> {turn.translation}</p>{turn.audioBase64 ? <button type="button" className={`button secondary ${styles.playButton}`} onClick={() => playTranslationAudio(turn.audioBase64, turn.id)}>{blockedAudioTurnId === turn.id ? 'Play Translation' : 'Replay Translation'}</button> : null}</article>)}{!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}</div>
-    <div className={styles.actionsRow}><button type="button" className="button secondary" onClick={clearConversation}>Clear Conversation</button><button type="button" className="button secondary" onClick={() => fullCleanup('Ready', { forceStop: true })}>Force Stop Mic</button><button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>Create Lesson From This Conversation</button></div>
+    <div className={styles.feed}>{turns.map((turn) => <article className={styles.turnCard} key={turn.id}><h3>{turn.speaker === 'me' ? 'Speaker: Me' : 'Speaker: Them'}</h3><p><strong>Original ({turn.sourceLanguage}):</strong> {turn.transcript}</p><p><strong>Translation ({turn.targetLanguage}):</strong> {turn.translation}</p><p><strong>Target language:</strong> {turn.targetLanguage}</p>{turn.audioBase64 ? <button type="button" className={`button secondary ${styles.playButton}`} onClick={() => playTranslationAudio(turn.audioBase64, turn.id)}>{blockedAudioTurnId === turn.id ? 'Play Translation' : 'Replay Translation'}</button> : null}</article>)}{!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}</div>
+    <div className={styles.actionsRow}><button type="button" className={`button secondary ${styles.clearButton}`} onClick={clearConversation}>Clear Conversation</button><button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>Create Lesson From This Conversation</button></div>
     {lesson ? (
           <section className={styles.lessonPanel}>
             <h2>Conversation Lesson</h2>
@@ -406,7 +394,8 @@ export default function TranslatePage() {
             <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>
           </section>
         ) : null}
-    <section className={styles.debugPanel}><h3>Recorder Debug (temporary)</h3><ul><li><strong>Current status:</strong> {status}</li><li><strong>Active speaker:</strong> {activeSpeaker || 'n/a'}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li><li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>File size:</strong> {debugInfo.fileSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Chunk count:</strong> {debugInfo.chunkCount}</li><li><strong>Live mic input level:</strong> {debugInfo.micInputLevel || 0}/100<div className={styles.micMeter}><div className={styles.micMeterFill} style={{ width: `${debugInfo.micInputLevel || 0}%` }} /></div>{debugInfo.micLevelWarning ? <div className={styles.micMeterWarning}>{debugInfo.micLevelWarning}</div> : null}</li><li><strong>Transcript:</strong> {debugInfo.transcript || debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li><li><strong>Last API error transcript:</strong> {debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Audio warning:</strong> {debugInfo.audioSizeWarning || 'n/a'}</li></ul></section>
-    <div className={styles.speakerDock}><div className={styles.speakerRow}>{[{ key: 'me', label: 'I’m Speaking' }, { key: 'them', label: 'They’re Speaking' }].map((speaker) => <button key={speaker.key} id={`speaker-${speaker.key}`} name={`speaker-${speaker.key}`} type="button" className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`} onClick={() => toggleSpeaker(speaker.key)} disabled={isProcessing}><span>{speaker.label}</span>{activeSpeaker === speaker.key ? <small>Listening… Click to stop</small> : <small>Click to start</small>}</button>)}</div></div>
+    <section className={styles.debugToggleRow}><button type="button" className="button tertiary" onClick={() => setShowDebug((prev) => !prev)}>{showDebug ? 'Hide Debug' : 'Show Debug'}</button></section>
+    {showDebug ? <section className={styles.debugPanel}><h3>Recorder Debug</h3><ul><li><strong>Status:</strong> {status}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Transcript:</strong> {debugInfo.transcript || debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Mic input level:</strong> {debugInfo.micInputLevel || 0}/100<div className={styles.micMeter}><div className={styles.micMeterFill} style={{ width: `${debugInfo.micInputLevel || 0}%` }} /></div>{debugInfo.micLevelWarning ? <div className={styles.micMeterWarning}>{debugInfo.micLevelWarning}</div> : null}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li></ul><button type="button" className="button secondary" onClick={() => fullCleanup('Ready', { forceStop: true })}>Force Stop Mic</button></section> : null}
+    <div className={styles.speakerDock}><div className={styles.speakerRow}>{[{ key: 'me', label: 'I’m Speaking' }, { key: 'them', label: 'They’re Speaking' }].map((speaker) => <button key={speaker.key} id={`speaker-${speaker.key}`} name={`speaker-${speaker.key}`} type="button" className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`} onClick={() => toggleSpeaker(speaker.key)} disabled={isProcessing}><span>{speaker.label}</span>{activeSpeaker === speaker.key ? <small>Recording now — click again to stop</small> : <small>Click once to start, click again to stop</small>}</button>)}</div></div>
   </div></section>);
 }
