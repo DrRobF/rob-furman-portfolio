@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import HumanEquationNav from '../../components/HumanEquationNav';
 import { dimensionDefinitions, factorPsychologyDefinitions } from './profileData';
-import { EVIDENCE_EVENTS_STORAGE_KEY, calculateFactorProfile, getEvidenceTimeline, getNextRecommendedSimulation, resetLeadershipProfile } from './evidenceModel';
+import { EVIDENCE_EVENTS_STORAGE_KEY, LEADERSHIP_EVIDENCE_UPDATED_AT_KEY, calculateFactorProfile, getEvidenceTimeline, getNextRecommendedSimulation, resetLeadershipProfile } from './evidenceModel';
 
 const title = (sourceType) => ({ diagnostic: 'Diagnostic', urban_sim: 'Urban Sim', parent_call: 'Parent Call', leadership_sim: 'Leadership Sim', observation_lab: 'Observation', course_reflection: 'Reflection', written_artifact: 'Written Artifact', artifact: 'Artifact' }[sourceType] || sourceType);
 
@@ -28,11 +28,29 @@ const confidenceLabel = (eventCount) => (eventCount < 4 ? 'Early read' : eventCo
 export default function HumanEquationDashboardPage() {
   const [events, setEvents] = useState([]);
   const [activeReport, setActiveReport] = useState('distortions');
+  const growthReportRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    setEvents(JSON.parse(window.localStorage.getItem(EVIDENCE_EVENTS_STORAGE_KEY) || '[]'));
+    const refreshEvents = () => {
+      const parsed = JSON.parse(window.localStorage.getItem(EVIDENCE_EVENTS_STORAGE_KEY) || '[]');
+      setEvents(parsed);
+      if (process.env.NODE_ENV !== 'production') {
+        console.debug('[Dashboard] evidence events found:', parsed.length);
+        console.debug('[Dashboard] source types found:', [...new Set(parsed.map((e) => e.sourceType))]);
+      }
+    };
+    refreshEvents();
+    const onStorage = (event) => {
+      if (event.key === EVIDENCE_EVENTS_STORAGE_KEY || event.key === LEADERSHIP_EVIDENCE_UPDATED_AT_KEY) refreshEvents();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
+
+  useEffect(() => {
+    if (growthReportRef.current) growthReportRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [activeReport]);
 
   const factorProfiles = useMemo(() => Object.fromEntries(dimensionDefinitions.map((d) => [d.key, calculateFactorProfile(events, d.key)])), [events]);
   const timeline = useMemo(() => getEvidenceTimeline(events), [events]);
@@ -44,6 +62,10 @@ export default function HumanEquationDashboardPage() {
   const recommendedRecovery = scoredFactors.filter((x) => x.riskMarkers > 0).sort((a, b) => b.riskMarkers - a.riskMarkers)[0];
   const confidence = confidenceLabel(events.length);
   const hasRadarData = scoredFactors.filter((f) => f.score !== null).length >= 3;
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    console.debug('[Dashboard] factor profiles computed:', scoredFactors.map((f) => ({ key: f.key, score: f.score, evidence: f.totalEvidenceEvents })));
+  }, [scoredFactors]);
 
   const renderReportPanel = () => {
     if (activeReport === 'timeline') {
@@ -65,7 +87,7 @@ export default function HumanEquationDashboardPage() {
         const isCurrent = index === 3;
         return <article key={step.key} className={`hes-step ${isDone ? 'done' : ''} ${isCurrent ? 'current' : ''}`}><div className="node">{isDone ? '✓' : index + 1}</div><div><header><h4>{step.label}</h4><span className={`badge ${isDone ? 'badge-green' : isCurrent ? 'badge-blue' : 'badge-gray'}`}>{isDone ? 'Complete' : isCurrent ? 'Active' : 'Upcoming'}</span></header><p>{step.description}</p></div></article>;
       })}</div>
-      <div><h3>Growth Center</h3><div className="hes-report-selector">{reportTabs.map((tab) => <button key={tab.key} className={`button ${activeReport === tab.key ? '' : 'secondary'}`} onClick={() => setActiveReport(tab.key)}>{tab.label}</button>)}</div></div>
+      <div><h3>Growth Center</h3><div className="hes-report-selector">{reportTabs.map((tab) => <button key={tab.key} className={`button ${activeReport === tab.key ? 'primary' : 'secondary'}`} onClick={() => setActiveReport(tab.key)} aria-pressed={activeReport === tab.key}>{tab.label}</button>)}</div></div>
       <button className="button secondary" onClick={() => {
         if (!window.confirm('Start fresh clears your leadership evidence profile so you can rebuild it from new diagnostic and simulation data. Continue?')) return;
         resetLeadershipProfile();
@@ -92,7 +114,7 @@ export default function HumanEquationDashboardPage() {
         <article className="hes-insight-card recovery"><h3>Recommended recovery move</h3><p>{recommendedRecovery ? `Stabilize ${recommendedRecovery.label} with brief reset routines.` : 'Early read — more evidence needed.'}</p></article>
       </div>
 
-      {renderReportPanel()}
+      <div ref={growthReportRef} tabIndex={-1}>{renderReportPanel()}</div>
 
       <article className="card"><h2>The 8 Factors</h2><div className="hes-factor-grid compact">{dimensionDefinitions.map(({ key, label }) => {
         const p = factorProfiles[key];

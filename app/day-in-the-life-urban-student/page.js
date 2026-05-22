@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import HumanEquationNav from '../components/HumanEquationNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../human-equation-suite/dashboard/profileData';
 import { buildUrbanSimulationReport, urbanReflectionQuestions, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
+import { addFactorImpact, createEvidenceEvent, saveEvidenceEvent } from '../human-equation-suite/dashboard/evidenceModel';
 
 const urbanStudentScenes = [
   {
@@ -1909,6 +1910,34 @@ export default function DayInTheLifeUrbanStudentPage() {
     const completedAt = new Date().toISOString();
     const urbanReport = buildUrbanSimulationReport({ selectedChoices, cumulativeMetrics, completedAt, completionReason, postReflectionAnswers, reflectionQuestions: postSimReflectionQuestions });
     window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(urbanReport));
+    const existingEvents = JSON.parse(window.localStorage.getItem('heq_evidence_events_v1') || '[]');
+    const attemptNumber = existingEvents.filter((event) => event.sourceType === 'urban_sim').length + 1;
+    const factorImpacts = [
+      addFactorImpact('humanAwareness', 0.35, 0.7, 'positive', 'Recognized human context beneath student behavior.'),
+      addFactorImpact('regulationUnderPressure', 0.25, 0.65, 'positive', 'Maintained interpretation under emotional load.'),
+      addFactorImpact('realityAnchoring', 0.2, 0.65, 'positive', 'Balanced observed facts with emotional context.'),
+      addFactorImpact('trustConstruction', 0.2, 0.6, 'positive', 'Selected responses that preserved student dignity and adult credibility.'),
+      addFactorImpact('grayAreaLeadership', 0.2, 0.6, 'positive', 'Navigated ambiguity without collapsing into a single explanation.'),
+    ];
+    const evidenceEvent = createEvidenceEvent({
+      sourceType: 'urban_sim',
+      sourceId: urbanReport.completedAt || completedAt,
+      sourceLabel: `Urban Student Simulation Attempt ${attemptNumber}`,
+      evidenceType: 'behavioral_choice',
+      factorImpacts,
+      weight: 1.0,
+      summary: 'Urban Student Simulation completed and behavioral evidence captured.',
+      tags: ['urban-sim', 'behavioral', 'human-context'],
+    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('Creating Urban Sim evidence event');
+      console.debug('Urban Sim evidence payload:', evidenceEvent);
+    }
+    const saved = saveEvidenceEvent(evidenceEvent);
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('Urban Sim saved result:', saved.savedEvent);
+      console.debug('Urban Sim evidence count after save:', saved.events.length);
+    }
 
     const existingMaster = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
     const parsedMaster = existingMaster ? JSON.parse(existingMaster) : createEmptyMasterProfile();

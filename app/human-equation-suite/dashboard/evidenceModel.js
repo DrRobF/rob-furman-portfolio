@@ -2,6 +2,7 @@ import { dimensionDefinitions } from './profileData';
 
 export const EVIDENCE_EVENTS_STORAGE_KEY = 'heq_evidence_events_v1';
 export const LEADERSHIP_PROFILE_STORAGE_KEY = 'heq_leadership_profile_v2';
+export const LEADERSHIP_EVIDENCE_UPDATED_AT_KEY = 'leadershipEvidenceUpdatedAt';
 
 export const SOURCE_WEIGHTS = {
   diagnostic: 0.5,
@@ -34,6 +35,21 @@ export const createEvidenceEvent = ({ userId = 'local-user', sourceType, sourceI
   summary,
   rawResponseReference,
 });
+
+export const saveEvidenceEvent = (event) => {
+  if (typeof window === 'undefined') return { savedEvent: event, events: [] };
+  const existingEvents = JSON.parse(window.localStorage.getItem(EVIDENCE_EVENTS_STORAGE_KEY) || '[]');
+  const duplicate = existingEvents.find((existing) => (
+    existing.sourceType === event.sourceType
+    && existing.sourceId === event.sourceId
+    && existing.evidenceType === event.evidenceType
+  ));
+  if (duplicate) return { savedEvent: duplicate, events: existingEvents, duplicate: true };
+  const events = [...existingEvents, event];
+  window.localStorage.setItem(EVIDENCE_EVENTS_STORAGE_KEY, JSON.stringify(events));
+  window.localStorage.setItem(LEADERSHIP_EVIDENCE_UPDATED_AT_KEY, new Date().toISOString());
+  return { savedEvent: event, events, duplicate: false };
+};
 
 export const calculateFactorProfile = (events = [], factorId) => {
   const related = events.filter((e) => e.factorImpacts?.some((i) => i.factorId === factorId));
@@ -85,6 +101,7 @@ export const resetLeadershipProfile = () => {
     'humanEquationParentCallEvidence',
     'humanEquationLeadershipSimulationEvidence',
     'humanEquationObservationEvidence',
+    LEADERSHIP_EVIDENCE_UPDATED_AT_KEY,
   ];
   keys.forEach((k) => window.localStorage.removeItem(k));
 };

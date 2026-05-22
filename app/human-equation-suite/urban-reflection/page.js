@@ -4,7 +4,7 @@ import { useState } from 'react';
 import HumanEquationNav from '../../components/HumanEquationNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../dashboard/profileData';
 import { buildUrbanSimulationReport, urbanReflectionQuestions, URBAN_REPORT_STORAGE_KEY } from '../dashboard/urbanEvidence';
-import { EVIDENCE_EVENTS_STORAGE_KEY, createEvidenceEvent, addFactorImpact } from '../dashboard/evidenceModel';
+import { EVIDENCE_EVENTS_STORAGE_KEY, createEvidenceEvent, addFactorImpact, saveEvidenceEvent } from '../dashboard/evidenceModel';
 
 export default function UrbanReflectionOnlyPage() {
   const [answers, setAnswers] = useState({});
@@ -19,9 +19,18 @@ export default function UrbanReflectionOnlyPage() {
     const report = buildUrbanSimulationReport({ selectedChoices: {}, cumulativeMetrics: {}, completedAt, completionReason: 'reflection_only', postReflectionAnswers: answers, reflectionQuestions: urbanReflectionQuestions });
     window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(report));
     const existingEvents = JSON.parse(window.localStorage.getItem(EVIDENCE_EVENTS_STORAGE_KEY) || '[]');
+    const attemptNumber = existingEvents.filter((event) => event.sourceType === 'urban_sim').length + 1;
     const impacts = Object.entries(report.dimensions || {}).map(([factorId, dim]) => addFactorImpact(factorId, ((dim?.score || 3) - 3) / 2, dim?.confidence || 0.7, (dim?.score || 3) >= 3 ? 'positive' : 'risk', 'Urban simulation behavioral signal'));
-    const urbanEvent = createEvidenceEvent({ sourceType: 'urban_sim', sourceId: report.completedAt || 'urban', sourceLabel: 'Urban Student Simulation', evidenceType: 'simulation_outcome', factorImpacts: impacts, summary: report.evidenceSummary, tags: ['human context', 'ambiguity', 'systems thinking'] });
-    window.localStorage.setItem(EVIDENCE_EVENTS_STORAGE_KEY, JSON.stringify([...existingEvents, urbanEvent]));
+    const urbanEvent = createEvidenceEvent({ sourceType: 'urban_sim', sourceId: report.completedAt || 'urban', sourceLabel: `Urban Student Simulation Attempt ${attemptNumber}`, evidenceType: 'behavioral_choice', factorImpacts: impacts, summary: 'Urban Student Simulation completed and behavioral evidence captured.', tags: ['human context', 'ambiguity', 'systems thinking'], weight: 1.0 });
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('Creating Urban Sim evidence event');
+      console.debug('Urban Sim evidence payload:', urbanEvent);
+    }
+    const saved = saveEvidenceEvent(urbanEvent);
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('Urban Sim saved result:', saved.savedEvent);
+      console.debug('Urban Sim evidence count after save:', saved.events.length);
+    }
     const existingMaster = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
     const parsedMaster = existingMaster ? JSON.parse(existingMaster) : createEmptyMasterProfile();
     const blended = blendUrbanEvidenceIntoProfile(parsedMaster, report);
