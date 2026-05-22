@@ -7,6 +7,7 @@ import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import HumanEquationNav from '../../components/HumanEquationNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
+import { EVIDENCE_EVENTS_STORAGE_KEY, createEvidenceEvent, addFactorImpact } from '../dashboard/evidenceModel';
 
 const dimensions = [
   { key: 'trustConstruction', label: 'Trust Construction' },
@@ -377,6 +378,10 @@ export default function HumanEquationDiagnosticPage() {
       };
       window.localStorage.setItem(DIAGNOSTIC_RESULT_STORAGE_KEY, JSON.stringify(payload));
       window.localStorage.setItem(DASHBOARD_PROFILE_STORAGE_KEY, JSON.stringify(toMasterProfileFromDiagnostic(payload)));
+      const existingEvents = JSON.parse(window.localStorage.getItem(EVIDENCE_EVENTS_STORAGE_KEY) || '[]');
+      const factorImpacts = Object.entries(payload.dimensions || {}).map(([factorId, dim]) => addFactorImpact(factorId, ((dim?.composite || 3) - 3) / 2, 0.55, 'self_report', 'Diagnostic baseline signal'));
+      const diagnosticEvent = createEvidenceEvent({ sourceType: 'diagnostic', sourceId: payload.id || payload.completedAt || 'diagnostic', sourceLabel: 'Leadership Diagnostic', evidenceType: 'self_report', factorImpacts, summary: 'Leadership Diagnostic completed and baseline evidence captured.', tags: ['baseline', 'self-report'] });
+      window.localStorage.setItem(EVIDENCE_EVENTS_STORAGE_KEY, JSON.stringify([...existingEvents, diagnosticEvent]));
       setRedirectingToDashboard(true);
       const timer = window.setTimeout(() => {
         router.push('/human-equation-suite/dashboard?tab=diagnostic');

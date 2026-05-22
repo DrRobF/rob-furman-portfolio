@@ -4,6 +4,7 @@ import { useState } from 'react';
 import HumanEquationNav from '../../components/HumanEquationNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../dashboard/profileData';
 import { buildUrbanSimulationReport, urbanReflectionQuestions, URBAN_REPORT_STORAGE_KEY } from '../dashboard/urbanEvidence';
+import { EVIDENCE_EVENTS_STORAGE_KEY, createEvidenceEvent, addFactorImpact } from '../dashboard/evidenceModel';
 
 export default function UrbanReflectionOnlyPage() {
   const [answers, setAnswers] = useState({});
@@ -17,6 +18,10 @@ export default function UrbanReflectionOnlyPage() {
     const completedAt = new Date().toISOString();
     const report = buildUrbanSimulationReport({ selectedChoices: {}, cumulativeMetrics: {}, completedAt, completionReason: 'reflection_only', postReflectionAnswers: answers, reflectionQuestions: urbanReflectionQuestions });
     window.localStorage.setItem(URBAN_REPORT_STORAGE_KEY, JSON.stringify(report));
+    const existingEvents = JSON.parse(window.localStorage.getItem(EVIDENCE_EVENTS_STORAGE_KEY) || '[]');
+    const impacts = Object.entries(report.dimensions || {}).map(([factorId, dim]) => addFactorImpact(factorId, ((dim?.score || 3) - 3) / 2, dim?.confidence || 0.7, (dim?.score || 3) >= 3 ? 'positive' : 'risk', 'Urban simulation behavioral signal'));
+    const urbanEvent = createEvidenceEvent({ sourceType: 'urban_sim', sourceId: report.completedAt || 'urban', sourceLabel: 'Urban Student Simulation', evidenceType: 'simulation_outcome', factorImpacts: impacts, summary: report.evidenceSummary, tags: ['human context', 'ambiguity', 'systems thinking'] });
+    window.localStorage.setItem(EVIDENCE_EVENTS_STORAGE_KEY, JSON.stringify([...existingEvents, urbanEvent]));
     const existingMaster = window.localStorage.getItem(DASHBOARD_PROFILE_STORAGE_KEY);
     const parsedMaster = existingMaster ? JSON.parse(existingMaster) : createEmptyMasterProfile();
     const blended = blendUrbanEvidenceIntoProfile(parsedMaster, report);
