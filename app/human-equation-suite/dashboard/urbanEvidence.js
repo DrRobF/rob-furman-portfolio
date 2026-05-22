@@ -16,7 +16,7 @@ const weightedDimensionInputs = {
 const normalizeMetric = (value) => Math.max(-10, Math.min(10, value || 0));
 const toScore = (value) => +(Math.max(1, Math.min(5, 3 + (value / 10))).toFixed(1));
 
-export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMetrics = {}, completedAt = new Date().toISOString(), completionReason = 'completed' }) => {
+export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMetrics = {}, completedAt = new Date().toISOString(), completionReason = 'completed', postReflectionAnswers = {}, reflectionQuestions = [] }) => {
   const metrics = {
     sleep: normalizeMetric(cumulativeMetrics.sleep),
     stress: normalizeMetric(cumulativeMetrics.stress),
@@ -48,9 +48,20 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
     metrics.care < -2 ? 'Connection thinning: empathy access drops when relational safety feels low.' : null,
   ].filter(Boolean);
 
+  const simulationPathEvidence = Object.entries(selectedChoices).map(([sceneId, choiceId]) => ({ sceneId, choiceId }));
+  const postReflectionEvidence = Object.entries(postReflectionAnswers).map(([questionId, response]) => ({ questionId, response }));
+  const reflectionSummary = `${postReflectionEvidence.length} post-simulation reflection responses added to strengthen interpretive confidence.`;
   return {
     source: 'urban_student_simulation',
     completedAt,
+    simulationPathEvidence,
+    postReflectionEvidence,
+    dimensionContributions: dimensions,
+    reflectionSummary,
+    leadershipImplications: [
+      'Leadership interpretation improves when behavior is read with context, sequence, and systems awareness.',
+      'Dignity-preserving accountability increases trust while maintaining standards.',
+    ],
     completionReason,
     dimensions,
     distortions,
@@ -86,7 +97,7 @@ export const buildUrbanSimulationReport = ({ selectedChoices = {}, cumulativeMet
       { type: 'urban_simulation_started', label: 'Urban simulation started', occurredAt: completedAt, detail: 'Urban simulation evidence sequence initiated.' },
       { type: 'urban_simulation_completed', label: 'Urban simulation completed', occurredAt: completedAt, detail: `Completed with ${Object.keys(selectedChoices).length} behavioral decision points.` },
     ],
-    keyMoments: Object.entries(selectedChoices).slice(0, 8).map(([sceneId, choiceId]) => ({ sceneId, choiceId })),
+    keyMoments: simulationPathEvidence.slice(0, 8),
     confidenceScore: Math.min(0.95, 0.42 + (Object.keys(selectedChoices).length / 26)),
   };
 };

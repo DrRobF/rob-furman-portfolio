@@ -94,6 +94,9 @@ export default function HomePage() {
               and performance.
             </p>
             <div className="button-row">
+              <Link href="/human-equation-suite" className="button primary">
+                Explore the Human Equation Suite
+              </Link>
               <Link href="/projects" className="button primary">
                 Explore My Work
               </Link>
