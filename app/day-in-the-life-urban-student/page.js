@@ -608,7 +608,7 @@ const urbanStudentScenes = [
           { type: 'thought', text: 'Maybe she will help me.' },
         ],
         metrics: { sleep: 0, stress: -1, time: -1, care: -1 },
-        nextSceneId: 'scene_cool_teacher',
+        nextSceneId: 'scene_third_period_reading_class',
       },
     ],
   },
@@ -927,7 +927,7 @@ No one asks.` },
           { type: 'paragraph', text: 'You rehearse what to say, trying to keep your voice from shaking before you reach the door.' },
         ],
         metrics: { sleep: 0, stress: 1, time: -1, care: 1 },
-        nextSceneId: 'scene_cool_teacher',
+        nextSceneId: 'scene_third_period_reading_class',
       },
       {
         id: 'forget_it_go_to_class',
@@ -1117,7 +1117,7 @@ No one asks.` },
         resultTitle: 'You fall asleep.',
         result: [{ type: 'paragraph', text: 'You fall asleep.' }],
         metrics: { sleep: 1, stress: 1, time: 0, care: -1 },
-        nextSceneId: 'scene_lunch_room',
+        nextSceneId: 'scene_science_class',
       },
     ],
   },
@@ -1681,7 +1681,7 @@ No one asks.` },
           { type: 'paragraph', text: 'But there is nowhere to go that makes the weight disappear, and you are left facing it anyway.' },
         ],
         metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
-        nextSceneId: 'scene_reflection_conference_room',
+        nextSceneId: 'scene_no_exit_room',
         hiddenFromChoices: true,
       },
     ],
@@ -1807,7 +1807,7 @@ No one asks.` },
           { type: 'paragraph', text: 'There is no exit here. The experience continues.' },
         ],
         metrics: { sleep: 0, stress: 0, time: 0, care: 0 },
-        nextSceneId: 'scene_reflection_conference_room',
+        nextSceneId: 'scene_urban_report_complete',
       },
     ],
   },
@@ -1845,9 +1845,12 @@ const LOOP_PROTECTION_CONSECUTIVE_LIMIT = 2;
 const LOOP_PROTECTION_WINDOW_LIMIT = 3;
 const LOOP_PROTECTION_WINDOW_SIZE = 8;
 const LOOP_ESCAPE_SCENES = {
+  scene_main_office: 'scene_second_period_math',
   scene_second_period_math: 'scene_hallway_internal_reflection',
+  scene_hallway_internal_reflection: 'scene_third_period_reading_class',
   scene_no_exit_room: 'scene_urban_report_complete',
 };
+const ALLOW_BACKWARD_CHOICE_IDS = new Set(['restart_from_report', 'face_reflection_room']);
 
 const renderBlocks = (blocks) =>
   blocks.map((block, index) =>
@@ -1883,6 +1886,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   const [sceneId, setSceneId] = useState('scene_2am_bedroom');
   const [previousSceneId, setPreviousSceneId] = useState(null);
   const [sceneHistory, setSceneHistory] = useState(['scene_2am_bedroom']);
+  const [lastTransition, setLastTransition] = useState(null);
   const [selectedChoices, setSelectedChoices] = useState({});
   const [revealedGroupCounts, setRevealedGroupCounts] = useState({ scene_2am_bedroom: 1, scene_625am_bedroom: 1, scene_morning_bus_stop: 1, scene_school_entrance: 1, scene_technology_class: 1 });
   const [cumulativeMetrics, setCumulativeMetrics] = useState(initialMetrics);
@@ -1995,16 +1999,24 @@ export default function DayInTheLifeUrbanStudentPage() {
     return consecutiveVisits > LOOP_PROTECTION_CONSECUTIVE_LIMIT || windowVisits > LOOP_PROTECTION_WINDOW_LIMIT;
   };
 
-  const navigateToScene = (targetSceneId) => {
+  const navigateToScene = (targetSceneId, selectedActionId = null) => {
     const fallbackSceneId = LOOP_ESCAPE_SCENES[targetSceneId];
     const hasLoop = detectLoopForTarget(targetSceneId);
-    const targetAfterProtection = hasLoop && fallbackSceneId && sceneById[fallbackSceneId] ? fallbackSceneId : targetSceneId;
+    const currentIndex = urbanStudentScenes.findIndex((entry) => entry.id === scene.id);
+    const intendedIndex = urbanStudentScenes.findIndex((entry) => entry.id === targetSceneId);
+    const isBackward = intendedIndex >= 0 && currentIndex >= 0 && intendedIndex < currentIndex;
+    const isAllowedBackward = selectedActionId ? ALLOW_BACKWARD_CHOICE_IDS.has(selectedActionId) : false;
+    const fallbackByOrder = isBackward && !isAllowedBackward && currentIndex >= 0 ? (urbanStudentScenes[currentIndex + 1]?.id ?? targetSceneId) : targetSceneId;
+    const hasValidTarget = Boolean(sceneById[targetSceneId]);
+    const resolvedTarget = hasValidTarget ? fallbackByOrder : (urbanStudentScenes[currentIndex + 1]?.id ?? 'scene_urban_report_complete');
+    const targetAfterProtection = hasLoop && fallbackSceneId && sceneById[fallbackSceneId] ? fallbackSceneId : resolvedTarget;
 
     if (hasLoop && process.env.NODE_ENV !== 'production') {
       console.warn('Urban simulation loop detected:', targetSceneId);
     }
 
     setPreviousSceneId(scene.id);
+    setLastTransition({ currentSceneId: scene.id, currentSceneTitle: scene.heading, currentIndex, selectedActionId, intendedNextSceneId: targetSceneId, resolvedNextSceneId: targetAfterProtection, previousSceneId, visitedSceneCount: sceneHistory.length });
     setSceneId(targetAfterProtection);
     setSceneHistory((prev) => [...prev.slice(-(LOOP_PROTECTION_WINDOW_SIZE * 2)), targetAfterProtection]);
     scrollToTopOnSceneChange();
@@ -2019,10 +2031,10 @@ export default function DayInTheLifeUrbanStudentPage() {
           `[Urban Student Simulation] Potential backward loop detected: ${scene.id} routes back to previous scene ${previousSceneId}. Choice: ${selectedChoice.id}`,
         );
       }
-      navigateToScene(selectedChoice.nextSceneId);
+      navigateToScene(selectedChoice.nextSceneId, selectedChoice.id);
       return;
     }
-    navigateToScene('scene_placeholder_end');
+    navigateToScene('scene_placeholder_end', 'implicit_continue');
   };
 
   const handleEndEarly = () => {
@@ -2031,12 +2043,12 @@ export default function DayInTheLifeUrbanStudentPage() {
       if (!confirmed) return;
     }
     setCompletionReason('ended_early');
-    navigateToScene('scene_urban_report_complete');
+    navigateToScene('scene_urban_report_complete', 'end_early');
   };
 
   const handleJumpToScene = (targetSceneId) => {
     if (!sceneById[targetSceneId] || targetSceneId === sceneId) return;
-    navigateToScene(targetSceneId);
+    navigateToScene(targetSceneId, 'dev_jump');
     setSelectedChoices((prev) => {
       const nextChoices = { ...prev };
       delete nextChoices[targetSceneId];
@@ -2455,6 +2467,14 @@ export default function DayInTheLifeUrbanStudentPage() {
           )}
           <p className="section-label section-divider">THE MOMENT</p>
           <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`} className="scene-group">{renderBlocks(group)}</div>)}</div>
+          {isDeveloperMode && lastTransition && (
+            <section className="debug-panel">
+              <p><strong>DEV Transition Debug</strong></p>
+              <p>Current: {lastTransition.currentSceneId} | Intended: {lastTransition.intendedNextSceneId} | Resolved: {lastTransition.resolvedNextSceneId}</p>
+              <p>Action: {lastTransition.selectedActionId || 'none'} | Previous: {lastTransition.previousSceneId || 'none'} | Visited: {lastTransition.visitedSceneCount}</p>
+            </section>
+          )}
+
           {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>Continue the moment</button>}
 
           {isFullyRevealed && !selectedChoice && (
@@ -2499,7 +2519,7 @@ export default function DayInTheLifeUrbanStudentPage() {
                 </section>
               )}
               <button type="button" className="continue-button" onClick={handleContinue} disabled={!canContinue}>Continue</button>
-              <button type="button" className="reset-button" onClick={handleReset}>Reset / Start Over</button>
+              <button type="button" className="reset-button" onClick={handleReset}>Restart Urban Simulation</button>
             </section>
           )}
         </article>
@@ -2632,6 +2652,7 @@ export default function DayInTheLifeUrbanStudentPage() {
         button { display: block; width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 12px; text-align: left; font-weight: 600; cursor: pointer; line-height: 1.4; }
         .continue-moment, .continue-button { text-align: center; background: #0f172a; color: #fff; border-color: #0f172a; }
         .reset-button { text-align: center; background: #334155; color: #fff; }
+        .debug-panel { border: 1px dashed #94a3b8; border-radius: 10px; padding: 10px; background: #f8fafc; color: #0f172a; font-size: 0.82rem; }
         .selected-pill { margin: 0 0 12px; display: inline-block; background: #334155; color: #fff; border-radius: 999px; padding: 8px 12px; }
         .result-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; }
         .impact-section { margin-top: 16px; background: #f8fafc; border: 1px solid #d8e0ea; border-radius: 16px; padding: 14px; }
