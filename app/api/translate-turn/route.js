@@ -15,6 +15,12 @@ const MIME_EXTENSION_MAP = {
 
 const normalizeMimeType = (mimeType = '') => mimeType.toLowerCase().split(';')[0].trim();
 
+const base64ByteLength = (base64 = '') => {
+  const sanitized = base64.replace(/\s/g, '');
+  const padding = sanitized.endsWith('==') ? 2 : sanitized.endsWith('=') ? 1 : 0;
+  return Math.floor((sanitized.length * 3) / 4) - padding;
+};
+
 const getAudioFileName = (mimeType = '') => {
   const normalized = mimeType.toLowerCase().trim();
   const base = normalizeMimeType(normalized);
@@ -36,6 +42,7 @@ export async function POST(request) {
 
     console.log('[translate-turn] received audioBase64 length', audioBase64.length);
     console.log('[translate-turn] decoded audio buffer size', audioBytes.byteLength);
+    console.log('[translate-turn] expected decoded bytes from base64', base64ByteLength(audioBase64));
     console.log('[translate-turn] selected languages', { sourceLanguage, targetLanguage });
 
     console.log('[translate-turn] Incoming audio payload', {
@@ -47,8 +54,11 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
     }
 
+    const audioFile = new File([audioBytes], getAudioFileName(safeMimeType), { type: safeMimeType });
+    console.log('[translate-turn] file reconstruction', { fileType: audioFile.type, fileSize: audioFile.size });
+
     const form = new FormData();
-    form.append('file', new Blob([audioBytes], { type: safeMimeType }), getAudioFileName(safeMimeType));
+    form.append('file', audioFile);
     form.append('model', 'gpt-4o-transcribe');
     form.append('response_format', 'text');
 

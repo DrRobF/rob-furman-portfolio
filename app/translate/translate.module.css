@@ -146,3 +146,26 @@
     grid-template-columns: repeat(2, minmax(220px, 1fr));
   }
 }
+
+.debugPanel {
+  margin-top: 1rem;
+  border: 1px dashed rgba(156,180,226,0.6);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  background: rgba(9, 18, 34, 0.7);
+}
+
+.debugPanel h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.debugPanel ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.debugPanel li {
+  color: #d6e2fb;
+  margin: 0.2rem 0;
+}
