@@ -55,7 +55,7 @@ export async function POST(request) {
       throw new Error(transcript || 'Transcription failed.');
     }
 
-    if (!transcript) {
+    if (!transcript || !transcript.trim()) {
       return NextResponse.json({ error: 'No speech detected. Please try again.' }, { status: 400 });
     }
 
@@ -82,7 +82,7 @@ export async function POST(request) {
 
     const translation = translationJson.output_text?.trim() || '';
 
-    if (!translation.length) {
+    if (!translation || !translation.trim()) {
       return NextResponse.json({ error: 'Translation failed. Please try again.' }, { status: 400 });
     }
 
