@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import HumanEquationNav from '../components/HumanEquationNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../human-equation-suite/dashboard/profileData';
-import { buildUrbanSimulationReport, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
+import { buildUrbanSimulationReport, urbanReflectionQuestions, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
 
 const urbanStudentScenes = [
   {
@@ -1870,14 +1870,7 @@ const metricOrder = ['sleep', 'stress', 'time', 'care'];
 const initialMetrics = { sleep: 0, stress: 0, time: 0, care: 0 };
 const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 const dayProgressLabels = ['Morning', 'Early School Day', 'Midday', 'Afternoon', 'End of Day', 'Reflection'];
-const postSimReflectionQuestions = [
-  { id: 'shaped_behavior', prompt: 'What most shaped Adam’s behavior during the day?', options: [{ text: 'Unaddressed emotional and safety stressors', dims: ['humanAwareness', 'realityAnchoring'] }, { text: 'Mainly individual motivation and effort', dims: ['instructionalAcademicLeadership'] }, { text: 'System routines and intervention gaps', dims: ['teamSystemsLeadership', 'realityAnchoring'] }] },
-  { id: 'adult_intervention', prompt: 'Where was the first adult intervention most likely to change the day?', options: [{ text: 'Arrival and first-contact transitions', dims: ['teamSystemsLeadership', 'trustConstruction'] }, { text: 'Only after visible behavior escalation', dims: ['realityAnchoring'] }, { text: 'During instruction with dignity-preserving redirection', dims: ['instructionalAcademicLeadership', 'trustConstruction'] }] },
-  { id: 'dignity_response', prompt: 'Which response best preserves student dignity and expectations?', options: [{ text: 'Clear boundaries with context-aware support', dims: ['grayAreaLeadership', 'regulationUnderPressure'] }, { text: 'Immediate compliance-first correction', dims: ['teamSystemsLeadership'] }, { text: 'Delay response until behavior passes', dims: ['humanAwareness'] }] },
-  { id: 'system_routine', prompt: 'What system routine could reduce repeated escalation?', options: [{ text: 'Predictable check-ins and adult handoff routines', dims: ['teamSystemsLeadership', 'visionChangeLeadership'] }, { text: 'Stricter consequence ladder only', dims: ['realityAnchoring'] }, { text: 'Teacher-by-teacher improvisation', dims: ['grayAreaLeadership'] }] },
-  { id: 'leader_response', prompt: 'How should a leader respond when behavior and context are both real?', options: [{ text: 'Hold accountability and context together', dims: ['grayAreaLeadership', 'trustConstruction'] }, { text: 'Prioritize policy optics first', dims: ['visionChangeLeadership'] }, { text: 'Avoid decision until complete certainty', dims: ['realityAnchoring'] }] },
-  { id: 'staff_understand', prompt: 'What should staff understand after this simulation?', options: [{ text: 'Behavior is often the surface of accumulated stress', dims: ['humanAwareness', 'instructionalAcademicLeadership'] }, { text: 'Fast correction is always the best intervention', dims: ['regulationUnderPressure'] }, { text: 'Most moments are isolated incidents', dims: ['realityAnchoring'] }] },
-];
+const postSimReflectionQuestions = urbanReflectionQuestions;
 
 export default function DayInTheLifeUrbanStudentPage() {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
