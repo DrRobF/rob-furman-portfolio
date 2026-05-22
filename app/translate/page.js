@@ -31,6 +31,8 @@ export default function TranslatePage() {
     chunkCount: 0,
     lastApiErrorStep: '',
     lastApiErrorDetail: '',
+    lastApiErrorTranscript: '',
+    audioSizeWarning: '',
   });
 
   const recorderRef = useRef(null);
@@ -144,7 +146,15 @@ export default function TranslatePage() {
     setError('');
     try {
       chunksRef.current = [];
-      setDebugInfo((prev) => ({ ...prev, chunkCount: 0, transcript: '', lastApiErrorStep: '', lastApiErrorDetail: '' }));
+      setDebugInfo((prev) => ({
+        ...prev,
+        chunkCount: 0,
+        transcript: '',
+        lastApiErrorStep: '',
+        lastApiErrorDetail: '',
+        lastApiErrorTranscript: '',
+        audioSizeWarning: '',
+      }));
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
@@ -198,7 +208,14 @@ export default function TranslatePage() {
           setIsProcessing(true);
           setStatus('Translating');
           const audioFile = new File([blob], 'recording.webm', { type: blobType });
-          setDebugInfo((prev) => ({ ...prev, blobType, blobSize: blob.size, fileSize: audioFile.size, recordingDurationMs }));
+          const audioSizeWarning =
+            recordingDurationMs > 2000 && blob.size < 10000
+              ? 'Audio file is unusually small. Microphone may not be capturing clearly.'
+              : '';
+          if (audioSizeWarning) {
+            console.warn('[translate] small audio blob warning', { blobSize: blob.size, recordingDurationMs });
+          }
+          setDebugInfo((prev) => ({ ...prev, blobType, blobSize: blob.size, fileSize: audioFile.size, recordingDurationMs, audioSizeWarning }));
 
           const formData = new FormData();
           formData.append('audio', blob, 'recording.webm');
@@ -210,7 +227,13 @@ export default function TranslatePage() {
           const data = await response.json();
           if (!response.ok) {
             console.error('[translate] API error', { status: response.status, data });
-            setDebugInfo((prev) => ({ ...prev, lastApiErrorStep: data?.step || 'unknown', lastApiErrorDetail: data?.detail || data?.error || 'Unknown error' }));
+            setDebugInfo((prev) => ({
+              ...prev,
+              lastApiErrorStep: data?.step || 'unknown',
+              lastApiErrorDetail: data?.detail || data?.error || 'Unknown error',
+              lastApiErrorTranscript: data?.transcript || '',
+              transcript: data?.transcript || prev.transcript,
+            }));
             throw new Error(data?.detail || data?.error || 'Translation failed.');
           }
 
@@ -319,7 +342,7 @@ export default function TranslatePage() {
             <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>
           </section>
         ) : null}
-    <section className={styles.debugPanel}><h3>Recorder Debug (temporary)</h3><ul><li><strong>Current status:</strong> {status}</li><li><strong>Active speaker:</strong> {activeSpeaker || 'n/a'}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li><li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>File size:</strong> {debugInfo.fileSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Chunk count:</strong> {debugInfo.chunkCount}</li><li><strong>Transcript:</strong> {debugInfo.transcript || 'n/a'}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li></ul></section>
+    <section className={styles.debugPanel}><h3>Recorder Debug (temporary)</h3><ul><li><strong>Current status:</strong> {status}</li><li><strong>Active speaker:</strong> {activeSpeaker || 'n/a'}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li><li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>File size:</strong> {debugInfo.fileSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Chunk count:</strong> {debugInfo.chunkCount}</li><li><strong>Transcript:</strong> {debugInfo.transcript || 'n/a'}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li><li><strong>Last API error transcript:</strong> {debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Audio warning:</strong> {debugInfo.audioSizeWarning || 'n/a'}</li></ul></section>
     <div className={styles.speakerDock}><div className={styles.speakerRow}>{[{ key: 'me', label: 'I’m Speaking' }, { key: 'them', label: 'They’re Speaking' }].map((speaker) => <button key={speaker.key} id={`speaker-${speaker.key}`} name={`speaker-${speaker.key}`} type="button" className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`} onClick={() => toggleSpeaker(speaker.key)} disabled={isProcessing}><span>{speaker.label}</span>{activeSpeaker === speaker.key ? <small>Listening… Click to stop</small> : <small>Click to start</small>}</button>)}</div></div>
   </div></section>);
 }
