@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const VIC_URL = 'https://askvic.ai';
-const SCHOOL_LEADER_SIMULATION_OVERVIEW_URL = '/simulation-overview';
+const SCHOOL_LEADER_SIMULATION_OVERVIEW_URL = '/human-equation-suite/dashboard';
 
 const credibilityCards = [
   {
@@ -47,7 +47,7 @@ const featuredProjects = [
     description:
       'A leadership training system that places administrators inside a full school day, requiring real decisions across instruction, behavior, and communication.',
     href: SCHOOL_LEADER_SIMULATION_OVERVIEW_URL,
-    linkText: 'Learn About Simulation →',
+    linkText: 'Part of Human Equation Suite →',
   },
   {
     title: 'Human Equation Suite',
@@ -68,8 +68,8 @@ const featuredProjects = [
     title: 'A Day in the Life of an Urban Student',
     description:
       'An interactive professional learning simulation that follows one student through a school day and asks educators to examine trauma, assumptions, adult responses, and missed intervention points.',
-    href: '/day-in-the-life-urban-student',
-    linkText: 'Launch Simulation',
+    href: '/human-equation-suite/dashboard',
+    linkText: 'Part of Human Equation Suite →',
   },
 ];
 
