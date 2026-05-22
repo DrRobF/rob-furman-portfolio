@@ -1840,3 +1840,44 @@ p {
 .hes-factor-panel{border:1px solid #c9d5ea;border-radius:14px;padding:1rem;background:linear-gradient(180deg,#fff,#f8fbff)}
 .hes-learning-shell{max-width:1000px;margin:0 auto}
 @media (max-width:900px){.hes-factor-grid,.hes-hero-grid{grid-template-columns:1fr}}
+
+/* Human Equation dashboard refinement */
+.hes-stepper{display:grid;gap:.75rem;position:relative}
+.hes-step{display:grid;grid-template-columns:28px 1fr;gap:.6rem;position:relative;padding-bottom:.45rem}
+.hes-step:not(:last-child)::after{content:'';position:absolute;left:13px;top:30px;bottom:-6px;width:2px;background:#cbd5e1}
+.hes-step .node{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;font-size:.78rem;font-weight:700;background:#e2e8f0;color:#1e293b}
+.hes-step.done .node{background:#dcfce7;color:#166534}
+.hes-step.current .node{background:#dbeafe;color:#1d4ed8}
+.hes-step h4{margin:0;font-size:.9rem}
+.hes-step header{display:flex;justify-content:space-between;gap:.5rem;align-items:center}
+.hes-step p{margin:.2rem 0 0;font-size:.8rem;color:#475569}
+.status-badge.is-done{background:#ecfdf5;border-color:#86efac;color:#166534}
+.status-badge.is-current{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.status-badge.is-available{background:#f8fafc;border-color:#cbd5e1;color:#334155}
+
+.hes-hero-shell{display:grid;grid-template-columns:1.4fr .9fr;gap:1rem;align-items:center}
+.hes-mini-radar svg{width:100%;max-width:220px;height:auto}
+.hes-mini-radar circle{fill:none;stroke:#cbd5e1;stroke-width:1}
+.hes-mini-radar polygon{fill:rgba(37,99,235,.22);stroke:#1d4ed8;stroke-width:2}
+.hes-insights-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+.hes-insight-card{border:1px solid #cbd5e1;border-radius:12px;padding:.75rem;background:#fff}
+.hes-insight-card h3{font-size:.84rem;margin-bottom:.35rem}
+.hes-insight-card p{margin:0;font-size:.88rem}
+.hes-insight-card.stabilizer{background:#eff6ff;border-color:#93c5fd}
+.hes-insight-card.distortion{background:#fff7ed;border-color:#fdba74}
+.hes-insight-card.tension{background:#f5f3ff;border-color:#c4b5fd}
+.hes-insight-card.recovery{background:#ecfeff;border-color:#67e8f9}
+
+.hes-factor-grid.compact{grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+.hes-factor-panel.compact{padding:.75rem}
+.hes-factor-panel.compact p{font-size:.83rem;margin:.35rem 0}
+.hes-factor-panel.compact details summary{cursor:pointer;font-size:.8rem;color:#1d4ed8}
+.hes-mini-meter{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:.45rem 0}
+.hes-mini-meter span{display:block;height:100%}
+.hes-mini-meter .is-strong{background:#2563eb}
+.hes-mini-meter .is-mid{background:#7c3aed}
+.hes-mini-meter .is-risk{background:#f59e0b}
+.hes-compact-progress .card{padding:.9rem;background:#f8fafc}
+
+@media (max-width: 1200px){.hes-factor-grid.compact{grid-template-columns:repeat(2,minmax(0,1fr))}.hes-insights-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width: 900px){.hes-hero-shell{grid-template-columns:1fr}.hes-factor-grid.compact,.hes-insights-row{grid-template-columns:1fr}}
