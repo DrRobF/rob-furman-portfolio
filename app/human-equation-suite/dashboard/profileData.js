@@ -167,6 +167,61 @@ export const blendUrbanEvidenceIntoProfile = (profile, urbanReport) => {
 };
 
 
+
+
+const maturityByCount = (count, sourceCount) => {
+  if (count >= 8 && sourceCount >= 4) return 'Strongly Supported';
+  if (count >= 5 && sourceCount >= 3) return 'Supported';
+  if (count >= 3 && sourceCount >= 2) return 'Developing';
+  return 'Emerging';
+};
+
+const confidenceFromEvidence = (count, sourceCount) => {
+  const raw = 0.2 + (count * 0.08) + (sourceCount * 0.12);
+  return Math.max(0.2, Math.min(0.95, +raw.toFixed(2)));
+};
+
+export const deriveEvidenceMaturity = (dimension = {}) => {
+  const history = Array.isArray(dimension.history) ? dimension.history : [];
+  const uniqueSources = [...new Set(history.map((item) => item?.source).filter(Boolean))];
+  const weightedSources = Object.entries(dimension.evidenceWeights || {}).filter(([, v]) => v > 0).map(([k]) => k);
+  const sources = [...new Set([...uniqueSources, ...weightedSources])];
+  const evidenceCount = history.length;
+  const sourceCount = sources.length;
+  const latestEvidenceDate = history.map((item) => item?.capturedAt).filter(Boolean).sort().at(-1) || null;
+  const maturityLabel = maturityByCount(evidenceCount, sourceCount);
+  const interpretationStrength = maturityLabel === 'Strongly Supported' ? 'strong' : maturityLabel === 'Supported' ? 'supported' : maturityLabel === 'Developing' ? 'developing' : 'early';
+  return {
+    evidenceCount,
+    simulationSources: sources,
+    latestEvidenceDate,
+    confidenceLevel: confidenceFromEvidence(evidenceCount, sourceCount),
+    maturityLabel,
+    interpretationStrength,
+    observedMarkerCount: evidenceCount,
+    sourceCount,
+  };
+};
+
+export const evidenceCalibratedLanguage = {
+  Emerging: {
+    intro: 'Early evidence suggests this pattern may be forming.',
+    note: 'More simulations are needed before this becomes a stable pattern.'
+  },
+  Developing: {
+    intro: 'A pattern is beginning to appear across available simulations.',
+    note: 'Current evidence is becoming more consistent and is worth watching.'
+  },
+  Supported: {
+    intro: 'Repeated evidence suggests this pattern is becoming reliable.',
+    note: 'This pattern has appeared across multiple simulations.'
+  },
+  'Strongly Supported': {
+    intro: 'Consistent evidence across simulations suggests a stable pressure pattern.',
+    note: 'This is one of the clearest findings in the profile.'
+  }
+};
+
 const DISTORTION_LIBRARY = {
   avoider: {
     name: 'Avoider',
