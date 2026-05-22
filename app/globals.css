@@ -1718,3 +1718,77 @@ p {
 .timeline-panel { background: linear-gradient(110deg, #eef2ff, #f8fafc); }
 .dashboard-tabs { display:flex; flex-wrap:wrap; gap:0.55rem; }
 @media (max-width: 1000px){ .kpi-strip { grid-template-columns: repeat(2,minmax(0,1fr)); } .dashboard-row-two { grid-template-columns:1fr; } .dimension-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .evidence-grid { grid-template-columns:1fr; } }
+
+/* Human Equation Suite dashboard layout rescue */
+.hes-dashboard-shell {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  background: linear-gradient(180deg, #f8fbff, #f4f7fc);
+  border: 1px solid #d7e3f5;
+  border-radius: 20px;
+}
+.hes-dashboard-shell .card,
+.hes-dashboard-shell article {
+  min-width: 0;
+}
+.hes-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+.hes-profile-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.hes-dimension-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+}
+.hes-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+}
+.hes-dashboard-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  position: static;
+}
+.hes-report-panel {
+  position: static;
+  overflow: visible;
+}
+.hes-dimension-grid .dimension-tile,
+.hes-evidence-grid .evidence-card {
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+.hes-evidence-grid .evidence-card.is-complete {
+  border-left: 4px solid #10b981;
+}
+.hes-dimension-grid .dimension-tile.dim-foundational { background: #eaf2ff; }
+.hes-dimension-grid .dimension-tile.dim-applied { background: #e6f8f6; }
+.hes-dimension-grid .dimension-tile.dim-organizational { background: #f2ebff; }
+.hes-kpi-strip .kpi-rose { background: #fff1f2; border-color: #fda4af; }
+.hes-kpi-strip .kpi-amber { background: #fff7ed; border-color: #fdba74; }
+
+@media (max-width: 1024px) {
+  .hes-profile-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hes-kpi-strip {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hes-kpi-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
