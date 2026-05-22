@@ -28,18 +28,54 @@ export default function TranslatePage() {
     fileSize: 0,
     recordingDurationMs: 0,
     transcript: '',
+    chunkCount: 0,
+    lastApiErrorStep: '',
+    lastApiErrorDetail: '',
   });
 
-  const mediaRecorderRef = useRef(null);
-  const recordingStartTimeRef = useRef(0);
-  const mediaStreamRef = useRef(null);
-  const recordingSpeakerRef = useRef(null);
-  const audioChunksRef = useRef([]);
+  const recorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const chunksRef = useRef([]);
+  const activeSpeakerRef = useRef(null);
   const activeAudioRef = useRef(null);
-  const stopResolveRef = useRef(null);
-  const stopRejectRef = useRef(null);
+  const recordingStartTimeRef = useRef(0);
+  const isForceStoppingRef = useRef(false);
+  const isCleaningUpRef = useRef(false);
+  const isUploadingRef = useRef(false);
+  const requestDataIntervalRef = useRef(null);
 
   const statusClass = status.toLowerCase().replace(/\s+/g, '-');
+
+  const clearRequestTimer = useCallback(() => {
+    if (requestDataIntervalRef.current) {
+      clearInterval(requestDataIntervalRef.current);
+      requestDataIntervalRef.current = null;
+    }
+  }, []);
+
+  const fullCleanup = useCallback((nextStatus = 'Ready', options = { forceStop: false }) => {
+    if (options.forceStop) isForceStoppingRef.current = true;
+    isCleaningUpRef.current = true;
+    clearRequestTimer();
+
+    const recorder = recorderRef.current;
+    if (recorder && recorder.state === 'recording') recorder.stop();
+
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    chunksRef.current = [];
+    recorderRef.current = null;
+    streamRef.current = null;
+    activeSpeakerRef.current = null;
+    setActiveSpeaker(null);
+    setIsProcessing(false);
+    setStatus(nextStatus);
+    setDebugInfo((prev) => ({ ...prev, chunkCount: 0 }));
+
+    setTimeout(() => {
+      isForceStoppingRef.current = false;
+      isCleaningUpRef.current = false;
+    }, 150);
+  }, [clearRequestTimer]);
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -50,60 +86,31 @@ export default function TranslatePage() {
       setLesson(parsed.lesson || null);
       setSourceLanguage(parsed.sourceLanguage || 'English');
       setTargetLanguage(parsed.targetLanguage || 'Spanish');
-    } catch {
-      // no-op: ignore bad localStorage payload
-    }
+    } catch {}
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ turns, lesson, sourceLanguage, targetLanguage }),
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ turns, lesson, sourceLanguage, targetLanguage }));
   }, [turns, lesson, sourceLanguage, targetLanguage]);
 
-  useEffect(() => {
-    return () => {
-      const recorder = mediaRecorderRef.current;
-      if (recorder && recorder.state === 'recording') {
-        recorder.stop();
-      }
-      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
-      audioChunksRef.current = [];
-      activeAudioRef.current?.pause();
-    };
-  }, []);
+  useEffect(() => () => {
+    isForceStoppingRef.current = true;
+    isCleaningUpRef.current = true;
+    clearRequestTimer();
+    if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    chunksRef.current = [];
+    recorderRef.current = null;
+    streamRef.current = null;
+    activeAudioRef.current?.pause();
+  }, [clearRequestTimer]);
 
   const selectedPairId = useMemo(() => {
-    const match = LANGUAGE_PAIRS.find(
-      (pair) =>
-        (pair.source === sourceLanguage && pair.target === targetLanguage) ||
-        (pair.target === sourceLanguage && pair.source === targetLanguage),
-    );
+    const match = LANGUAGE_PAIRS.find((pair) =>
+      (pair.source === sourceLanguage && pair.target === targetLanguage) ||
+      (pair.target === sourceLanguage && pair.source === targetLanguage));
     return match?.id || 'custom';
   }, [sourceLanguage, targetLanguage]);
-
-  const cleanupRecording = useCallback((nextStatus = 'Ready') => {
-    const recorder = mediaRecorderRef.current;
-    if (recorder && recorder.state === 'recording') {
-      console.log('[translate] cleanup stopping active recorder');
-      recorder.stop();
-    }
-    mediaRecorderRef.current = null;
-    recordingSpeakerRef.current = null;
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      console.log('[translate] tracks stopped');
-    }
-    mediaStreamRef.current = null;
-    audioChunksRef.current = [];
-    console.log('[translate] chunks cleared');
-    stopResolveRef.current = null;
-    stopRejectRef.current = null;
-    setActiveSpeaker(null);
-    setIsProcessing(false);
-    setStatus(nextStatus);
-  }, []);
 
   const playTranslationAudio = useCallback(async (audioBase64, turnId = null) => {
     const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
@@ -116,146 +123,133 @@ export default function TranslatePage() {
     }
   }, []);
 
-  const startRecording = useCallback(async (speaker) => {
-    console.log('[translate] recording start requested', { speaker });
-    if (mediaRecorderRef.current?.state === 'recording' || isProcessing) {
-      console.log('[translate] recorder state on start', mediaRecorderRef.current?.state || 'none');
-      return;
-    }
+  const startRecording = useCallback(async (speaker, origin = 'click-toggle') => {
+    console.log('[translate] startRecording called', {
+      origin,
+      speaker,
+      status,
+      recorderState: recorderRef.current?.state || 'none',
+      hasStream: Boolean(streamRef.current),
+    });
+
+    if (
+      isForceStoppingRef.current ||
+      isCleaningUpRef.current ||
+      isUploadingRef.current ||
+      recorderRef.current ||
+      streamRef.current ||
+      ['Recording', 'Processing', 'Translating', 'Speaking translation'].includes(status)
+    ) return;
+
     setError('');
     try {
-      audioChunksRef.current = [];
+      chunksRef.current = [];
+      setDebugInfo((prev) => ({ ...prev, chunkCount: 0, transcript: '', lastApiErrorStep: '', lastApiErrorDetail: '' }));
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream;
+      streamRef.current = stream;
+
       const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
       const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
       const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-      recordingSpeakerRef.current = speaker;
+      recorderRef.current = recorder;
+      activeSpeakerRef.current = speaker;
       recordingStartTimeRef.current = Date.now();
+
       const selectedRecorderMimeType = recorder.mimeType || mimeType || 'default';
-      console.log('[translate] recorder state on start', recorder.state);
-      console.log('[translate] recording started', { speaker, mimeType: selectedRecorderMimeType });
-      setDebugInfo((prev) => ({ ...prev, recorderMimeType: selectedRecorderMimeType, transcript: '' }));
+      setDebugInfo((prev) => ({ ...prev, recorderMimeType: selectedRecorderMimeType }));
+
       recorder.ondataavailable = (event) => {
-        console.log('[translate] chunk received', { size: event.data?.size || 0, type: event.data?.type || 'unknown' });
-        if (event.data?.size > 0) {
-          audioChunksRef.current.push(event.data);
-          console.log('[translate] chunks buffered', { count: audioChunksRef.current.length });
+        if (isForceStoppingRef.current || isCleaningUpRef.current) return;
+        if (event.data && event.data.size > 0) {
+          chunksRef.current.push(event.data);
+          console.log('[translate] chunk received', { count: chunksRef.current.length, size: event.data.size });
+          setDebugInfo((prev) => ({ ...prev, chunkCount: chunksRef.current.length }));
         }
       };
+
       recorder.onstop = async () => {
         console.log('[translate] onstop fired');
-        const speakerFromRef = recordingSpeakerRef.current;
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: recorder.mimeType || 'audio/webm',
-        });
-        const blobType = audioBlob.type || recorder.mimeType || 'audio/webm';
+        clearRequestTimer();
+
+        if (isForceStoppingRef.current || isCleaningUpRef.current) {
+          chunksRef.current = [];
+          streamRef.current?.getTracks().forEach((track) => track.stop());
+          recorderRef.current = null;
+          streamRef.current = null;
+          activeSpeakerRef.current = null;
+          setActiveSpeaker(null);
+          setIsProcessing(false);
+          setStatus('Ready');
+          return;
+        }
+
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        const blobType = blob.type || recorder.mimeType || 'audio/webm';
         const recordingDurationMs = Date.now() - recordingStartTimeRef.current;
-        console.log('[translate] blob size/type', { size: audioBlob.size, type: blobType });
+
+        if (blob.size <= 0) {
+          setError('No speech detected. Please try again.');
+          fullCleanup('Ready');
+          return;
+        }
+
         try {
-          if (audioBlob.size === 0) {
-            throw new Error('No speech detected. Please try again.');
-          }
-          const audioFile = new File([audioBlob], 'recording.webm', { type: audioBlob.type || blobType });
-          setDebugInfo((prev) => ({
-            ...prev,
-            blobType,
-            blobSize: audioBlob.size,
-            fileSize: audioFile.size,
-            recordingDurationMs,
-          }));
-          console.log('[translate] upload beginning');
+          isUploadingRef.current = true;
+          setIsProcessing(true);
+          setStatus('Translating');
+          const audioFile = new File([blob], 'recording.webm', { type: blobType });
+          setDebugInfo((prev) => ({ ...prev, blobType, blobSize: blob.size, fileSize: audioFile.size, recordingDurationMs }));
+
           const formData = new FormData();
-          formData.append('audio', audioBlob, 'recording.webm');
+          formData.append('audio', blob, 'recording.webm');
           formData.append('sourceLanguage', sourceLanguage);
           formData.append('targetLanguage', targetLanguage);
-          formData.append('speaker', speakerFromRef);
+          formData.append('speaker', activeSpeakerRef.current);
+
           const response = await fetch('/api/translate-turn', { method: 'POST', body: formData });
           const data = await response.json();
           if (!response.ok) {
-            throw new Error(data.error || 'Translation failed.');
+            console.error('[translate] API error', { status: response.status, data });
+            setDebugInfo((prev) => ({ ...prev, lastApiErrorStep: data?.step || 'unknown', lastApiErrorDetail: data?.detail || data?.error || 'Unknown error' }));
+            throw new Error(data?.detail || data?.error || 'Translation failed.');
           }
-          if (!data?.transcript?.trim()) {
-            throw new Error('No speech detected. Please try again.');
-          }
-          console.log('[translate] upload finished', { transcriptLength: data.transcript.length });
+
+          if (!data?.transcript?.trim()) throw new Error('No speech detected. Please try again.');
+
           setDebugInfo((prev) => ({ ...prev, transcript: data.transcript }));
-          setStatus('Speaking translation');
           const nextTurn = { id: crypto.randomUUID(), ...data };
           setTurns((prev) => [...prev, nextTurn]);
-          if (data.audioBase64) {
-            await playTranslationAudio(data.audioBase64, nextTurn.id);
-          }
+          setStatus('Speaking translation');
+          if (data.audioBase64) await playTranslationAudio(data.audioBase64, nextTurn.id);
           setStatus('Ready');
-          stopResolveRef.current?.();
         } catch (err) {
-          console.error('[translate] upload error', err);
           setError(err?.message || 'Something went wrong while translating.');
           setStatus('Ready');
-          stopRejectRef.current?.(err);
         } finally {
-          audioChunksRef.current = [];
-          console.log('[translate] chunks cleared');
-          mediaRecorderRef.current = null;
-          if (mediaStreamRef.current) {
-            mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-            console.log('[translate] tracks stopped');
-          }
-          mediaStreamRef.current = null;
-          setActiveSpeaker(null);
-          recordingSpeakerRef.current = null;
-          setIsProcessing(false);
+          isUploadingRef.current = false;
+          fullCleanup('Ready');
         }
       };
-      recorder.start(250);
-      mediaRecorderRef.current = recorder;
+
+      recorder.start();
       setActiveSpeaker(speaker);
       setStatus('Recording');
     } catch {
-      setStatus('Error');
+      fullCleanup('Error');
       setError('Microphone permission is needed to translate speech.');
     }
-  }, [isProcessing, playTranslationAudio, sourceLanguage, targetLanguage]);
+  }, [clearRequestTimer, fullCleanup, playTranslationAudio, sourceLanguage, status, targetLanguage]);
 
-  const stopRecording = useCallback(async () => {
-    const recorder = mediaRecorderRef.current;
-    console.log('[translate] stop requested');
-    console.log('[translate] recorder state on stop request', recorder?.state || 'none');
-    if (!recorder || recorder.state !== 'recording') return;
-
-    setIsProcessing(true);
-    setStatus('Translating');
-
-    const recordingMs = Date.now() - recordingStartTimeRef.current;
-    if (recordingMs < 500) {
-      await new Promise((resolve) => setTimeout(resolve, 500 - recordingMs));
-    }
-
-    const done = new Promise((resolve, reject) => {
-      stopResolveRef.current = resolve;
-      stopRejectRef.current = reject;
-      recorder.stop();
-    });
-
-    await done;
+  const stopRecording = useCallback(() => {
+    const recorder = recorderRef.current;
+    if (recorder?.state === 'recording') recorder.stop();
   }, []);
 
-  const handlePressStart = (speaker) => {
-    if (!isProcessing) startRecording(speaker);
-  };
-
-  const handlePressEnd = () => {
-    stopRecording();
-  };
-
   const toggleSpeaker = (speaker) => {
-    if (isProcessing) return;
-    const isActive = activeSpeaker === speaker && mediaRecorderRef.current?.state === 'recording';
-    if (isActive) {
-      handlePressEnd();
-    } else {
-      handlePressStart(speaker);
-    }
+    if (isProcessing || isUploadingRef.current) return;
+    const isActive = activeSpeaker === speaker && recorderRef.current?.state === 'recording';
+    if (isActive) stopRecording();
+    else startRecording(speaker, 'speaker-button-click');
   };
 
   const onSelectPair = (id) => {
@@ -277,14 +271,11 @@ export default function TranslatePage() {
     setStatus('Translating');
     try {
       const response = await fetch('/api/translate-lesson', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ turns, learningLanguage: targetLanguage }),
       });
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Could not create lesson.');
-      }
+      if (!response.ok) throw new Error(data.error || 'Could not create lesson.');
       setLesson(data);
       setStatus('Ready');
     } catch (err) {
@@ -296,80 +287,22 @@ export default function TranslatePage() {
   };
 
   const clearConversation = () => {
-    cleanupRecording('Ready');
+    fullCleanup('Ready', { forceStop: true });
     setTurns([]);
     setLesson(null);
     setError('');
-    setStatus('Ready');
     setBlockedAudioTurnId(null);
+    setDebugInfo((prev) => ({ ...prev, lastApiErrorStep: '', lastApiErrorDetail: '' }));
   };
 
-  return (
-    <section className={`${styles.wrapper} section`}>
-      <div className={`container ${styles.container}`}>
-        <h1>Translate</h1>
-        <p className={styles.subtitle}>Speak. Translate. Learn.</p>
-
-        <div className={styles.toolbar}>
-          <select
-            id="translate-language-pair"
-            name="translateLanguagePair"
-            className={styles.select}
-            value={selectedPairId}
-            onChange={(event) => onSelectPair(event.target.value)}
-          >
-            {LANGUAGE_PAIRS.map((pair) => (
-              <option key={pair.id} value={pair.id}>
-                {pair.label}
-              </option>
-            ))}
-          </select>
-          <button type="button" className={`button secondary ${styles.swapButton}`} onClick={swapLanguages}>
-            Swap ({sourceLanguage} → {targetLanguage})
-          </button>
-        </div>
-
-        <div className={`${styles.state} ${styles[statusClass] || ''}`}>
-          <span>{status === 'Recording' ? 'Listening…' : status}</span>
-          {activeSpeaker && <strong>{activeSpeaker === 'me' ? 'I’m Speaking' : 'They’re Speaking'}</strong>}
-          {status === 'Recording' && <span className={styles.pulse} aria-hidden />}
-        </div>
-
-        {error ? <p className={styles.error}>{error}</p> : null}
-
-        <div className={styles.feed}>
-          {turns.map((turn) => (
-            <article className={styles.turnCard} key={turn.id}>
-              <h3>{turn.speaker === 'me' ? 'You' : 'Other Person'}</h3>
-              <p><strong>{turn.sourceLanguage}:</strong> {turn.transcript}</p>
-              <p><strong>{turn.targetLanguage}:</strong> {turn.translation}</p>
-              {turn.audioBase64 ? (
-                <button
-                  type="button"
-                  className={`button secondary ${styles.playButton}`}
-                  onClick={() => playTranslationAudio(turn.audioBase64, turn.id)}
-                >
-                  {blockedAudioTurnId === turn.id ? 'Play Translation' : 'Replay Translation'}
-                </button>
-              ) : null}
-            </article>
-          ))}
-          {!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}
-        </div>
-
-        <div className={styles.actionsRow}>
-          <button type="button" className="button secondary" onClick={clearConversation}>
-            Clear Conversation
-          </button>
-          <button type="button" className="button secondary" onClick={() => cleanupRecording('Ready')}>
-            Force Stop Mic
-          </button>
-          <button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>
-            Create Lesson From This Conversation
-          </button>
-        </div>
-
-        {lesson ? (
+  return (<section className={`${styles.wrapper} section`}><div className={`container ${styles.container}`}>
+    <h1>Translate</h1><p className={styles.subtitle}>Speak. Translate. Learn.</p>
+    <div className={styles.toolbar}><select id="translate-language-pair" name="translateLanguagePair" className={styles.select} value={selectedPairId} onChange={(event) => onSelectPair(event.target.value)}>{LANGUAGE_PAIRS.map((pair) => <option key={pair.id} value={pair.id}>{pair.label}</option>)}</select><button type="button" className={`button secondary ${styles.swapButton}`} onClick={swapLanguages}>Swap ({sourceLanguage} → {targetLanguage})</button></div>
+    <div className={`${styles.state} ${styles[statusClass] || ''}`}><span>{status === 'Recording' ? 'Listening…' : status}</span>{activeSpeaker && <strong>{activeSpeaker === 'me' ? 'I’m Speaking' : 'They’re Speaking'}</strong>}{status === 'Recording' && <span className={styles.pulse} aria-hidden />}</div>
+    {error ? <p className={styles.error}>{error}</p> : null}
+    <div className={styles.feed}>{turns.map((turn) => <article className={styles.turnCard} key={turn.id}><h3>{turn.speaker === 'me' ? 'You' : 'Other Person'}</h3><p><strong>{turn.sourceLanguage}:</strong> {turn.transcript}</p><p><strong>{turn.targetLanguage}:</strong> {turn.translation}</p>{turn.audioBase64 ? <button type="button" className={`button secondary ${styles.playButton}`} onClick={() => playTranslationAudio(turn.audioBase64, turn.id)}>{blockedAudioTurnId === turn.id ? 'Play Translation' : 'Replay Translation'}</button> : null}</article>)}{!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}</div>
+    <div className={styles.actionsRow}><button type="button" className="button secondary" onClick={clearConversation}>Clear Conversation</button><button type="button" className="button secondary" onClick={() => fullCleanup('Ready', { forceStop: true })}>Force Stop Mic</button><button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>Create Lesson From This Conversation</button></div>
+    {lesson ? (
           <section className={styles.lessonPanel}>
             <h2>Conversation Lesson</h2>
             <h3>Words from this conversation</h3>
@@ -386,45 +319,7 @@ export default function TranslatePage() {
             <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>
           </section>
         ) : null}
-
-
-        <section className={styles.debugPanel}>
-          <h3>Recorder Debug (temporary)</h3>
-          <ul>
-            <li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li>
-            <li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li>
-            <li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li>
-            <li><strong>File size:</strong> {debugInfo.fileSize} bytes</li>
-            <li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li>
-            <li><strong>Transcript:</strong> {debugInfo.transcript || 'n/a'}</li>
-          </ul>
-        </section>
-
-        <div className={styles.speakerDock}>
-          <div className={styles.speakerRow}>
-            {[
-              { key: 'me', label: 'I’m Speaking' },
-              { key: 'them', label: 'They’re Speaking' },
-            ].map((speaker) => (
-              <button
-                key={speaker.key}
-                type="button"
-                className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`}
-                onMouseDown={() => handlePressStart(speaker.key)}
-                onMouseUp={handlePressEnd}
-                onMouseLeave={handlePressEnd}
-                onTouchStart={() => handlePressStart(speaker.key)}
-                onTouchEnd={handlePressEnd}
-                onClick={() => toggleSpeaker(speaker.key)}
-                disabled={isProcessing}
-              >
-                <span>{speaker.label}</span>
-                {activeSpeaker === speaker.key ? <small>Listening… Tap to stop</small> : <small>Tap to start or hold to talk</small>}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+    <section className={styles.debugPanel}><h3>Recorder Debug (temporary)</h3><ul><li><strong>Current status:</strong> {status}</li><li><strong>Active speaker:</strong> {activeSpeaker || 'n/a'}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>MIME type:</strong> {debugInfo.recorderMimeType || 'n/a'}</li><li><strong>Blob type:</strong> {debugInfo.blobType || 'n/a'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>File size:</strong> {debugInfo.fileSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Chunk count:</strong> {debugInfo.chunkCount}</li><li><strong>Transcript:</strong> {debugInfo.transcript || 'n/a'}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li></ul></section>
+    <div className={styles.speakerDock}><div className={styles.speakerRow}>{[{ key: 'me', label: 'I’m Speaking' }, { key: 'them', label: 'They’re Speaking' }].map((speaker) => <button key={speaker.key} id={`speaker-${speaker.key}`} name={`speaker-${speaker.key}`} type="button" className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`} onClick={() => toggleSpeaker(speaker.key)} disabled={isProcessing}><span>{speaker.label}</span>{activeSpeaker === speaker.key ? <small>Listening… Click to stop</small> : <small>Click to start</small>}</button>)}</div></div>
+  </div></section>);
 }
