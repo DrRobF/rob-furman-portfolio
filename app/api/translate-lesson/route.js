@@ -1,48 +1,29 @@
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const headers = () => ({ Authorization: `Bearer ${OPENAI_API_KEY}` });
-
 const stripCodeFences = (value = '') => value.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { turns } = body || {};
+    const { turns, learningLanguage = 'Spanish' } = body || {};
 
     if (!Array.isArray(turns) || turns.length === 0) {
-      return Response.json(
-        { error: 'Add at least one translated turn before creating a lesson.' },
-        { status: 400 },
-      );
+      return Response.json({ error: 'Add at least one translated turn before creating a lesson.' }, { status: 400 });
     }
 
-    const validTurns = turns
-      .map((turn) => ({
-        speaker: turn?.speaker || '',
-        sourceLanguage: turn?.sourceLanguage || '',
-        targetLanguage: turn?.targetLanguage || '',
-        transcript: turn?.transcript || '',
-        translation: turn?.translation || '',
-      }))
-      .filter((turn) => turn.transcript.trim() && turn.translation.trim());
-
-    if (!validTurns.length) {
-      return Response.json(
-        { error: 'Add at least one translated turn before creating a lesson.' },
-        { status: 400 },
-      );
-    }
+    const validTurns = turns.map((turn) => ({ speaker: turn?.speaker || '', sourceLanguage: turn?.sourceLanguage || '', targetLanguage: turn?.targetLanguage || '', transcript: turn?.transcript || '', translation: turn?.translation || '' })).filter((turn) => turn.transcript.trim() && turn.translation.trim());
+    if (!validTurns.length) return Response.json({ error: 'Add at least one translated turn before creating a lesson.' }, { status: 400 });
 
     const prompt = {
-      instruction:
-        'Use only the conversation turns provided. Keep the lesson honest and compact. If content is minimal, return a small practical lesson without inventing unrelated topics.',
+      instruction: `Build a practical ${learningLanguage} mini-lesson from these turns. Focus on practical phrases, quick replies, pronunciation support, and active recall. Keep grammar jargon minimal.`,
       outputShape: {
-        usefulPhrases: [{ phrase: '...', meaning: '...', pronunciation: 'optional' }],
-        quickReplies: ['...', '...'],
-        miniPractice: ['...', '...'],
-        quickQuiz: [{ prompt: '...', answer: '...' }],
-        reviewLater: ['...', '...'],
-        sayThisNext: ['optional'],
+        phrases: [{ learningText: '...', englishMeaning: '...', pronunciationHint: '...' }],
+        quickReplies: [{ learningText: '...', englishMeaning: '...', whenToUse: '...' }],
+        practice: [{ promptEnglish: '...', answerLearningLanguage: '...' }],
+        quiz: [{ questionEnglish: '...', answerLearningLanguage: '...', hint: '...' }],
+        reviewLater: [{ learningText: '...', englishMeaning: '...' }],
+        sayThisNext: [{ learningText: '...', englishMeaning: '...', tone: 'friendly' }],
       },
       turns: validTurns,
     };
@@ -55,49 +36,25 @@ export async function POST(request) {
         temperature: 0.2,
         response_format: { type: 'json_object' },
         messages: [
-          {
-            role: 'system',
-            content:
-              'You are a practical conversation coach. Return strict JSON only with keys: usefulPhrases, quickReplies, miniPractice, quickQuiz, reviewLater, sayThisNext. Prioritize confidence, repetition, practical replies, and natural phrasing over grammar explanation. Never include markdown or code fences.',
-          },
+          { role: 'system', content: 'Return strict JSON only. Include both learning-language text and English meaning for phrases/quickReplies/reviewLater/sayThisNext. Include at least 5 combined practice+quiz items when possible. Never include markdown.' },
           { role: 'user', content: JSON.stringify(prompt) },
         ],
       }),
     });
 
     const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data?.error?.message || 'Lesson creation failed.');
-    }
+    if (!response.ok) throw new Error(data?.error?.message || 'Lesson creation failed.');
 
-    const rawContent = data?.choices?.[0]?.message?.content || '{}';
-    const safeContent = stripCodeFences(rawContent);
-
-    let lesson;
-    try {
-      lesson = JSON.parse(safeContent);
-    } catch (parseError) {
-      return Response.json(
-        {
-          error: 'Lesson response could not be parsed as JSON.',
-          detail: parseError?.message || 'Invalid JSON structure.',
-        },
-        { status: 502 },
-      );
-    }
-
+    const lesson = JSON.parse(stripCodeFences(data?.choices?.[0]?.message?.content || '{}'));
     return Response.json({
-      usefulPhrases: Array.isArray(lesson.usefulPhrases) ? lesson.usefulPhrases : [],
+      phrases: Array.isArray(lesson.phrases) ? lesson.phrases : [],
       quickReplies: Array.isArray(lesson.quickReplies) ? lesson.quickReplies : [],
-      miniPractice: Array.isArray(lesson.miniPractice) ? lesson.miniPractice : [],
-      quickQuiz: Array.isArray(lesson.quickQuiz) ? lesson.quickQuiz : [],
+      practice: Array.isArray(lesson.practice) ? lesson.practice : [],
+      quiz: Array.isArray(lesson.quiz) ? lesson.quiz : [],
       reviewLater: Array.isArray(lesson.reviewLater) ? lesson.reviewLater : [],
       sayThisNext: Array.isArray(lesson.sayThisNext) ? lesson.sayThisNext : [],
     });
   } catch (error) {
-    return Response.json(
-      { error: error.message || 'Lesson creation failed.' },
-      { status: 500 },
-    );
+    return Response.json({ error: error.message || 'Lesson creation failed.' }, { status: 500 });
   }
 }
