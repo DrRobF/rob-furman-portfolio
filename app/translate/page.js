@@ -366,6 +366,7 @@ export default function TranslatePage() {
         body: JSON.stringify({ turns, learningLanguage: targetLanguage }),
       });
       const data = await response.json();
+      console.log('[translate] lesson response', data);
       if (!response.ok) throw new Error(data.error || 'Could not create lesson.');
       setLesson(data);
       setStatus('Ready');
@@ -386,8 +387,16 @@ export default function TranslatePage() {
     setBlockedAudioTurnId(null);
     setPlayedTurnIds({});
     setAudioLoadingTurnIds({});
+    localStorage.removeItem(STORAGE_KEY);
     setDebugInfo((prev) => ({ ...prev, lastApiErrorStep: '', lastApiErrorDetail: '', lastApiErrorTranscript: '', transcript: '' }));
   };
+
+  const renderSection = (title, hasContent, contentNode, emptyMessage) => (
+    <>
+      <h3>{title}</h3>
+      {hasContent ? contentNode : <p className={styles.sectionEmpty}>{emptyMessage}</p>}
+    </>
+  );
 
   return (<section className={`${styles.wrapper} section`}><div className={`container ${styles.container}`}>
     <h1>Translate</h1><p className={styles.subtitle}>Speak. Translate. Learn.</p>
@@ -397,22 +406,46 @@ export default function TranslatePage() {
     <div className={styles.feed} ref={feedRef}>{turns.map((turn) => <article className={styles.turnCard} key={turn.id}><h3>{turn.speaker === 'me' ? 'Speaker: Me' : 'Speaker: Them'}</h3><p><strong>Original ({turn.sourceLanguage}):</strong> {turn.transcript}</p><p><strong>Translation ({turn.targetLanguage}):</strong> {turn.translation}</p><p><strong>Target language:</strong> {turn.targetLanguage}</p>{turn.audioBase64 ? <div className={styles.playButtonWrap}>{audioLoadingTurnIds[turn.id] ? <p className={styles.audioPrep}>Preparing translation audio…</p> : null}<button type="button" className={`button secondary ${styles.playButton} ${!playedTurnIds[turn.id] ? styles.playPulse : ''}`} onClick={() => playTranslationAudio(turn.audioBase64, turn.id)} disabled={Boolean(audioLoadingTurnIds[turn.id])}><span aria-hidden>🔊</span> <span>{playedTurnIds[turn.id] ? 'Replay Translation' : 'Play Translation'}</span></button></div> : null}</article>)}{!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}</div>
     <div className={styles.actionsRow}><button type="button" className={`button secondary ${styles.clearButton}`} onClick={clearConversation}>Clear Conversation</button><button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>{isCreatingLesson ? 'Creating lesson…' : 'Create Lesson From This Conversation'}</button></div>
     {lesson ? (
-          <section className={styles.lessonPanel}>
-            <h2>Conversation Lesson</h2>
-            <h3>Words from this conversation</h3>
-            <ul>{lesson.vocabulary?.map((item, index) => <li key={`${item.word}-${index}`}>{item.word} — {item.meaning} ({item.example})</li>)}</ul>
-            <h3>Useful phrases</h3>
-            <ul>{lesson.phrases?.map((item, index) => <li key={`${item.phrase}-${index}`}>{item.phrase} — {item.meaning}</li>)}</ul>
-            <h3>Sentence pattern</h3>
-            <p>{lesson.pattern}</p>
-            <h3>Mini practice</h3>
-            <ul>{lesson.practice?.map((item, index) => <li key={`practice-${index}`}>{item}</li>)}</ul>
-            <h3>Quick quiz</h3>
-            <ul>{lesson.quiz?.map((item, index) => <li key={`quiz-${index}`}>{item.question} — {item.answer}</li>)}</ul>
-            <h3>Review next time</h3>
-            <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>
-          </section>
-        ) : null}
+      <section className={styles.lessonPanel}>
+        <h2>Conversation Lesson</h2>
+        {renderSection(
+          'Words from this conversation',
+          Array.isArray(lesson.vocabulary) && lesson.vocabulary.length > 0,
+          <ul>{lesson.vocabulary?.map((item, index) => <li key={`${item.word}-${index}`}>{item.word} — {item.meaning} ({item.example})</li>)}</ul>,
+          'No new vocabulary yet. Add another translated turn to expand this list.',
+        )}
+        {renderSection(
+          'Useful phrases',
+          Array.isArray(lesson.phrases) && lesson.phrases.length > 0,
+          <ul>{lesson.phrases?.map((item, index) => <li key={`${item.phrase}-${index}`}>{item.phrase} — {item.meaning}</li>)}</ul>,
+          'No phrase extracted yet from this conversation.',
+        )}
+        {renderSection(
+          'Sentence pattern',
+          Boolean(lesson.pattern?.trim?.()),
+          <p>{lesson.pattern}</p>,
+          'No clear pattern yet. One or two more turns should help.',
+        )}
+        {renderSection(
+          'Mini practice',
+          Array.isArray(lesson.practice) && lesson.practice.length > 0,
+          <ul>{lesson.practice?.map((item, index) => <li key={`practice-${index}`}>{item}</li>)}</ul>,
+          'No practice prompts yet.',
+        )}
+        {renderSection(
+          'Quick quiz',
+          Array.isArray(lesson.quiz) && lesson.quiz.length > 0,
+          <ul>{lesson.quiz?.map((item, index) => <li key={`quiz-${index}`}>{item.question} — {item.answer}</li>)}</ul>,
+          'No quiz items yet.',
+        )}
+        {renderSection(
+          'Review next time',
+          Array.isArray(lesson.reviewNextTime) && lesson.reviewNextTime.length > 0,
+          <ul>{lesson.reviewNextTime?.map((item, index) => <li key={`review-${index}`}>{item}</li>)}</ul>,
+          'No review suggestions yet.',
+        )}
+      </section>
+    ) : null}
     <section className={styles.debugToggleRow}><button type="button" className="button tertiary" onClick={() => setShowDebug((prev) => !prev)}>{showDebug ? 'Hide Debug' : 'Show Debug'}</button></section>
     {showDebug ? <section className={styles.debugPanel}><h3>Recorder Debug</h3><ul><li><strong>Status:</strong> {status}</li><li><strong>Recorder state:</strong> {recorderRef.current?.state || 'none'}</li><li><strong>Stream active:</strong> {streamRef.current ? 'true' : 'false'}</li><li><strong>Blob size:</strong> {debugInfo.blobSize} bytes</li><li><strong>Duration:</strong> {debugInfo.recordingDurationMs} ms</li><li><strong>Transcript:</strong> {debugInfo.transcript || debugInfo.lastApiErrorTranscript || 'n/a'}</li><li><strong>Mic input level:</strong> {debugInfo.micInputLevel || 0}/100<div className={styles.micMeter}><div className={styles.micMeterFill} style={{ width: `${debugInfo.micInputLevel || 0}%` }} /></div>{debugInfo.micLevelWarning ? <div className={styles.micMeterWarning}>{debugInfo.micLevelWarning}</div> : null}</li><li><strong>Last API error step:</strong> {debugInfo.lastApiErrorStep || 'n/a'}</li><li><strong>Last API error detail:</strong> {debugInfo.lastApiErrorDetail || 'n/a'}</li></ul><button type="button" className="button secondary" onClick={() => fullCleanup('Ready', { forceStop: true })}>Force Stop Mic</button></section> : null}
     <div className={styles.speakerDock}><div className={styles.speakerRow}>{[{ key: 'me', label: 'I’m Speaking' }, { key: 'them', label: 'They’re Speaking' }].map((speaker) => <button key={speaker.key} id={`speaker-${speaker.key}`} name={`speaker-${speaker.key}`} type="button" className={`${styles.speakButton} ${activeSpeaker === speaker.key ? styles.active : ''}`} onClick={() => toggleSpeaker(speaker.key)} disabled={isProcessing}><span>{speaker.label}</span>{activeSpeaker === speaker.key ? <small>Recording now — click again to stop</small> : <small>Click once to start, click again to stop</small>}</button>)}</div></div>
