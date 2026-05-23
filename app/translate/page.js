@@ -21,6 +21,9 @@ export default function TranslatePage() {
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [blockedAudioTurnId, setBlockedAudioTurnId] = useState(null);
+  const [playedTurnIds, setPlayedTurnIds] = useState({});
+  const [audioLoadingTurnIds, setAudioLoadingTurnIds] = useState({});
+  const [isCreatingLesson, setIsCreatingLesson] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
   const [debugInfo, setDebugInfo] = useState({
     recorderMimeType: '',
@@ -52,6 +55,7 @@ export default function TranslatePage() {
   const analyserRef = useRef(null);
   const micMeterAnimationRef = useRef(null);
   const micStreamSourceRef = useRef(null);
+  const feedRef = useRef(null);
 
   const statusClass = status.toLowerCase().replace(/\s+/g, '-');
 
@@ -180,10 +184,18 @@ export default function TranslatePage() {
     const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
     activeAudioRef.current?.pause();
     activeAudioRef.current = audio;
+    if (turnId) setAudioLoadingTurnIds((prev) => ({ ...prev, [turnId]: true }));
     try {
+      await new Promise((resolve) => {
+        if (audio.readyState >= 2) resolve();
+        audio.addEventListener('canplaythrough', resolve, { once: true });
+      });
+      if (turnId) setAudioLoadingTurnIds((prev) => ({ ...prev, [turnId]: false }));
       await audio.play();
       setBlockedAudioTurnId(null);
+      if (turnId) setPlayedTurnIds((prev) => ({ ...prev, [turnId]: true }));
     } catch {
+      if (turnId) setAudioLoadingTurnIds((prev) => ({ ...prev, [turnId]: false }));
       if (turnId) setBlockedAudioTurnId(turnId);
     }
   }, []);
@@ -294,6 +306,9 @@ export default function TranslatePage() {
           setDebugInfo((prev) => ({ ...prev, transcript: data.transcript }));
           const nextTurn = { id: crypto.randomUUID(), ...data };
           setTurns((prev) => [...prev, nextTurn]);
+          requestAnimationFrame(() => {
+            feedRef.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          });
           setStatus('Speaking translation');
           if (data.audioBase64) await playTranslationAudio(data.audioBase64, nextTurn.id);
           setStatus('Ready');
@@ -342,8 +357,9 @@ export default function TranslatePage() {
   const createLesson = async () => {
     if (!turns.length || isProcessing) return;
     setIsProcessing(true);
+    setIsCreatingLesson(true);
     setError('');
-    setStatus('Translating');
+    setStatus('Creating lesson…');
     try {
       const response = await fetch('/api/translate-lesson', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -357,6 +373,7 @@ export default function TranslatePage() {
       setStatus('Ready');
       setError(`Lesson creation failed: ${err.message || 'Could not create lesson.'}`);
     } finally {
+      setIsCreatingLesson(false);
       setIsProcessing(false);
     }
   };
@@ -367,6 +384,8 @@ export default function TranslatePage() {
     setLesson(null);
     setError('');
     setBlockedAudioTurnId(null);
+    setPlayedTurnIds({});
+    setAudioLoadingTurnIds({});
     setDebugInfo((prev) => ({ ...prev, lastApiErrorStep: '', lastApiErrorDetail: '', lastApiErrorTranscript: '', transcript: '' }));
   };
 
@@ -375,8 +394,8 @@ export default function TranslatePage() {
     <div className={styles.toolbar}><select id="translate-language-pair" name="translateLanguagePair" className={styles.select} value={selectedPairId} onChange={(event) => onSelectPair(event.target.value)}>{LANGUAGE_PAIRS.map((pair) => <option key={pair.id} value={pair.id}>{pair.label}</option>)}</select><button type="button" className={`button secondary ${styles.swapButton}`} onClick={swapLanguages}>Swap ({sourceLanguage} → {targetLanguage})</button></div>
     <div className={`${styles.state} ${styles[statusClass] || ''}`}><span>{status === 'Recording' ? 'Listening…' : status}</span>{activeSpeaker && <strong>{activeSpeaker === 'me' ? 'Me recording' : 'Them recording'}</strong>}{status === 'Recording' && <span className={styles.pulse} aria-hidden />}</div>
     {error ? <p className={styles.error}>{error}</p> : null}
-    <div className={styles.feed}>{turns.map((turn) => <article className={styles.turnCard} key={turn.id}><h3>{turn.speaker === 'me' ? 'Speaker: Me' : 'Speaker: Them'}</h3><p><strong>Original ({turn.sourceLanguage}):</strong> {turn.transcript}</p><p><strong>Translation ({turn.targetLanguage}):</strong> {turn.translation}</p><p><strong>Target language:</strong> {turn.targetLanguage}</p>{turn.audioBase64 ? <button type="button" className={`button secondary ${styles.playButton}`} onClick={() => playTranslationAudio(turn.audioBase64, turn.id)}>{blockedAudioTurnId === turn.id ? 'Play Translation' : 'Replay Translation'}</button> : null}</article>)}{!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}</div>
-    <div className={styles.actionsRow}><button type="button" className={`button secondary ${styles.clearButton}`} onClick={clearConversation}>Clear Conversation</button><button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>Create Lesson From This Conversation</button></div>
+    <div className={styles.feed} ref={feedRef}>{turns.map((turn) => <article className={styles.turnCard} key={turn.id}><h3>{turn.speaker === 'me' ? 'Speaker: Me' : 'Speaker: Them'}</h3><p><strong>Original ({turn.sourceLanguage}):</strong> {turn.transcript}</p><p><strong>Translation ({turn.targetLanguage}):</strong> {turn.translation}</p><p><strong>Target language:</strong> {turn.targetLanguage}</p>{turn.audioBase64 ? <div className={styles.playButtonWrap}>{audioLoadingTurnIds[turn.id] ? <p className={styles.audioPrep}>Preparing translation audio…</p> : null}<button type="button" className={`button secondary ${styles.playButton} ${!playedTurnIds[turn.id] ? styles.playPulse : ''}`} onClick={() => playTranslationAudio(turn.audioBase64, turn.id)} disabled={Boolean(audioLoadingTurnIds[turn.id])}><span aria-hidden>🔊</span> <span>{playedTurnIds[turn.id] ? 'Replay Translation' : 'Play Translation'}</span></button></div> : null}</article>)}{!turns.length ? <p className={styles.empty}>Conversation turns will appear here.</p> : null}</div>
+    <div className={styles.actionsRow}><button type="button" className={`button secondary ${styles.clearButton}`} onClick={clearConversation}>Clear Conversation</button><button type="button" className="button primary" onClick={createLesson} disabled={!turns.length || isProcessing}>{isCreatingLesson ? 'Creating lesson…' : 'Create Lesson From This Conversation'}</button></div>
     {lesson ? (
           <section className={styles.lessonPanel}>
             <h2>Conversation Lesson</h2>
