@@ -37,12 +37,12 @@ export async function POST(request) {
       instruction:
         'Use only the conversation turns provided. Keep the lesson honest and compact. If content is minimal, return a small practical lesson without inventing unrelated topics.',
       outputShape: {
-        vocabulary: [{ word: '...', meaning: '...', example: '...' }],
-        phrases: [{ phrase: '...', meaning: '...' }],
-        pattern: '...',
-        practice: ['...', '...'],
-        quiz: [{ question: '...', answer: '...' }],
-        reviewNextTime: ['...', '...'],
+        usefulPhrases: [{ phrase: '...', meaning: '...', pronunciation: 'optional' }],
+        quickReplies: ['...', '...'],
+        miniPractice: ['...', '...'],
+        quickQuiz: [{ prompt: '...', answer: '...' }],
+        reviewLater: ['...', '...'],
+        sayThisNext: ['optional'],
       },
       turns: validTurns,
     };
@@ -58,7 +58,7 @@ export async function POST(request) {
           {
             role: 'system',
             content:
-              'You are a language coach. Return strict JSON only with keys: vocabulary, phrases, pattern, practice, quiz, reviewNextTime. Never include markdown or code fences.',
+              'You are a practical conversation coach. Return strict JSON only with keys: usefulPhrases, quickReplies, miniPractice, quickQuiz, reviewLater, sayThisNext. Prioritize confidence, repetition, practical replies, and natural phrasing over grammar explanation. Never include markdown or code fences.',
           },
           { role: 'user', content: JSON.stringify(prompt) },
         ],
@@ -87,12 +87,12 @@ export async function POST(request) {
     }
 
     return Response.json({
-      vocabulary: Array.isArray(lesson.vocabulary) ? lesson.vocabulary : [],
-      phrases: Array.isArray(lesson.phrases) ? lesson.phrases : [],
-      pattern: typeof lesson.pattern === 'string' ? lesson.pattern : '',
-      practice: Array.isArray(lesson.practice) ? lesson.practice : [],
-      quiz: Array.isArray(lesson.quiz) ? lesson.quiz : [],
-      reviewNextTime: Array.isArray(lesson.reviewNextTime) ? lesson.reviewNextTime : [],
+      usefulPhrases: Array.isArray(lesson.usefulPhrases) ? lesson.usefulPhrases : [],
+      quickReplies: Array.isArray(lesson.quickReplies) ? lesson.quickReplies : [],
+      miniPractice: Array.isArray(lesson.miniPractice) ? lesson.miniPractice : [],
+      quickQuiz: Array.isArray(lesson.quickQuiz) ? lesson.quickQuiz : [],
+      reviewLater: Array.isArray(lesson.reviewLater) ? lesson.reviewLater : [],
+      sayThisNext: Array.isArray(lesson.sayThisNext) ? lesson.sayThisNext : [],
     });
   } catch (error) {
     return Response.json(
