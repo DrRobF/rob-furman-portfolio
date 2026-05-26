@@ -1953,12 +1953,19 @@ p {
 .hes-progress-step.complete .hes-progress-node{background:#16a34a;border-color:#15803d;color:#fff}
 .hes-progress-step.active .hes-progress-node{background:#2563eb;border-color:#1d4ed8;color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
 .hes-progress-step.complete .hes-progress-label,.hes-progress-step.active .hes-progress-label{color:#0f172a}
-.hes-awareness-page{background:radial-gradient(circle at 10% 0%,#0f172a 0%,#111827 35%,#f8fafc 100%)}
-.hes-awareness-hero{position:relative;overflow:hidden;border-radius:22px;padding:2rem;background:linear-gradient(140deg,#020617,#0f172a 40%,#1e293b);color:#e2e8f0;box-shadow:0 24px 54px rgba(2,6,23,.55)}
-.hes-awareness-hero h1{font-size:3rem;line-height:1.05}.hes-awareness-hero h2{font-size:1.3rem;color:#93c5fd}
-.hes-awareness-glow{position:absolute;width:280px;height:280px;border-radius:999px;background:radial-gradient(circle,rgba(14,165,233,.25),transparent 70%);top:-90px;right:-60px;filter:blur(1px)}.hes-awareness-glow.alt{top:auto;bottom:-120px;left:-40px;background:radial-gradient(circle,rgba(129,140,248,.2),transparent 70%)}
-.hes-awareness-live{margin-top:1rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}.hes-awareness-live>div{background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.4);border-radius:12px;padding:.65rem}.hes-awareness-live label{display:block;font-size:.72rem;color:#cbd5e1}.hes-awareness-live strong{font-size:1rem}
-.hes-awareness-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.hes-awareness-card{border-radius:16px;padding:1rem;background:#fff;box-shadow:0 8px 30px rgba(15,23,42,.14)}.hes-awareness-card.signal{background:linear-gradient(180deg,#eff6ff,#fff)}.hes-awareness-card.risk{background:linear-gradient(180deg,#fff7ed,#fff)}.hes-awareness-card.recovery{background:linear-gradient(180deg,#ecfeff,#fff)}.hes-awareness-card.relational{background:linear-gradient(180deg,#f5f3ff,#fff)}
-.hes-choice-block{padding:.8rem 0;border-top:1px solid #e2e8f0}.hes-choice-block:first-of-type{border-top:none}
+.hes-awareness-page{background:linear-gradient(180deg,#dfe9ff 0%,#f8fbff 38%,#f5f8ff 100%)}
+.hes-awareness-hero{position:relative;overflow:hidden;border-radius:24px;padding:2rem;background:linear-gradient(145deg,#132445,#1e3a66 48%,#263f74);color:#e8f1ff;box-shadow:0 26px 60px rgba(9,17,39,.35)}
+.hes-awareness-hero h1{font-size:3rem;line-height:1.04}.hes-awareness-hero h2{font-size:1.25rem;color:#c7dcff}
+.hes-awareness-glow{position:absolute;width:300px;height:300px;border-radius:999px;background:radial-gradient(circle,rgba(96,165,250,.35),transparent 70%);top:-95px;right:-70px;animation:hesGlow 6s ease-in-out infinite}.hes-awareness-glow.alt{top:auto;bottom:-130px;left:-40px;background:radial-gradient(circle,rgba(167,139,250,.28),transparent 70%);animation-delay:1.5s}
+.hes-awareness-hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:1rem;align-items:center}
+.hes-awareness-live{margin-top:1rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.hes-awareness-live>div{backdrop-filter:blur(6px);background:rgba(15,23,42,.35);border:1px solid rgba(196,218,255,.35);border-radius:12px;padding:.65rem}.hes-awareness-live label{display:block;font-size:.72rem;color:#d9e8ff}.hes-awareness-live strong{font-size:1rem}
+.hes-awareness-radar svg{width:100%;max-width:320px}.hes-awareness-radar circle,.hes-awareness-radar line{fill:none;stroke:rgba(196,218,255,.35);stroke-width:1}.hes-awareness-radar text{fill:#dfebff;font-size:9px}.hes-awareness-radar .anchor{font-size:8px;fill:#9cc2ff}.hes-radar-fill{fill:rgba(96,165,250,.28);stroke:#7dd3fc;stroke-width:1.5;animation:hesRadar .9s ease-out}
+.hes-lesson-flow{display:grid;gap:1rem}.hes-lesson-card{border-radius:18px;padding:1.1rem;background:linear-gradient(160deg,rgba(255,255,255,.82),rgba(236,246,255,.68));border:1px solid rgba(148,163,184,.35);box-shadow:0 12px 28px rgba(15,23,42,.08)}
+.hes-lesson-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:.7rem 0}.hes-interaction{margin-top:.4rem;padding-top:.6rem;border-top:1px solid #dbeafe}.hes-choice{transition:transform .2s ease,box-shadow .2s ease}.hes-choice:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(37,99,235,.2)}
+.hes-live-read{margin-top:.55rem;padding:.55rem .7rem;border-radius:10px;background:#eef6ff}.hes-calibration{margin-top:.6rem;padding:.55rem .7rem;border-left:3px solid #3b82f6;background:#f4f8ff;border-radius:8px}
+.hes-awareness-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.hes-awareness-card{border-radius:16px;padding:1rem;background:#fff;box-shadow:0 8px 30px rgba(15,23,42,.14)}.hes-awareness-card.signal{background:linear-gradient(180deg,#eff6ff,#fff)}.hes-awareness-card.micro{border:1px solid #dbeafe}
 .hes-reflect-field{display:grid;gap:.35rem;margin:.65rem 0}.hes-reflect-field textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:.6rem}
-@media (max-width:900px){.hes-awareness-grid,.hes-awareness-live{grid-template-columns:1fr}.hes-awareness-hero h1{font-size:2.2rem}}
+.hes-recovery p{padding:.2rem 0}
+@keyframes hesGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes hesRadar{from{opacity:.1;transform:scale(.92);transform-origin:110px 110px}to{opacity:1;transform:scale(1)}}
+@media (max-width:900px){.hes-awareness-grid,.hes-awareness-live,.hes-lesson-grid,.hes-awareness-hero-grid{grid-template-columns:1fr}.hes-awareness-hero h1{font-size:2.2rem}}
