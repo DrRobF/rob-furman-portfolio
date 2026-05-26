@@ -1930,14 +1930,26 @@ p {
 @media (max-width:900px){.human-equation-nav{width:100%;border-radius:16px}.hes-matrix-row{grid-template-columns:1fr}.hes-modal-panel{max-height:92vh}}
 
 .hes-snapshot-shell{margin:1.2rem 0 1.8rem}.hes-snapshot-shell h2{color:#0f172a;margin-bottom:.8rem}.hes-confidence-meta{font-size:.85rem;opacity:.85}.hes-matrix-legend{display:flex;gap:1rem;font-weight:700;color:#334155;margin-bottom:.8rem}
-.hes-hero-profile{background:radial-gradient(circle at 20% 20%,rgba(56,189,248,.18),transparent 40%),radial-gradient(circle at 85% 10%,rgba(129,140,248,.2),transparent 35%),linear-gradient(150deg,#020617,#0f172a 45%,#172554);border:1px solid rgba(148,163,184,.22);box-shadow:0 22px 50px rgba(2,6,23,.55)}
+.hes-hero-profile{background:radial-gradient(circle at 20% 20%,rgba(59,130,246,.22),transparent 40%),radial-gradient(circle at 85% 10%,rgba(99,102,241,.18),transparent 35%),linear-gradient(145deg,#dbeafe,#c7d2fe 40%,#bfdbfe);border:1px solid rgba(30,64,175,.22);box-shadow:0 22px 50px rgba(15,23,42,.24)}
+.hes-hero-profile p,.hes-hero-profile h1,.hes-hero-profile h3,.hes-hero-profile .eyebrow,.hes-confidence-meta{color:#0f172a!important}
 .hes-hero-left h1{font-size:2rem;line-height:1.15;max-width:20ch}
-.hes-hero-right{background:rgba(15,23,42,.45);backdrop-filter:blur(6px);border:1px solid rgba(148,163,184,.25);border-radius:16px;padding:.8rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem;box-shadow:inset 0 0 24px rgba(56,189,248,.08)}
+.hes-hero-right{background:rgba(15,23,42,.82);backdrop-filter:blur(7px);border:1px solid rgba(148,163,184,.35);border-radius:16px;padding:.8rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem;box-shadow:inset 0 0 24px rgba(56,189,248,.12)}
 .hes-hero-metrics p{margin:.3rem 0;font-size:.82rem}
 .hes-mini-radar small{display:block;color:#cbd5e1;font-size:.72rem;margin-top:.3rem}
+.hes-mini-radar .hes-radar-label{fill:#e2e8f0;font-size:7px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+.hes-mini-radar .hes-radar-marker{fill:#f8fafc;stroke:#0ea5e9;stroke-width:1.2}
+.hes-mini-radar .hes-radar-scale{fill:#94a3b8;font-size:7px}
 .hes-factor-panel.compact{background:linear-gradient(180deg,#ffffff,#f8fafc);border:1px solid #e2e8f0}
 .hes-factor-header{display:flex;gap:.35rem;flex-wrap:wrap;margin:.35rem 0}
 .hes-factor-signal{font-weight:600;color:#0f172a}
 .hes-factor-bottom{display:grid;gap:.35rem;margin:.45rem 0}
 .hes-relational-layer{background:linear-gradient(180deg,#f8fafc,#eef2ff)}
 .hes-sim-progression{background:linear-gradient(180deg,#ecfeff,#f8fafc)}
+.hes-progression-track{display:flex;align-items:flex-start;justify-content:space-between;gap:.3rem;overflow-x:auto;padding:.55rem .25rem}
+.hes-progress-step{display:grid;grid-template-columns:auto auto auto;align-items:center;gap:.4rem;min-width:175px}
+.hes-progress-node{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;font-size:.8rem;font-weight:800;border:2px solid #94a3b8;background:#e2e8f0;color:#334155}
+.hes-progress-label{font-size:.78rem;font-weight:700;color:#475569}
+.hes-progress-connector{height:2px;width:42px;background:#cbd5e1}
+.hes-progress-step.complete .hes-progress-node{background:#16a34a;border-color:#15803d;color:#fff}
+.hes-progress-step.active .hes-progress-node{background:#2563eb;border-color:#1d4ed8;color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
+.hes-progress-step.complete .hes-progress-label,.hes-progress-step.active .hes-progress-label{color:#0f172a}
