@@ -5,8 +5,9 @@ import { useEffect, useMemo, useState } from 'react';
 import HumanEquationNav from '../../components/HumanEquationNav';
 import { dimensionDefinitions, factorPsychologyDefinitions } from './profileData';
 import { EVIDENCE_EVENTS_STORAGE_KEY, LEADERSHIP_EVIDENCE_UPDATED_AT_KEY, calculateFactorProfile, getEvidenceTimeline, getNextRecommendedSimulation, resetLeadershipProfile } from './evidenceModel';
+import { readCourseEvidence } from '../course/courseModel';
 
-const title = (sourceType) => ({ diagnostic: 'Diagnostic', urban_sim: 'Urban Sim', parent_call: 'Parent Call', leadership_sim: 'Leadership Sim', observation_lab: 'Observation', course_reflection: 'Reflection', written_artifact: 'Written Artifact', artifact: 'Artifact' }[sourceType] || sourceType);
+const title = (sourceType) => ({ diagnostic: 'Diagnostic', urban_sim: 'Urban Sim', parent_call: 'Parent Call', leadership_sim: 'Leadership Sim', observation_lab: 'Observation', course_reflection: 'Course', written_artifact: 'Written Artifact', artifact: 'Artifact' }[sourceType] || sourceType);
 
 const stepDefinitions = [
   { key: 'learn', label: 'Learn the 8 Factors', description: 'Build a shared language for leadership psychology.' },
@@ -41,6 +42,7 @@ const factorAbbreviations = { regulationUnderPressure: 'RUP', humanAwareness: 'H
 export default function HumanEquationDashboardPage() {
   const [events, setEvents] = useState([]);
   const [activeReport, setActiveReport] = useState(null);
+  const [courseEvidence, setCourseEvidence] = useState(null);
   const [showMatrixModal, setShowMatrixModal] = useState(false);
 
   useEffect(() => {
@@ -54,8 +56,10 @@ export default function HumanEquationDashboardPage() {
       }
     };
     refreshEvents();
+    setCourseEvidence(readCourseEvidence());
     const onStorage = (event) => {
       if (event.key === EVIDENCE_EVENTS_STORAGE_KEY || event.key === LEADERSHIP_EVIDENCE_UPDATED_AT_KEY) refreshEvents();
+      if (event.key === 'humanEquationCourseEvidence') setCourseEvidence(readCourseEvidence());
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
@@ -165,6 +169,7 @@ export default function HumanEquationDashboardPage() {
 
       {activeReport ? <div className="hes-modal-backdrop" role="dialog" aria-modal="true" aria-label="Growth Center panel" onClick={() => setActiveReport(null)}><article className="card hes-modal-panel" onClick={(e) => e.stopPropagation()}><div className="hes-modal-header"><h3>{reportTabs.find((tab) => tab.key === activeReport)?.label}</h3><button className="button secondary" onClick={() => setActiveReport(null)}>Close</button></div><div className="hes-modal-content">{renderReportPanel()}</div></article></div> : null}
 
-      <article className="card hes-relational-layer"><h2>How this may feel to others</h2><div className="hes-report-grid"><p><strong>Staff:</strong> Staff may feel protected by your steadiness, but still need clearer visibility into how decisions are being made as conditions change.</p><p><strong>Parents:</strong> Parents may experience genuine care and containment, yet still require explicit timelines and decision criteria to sustain trust under uncertainty.</p><p><strong>Teams:</strong> Teams may admire your composure while feeling they are interpreting your intent indirectly unless you narrate your logic in real time.</p><p><strong>Crisis moments:</strong> In fast escalation, people often feel your calm presence first; they need your reasoning pathway second so urgency does not become confusion.</p></div></article><article className="card hes-sim-progression"><h2>Simulation Intelligence Progression</h2><div className="hes-progression-track">{simulationStages.map((stage, idx) => { const status = idx < stageProgress ? 'complete' : idx === stageProgress ? 'active' : 'pending'; return <div key={stage} className={`hes-progress-step ${status}`}><div className="hes-progress-node">{status === 'complete' ? '✓' : idx + 1}</div><div className="hes-progress-label">{stage}</div>{idx < simulationStages.length - 1 ? <div className="hes-progress-connector" /> : null}</div>; })}</div><p>Current recommendation: <strong>{getNextRecommendedSimulation(events)}</strong>.</p></article><article className="card"><h2>Framework Course</h2><div className='button-row'><Link className="button secondary" href="/human-equation-suite/learn">Learn Hub</Link><Link className="button primary" href="/human-equation-suite/course/human-awareness">Open Human Awareness Module</Link></div></article>
+      <article className="card hes-relational-layer"><h2>How this may feel to others</h2><div className="hes-report-grid"><p><strong>Staff:</strong> Staff may feel protected by your steadiness, but still need clearer visibility into how decisions are being made as conditions change.</p><p><strong>Parents:</strong> Parents may experience genuine care and containment, yet still require explicit timelines and decision criteria to sustain trust under uncertainty.</p><p><strong>Teams:</strong> Teams may admire your composure while feeling they are interpreting your intent indirectly unless you narrate your logic in real time.</p><p><strong>Crisis moments:</strong> In fast escalation, people often feel your calm presence first; they need your reasoning pathway second so urgency does not become confusion.</p></div></article><article className="card hes-sim-progression"><h2>Simulation Intelligence Progression</h2><div className="hes-progression-track">{simulationStages.map((stage, idx) => { const status = idx < stageProgress ? 'complete' : idx === stageProgress ? 'active' : 'pending'; return <div key={stage} className={`hes-progress-step ${status}`}><div className="hes-progress-node">{status === 'complete' ? '✓' : idx + 1}</div><div className="hes-progress-label">{stage}</div>{idx < simulationStages.length - 1 ? <div className="hes-progress-connector" /> : null}</div>; })}</div><p>Current recommendation: <strong>{getNextRecommendedSimulation(events)}</strong>.</p></article>
+      <article className='card'><h2>8 Factors Course evidence source</h2><p><strong>Status:</strong> {courseEvidence?.completedFactors ? (courseEvidence.completedFactors === 8 ? 'Completed' : 'In progress') : 'Not started'}</p><p><strong>Course progress:</strong> {courseEvidence?.completedFactors || 0}/8 completed</p><p><strong>Latest factor completed:</strong> {courseEvidence?.timelineEvents?.length ? courseEvidence.timelineEvents[courseEvidence.timelineEvents.length - 1].label : 'None yet'}</p><p><strong>Course contribution to dashboard:</strong> Course calibration evidence</p><div className='button-row'><Link className='button primary' href='/human-equation-suite/course'>Continue Course</Link></div></article>
     </main></div></div></section>;
 }
