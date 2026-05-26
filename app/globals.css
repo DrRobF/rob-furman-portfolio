@@ -1953,3 +1953,12 @@ p {
 .hes-progress-step.complete .hes-progress-node{background:#16a34a;border-color:#15803d;color:#fff}
 .hes-progress-step.active .hes-progress-node{background:#2563eb;border-color:#1d4ed8;color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
 .hes-progress-step.complete .hes-progress-label,.hes-progress-step.active .hes-progress-label{color:#0f172a}
+.hes-awareness-page{background:radial-gradient(circle at 10% 0%,#0f172a 0%,#111827 35%,#f8fafc 100%)}
+.hes-awareness-hero{position:relative;overflow:hidden;border-radius:22px;padding:2rem;background:linear-gradient(140deg,#020617,#0f172a 40%,#1e293b);color:#e2e8f0;box-shadow:0 24px 54px rgba(2,6,23,.55)}
+.hes-awareness-hero h1{font-size:3rem;line-height:1.05}.hes-awareness-hero h2{font-size:1.3rem;color:#93c5fd}
+.hes-awareness-glow{position:absolute;width:280px;height:280px;border-radius:999px;background:radial-gradient(circle,rgba(14,165,233,.25),transparent 70%);top:-90px;right:-60px;filter:blur(1px)}.hes-awareness-glow.alt{top:auto;bottom:-120px;left:-40px;background:radial-gradient(circle,rgba(129,140,248,.2),transparent 70%)}
+.hes-awareness-live{margin-top:1rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}.hes-awareness-live>div{background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.4);border-radius:12px;padding:.65rem}.hes-awareness-live label{display:block;font-size:.72rem;color:#cbd5e1}.hes-awareness-live strong{font-size:1rem}
+.hes-awareness-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.hes-awareness-card{border-radius:16px;padding:1rem;background:#fff;box-shadow:0 8px 30px rgba(15,23,42,.14)}.hes-awareness-card.signal{background:linear-gradient(180deg,#eff6ff,#fff)}.hes-awareness-card.risk{background:linear-gradient(180deg,#fff7ed,#fff)}.hes-awareness-card.recovery{background:linear-gradient(180deg,#ecfeff,#fff)}.hes-awareness-card.relational{background:linear-gradient(180deg,#f5f3ff,#fff)}
+.hes-choice-block{padding:.8rem 0;border-top:1px solid #e2e8f0}.hes-choice-block:first-of-type{border-top:none}
+.hes-reflect-field{display:grid;gap:.35rem;margin:.65rem 0}.hes-reflect-field textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:.6rem}
+@media (max-width:900px){.hes-awareness-grid,.hes-awareness-live{grid-template-columns:1fr}.hes-awareness-hero h1{font-size:2.2rem}}
