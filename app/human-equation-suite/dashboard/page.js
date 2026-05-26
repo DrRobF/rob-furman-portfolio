@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { LanguageSwitcher } from '../../components/LanguageSwitcher';
+import { useEffect, useMemo, useState } from 'react';
 import HumanEquationNav from '../../components/HumanEquationNav';
 import { dimensionDefinitions, factorPsychologyDefinitions } from './profileData';
 import { EVIDENCE_EVENTS_STORAGE_KEY, LEADERSHIP_EVIDENCE_UPDATED_AT_KEY, calculateFactorProfile, getEvidenceTimeline, getNextRecommendedSimulation, resetLeadershipProfile } from './evidenceModel';
@@ -38,8 +37,7 @@ const factorCoachingCopy = {
 
 export default function HumanEquationDashboardPage() {
   const [events, setEvents] = useState([]);
-  const [activeReport, setActiveReport] = useState('distortions');
-  const growthReportRef = useRef(null);
+  const [activeReport, setActiveReport] = useState(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -59,9 +57,6 @@ export default function HumanEquationDashboardPage() {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  useEffect(() => {
-    if (growthReportRef.current) growthReportRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [activeReport]);
 
   const factorProfiles = useMemo(() => Object.fromEntries(dimensionDefinitions.map((d) => [d.key, calculateFactorProfile(events, d.key)])), [events]);
   const timeline = useMemo(() => getEvidenceTimeline(events), [events]);
@@ -73,7 +68,6 @@ export default function HumanEquationDashboardPage() {
   const recommendedRecovery = scoredFactors.filter((x) => x.riskMarkers > 0).sort((a, b) => b.riskMarkers - a.riskMarkers)[0];
   const confidence = confidenceLabel(events.length);
   const profileStatus = confidence === 'Early profile' ? 'Early profile — useful, but still forming.' : confidence;
-  const hasRadarData = scoredFactors.filter((f) => f.score !== null).length >= 3;
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return;
     console.debug('[Dashboard] factor profiles computed:', scoredFactors.map((f) => ({ key: f.key, score: f.score, evidence: f.totalEvidenceEvents })));
@@ -94,7 +88,7 @@ export default function HumanEquationDashboardPage() {
     return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-ladder"><p><strong>Current early read:</strong> This is not a fixed pattern yet. It is the drift most worth watching next.</p><p><strong>Likely drift to watch:</strong> {copy?.drift || 'Solving too quickly once urgency rises.'}</p><p><strong>What could trigger it:</strong> High urgency, emotional ambiguity, and incomplete information.</p><p><strong>How to interrupt it:</strong> {copy?.move || 'Pause, name knowns/unknowns, then decide.'}</p><p><strong>Factors most connected:</strong> {driftFactor?.label || 'Regulation Under Pressure'} + Reality Anchoring + Trust Construction.</p></div></article>;
   };
 
-  return <section className="section section-light"><div className="container"><LanguageSwitcher /><HumanEquationNav />
+  return <section className="section section-light"><div className="container"><HumanEquationNav />
     <div className="hes-app-layout top-space-sm"><aside className="hes-command-sidebar"><h3>Progression Flow</h3>
       <div className="hes-stepper">{stepDefinitions.map((step, index) => {
         const isDone = index < 2 || (index === 2 && events.length >= 2);
@@ -110,42 +104,47 @@ export default function HumanEquationDashboardPage() {
       <p><strong>Next recommended simulation:</strong> {getNextRecommendedSimulation(events)}</p>
     </aside>
     <main className="hes-main-content">
-      <article className="card hes-hero-profile"><div className="hes-hero-shell"><div><p className="eyebrow">Executive Pressure Profile</p><h1>This is how your leadership psychology behaves under pressure.</h1><p>Leadership style explains how you prefer to lead. Leadership psychology shows what pressure does to perception, regulation, trust, and judgment.</p><p><strong>Current profile confidence: {confidence}.</strong></p><p>{hasRadarData ? 'Radar reflects current evidence-weighted factor scores.' : 'Early read — more evidence needed.'}</p></div>
-      <div className="hes-mini-radar"><svg viewBox="0 0 220 220" aria-label="Leadership factor radar"><circle cx="110" cy="110" r="90" /><circle cx="110" cy="110" r="65" /><circle cx="110" cy="110" r="40" />
-      <polygon points={dimensionDefinitions.map((factor, i) => {
-        const angle = (Math.PI * 2 * i / dimensionDefinitions.length) - Math.PI / 2;
-        const val = factorProfiles[factor.key]?.score;
-        const radius = hasRadarData && val ? (val / 5) * 85 : 26;
-        const x = 110 + Math.cos(angle) * radius;
-        const y = 110 + Math.sin(angle) * radius;
-        return `${x},${y}`;
-      }).join(' ')} style={!hasRadarData ? { opacity: 0.35 } : undefined} /></svg><p>{hasRadarData ? 'Evidence-calibrated factor radar' : 'Early read — more evidence needed.'}</p></div></div></article>
+      <article className="card hes-hero-profile"><div className="hes-hero-shell"><div><p className="eyebrow">Executive Pressure Profile</p><h1>This is how your leadership psychology behaves under pressure.</h1><p>Leadership style explains how you prefer to lead. Leadership psychology shows what pressure does to perception, regulation, trust, and judgment.</p><p><strong>Current profile confidence: {confidence}.</strong></p><p>Factor matrix reflects current evidence-weighted factor scores and confidence.</p></div>
+      <div className="hes-factor-matrix" role="img" aria-label="Leadership factor matrix with scores">
+        <h3>Factor Bar Matrix</h3>
+        {scoredFactors.map((factor) => {
+          const score = factor.score ?? 0;
+          const confidencePct = Math.round((factor.averageConfidence || 0) * 100);
+          const sourceLabel = factor.sourceTypes.length ? factor.sourceTypes.map((s) => s === 'diagnostic' ? 'Baseline' : title(s)).join(' · ') : 'No evidence';
+          return <div key={`matrix-${factor.key}`} className="hes-matrix-row"><div className="hes-matrix-label"><span>{factor.label}</span><small>{sourceLabel}</small></div><div className="hes-matrix-bars"><div className="hes-score-bar"><span style={{ width: `${(score / 5) * 100}%` }} /></div><div className="hes-confidence-bar"><span style={{ width: `${confidencePct}%` }} /></div></div><div className="hes-matrix-values"><strong>{factor.score ? factor.score.toFixed(2) : '—'}</strong><small>{confidencePct}%</small></div></div>;
+        })}
+        <p className="hes-matrix-scale">Scale: score 0–5 (top bar), confidence 0–100% (bottom bar)</p>
+      </div></div></article>
 
       <div className="hes-insights-row">
-        <article className="hes-insight-card stabilizer"><h3>Strongest stabilizer</h3><p>{strongest ? strongest.label : 'Early read — more evidence needed.'}</p></article>
-        <article className="hes-insight-card distortion"><h3>Active pressure distortion</h3><p>{activeDistortion ? activeDistortion.label : 'No dominant pattern yet.'}</p></article>
-        <article className="hes-insight-card tension"><h3>Current growth tension</h3><p>{growthTension ? `${growthTension.label} has the thinnest support.` : 'More evidence needed.'}</p></article>
-        <article className="hes-insight-card recovery"><h3>Recommended recovery move</h3><p>{recommendedRecovery ? `Stabilize ${recommendedRecovery.label} with brief reset routines.` : 'Early read — more evidence needed.'}</p></article>
+        <article className="hes-insight-card stabilizer"><h3>Current Leadership Pattern</h3><p>{strongest ? strongest.label : 'Early read — more evidence needed.'}</p></article>
+        <article className="hes-insight-card distortion"><h3>Pressure Drift</h3><p>{activeDistortion ? activeDistortion.label : 'No dominant pattern yet.'}</p></article>
+        <article className="hes-insight-card tension"><h3>Growth Focus</h3><p>{growthTension ? `${growthTension.label} has the thinnest support.` : 'More evidence needed.'}</p></article>
+        <article className="hes-insight-card recovery"><h3>Recommended Practice</h3><p>{recommendedRecovery ? `Stabilize ${recommendedRecovery.label} with brief reset routines.` : 'Early read — more evidence needed.'}</p></article>
       </div>
 
-      <div ref={growthReportRef} tabIndex={-1}>{renderReportPanel()}</div>
+      
 
       <article className="card"><h2>The 8 Factors</h2><div className="hes-factor-grid compact">{dimensionDefinitions.map(({ key, label }) => {
         const p = factorProfiles[key];
         const factor = factorPsychologyDefinitions[key];
         const sourceLabel = p.sourceTypes.length ? p.sourceTypes.map((s) => s === 'diagnostic' ? 'Self-report baseline' : title(s)).join(' · ') : 'None yet';
         return <article key={key} className="hes-factor-panel compact"><h3>{label}</h3>
-          {!p.score ? <><p><strong>No evidence yet</strong></p><p>More behavioral data needed.</p></> : <><p><strong>{p.score.toFixed(2)} / 5</strong></p><p><span className="badge badge-blue">{p.maturityLevel}</span></p></>}
+          <div className="hes-factor-topline"><span className="hes-score-pill">{p.score ? p.score.toFixed(2) : '—'} / 5</span><span className="badge badge-blue">{p.maturityLevel}</span>{p.riskMarkers > p.positiveMarkers ? <span className="badge badge-amber">Drift risk</span> : <span className="badge badge-green">Stable</span>}</div>
+          <div className="hes-meter-block"><label>Current score</label><div className="hes-score-bar"><span style={{ width: `${((p.score || 0) / 5) * 100}%` }} /></div></div>
+          <div className="hes-meter-block"><label>Confidence</label><div className="hes-confidence-bar"><span style={{ width: `${Math.round((p.averageConfidence || 0) * 100)}%` }} /></div></div>
+          <p><strong>Evidence:</strong> <span className="badge badge-gray">{p.totalEvidenceEvents} items</span> <span className="badge badge-blue">Weighted {p.weightedEvidence}</span></p>
           <p><strong>Sources:</strong> {sourceLabel}</p>
-          <p><strong>Evidence count:</strong> {p.totalEvidenceEvents} · <strong>Last updated:</strong> {p.latestUpdatedAt ? new Date(p.latestUpdatedAt).toLocaleString('en-US') : 'Not yet'}</p>
-          <p><strong>What we can already see:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].see}</p>
-          <p><strong>Pressure drift to watch:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].drift}</p>
-          <p><strong>Next practice move:</strong> {p.totalEvidenceEvents === 0 ? 'Complete Diagnostic and Urban Simulation.' : factorCoachingCopy[key].move}</p>
-          <p><strong>Current read:</strong> {p.currentRead}</p>
-          <p><strong>Maturity:</strong> <span className="badge badge-blue">{p.maturityLevel}</span> {p.sourceTypes.includes('urban_sim') && directUrbanFactors.has(key) ? <span className="badge badge-green">Direct behavioral signal</span> : null}</p>
-          <details><summary>View deeper analysis</summary><p>{factor.shortDefinition}</p><p>Confidence: {(p.averageConfidence * 100).toFixed(0)}% · Weighted evidence: {p.weightedEvidence}</p></details>
+          <p><strong>What we see:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].see}</p>
+          <p><strong>What to practice:</strong> {p.totalEvidenceEvents === 0 ? 'Complete Diagnostic and Urban Simulation.' : factorCoachingCopy[key].move}</p>
+          <div className="hes-mini-bars"><div><small>Baseline evidence</small><div className="hes-score-bar"><span style={{ width: `${p.sourceTypes.includes('diagnostic') ? 100 : 0}%` }} /></div></div><div><small>Simulation evidence</small><div className="hes-score-bar"><span style={{ width: `${Math.min(100, p.totalEvidenceEvents * 22)}%` }} /></div></div><div><small>Blended score</small><div className="hes-confidence-bar"><span style={{ width: `${((p.score || 0) / 5) * 100}%` }} /></div></div></div>
+          <details><summary>View deeper analysis</summary><p>{factor.shortDefinition}</p><p>Confidence: {(p.averageConfidence * 100).toFixed(0)}% · Last updated: {p.latestUpdatedAt ? new Date(p.latestUpdatedAt).toLocaleString('en-US') : 'Not yet'}</p><p><strong>Pressure drift to watch:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].drift}</p><p><strong>Current read:</strong> {p.currentRead}</p></details>
         </article>;
       })}</div></article>
+
+
+
+      {activeReport ? <div className="hes-modal-backdrop" role="dialog" aria-modal="true" aria-label="Growth Center panel" onClick={() => setActiveReport(null)}><article className="card hes-modal-panel" onClick={(e) => e.stopPropagation()}><div className="hes-modal-header"><h3>{reportTabs.find((tab) => tab.key === activeReport)?.label}</h3><button className="button secondary" onClick={() => setActiveReport(null)}>Close</button></div><div className="hes-modal-content">{renderReportPanel()}</div></article></div> : null}
 
       <article className="card"><h2>Framework Course</h2><Link className="button secondary" href="/human-equation-suite/learn">Preview Placeholder</Link></article>
     </main></div></div></section>;
