@@ -24,6 +24,7 @@ const reportTabs = [
 
 const confidenceLabel = (eventCount) => (eventCount === 0 ? 'No evidence yet' : eventCount === 1 ? 'Baseline signal' : eventCount === 2 ? 'Early profile' : eventCount <= 4 ? 'Developing pattern' : 'Supported pattern');
 const trendArrow = (factor) => factor.riskMarkers > factor.positiveMarkers ? '↓' : factor.positiveMarkers > factor.riskMarkers ? '↑' : '→';
+const simulationStages = ['NOT STARTED','IN PROGRESS','EVIDENCE CAPTURED','HIGH CONFIDENCE','DRIFT DETECTED','RECOVERY IMPROVING'];
 const directUrbanFactors = new Set(['humanAwareness', 'regulationUnderPressure', 'realityAnchoring', 'trustConstruction', 'grayAreaLeadership']);
 const factorCoachingCopy = {
   regulationUnderPressure: { see: 'You appear able to stay outwardly steady, but pressure may still speed up interpretation underneath.', drift: 'Looking calm while deciding too quickly.', move: 'Slow the moment before you name the problem.' },
@@ -76,6 +77,27 @@ export default function HumanEquationDashboardPage() {
     console.debug('[Dashboard] factor profiles computed:', scoredFactors.map((f) => ({ key: f.key, score: f.score, evidence: f.totalEvidenceEvents })));
   }, [scoredFactors]);
 
+
+  const radarPoints = useMemo(() => {
+    const center = 70;
+    const radius = 56;
+    const factors = scoredFactors.slice(0, 8);
+    return factors.map((f, i) => {
+      const angle = (Math.PI * 2 * i) / factors.length - Math.PI / 2;
+      const value = ((f.score || 2.2) / 5) * radius;
+      return `${(center + Math.cos(angle) * value).toFixed(1)},${(center + Math.sin(angle) * value).toFixed(1)}`;
+    }).join(' ');
+  }, [scoredFactors]);
+
+  const coachingLens = (factor) => ({
+    pressure: `When pressure climbs, ${factor.label.toLowerCase()} can become over-optimized for speed, causing decisions to outrun shared meaning.`,
+    others: `Others may experience your leadership as steady, but still feel partially outside your internal reasoning path.`,
+    distortion: `Internal distortion risk: urgency can feel like certainty, even when evidence is still mixed.`,
+    interrupt: 'Interruption strategy: pause 45 seconds and separate facts, interpretations, and assumptions out loud.',
+    repair: 'Relational repair: re-open the loop with “Here is what I decided, what I may have missed, and what I need from you next.”',
+    simulation: `Next simulation: ${getNextRecommendedSimulation(events)} to stress-test pacing, clarity, and trust under load.`
+  });
+
   const renderReportPanel = () => {
     if (activeReport === 'timeline') {
       return <article className="card hes-report-card hes-active-report"><h2>Leadership Pattern Evolution</h2><p>May 21 — Diagnostic baseline established.</p><p>May 22 — Urban simulation added emotional-load evidence.</p><p>Future — Parent Call evidence pending.</p>{timeline.length === 0 ? <p>No evidence captured yet. Complete the diagnostic or a simulation to begin building your profile.</p> : <div className="hes-timeline">{timeline.map((event) => <article key={event.id}><div className="node">•</div><h4>{event.sourceLabel}</h4><p>{new Date(event.timestamp).toLocaleString('en-US')} · {event.evidenceType === 'diagnostic_self_report' ? 'Self-report baseline' : 'Behavioral evidence'}</p><p><strong>Factors touched:</strong> {event.factorImpacts.map((x) => x.factorId).join(', ')}</p><p><strong>What it added:</strong> {event.sourceType === 'urban_sim' ? 'Added behavioral evidence around human awareness, regulation, trust, reality anchoring, and gray-area judgment.' : event.sourceType === 'diagnostic' ? 'Created baseline self-perception across all eight factors.' : event.summary}</p></article>)}</div>}</article>;
@@ -84,11 +106,12 @@ export default function HumanEquationDashboardPage() {
       return <article className="card hes-report-card hes-active-report"><h2>Recovery Practices</h2><div className="hes-ladder"><p><strong>Best next move:</strong> Keep slowing the moment before deciding what it means.</p><p><strong>In the moment:</strong> Name what is known, what is not known, and what can wait.</p><p><strong>After the moment:</strong> Close the loop with one clear next step.</p><p><strong>What to practice in the next sim:</strong> {getNextRecommendedSimulation(events)}</p></div></article>;
     }
     if (activeReport === 'executive') {
-      return <article className="card hes-report-card hes-active-report"><h2>Executive Pressure Report</h2><div className="hes-exec-grid"><article><h4>Profile status</h4><p>{profileStatus}</p></article><article><h4>Evidence used</h4><p>Self-report baseline: Leadership Diagnostic<br />Behavioral evidence: Urban Student Simulation</p></article><article><h4>What this already suggests</h4><p>When urgency rises, your leadership appears to stay internally organized while relational explanation can become thinner. The clearest current strength is {strongest ? strongest.label : 'still forming'}, while follow-through language is the next leverage point.</p></article><article><h4>Pressure drift to watch</h4><p>You tend to preserve dignity and emotional awareness, but collaborative clarity may weaken once pace accelerates. Current evidence shows stronger emotional pacing than systems follow-through.</p></article></div></article>;
+      return <article className="card hes-report-card hes-active-report"><h2>Executive Briefing Document</h2><div className="hes-exec-grid"><article><h4>1. Current Leadership Signal</h4><p>Strongest pattern: {strongest ? strongest.label : 'Forming'}<br/>Pressure tendency: {activeDistortion ? activeDistortion.label : 'Interpretation narrowing'}<br/>Evidence maturity: {confidence}<br/>Dominant drift: pace outrunning shared meaning.</p></article><article><h4>2. What Others Likely Experience</h4><p>Staff: safe climate, variable strategic clarity.<br/>Parents: warmth, but occasional decisional ambiguity.<br/>Teams: relational trust with delayed alignment.<br/>Crisis context: calm tone with hidden urgency load.</p></article><article><h4>3. Risk Under Escalation</h4><p>Potential narrowing interpretation, premature certainty, over-accommodation, weakened systems language, and pacing mismatch between decision and explanation.</p></article><article><h4>4. Recovery Strategy</h4><p>Pause pattern: 45-second evidence separation.<br/>Language: “Known / Unknown / Next.”<br/>Evidence check: name one disconfirming data point.<br/>Relational repair: close loop within same day.<br/>Pacing intervention: slow meaning assignment, not decision ownership.</p></article><article><h4>5. Best Next Simulation</h4><p>{getNextRecommendedSimulation(events)} is recommended because evidence suggests relational pacing weakens faster than interpretation during urgency spikes.</p></article></div></article>;
     }
     const driftFactor = activeDistortion || scoredFactors.find((f) => f.totalEvidenceEvents > 0);
     const copy = driftFactor ? factorCoachingCopy[driftFactor.key] : null;
-    return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-ladder"><p><strong>Current early read:</strong> This is not a fixed pattern yet. It is the drift most worth watching next.</p><p><strong>Likely drift to watch:</strong> {copy?.drift || 'Solving too quickly once urgency rises.'}</p><p><strong>What could trigger it:</strong> High urgency, emotional ambiguity, and incomplete information.</p><p><strong>How to interrupt it:</strong> {copy?.move || 'Pause, name knowns/unknowns, then decide.'}</p><p><strong>Factors most connected:</strong> {driftFactor?.label || 'Regulation Under Pressure'} + Reality Anchoring + Trust Construction.</p></div></article>;
+    const lens = coachingLens(driftFactor || scoredFactors[0]);
+    return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-ladder"><p>{lens.pressure}</p><p>{lens.others}</p><p>{lens.distortion}</p><p>{lens.interrupt}</p><p>{lens.repair}</p><p>{lens.simulation}</p></div></article>;
   };
 
   return <section className="section section-light"><div className="container"><HumanEquationNav />
@@ -107,7 +130,7 @@ export default function HumanEquationDashboardPage() {
       <p><strong>Next recommended simulation:</strong> {getNextRecommendedSimulation(events)}</p>
     </aside>
     <main className="hes-main-content">
-      <article className="card hes-hero-profile"><div className="hes-hero-shell"><div><p className="eyebrow">Executive Pressure Profile</p><h1>This is how your leadership psychology behaves under pressure.</h1><p>Leadership style explains preference. Leadership psychology reveals what pressure does to interpretation, trust, and decision timing.</p><p className="hes-confidence-meta">Signal maturity: {profileStatus}</p></div></div></article>
+      <article className="card hes-hero-profile"><div className="hes-hero-shell"><div className="hes-hero-left"><p className="eyebrow">Executive Leadership Intelligence</p><h1>Your pattern is not just what you do — it is what others feel while you do it.</h1><p>This dashboard tracks how pressure changes interpretation, pacing, trust language, and recovery behavior across real evidence moments.</p><p className="hes-confidence-meta">Evidence maturity: {profileStatus}</p></div><div className="hes-hero-right"><div className="hes-mini-radar"><svg viewBox="0 0 140 140" aria-label="Leadership radar"><circle cx="70" cy="70" r="56" /><circle cx="70" cy="70" r="42" /><circle cx="70" cy="70" r="28" /><circle cx="70" cy="70" r="14" /><polygon points={radarPoints} /></svg><small>8-factor signal map</small></div><div className="hes-hero-metrics"><p><strong>Strongest:</strong> {strongest ? strongest.label : 'Emerging signal'}</p><p><strong>Fragile:</strong> {weakest ? weakest.label : 'Pending evidence'}</p><p><strong>Drift alert:</strong> {activeDistortion ? activeDistortion.label : 'Urgency narrowing'}</p><p><strong>Evidence maturity:</strong> {confidence}</p></div></div></div></article>
       <section className="hes-snapshot-shell"><h2>Leadership Signal Snapshot</h2><div className="hes-insights-row">
         <article className="hes-insight-card stabilizer"><h3>Strongest Capacity</h3><h4>{strongest ? strongest.label : 'Emerging signal'}</h4><p>Reads emotional context before reacting.</p></article>
         <article className="hes-insight-card distortion"><h3>Most Fragile Capacity</h3><h4>{weakest ? weakest.label : 'Pending evidence'}</h4><p>Urgency may outpace collaborative explanation.</p></article>
@@ -125,11 +148,7 @@ export default function HumanEquationDashboardPage() {
           <div className="hes-factor-topline"><span className="hes-score-pill">{p.score ? p.score.toFixed(2) : '—'} / 5</span><span className="badge badge-blue">{p.maturityLevel}</span>{p.riskMarkers > p.positiveMarkers ? <span className="badge badge-amber">Drift risk</span> : <span className="badge badge-green">Stable</span>}</div>
           <div className="hes-meter-block"><label>Current score</label><div className="hes-score-bar"><span style={{ width: `${((p.score || 0) / 5) * 100}%` }} /></div></div>
           
-          <p><strong>Evidence:</strong> <span className="badge badge-gray">{p.totalEvidenceEvents} items</span> <span className="badge badge-blue">{trendArrow(p)} trend</span> <span className="badge badge-gray">{sourceLabel}</span></p>
-          <p><strong>Sources:</strong> {sourceLabel}</p>
-          <p><strong>Current signal:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].see}</p>
-          <p><strong>Drift to watch:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].drift}</p>
-          <p><strong>Recovery move:</strong> {p.totalEvidenceEvents === 0 ? 'Complete Diagnostic and Urban Simulation.' : factorCoachingCopy[key].move}</p>
+          <div className="hes-factor-header"><span className="badge badge-gray">{p.totalEvidenceEvents} items</span><span className="badge badge-blue">{trendArrow(p)} trend</span></div><p className="hes-factor-signal">{p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].see}</p><div className="hes-factor-bottom"><span className="badge badge-amber">Drift: {p.totalEvidenceEvents === 0 ? 'Pending' : factorCoachingCopy[key].drift}</span><span className="badge badge-green">Recovery: {p.totalEvidenceEvents === 0 ? 'Run Diagnostic + Urban Sim' : factorCoachingCopy[key].move}</span></div>
           <div className="hes-mini-bars"><div><small>Baseline evidence</small><div className="hes-score-bar"><span style={{ width: `${p.sourceTypes.includes('diagnostic') ? 100 : 0}%` }} /></div></div><div><small>Simulation evidence</small><div className="hes-score-bar"><span style={{ width: `${Math.min(100, p.totalEvidenceEvents * 22)}%` }} /></div></div><div><small>Blended score</small><div className="hes-confidence-bar"><span style={{ width: `${((p.score || 0) / 5) * 100}%` }} /></div></div></div>
           <details><summary>View deeper analysis</summary><p>{factor.shortDefinition}</p><p>Signal quality: {confidenceLabel(p.totalEvidenceEvents)} · Last updated: {p.latestUpdatedAt ? new Date(p.latestUpdatedAt).toLocaleString('en-US') : 'Not yet'}</p><p><strong>Current read:</strong> {p.currentRead}</p></details>
         </article>;
@@ -144,6 +163,6 @@ export default function HumanEquationDashboardPage() {
 
       {activeReport ? <div className="hes-modal-backdrop" role="dialog" aria-modal="true" aria-label="Growth Center panel" onClick={() => setActiveReport(null)}><article className="card hes-modal-panel" onClick={(e) => e.stopPropagation()}><div className="hes-modal-header"><h3>{reportTabs.find((tab) => tab.key === activeReport)?.label}</h3><button className="button secondary" onClick={() => setActiveReport(null)}>Close</button></div><div className="hes-modal-content">{renderReportPanel()}</div></article></div> : null}
 
-      <article className="card"><h2>Framework Course</h2><Link className="button secondary" href="/human-equation-suite/learn">Preview Placeholder</Link></article>
+      <article className="card hes-relational-layer"><h2>How this may feel to others</h2><div className="hes-report-grid"><p>Staff may feel emotionally safe but strategically unclear when urgency compresses explanation.</p><p>Parents may experience warmth without full decisional certainty unless next steps are named explicitly.</p><p>Teams may wait for clarity longer than intended when your internal model advances faster than shared language.</p><p>In crisis, others may experience steadiness externally while urgency rises internally.</p></div></article><article className="card hes-sim-progression"><h2>Simulation Intelligence Progression</h2><div className="hes-flow">{simulationStages.map((stage, idx) => <span key={stage} className={`badge ${idx <= Math.min(5, events.length) ? 'badge-blue' : 'badge-gray'}`}>{stage}</span>)}</div><p>Current recommendation: <strong>{getNextRecommendedSimulation(events)}</strong>.</p></article><article className="card"><h2>Framework Course</h2><Link className="button secondary" href="/human-equation-suite/learn">Preview Placeholder</Link></article>
     </main></div></div></section>;
 }
