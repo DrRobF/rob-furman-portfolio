@@ -23,6 +23,7 @@ const reportTabs = [
 ];
 
 const confidenceLabel = (eventCount) => (eventCount === 0 ? 'No evidence yet' : eventCount === 1 ? 'Baseline signal' : eventCount === 2 ? 'Early profile' : eventCount <= 4 ? 'Developing pattern' : 'Supported pattern');
+const trendArrow = (factor) => factor.riskMarkers > factor.positiveMarkers ? '↓' : factor.positiveMarkers > factor.riskMarkers ? '↑' : '→';
 const directUrbanFactors = new Set(['humanAwareness', 'regulationUnderPressure', 'realityAnchoring', 'trustConstruction', 'grayAreaLeadership']);
 const factorCoachingCopy = {
   regulationUnderPressure: { see: 'You appear able to stay outwardly steady, but pressure may still speed up interpretation underneath.', drift: 'Looking calm while deciding too quickly.', move: 'Slow the moment before you name the problem.' },
@@ -38,6 +39,7 @@ const factorCoachingCopy = {
 export default function HumanEquationDashboardPage() {
   const [events, setEvents] = useState([]);
   const [activeReport, setActiveReport] = useState(null);
+  const [showMatrixModal, setShowMatrixModal] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -66,6 +68,7 @@ export default function HumanEquationDashboardPage() {
   const activeDistortion = scoredFactors.filter((x) => x.riskMarkers > x.positiveMarkers).sort((a, b) => (b.riskMarkers - b.positiveMarkers) - (a.riskMarkers - a.positiveMarkers))[0];
   const growthTension = scoredFactors.filter((x) => x.totalEvidenceEvents > 0).sort((a, b) => a.totalEvidenceEvents - b.totalEvidenceEvents)[0];
   const recommendedRecovery = scoredFactors.filter((x) => x.riskMarkers > 0).sort((a, b) => b.riskMarkers - a.riskMarkers)[0];
+  const weakest = scoredFactors.filter((x) => x.score).sort((a,b)=>a.score-b.score)[0];
   const confidence = confidenceLabel(events.length);
   const profileStatus = confidence === 'Early profile' ? 'Early profile — useful, but still forming.' : confidence;
   useEffect(() => {
@@ -75,13 +78,13 @@ export default function HumanEquationDashboardPage() {
 
   const renderReportPanel = () => {
     if (activeReport === 'timeline') {
-      return <article className="card hes-report-card hes-active-report"><h2>Evidence Timeline</h2>{timeline.length === 0 ? <p>No evidence captured yet. Complete the diagnostic or a simulation to begin building your profile.</p> : <div className="hes-timeline">{timeline.map((event) => <article key={event.id}><div className="node">•</div><h4>{event.sourceLabel}</h4><p>{new Date(event.timestamp).toLocaleString('en-US')} · {event.evidenceType === 'diagnostic_self_report' ? 'Self-report baseline' : 'Behavioral evidence'}</p><p><strong>Factors touched:</strong> {event.factorImpacts.map((x) => x.factorId).join(', ')}</p><p><strong>What it added:</strong> {event.sourceType === 'urban_sim' ? 'Added behavioral evidence around human awareness, regulation, trust, reality anchoring, and gray-area judgment.' : event.sourceType === 'diagnostic' ? 'Created baseline self-perception across all eight factors.' : event.summary}</p></article>)}</div>}</article>;
+      return <article className="card hes-report-card hes-active-report"><h2>Leadership Pattern Evolution</h2><p>May 21 — Diagnostic baseline established.</p><p>May 22 — Urban simulation added emotional-load evidence.</p><p>Future — Parent Call evidence pending.</p>{timeline.length === 0 ? <p>No evidence captured yet. Complete the diagnostic or a simulation to begin building your profile.</p> : <div className="hes-timeline">{timeline.map((event) => <article key={event.id}><div className="node">•</div><h4>{event.sourceLabel}</h4><p>{new Date(event.timestamp).toLocaleString('en-US')} · {event.evidenceType === 'diagnostic_self_report' ? 'Self-report baseline' : 'Behavioral evidence'}</p><p><strong>Factors touched:</strong> {event.factorImpacts.map((x) => x.factorId).join(', ')}</p><p><strong>What it added:</strong> {event.sourceType === 'urban_sim' ? 'Added behavioral evidence around human awareness, regulation, trust, reality anchoring, and gray-area judgment.' : event.sourceType === 'diagnostic' ? 'Created baseline self-perception across all eight factors.' : event.summary}</p></article>)}</div>}</article>;
     }
     if (activeReport === 'recovery') {
       return <article className="card hes-report-card hes-active-report"><h2>Recovery Practices</h2><div className="hes-ladder"><p><strong>Best next move:</strong> Keep slowing the moment before deciding what it means.</p><p><strong>In the moment:</strong> Name what is known, what is not known, and what can wait.</p><p><strong>After the moment:</strong> Close the loop with one clear next step.</p><p><strong>What to practice in the next sim:</strong> {getNextRecommendedSimulation(events)}</p></div></article>;
     }
     if (activeReport === 'executive') {
-      return <article className="card hes-report-card hes-active-report"><h2>Executive Pressure Report</h2><div className="hes-exec-grid"><article><h4>Profile status</h4><p>{profileStatus}</p></article><article><h4>Evidence used</h4><p>Self-report baseline: Leadership Diagnostic<br />Behavioral evidence: Urban Student Simulation</p></article><article><h4>What this already suggests</h4><p>Your early profile suggests a leader who notices human context and can stay steady in emotionally loaded moments. The strongest early signal is {strongest ? strongest.label : 'still forming'}, and the next best evidence target is how you organize adults, systems, and follow-through under pressure.</p></article><article><h4>Pressure drift to watch</h4><p>No major drift has repeated yet, but the current profile should watch for solving too quickly once urgency rises.</p></article></div></article>;
+      return <article className="card hes-report-card hes-active-report"><h2>Executive Pressure Report</h2><div className="hes-exec-grid"><article><h4>Profile status</h4><p>{profileStatus}</p></article><article><h4>Evidence used</h4><p>Self-report baseline: Leadership Diagnostic<br />Behavioral evidence: Urban Student Simulation</p></article><article><h4>What this already suggests</h4><p>When urgency rises, your leadership appears to stay internally organized while relational explanation can become thinner. The clearest current strength is {strongest ? strongest.label : 'still forming'}, while follow-through language is the next leverage point.</p></article><article><h4>Pressure drift to watch</h4><p>You tend to preserve dignity and emotional awareness, but collaborative clarity may weaken once pace accelerates. Current evidence shows stronger emotional pacing than systems follow-through.</p></article></div></article>;
     }
     const driftFactor = activeDistortion || scoredFactors.find((f) => f.totalEvidenceEvents > 0);
     const copy = driftFactor ? factorCoachingCopy[driftFactor.key] : null;
@@ -104,24 +107,13 @@ export default function HumanEquationDashboardPage() {
       <p><strong>Next recommended simulation:</strong> {getNextRecommendedSimulation(events)}</p>
     </aside>
     <main className="hes-main-content">
-      <article className="card hes-hero-profile"><div className="hes-hero-shell"><div><p className="eyebrow">Executive Pressure Profile</p><h1>This is how your leadership psychology behaves under pressure.</h1><p>Leadership style explains how you prefer to lead. Leadership psychology shows what pressure does to perception, regulation, trust, and judgment.</p><p><strong>Current profile confidence: {confidence}.</strong></p><p>Factor matrix reflects current evidence-weighted factor scores and confidence.</p></div>
-      <div className="hes-factor-matrix" role="img" aria-label="Leadership factor matrix with scores">
-        <h3>Factor Bar Matrix</h3>
-        {scoredFactors.map((factor) => {
-          const score = factor.score ?? 0;
-          const confidencePct = Math.round((factor.averageConfidence || 0) * 100);
-          const sourceLabel = factor.sourceTypes.length ? factor.sourceTypes.map((s) => s === 'diagnostic' ? 'Baseline' : title(s)).join(' · ') : 'No evidence';
-          return <div key={`matrix-${factor.key}`} className="hes-matrix-row"><div className="hes-matrix-label"><span>{factor.label}</span><small>{sourceLabel}</small></div><div className="hes-matrix-bars"><div className="hes-score-bar"><span style={{ width: `${(score / 5) * 100}%` }} /></div><div className="hes-confidence-bar"><span style={{ width: `${confidencePct}%` }} /></div></div><div className="hes-matrix-values"><strong>{factor.score ? factor.score.toFixed(2) : '—'}</strong><small>{confidencePct}%</small></div></div>;
-        })}
-        <p className="hes-matrix-scale">Scale: score 0–5 (top bar), confidence 0–100% (bottom bar)</p>
-      </div></div></article>
-
-      <div className="hes-insights-row">
-        <article className="hes-insight-card stabilizer"><h3>Current Leadership Pattern</h3><p>{strongest ? strongest.label : 'Early read — more evidence needed.'}</p></article>
-        <article className="hes-insight-card distortion"><h3>Pressure Drift</h3><p>{activeDistortion ? activeDistortion.label : 'No dominant pattern yet.'}</p></article>
-        <article className="hes-insight-card tension"><h3>Growth Focus</h3><p>{growthTension ? `${growthTension.label} has the thinnest support.` : 'More evidence needed.'}</p></article>
-        <article className="hes-insight-card recovery"><h3>Recommended Practice</h3><p>{recommendedRecovery ? `Stabilize ${recommendedRecovery.label} with brief reset routines.` : 'Early read — more evidence needed.'}</p></article>
-      </div>
+      <article className="card hes-hero-profile"><div className="hes-hero-shell"><div><p className="eyebrow">Executive Pressure Profile</p><h1>This is how your leadership psychology behaves under pressure.</h1><p>Leadership style explains preference. Leadership psychology reveals what pressure does to interpretation, trust, and decision timing.</p><p className="hes-confidence-meta">Signal maturity: {profileStatus}</p></div></div></article>
+      <section className="hes-snapshot-shell"><h2>Leadership Signal Snapshot</h2><div className="hes-insights-row">
+        <article className="hes-insight-card stabilizer"><h3>Strongest Capacity</h3><h4>{strongest ? strongest.label : 'Emerging signal'}</h4><p>Reads emotional context before reacting.</p></article>
+        <article className="hes-insight-card distortion"><h3>Most Fragile Capacity</h3><h4>{weakest ? weakest.label : 'Pending evidence'}</h4><p>Urgency may outpace collaborative explanation.</p></article>
+        <article className="hes-insight-card tension"><h3>Current Pressure Drift</h3><h4>{activeDistortion ? activeDistortion.label : 'Urgency narrowing'}</h4><p>Decision speed may compress interpretation range.</p></article>
+        <article className="hes-insight-card recovery"><h3>Recommended Recovery Move</h3><h4>{recommendedRecovery ? `Slow ${recommendedRecovery.label}` : 'Slow interpretation'}</h4><p>Pause before assigning meaning.</p></article>
+      </div><button className="button secondary" onClick={() => setShowMatrixModal(true)}>View Full Factor Matrix</button></section>
 
       
 
@@ -132,17 +124,23 @@ export default function HumanEquationDashboardPage() {
         return <article key={key} className="hes-factor-panel compact"><h3>{label}</h3>
           <div className="hes-factor-topline"><span className="hes-score-pill">{p.score ? p.score.toFixed(2) : '—'} / 5</span><span className="badge badge-blue">{p.maturityLevel}</span>{p.riskMarkers > p.positiveMarkers ? <span className="badge badge-amber">Drift risk</span> : <span className="badge badge-green">Stable</span>}</div>
           <div className="hes-meter-block"><label>Current score</label><div className="hes-score-bar"><span style={{ width: `${((p.score || 0) / 5) * 100}%` }} /></div></div>
-          <div className="hes-meter-block"><label>Confidence</label><div className="hes-confidence-bar"><span style={{ width: `${Math.round((p.averageConfidence || 0) * 100)}%` }} /></div></div>
-          <p><strong>Evidence:</strong> <span className="badge badge-gray">{p.totalEvidenceEvents} items</span> <span className="badge badge-blue">Weighted {p.weightedEvidence}</span></p>
+          
+          <p><strong>Evidence:</strong> <span className="badge badge-gray">{p.totalEvidenceEvents} items</span> <span className="badge badge-blue">{trendArrow(p)} trend</span> <span className="badge badge-gray">{sourceLabel}</span></p>
           <p><strong>Sources:</strong> {sourceLabel}</p>
-          <p><strong>What we see:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].see}</p>
-          <p><strong>What to practice:</strong> {p.totalEvidenceEvents === 0 ? 'Complete Diagnostic and Urban Simulation.' : factorCoachingCopy[key].move}</p>
+          <p><strong>Current signal:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].see}</p>
+          <p><strong>Drift to watch:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].drift}</p>
+          <p><strong>Recovery move:</strong> {p.totalEvidenceEvents === 0 ? 'Complete Diagnostic and Urban Simulation.' : factorCoachingCopy[key].move}</p>
           <div className="hes-mini-bars"><div><small>Baseline evidence</small><div className="hes-score-bar"><span style={{ width: `${p.sourceTypes.includes('diagnostic') ? 100 : 0}%` }} /></div></div><div><small>Simulation evidence</small><div className="hes-score-bar"><span style={{ width: `${Math.min(100, p.totalEvidenceEvents * 22)}%` }} /></div></div><div><small>Blended score</small><div className="hes-confidence-bar"><span style={{ width: `${((p.score || 0) / 5) * 100}%` }} /></div></div></div>
-          <details><summary>View deeper analysis</summary><p>{factor.shortDefinition}</p><p>Confidence: {(p.averageConfidence * 100).toFixed(0)}% · Last updated: {p.latestUpdatedAt ? new Date(p.latestUpdatedAt).toLocaleString('en-US') : 'Not yet'}</p><p><strong>Pressure drift to watch:</strong> {p.totalEvidenceEvents === 0 ? 'No evidence yet.' : factorCoachingCopy[key].drift}</p><p><strong>Current read:</strong> {p.currentRead}</p></details>
+          <details><summary>View deeper analysis</summary><p>{factor.shortDefinition}</p><p>Signal quality: {confidenceLabel(p.totalEvidenceEvents)} · Last updated: {p.latestUpdatedAt ? new Date(p.latestUpdatedAt).toLocaleString('en-US') : 'Not yet'}</p><p><strong>Current read:</strong> {p.currentRead}</p></details>
         </article>;
       })}</div></article>
 
 
+
+
+      {showMatrixModal ? <div className="hes-modal-backdrop" role="dialog" aria-modal="true" aria-label="Full Factor Matrix" onClick={() => setShowMatrixModal(false)}><article className="card hes-modal-panel" onClick={(e) => e.stopPropagation()}><div className="hes-modal-header"><h3>Full Factor Matrix</h3><button className="button secondary" onClick={() => setShowMatrixModal(false)}>Close</button></div><div className="hes-modal-content"><div className="hes-matrix-legend"><span>🔵 Baseline</span><span>🟢 Simulation</span><span>⚪ Composite</span></div><div className="hes-factor-matrix">
+      {scoredFactors.map((factor) => {const score=factor.score ?? 0;const baseline=factor.sourceTypes.includes('diagnostic')?Math.min(100,Math.max(20,score/5*100)):0;const simulation=Math.min(100,factor.totalEvidenceEvents*20);const arrow=trendArrow(factor);return <div key={`matrix-${factor.key}`} className="hes-matrix-row"><div className="hes-matrix-label"><span>{factor.label}</span><small>Composite: {factor.score ? factor.score.toFixed(1) : '—'} / 5 {arrow}</small></div><div className="hes-matrix-bars"><div className="hes-score-bar baseline"><span style={{ width: `${baseline}%` }} /></div><div className="hes-score-bar simulation"><span style={{ width: `${simulation}%` }} /></div><div className="hes-score-bar composite"><span style={{ width: `${(score/5)*100}%` }} /></div></div><div className="hes-matrix-values"><strong>{factor.score ? factor.score.toFixed(2) : '—'}</strong><small>{arrow}</small></div></div>;})}
+      </div></div></article></div> : null}
 
       {activeReport ? <div className="hes-modal-backdrop" role="dialog" aria-modal="true" aria-label="Growth Center panel" onClick={() => setActiveReport(null)}><article className="card hes-modal-panel" onClick={(e) => e.stopPropagation()}><div className="hes-modal-header"><h3>{reportTabs.find((tab) => tab.key === activeReport)?.label}</h3><button className="button secondary" onClick={() => setActiveReport(null)}>Close</button></div><div className="hes-modal-content">{renderReportPanel()}</div></article></div> : null}
 
