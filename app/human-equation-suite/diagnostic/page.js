@@ -391,23 +391,35 @@ export default function HumanEquationDiagnosticPage() {
       return () => window.clearTimeout(timer);
     } catch {}
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
-  return (<section className="section section-light"><div className="container"><LanguageSwitcher />
-        <HumanEquationNav />
+  return (<section className={`section section-light ${styles.diagnosticSection}`}><div className="container"><LanguageSwitcher />
+        <div className={styles.navWrap}><HumanEquationNav /></div>
     <HelpSuiteShell className={styles.helpSuiteShell}>
       <HelpHeroPanel className={styles.helpHeroPanel}>
         <HelpSubnav className={styles.helpSubnav}>H.E.L.P.</HelpSubnav>
         <h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
         <p className="eyebrow">Step 1 of the H.E.L.P. Path</p>
-        <p className="lead">This diagnostic establishes your baseline pressure profile before course and simulation evidence begin to stack.</p>
-        <div className="button-row top-space-sm"><HelpButton className={`button primary ${styles.helpButton}`} onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); setRedirectingToDashboard(false); }}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
-        <HelpReadingPanel className={styles.helpReadingPanel}>
-          <p className="eyebrow">What this captures</p>
-          <ol>
-            <li>Self-perception under pressure</li>
-            <li>Scenario judgment patterns</li>
-            <li>Early growth edges</li>
-            <li>First dashboard evidence</li>
-          </ol>
+        <p className="lead">Before leaders practice under pressure, they need a baseline. This diagnostic maps how you believe you lead when urgency, emotion, ambiguity, and human conflict rise.</p>
+        <p className={styles.evidenceLine}>Your results become the first evidence layer in the dashboard.</p>
+        <div className={styles.heroLayout}>
+          <div>
+            <div className="button-row top-space-sm"><HelpButton className={`button primary ${styles.helpButton}`} onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); setRedirectingToDashboard(false); }}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
+          </div>
+          <div className={styles.signalCard}>
+            <p className="eyebrow">Baseline signal map</p>
+            <div className={styles.signalChips}><span>Self-perception</span><span>Judgment patterns</span><span>Growth edges</span><span>Dashboard evidence</span></div>
+          </div>
+        </div>
+        <div className={styles.captureGrid}>
+          {[
+            ["Pressure self-read", "How you believe you respond when emotion and urgency rise."],
+            ["Scenario judgment", "What you notice first when decisions involve people, policy, timing, and trust."],
+            ["Growth edges", "Where pressure may narrow your interpretation, pacing, or follow-through."],
+            ["Dashboard baseline", "Your first evidence layer before course and simulation data are added."],
+          ].map(([title, copy], index) => <HelpReadingPanel key={title} className={`${styles.helpReadingPanel} ${styles.captureCard}`}><span className={styles.captureAccent} data-index={index + 1} /><p className="eyebrow">What this captures</p><h3>{title}</h3><p>{copy}</p></HelpReadingPanel>)}
+        </div>
+        <HelpReadingPanel className={`${styles.helpReadingPanel} ${styles.nextPanel}`}>
+          <p className="eyebrow">What happens next</p>
+          <ol><li>Review your baseline report.</li><li>Learn the 8 Factors.</li><li>Practice under pressure in simulations.</li><li>Watch the dashboard update as evidence accumulates.</li></ol>
         </HelpReadingPanel>
       </HelpHeroPanel>
     </HelpSuiteShell>
