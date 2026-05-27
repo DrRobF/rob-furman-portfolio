@@ -45,14 +45,14 @@ const featuredProjects = [
   {
     title: 'School Leader Simulation',
     description:
-      'A leadership training system that places administrators inside a full school day, requiring real decisions across instruction, behavior, and communication.',
+      'A pressure-based leadership simulation inside the Human Equation Suite umbrella, connected to shared evidence and dashboard insights.',
     href: SCHOOL_LEADER_SIMULATION_OVERVIEW_URL,
     linkText: 'Part of Human Equation Suite →',
   },
   {
     title: 'Human Equation Suite',
     description:
-      'Leadership rehearsal, diagnostics, and simulation-based growth.',
+      'The umbrella platform for leadership psychology: dashboard, 8 factors course, diagnostic, and simulations in one system.',
     href: '/human-equation-suite',
     linkText: 'Explore Human Equation Suite →',
   },
@@ -67,7 +67,7 @@ const featuredProjects = [
   {
     title: 'A Day in the Life of an Urban Student',
     description:
-      'An interactive professional learning simulation that follows one student through a school day and asks educators to examine trauma, assumptions, adult responses, and missed intervention points.',
+      'A student-perspective simulation inside the Human Equation Suite that strengthens human awareness and equity-centered leadership decisions.',
     href: '/human-equation-suite/dashboard',
     linkText: 'Part of Human Equation Suite →',
   },
