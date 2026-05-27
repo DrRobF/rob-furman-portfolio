@@ -35,6 +35,10 @@ const safeDetail = async (response, fallback) => {
 
 export async function POST(request) {
   try {
+    if (!OPENAI_API_KEY) {
+      console.error('[translate-turn] missing OPENAI_API_KEY');
+      return NextResponse.json({ error: 'Server misconfigured.', step: 'config', detail: 'OPENAI_API_KEY is not set.' }, { status: 500 });
+    }
     const formData = await request.formData();
     const audio = formData.get('audio');
     const sourceLanguage = formData.get('sourceLanguage');
@@ -150,6 +154,7 @@ export async function POST(request) {
         }
       }
     } catch (error) {
+      console.error('[translate-turn] translation request failed', { detail: error?.message || 'Unknown translation error.' });
       return NextResponse.json(
         { error: 'Translation failed', step: 'translation', detail: error?.message || 'Unknown translation error.', transcript },
         { status: 500 }
@@ -182,9 +187,11 @@ export async function POST(request) {
       const ttsBase64 = Buffer.from(await ttsRes.arrayBuffer()).toString('base64');
       return NextResponse.json({ transcript, translation, audioBase64: ttsBase64, speaker, sourceLanguage, targetLanguage });
     } catch (error) {
+      console.error('[translate-turn] tts request failed', { detail: error?.message || 'Unknown speech error.' });
       return NextResponse.json({ error: 'Speech generation failed', step: 'tts', detail: error?.message || 'Unknown speech error.' }, { status: 500 });
     }
   } catch (error) {
+    console.error('[translate-turn] server failure', { detail: error?.message || 'Unknown server error.' });
     return NextResponse.json({ error: 'Translation request failed.', step: 'server', detail: error?.message || 'Unknown server error.' }, { status: 500 });
   }
 }
