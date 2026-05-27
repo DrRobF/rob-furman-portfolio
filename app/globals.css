@@ -2071,3 +2071,35 @@ p {
 .help-suite-internal .hes-modal-panel h2,.help-suite-internal .hes-modal-panel h3,.help-suite-internal .hes-modal-panel h4,.help-suite-internal .hes-active-report h2,.help-suite-internal .hes-active-report h3{color:#fff}
 .help-suite-internal .help-diagnostic-question-card{background:#f8fbff;border:1px solid rgba(148,184,255,.35);color:#071a33}
 .help-suite-internal .help-diagnostic-question-card h3,.help-suite-internal .help-diagnostic-question-card p,.help-suite-internal .help-diagnostic-question-card em,.help-suite-internal .help-diagnostic-question-card strong{color:#071a33;opacity:1}
+
+
+/* Dashboard readability + Growth Center modal contrast */
+.help-suite-internal.help-page-dark .hes-command-sidebar h3{color:#f6c453}
+.help-suite-internal.help-page-dark .hes-command-sidebar p,.help-suite-internal.help-page-dark .hes-command-sidebar li,.help-suite-internal.help-page-dark .hes-command-sidebar strong{color:#eaf2ff}
+.help-suite-internal.help-page-dark .hes-command-sidebar .hes-step p,.help-suite-internal.help-page-dark .hes-command-sidebar .hes-progress-label{color:#cbd8ea}
+.help-suite-internal.help-page-dark .hes-snapshot-shell h2,.help-suite-internal.help-page-dark .hes-main-content .card h2,.help-suite-internal.help-page-dark .hes-main-content .card h3,.help-suite-internal.help-page-dark .hes-main-content .card h4{color:#ffffff}
+.help-suite-internal.help-page-dark .hes-hero-right{background:#0f2340;border-color:rgba(127,180,255,.45)}
+.help-suite-internal.help-page-dark .hes-hero-metrics p{color:#eaf2ff}
+.help-suite-internal.help-page-dark .hes-mini-radar small,.help-suite-internal.help-page-dark .hes-mini-radar .hes-radar-scale{color:#cbd8ea;fill:#cbd8ea}
+
+.help-suite-internal.help-page-dark .hes-insight-card{background:#f8fbff;border:1px solid #bfd2ee}
+.help-suite-internal.help-page-dark .hes-insight-card h3{color:#28415f}
+.help-suite-internal.help-page-dark .hes-insight-card h4{color:#061225}
+.help-suite-internal.help-page-dark .hes-insight-card p{color:#10233f}
+
+.help-suite-internal.help-page-dark .hes-factor-matrix{background:#132b4e;border-color:rgba(127,180,255,.4)}
+.help-suite-internal.help-page-dark .hes-matrix-legend,.help-suite-internal.help-page-dark .hes-matrix-label span,.help-suite-internal.help-page-dark .hes-matrix-values strong{color:#ffffff}
+.help-suite-internal.help-page-dark .hes-matrix-label small,.help-suite-internal.help-page-dark .hes-matrix-values small,.help-suite-internal.help-page-dark .hes-matrix-scale{color:#cbd8ea}
+
+.help-suite-internal.help-page-dark .hes-modal-backdrop{background:rgba(2,8,23,.76)}
+.help-suite-internal.help-page-dark .hes-modal-panel{background:#0f2340;border:1px solid rgba(127,180,255,.35)}
+.help-suite-internal.help-page-dark .hes-modal-header h3{color:#ffffff}
+.help-suite-internal.help-page-dark .hes-modal-content{color:#eaf2ff}
+.help-suite-internal.help-page-dark .hes-modal-content p,.help-suite-internal.help-page-dark .hes-modal-content li{color:#eaf2ff}
+.help-suite-internal.help-page-dark .hes-modal-content small{color:#cbd8ea}
+.help-suite-internal.help-page-dark .hes-modal-content .hes-ladder p{background:#132b4e;border-left-color:#7fb4ff}
+.help-suite-internal.help-page-dark .hes-modal-content .hes-timeline article,.help-suite-internal.help-page-dark .hes-modal-content .hes-exec-grid article{background:#132b4e;border-color:rgba(127,180,255,.4)}
+.help-suite-internal.help-page-dark .hes-modal-content .hes-timeline .node{background:#1f3f66;color:#f6c453}
+.help-suite-internal.help-page-dark .hes-modal-content .button.secondary,.help-suite-internal.help-page-dark .hes-modal-header .button.secondary{background:#132b4e;color:#ffffff;border-color:#7fb4ff}
+.help-suite-internal.help-page-dark .hes-modal-content .button.secondary:hover,.help-suite-internal.help-page-dark .hes-modal-header .button.secondary:hover{background:#1a3861}
+
