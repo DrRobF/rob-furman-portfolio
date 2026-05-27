@@ -1973,3 +1973,34 @@ p {
 @media (max-width:900px){.hes-awareness-grid,.hes-awareness-live,.hes-lesson-grid,.hes-awareness-hero-grid{grid-template-columns:1fr}.hes-awareness-hero h1{font-size:2.2rem}}
 
 .hes-interaction-context{margin:.35rem 0 .6rem;color:#334155;font-size:.95rem}
+
+:root {
+  --help-navy: #030f2d;
+  --help-navy-soft: #0a1f4f;
+  --help-blue: #4da9ff;
+  --help-teal: #42d8c6;
+  --help-gold: #e8b154;
+  --help-coral: #f05a78;
+}
+
+.help-page {
+  background: radial-gradient(circle at 15% 0%, #11306f 0%, var(--help-navy) 45%, #02081d 100%);
+  color: #f8fbff;
+}
+.help-hero,.help-section,.help-final-cta{border:1px solid rgba(232,177,84,.25);border-radius:20px;background:linear-gradient(145deg,rgba(7,20,54,.9),rgba(4,14,38,.84));padding:2rem;margin-top:1.3rem}
+.help-hero h1{font-size:4rem;letter-spacing:.12em;margin:.25rem 0;background:linear-gradient(90deg,var(--help-blue),var(--help-teal),var(--help-gold),var(--help-coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.help-hero h2{margin-top:0;color:#f9e8c1;letter-spacing:.08em;text-transform:uppercase;font-size:1.25rem}
+.help-tagline{font-size:1.3rem;color:#fef3d8}
+.help-brand-mark{position:relative;height:130px;width:130px;border:2px solid rgba(232,177,84,.7);border-radius:50%;display:grid;place-items:center;margin-bottom:1rem;background:radial-gradient(circle,#0f2f62 0%,#07183f 72%)}
+.help-brand-mark .core{font-size:2.2rem;font-weight:700;color:#fff}
+.help-brand-mark .dot{position:absolute;width:22px;height:22px;border-radius:50%}
+.help-brand-mark .blue{background:var(--help-blue);left:-8px;top:50%}
+.help-brand-mark .teal{background:var(--help-teal);top:8px;left:52px}
+.help-brand-mark .gold{background:var(--help-gold);right:-8px;top:50%}
+.help-brand-mark .coral{background:var(--help-coral);bottom:-8px;left:52px}
+.help-card,.help-step,.help-module,.help-factor,.help-different{background:rgba(3,9,25,.72);border:1px solid rgba(84,150,255,.24)}
+.help-icon{font-size:2rem;font-weight:700}
+.help-section h3,.help-final-cta h3{color:#f5c56f}
+.help-process{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.help-module p,.help-factor p,.help-step p,.help-different p,.help-card p{color:#e6edf8}
+@media (max-width: 640px){.help-hero h1{font-size:2.8rem}}

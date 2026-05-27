@@ -14,7 +14,7 @@ const projects = [
   {
     title: 'Human Equation Suite',
     description:
-      'Leadership rehearsal, diagnostics, parent-call rehearsal, school leadership simulation, urban student perspective simulation, and dashboard reporting in one unified pathway.',
+      'The umbrella platform that unifies the dashboard, 8 factors course, diagnostic, and simulations into one leadership psychology pathway.',
     href: '/human-equation-suite',
     linkText: 'Explore Human Equation Suite →',
   },
@@ -42,7 +42,7 @@ export default function ProjectsPage() {
         <h1>Systems I&apos;ve Built</h1>
         <p className="lead">
           These are applied systems designed to improve decision-making, learning, and performance
-          in real-world environments.
+          in real-world environments. The Human Equation Suite is the umbrella experience.
         </p>
         <div className="card-grid">
           {projects.map((project) => (
