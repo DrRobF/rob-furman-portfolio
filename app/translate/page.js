@@ -62,9 +62,22 @@ export default function TranslatePage() {
 
   const startRecording = useCallback(async (speaker) => { if (isForceStoppingRef.current || isCleaningUpRef.current || isUploadingRef.current || recorderRef.current || streamRef.current || ['Recording', 'Processing', 'Translating', 'Speaking translation'].includes(status)) return; setError(''); try { chunksRef.current = []; const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); streamRef.current = stream; await startMicMeter(stream); const mimeCandidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4']; const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type)) || ''; const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream); recorderRef.current = recorder; activeSpeakerRef.current = speaker; recordingStartTimeRef.current = Date.now(); recorder.ondataavailable = (event) => { if (!isForceStoppingRef.current && !isCleaningUpRef.current && event.data && event.data.size > 0) chunksRef.current.push(event.data); };
       recorder.onstop = async () => { clearRequestTimer(); if (isForceStoppingRef.current || isCleaningUpRef.current) { fullCleanup('Ready'); return; } const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' }); if (blob.size <= 0) { setError('No speech detected. Please try again.'); fullCleanup('Ready'); return; } try { isUploadingRef.current = true; setIsProcessing(true); setStatus('Translating'); const formData = new FormData(); formData.append('audio', blob, 'recording.webm'); formData.append('sourceLanguage', sourceLanguage); formData.append('targetLanguage', targetLanguage); formData.append('speaker', activeSpeakerRef.current); const response = await fetch('/api/translate-turn', { method: 'POST', body: formData }); const data = await response.json(); if (!response.ok) throw new Error(data?.detail || data?.error || 'Translation failed.'); if (!data?.transcript?.trim()) throw new Error('No speech detected. Please try again.'); const nextTurn = { id: crypto.randomUUID(), ...data }; setTurns((prev) => [...prev, nextTurn]); requestAnimationFrame(() => feedRef.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })); setStatus('Speaking translation'); if (data.audioBase64) await playTranslationAudio(data.audioBase64, nextTurn.id); setStatus('Ready'); } catch (err) { setError(err?.message || 'Something went wrong while translating.'); setStatus('Ready'); } finally { isUploadingRef.current = false; fullCleanup('Ready'); } };
-      recorder.start(); setActiveSpeaker(speaker); setStatus('Recording'); } catch { fullCleanup('Ready'); setError('Microphone permission is needed to translate speech.'); } }, [clearRequestTimer, fullCleanup, playTranslationAudio, sourceLanguage, startMicMeter, status, targetLanguage]);
+      recorder.start(250); clearRequestTimer(); requestDataIntervalRef.current = setInterval(() => { if (recorder.state === 'recording') recorder.requestData(); }, 250); setActiveSpeaker(speaker); setStatus('Recording'); } catch { fullCleanup('Ready'); setError('Microphone permission is needed to translate speech.'); } }, [clearRequestTimer, fullCleanup, playTranslationAudio, sourceLanguage, startMicMeter, status, targetLanguage]);
 
-  const stopRecording = useCallback(() => { if (recorderRef.current?.state === 'recording') recorderRef.current.stop(); }, []);
+  const stopRecording = useCallback(() => {
+    const recorder = recorderRef.current;
+    if (!recorder || recorder.state !== 'recording') return;
+    const recordingDuration = Date.now() - recordingStartTimeRef.current;
+    const stopNow = () => {
+      try { recorder.requestData(); } catch {}
+      recorder.stop();
+    };
+    if (recordingDuration < 300) {
+      setTimeout(stopNow, 300 - recordingDuration);
+      return;
+    }
+    stopNow();
+  }, []);
   const toggleSpeaker = (speaker) => { if (!isProcessing && !isUploadingRef.current) { const isActive = activeSpeaker === speaker && recorderRef.current?.state === 'recording'; if (isActive) stopRecording(); else startRecording(speaker); } };
   const onSelectPair = (id) => { const pair = LANGUAGE_PAIRS.find((entry) => entry.id === id); if (pair) { setSourceLanguage(pair.source); setTargetLanguage(pair.target); } };
   const swapLanguages = () => { setSourceLanguage(targetLanguage); setTargetLanguage(sourceLanguage); };
