@@ -59,3 +59,46 @@
 }
 
 .helpButton { min-width: 190px; }
+
+.diagnosticSection {
+  background:
+    radial-gradient(circle at 15% -10%, rgba(77, 169, 255, 0.28), transparent 38%),
+    radial-gradient(circle at 82% 6%, rgba(255, 131, 102, 0.2), transparent 34%),
+    linear-gradient(180deg, #030916 0%, #050d1f 45%, #040a19 100%);
+}
+
+.navWrap :global(.human-equation-nav) {
+  margin: 0 auto 1rem;
+  width: min(1080px, 100%);
+  justify-content: center;
+  border: 1px solid rgba(128, 166, 255, 0.38);
+  background: rgba(4, 14, 34, 0.88);
+  box-shadow: 0 18px 34px rgba(2, 8, 22, 0.4);
+}
+
+.navWrap :global(.human-equation-nav .button.secondary) { color: #cddcf8; }
+.navWrap :global(.human-equation-nav .button.primary) { box-shadow: 0 8px 20px rgba(39, 97, 255, 0.45); }
+
+.evidenceLine { color: #eff5ff; opacity: 0.95; }
+.heroLayout { display: grid; grid-template-columns: 1.25fr .75fr; gap: 1rem; align-items: start; }
+.signalCard { border: 1px solid rgba(109, 189, 255, 0.4); border-radius: 14px; background: rgba(3, 13, 33, 0.92); padding: .9rem; }
+.signalChips { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: .6rem; }
+.signalChips span { display: inline-flex; justify-content: center; border-radius: 999px; padding: .35rem .55rem; border: 1px solid rgba(120, 180, 255, 0.42); background: rgba(9, 26, 58, 0.95); color: #eef4ff; font-size: .78rem; }
+
+.captureGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; margin-top: 1rem; }
+.captureCard { position: relative; margin-top: 0; min-height: 140px; }
+.captureCard h3 { margin: .35rem 0 .5rem; color: #ffffff; }
+.captureCard p { color: #edf3ff; opacity: 0.95; }
+.captureAccent { display: block; height: 3px; border-radius: 999px; margin-bottom: .6rem; }
+.captureAccent[data-index='1'] { background: linear-gradient(90deg, #4da9ff, #87d4ff); }
+.captureAccent[data-index='2'] { background: linear-gradient(90deg, #2ad4c8, #7ff4e5); }
+.captureAccent[data-index='3'] { background: linear-gradient(90deg, #ffc165, #ffe39d); }
+.captureAccent[data-index='4'] { background: linear-gradient(90deg, #ff8a72, #ffbaa9); }
+.nextPanel { margin-top: .9rem; }
+.nextPanel ol { margin: .35rem 0 0 1.1rem; color: #f5f8ff; }
+.nextPanel li { margin-bottom: .3rem; }
+
+@media (max-width: 900px) {
+  .heroLayout { grid-template-columns: 1fr; }
+  .captureGrid { grid-template-columns: 1fr; }
+}
