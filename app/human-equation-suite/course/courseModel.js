@@ -69,3 +69,29 @@ const emptyFactor = () => ({ completed: false, score: null, dominantTendency: ''
 export const createDefaultCourseEvidence = () => ({ source: 'eight_factors_course', startedAt: null, updatedAt: null, completedFactors: 0, factorEvidence: Object.fromEntries(factorCatalog.map((f) => [f.key, emptyFactor()])), reflections: {}, interactionEvidence: {}, growthSignals: [], timelineEvents: [] });
 export const readCourseEvidence = () => { if (typeof window === 'undefined') return createDefaultCourseEvidence(); const raw = JSON.parse(window.localStorage.getItem(COURSE_EVIDENCE_KEY) || 'null'); return { ...createDefaultCourseEvidence(), ...(raw || {}), factorEvidence: { ...createDefaultCourseEvidence().factorEvidence, ...(raw?.factorEvidence || {}) } }; };
 export const saveCourseEvidence = (updater) => { if (typeof window === 'undefined') return createDefaultCourseEvidence(); const current = readCourseEvidence(); const next = typeof updater === 'function' ? updater(current) : updater; const completedFactors = Object.values(next.factorEvidence || {}).filter((f) => f?.completed).length; const payload = { ...next, startedAt: next.startedAt || new Date().toISOString(), updatedAt: new Date().toISOString(), completedFactors }; window.localStorage.setItem(COURSE_EVIDENCE_KEY, JSON.stringify(payload)); return payload; };
+
+
+const toSentence = (label) => `I notice ${label.toLowerCase()} is trying to protect something important in this moment.`;
+Object.values(factorModules).forEach((module) => {
+  if (!module.iDoExamples) {
+    module.iDoExamples = (module.interactions || []).slice(0, 2).map((q) => ({
+      situation: q.prompt,
+      weakRead: q.options?.[0]?.label || 'Move fast to close the issue.',
+      strongerRead: q.options?.[1]?.label || 'Slow down, read context, then choose the next move.',
+      whyItMatters: 'The stronger read protects authority and dignity at the same time. It keeps you from mistaking urgency for accuracy, and it gives the room a clearer path forward.',
+      leadershipLanguage: `I want to stabilize this and move us forward. ${toSentence(q.options?.[1]?.label || 'the core concern')} Here is the next clear step.`,
+    }));
+  }
+  if (!module.guidedPractice) {
+    module.guidedPractice = (module.interactions || []).slice(2, 4).map((q) => ({
+      prompt: q.prompt,
+      options: (q.options || []).slice(0, 3).map((opt) => ({
+        label: opt.label,
+        notices: opt.feedback.toLowerCase(),
+        miss: 'you may move to closure before fully naming the human signal in the room',
+        strengthen: 'keep this instinct, then add one sentence that names impact and one sentence that sets the next step',
+        nextSentence: `I hear the pressure here, and we are going to handle this clearly: ${opt.label}.`,
+      })),
+    }));
+  }
+});
