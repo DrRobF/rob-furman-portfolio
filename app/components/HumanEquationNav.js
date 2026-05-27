@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
-  { label: 'Suite Home', href: '/human-equation-suite' },
+  { label: 'H.E.L.P. Home', href: '/human-equation-suite' },
   { label: 'Dashboard', href: '/human-equation-suite/dashboard' },
   { label: 'Course', href: '/human-equation-suite/course' },
   { label: 'Diagnostic', href: '/human-equation-suite/diagnostic' },
@@ -17,7 +17,7 @@ export default function HumanEquationNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Human Equation navigation" className="human-equation-nav">
+    <nav aria-label="Human Equation navigation" className="human-equation-nav help-suite-nav">
       {navItems.map((item) => {
         const isActive = pathname === item.href || (item.href === '/human-equation-suite/course' && pathname.startsWith('/human-equation-suite/course'));
         return (

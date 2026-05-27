@@ -419,8 +419,8 @@ export default function HumanEquationDiagnosticPage() {
       return () => window.clearTimeout(timer);
     } catch {}
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
-  return (<section className={`section section-light ${styles.diagnosticSection}`}><div className="container"><LanguageSwitcher />
-        <div className={styles.navWrap}><HumanEquationNav /></div>
+  return (<section className={`section help-suite-page ${styles.diagnosticSection}`}><div className="container"><LanguageSwitcher />
+        <div className={styles.navWrap}><div className='help-suite-nav-wrap'><HumanEquationNav /></div></div>
     {!started ? <HelpSuiteShell className={styles.helpSuiteShell}>
       <HelpHeroPanel className={styles.helpHeroPanel}>
         <HelpSubnav className={styles.helpSubnav}>H.E.L.P.</HelpSubnav>

@@ -120,7 +120,7 @@ export default function HumanEquationDashboardPage() {
     return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-ladder"><p><strong>What this pattern means:</strong> {lens.pressure}</p><p><strong>What others may experience:</strong> {lens.others}</p><p><strong>What goes wrong under pressure:</strong> {lens.distortion}</p><p><strong>What to do in the moment:</strong> {lens.interrupt}</p><p><strong>Repair language afterward:</strong> {lens.repair}</p><p><strong>Next simulation recommendation:</strong> {lens.simulation}</p></div></article>;
   };
 
-  return <section className="section section-light"><div className="container"><HumanEquationNav />
+  return <section className="section help-suite-page"><div className="container"><div className='help-suite-nav-wrap'><HumanEquationNav /></div>
     <div className="hes-app-layout top-space-sm"><aside className="hes-command-sidebar"><h3>Progression Flow</h3>
       <div className="hes-stepper">{stepDefinitions.map((step, index) => {
         const isDone = index < 2 || (index === 2 && events.length >= 2);
@@ -146,7 +146,7 @@ export default function HumanEquationDashboardPage() {
 
       
 
-      <article className="card"><h2>The 8 Factors</h2><div className="hes-factor-grid compact">{dimensionDefinitions.map(({ key, label }) => {
+      <article className="card help-suite-panel"><h2>The 8 Factors</h2><div className="hes-factor-grid compact">{dimensionDefinitions.map(({ key, label }) => {
         const p = factorProfiles[key];
         const factor = factorPsychologyDefinitions[key];
         const sourceLabel = p.sourceTypes.length ? p.sourceTypes.map((s) => s === 'diagnostic' ? 'Self-report baseline' : title(s)).join(' · ') : 'None yet';
