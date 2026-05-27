@@ -9,14 +9,14 @@ const projects = [
     description:
       'A leadership training system that places administrators inside a full school day, requiring real decisions across instruction, behavior, and communication. Developed from real school leadership experience, this simulation focuses on judgment, writing, and decision-making under pressure.',
     href: '/human-equation-suite',
-    linkText: 'Part of the Human Equation Suite →',
+    linkText: 'Part of the H.E.L.P. — Human Equation Leadership Psychology →',
   },
   {
-    title: 'Human Equation Suite',
+    title: 'H.E.L.P. — Human Equation Leadership Psychology',
     description:
       'The umbrella platform that unifies the dashboard, 8 factors course, diagnostic, and simulations into one leadership psychology pathway.',
     href: '/human-equation-suite',
-    linkText: 'Explore Human Equation Suite →',
+    linkText: 'Explore H.E.L.P. — Human Equation Leadership Psychology →',
   },
   {
     title: 'VIC: Virtual Co-Teacher',
@@ -31,7 +31,7 @@ const projects = [
     description:
       'An interactive professional learning simulation that follows one student through a school day and asks educators to examine trauma, assumptions, adult responses, and missed intervention points.',
     href: '/human-equation-suite',
-    linkText: 'Part of the Human Equation Suite →',
+    linkText: 'Part of the H.E.L.P. — Human Equation Leadership Psychology →',
   },
 ];
 
@@ -42,7 +42,7 @@ export default function ProjectsPage() {
         <h1>Systems I&apos;ve Built</h1>
         <p className="lead">
           These are applied systems designed to improve decision-making, learning, and performance
-          in real-world environments. The Human Equation Suite is the umbrella experience.
+          in real-world environments. The H.E.L.P. — Human Equation Leadership Psychology is the umbrella experience.
         </p>
         <div className="card-grid">
           {projects.map((project) => (
