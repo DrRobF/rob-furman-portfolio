@@ -421,7 +421,8 @@ export default function HumanEquationDiagnosticPage() {
         <p className={styles.evidenceLine}>Your results become the first evidence layer in the dashboard.</p>
         <div className={styles.heroLayout}>
           <div>
-            <div className="button-row top-space-sm"><HelpButton as={Link} href="/human-equation-suite/diagnostic?start=1" className={`button primary ${styles.helpButton}`}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
+            {/* Do not point this button back to /diagnostic. It must open the real diagnostic test flow. */}
+            <div className="button-row top-space-sm"><HelpButton as="button" type="button" onClick={() => setStarted(true)} className={`button primary ${styles.helpButton}`}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
           </div>
           <div className={styles.signalCard}>
             <p className="eyebrow">Baseline signal map</p>
