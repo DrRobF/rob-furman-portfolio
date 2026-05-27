@@ -40,7 +40,7 @@ const factors = [
 
 export default function HumanEquationSuitePage() {
   return (
-    <HumanEquationShell activePath="Suite Home">
+    <HumanEquationShell activePath="Suite Home" showTopNav={false}>
         <section className="help-hero top-space-sm">
           <div className="help-hero-lines" aria-hidden="true" />
           <div className="help-logo-stage"><div className="help-logo-wrap"><Image src="/images/help-main-logo.png" alt="H.E.L.P. main brand logo" width={900} height={520} className="help-main-logo" priority /></div></div>
