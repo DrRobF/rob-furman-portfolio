@@ -251,6 +251,7 @@ export default function HumanEquationDiagnosticPage() {
   const [completionReason, setCompletionReason] = useState(null);
   const [triggeredProbeCategories, setTriggeredProbeCategories] = useState([]);
   const alreadyAdvancingRef = useRef(false);
+  const diagnosticRef = useRef(null);
 
   const currentQuestion = questionById[questionFlow[currentQuestionIndex]];
   const completedCount = Object.keys(answers).length;
@@ -381,6 +382,14 @@ export default function HumanEquationDiagnosticPage() {
   }, [started]);
 
   useEffect(() => {
+    if (!started || typeof window === 'undefined') return;
+    const timer = window.setTimeout(() => {
+      diagnosticRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+    return () => window.clearTimeout(timer);
+  }, [started]);
+
+  useEffect(() => {
     if (!isComplete || typeof window === 'undefined') return;
     try {
       const completedAt = new Date().toISOString();
@@ -412,7 +421,7 @@ export default function HumanEquationDiagnosticPage() {
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
   return (<section className={`section section-light ${styles.diagnosticSection}`}><div className="container"><LanguageSwitcher />
         <div className={styles.navWrap}><HumanEquationNav /></div>
-    <HelpSuiteShell className={styles.helpSuiteShell}>
+    {!started ? <HelpSuiteShell className={styles.helpSuiteShell}>
       <HelpHeroPanel className={styles.helpHeroPanel}>
         <HelpSubnav className={styles.helpSubnav}>H.E.L.P.</HelpSubnav>
         <h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
@@ -422,7 +431,7 @@ export default function HumanEquationDiagnosticPage() {
         <div className={styles.heroLayout}>
           <div>
             {/* Do not point this button back to /diagnostic. It must open the real diagnostic test flow. */}
-            <div className="button-row top-space-sm"><HelpButton as="button" type="button" onClick={() => setStarted(true)} className={`button primary ${styles.helpButton}`}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
+            <div className="button-row top-space-sm"><HelpButton as="button" type="button" onClick={startDiagnostic} className={`button primary ${styles.helpButton}`}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
           </div>
           <div className={styles.signalCard}>
             <p className="eyebrow">Baseline signal map</p>
@@ -442,9 +451,9 @@ export default function HumanEquationDiagnosticPage() {
           <ol><li>Review your baseline report.</li><li>Learn the 8 Factors.</li><li>Practice under pressure in simulations.</li><li>Watch the dashboard update as evidence accumulates.</li></ol>
         </HelpReadingPanel>
       </HelpHeroPanel>
-    </HelpSuiteShell>
+    </HelpSuiteShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
 
-    {started && !viewResults && currentQuestion && !isComplete && (<div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
+    {started && !viewResults && currentQuestion && !isComplete && (<div ref={diagnosticRef} className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
       <progress max="100" value={progressPercent} style={{ width: '100%' }} />
       <p className="top-space-sm"><em>{progressMessage}</em></p>
