@@ -361,6 +361,25 @@ export default function HumanEquationDiagnosticPage() {
   }, [answers, questionFlow, completedCount]);
 
 
+  const startDiagnostic = () => {
+    setStarted(true);
+    setViewResults(false);
+    setCurrentQuestionIndex(0);
+    setQuestionFlow(coreQuestions.map((q) => q.id));
+    setStartedAt(Date.now());
+    setAnswers({});
+    setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 });
+    setCompletionReason(null);
+    setTriggeredProbeCategories([]);
+    setRedirectingToDashboard(false);
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || started) return;
+    const shouldStart = new URLSearchParams(window.location.search).get('start') === '1';
+    if (shouldStart) startDiagnostic();
+  }, [started]);
+
   useEffect(() => {
     if (!isComplete || typeof window === 'undefined') return;
     try {
@@ -402,7 +421,7 @@ export default function HumanEquationDiagnosticPage() {
         <p className={styles.evidenceLine}>Your results become the first evidence layer in the dashboard.</p>
         <div className={styles.heroLayout}>
           <div>
-            <div className="button-row top-space-sm"><HelpButton className={`button primary ${styles.helpButton}`} onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); setRedirectingToDashboard(false); }}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
+            <div className="button-row top-space-sm"><HelpButton as={Link} href="/human-equation-suite/diagnostic?start=1" className={`button primary ${styles.helpButton}`}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
           </div>
           <div className={styles.signalCard}>
             <p className="eyebrow">Baseline signal map</p>
