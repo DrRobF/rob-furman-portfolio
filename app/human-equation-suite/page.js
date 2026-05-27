@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import HumanEquationNav from '../components/HumanEquationNav';
 
 const pathwaySteps = [
   { title: '1. Diagnostic', detail: 'Establish your baseline pressure profile and identify your first growth edges.' },
@@ -42,7 +41,6 @@ export default function HumanEquationSuitePage() {
   return (
     <section className="section help-page">
       <div className="container">
-        <HumanEquationNav />
         <section className="help-hero top-space-sm">
           <div className="help-hero-lines" aria-hidden="true" />
           <div className="help-logo-stage"><div className="help-logo-wrap"><Image src="/images/help-main-logo.png" alt="H.E.L.P. main brand logo" width={900} height={520} className="help-main-logo" priority /></div></div>
@@ -74,7 +72,6 @@ export default function HumanEquationSuitePage() {
           <h3>Start Here: The H.E.L.P. Path</h3>
           <p className="top-space-sm">Each step adds evidence to the dashboard.</p>
           <div className="help-journey top-space-sm">
-            <div className="help-journey-line" aria-hidden="true" />
             {pathwaySteps.map((step, idx) => (
               <article key={step.title} className="card help-step"><span className="help-step-index">{idx + 1}</span><h4>{step.title.replace(/^\d+\.\s/, '')}</h4><p>{step.detail}</p></article>
             ))}
