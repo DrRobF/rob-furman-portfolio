@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import HumanEquationNav from '../../components/HumanEquationNav';
+import HumanEquationShell from '../../components/HumanEquationShell';
 import { dimensionDefinitions, factorPsychologyDefinitions } from './profileData';
 import { EVIDENCE_EVENTS_STORAGE_KEY, LEADERSHIP_EVIDENCE_UPDATED_AT_KEY, calculateFactorProfile, getEvidenceTimeline, getNextRecommendedSimulation, resetLeadershipProfile } from './evidenceModel';
 import { readCourseEvidence } from '../course/courseModel';
@@ -120,7 +120,7 @@ export default function HumanEquationDashboardPage() {
     return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-ladder"><p><strong>What this pattern means:</strong> {lens.pressure}</p><p><strong>What others may experience:</strong> {lens.others}</p><p><strong>What goes wrong under pressure:</strong> {lens.distortion}</p><p><strong>What to do in the moment:</strong> {lens.interrupt}</p><p><strong>Repair language afterward:</strong> {lens.repair}</p><p><strong>Next simulation recommendation:</strong> {lens.simulation}</p></div></article>;
   };
 
-  return <section className="section section-light"><div className="container"><HumanEquationNav />
+  return <HumanEquationShell activePath="Dashboard">
     <div className="hes-app-layout top-space-sm"><aside className="hes-command-sidebar"><h3>Progression Flow</h3>
       <div className="hes-stepper">{stepDefinitions.map((step, index) => {
         const isDone = index < 2 || (index === 2 && events.length >= 2);
@@ -171,5 +171,5 @@ export default function HumanEquationDashboardPage() {
 
       <article className="card hes-relational-layer"><h2>How this may feel to others</h2><div className="hes-report-grid"><p><strong>Staff:</strong> Staff may feel protected by your steadiness, but still need clearer visibility into how decisions are being made as conditions change.</p><p><strong>Parents:</strong> Parents may experience genuine care and containment, yet still require explicit timelines and decision criteria to sustain trust under uncertainty.</p><p><strong>Teams:</strong> Teams may admire your composure while feeling they are interpreting your intent indirectly unless you narrate your logic in real time.</p><p><strong>Crisis moments:</strong> In fast escalation, people often feel your calm presence first; they need your reasoning pathway second so urgency does not become confusion.</p></div></article><article className="card hes-sim-progression"><h2>Simulation Intelligence Progression</h2><div className="hes-progression-track">{simulationStages.map((stage, idx) => { const status = idx < stageProgress ? 'complete' : idx === stageProgress ? 'active' : 'pending'; return <div key={stage} className={`hes-progress-step ${status}`}><div className="hes-progress-node">{status === 'complete' ? '✓' : idx + 1}</div><div className="hes-progress-label">{stage}</div>{idx < simulationStages.length - 1 ? <div className="hes-progress-connector" /> : null}</div>; })}</div><p>Current recommendation: <strong>{getNextRecommendedSimulation(events)}</strong>.</p></article>
       <article className='card'><h2>8 Factors Course evidence source</h2><p><strong>Status:</strong> {courseEvidence?.completedFactors ? (courseEvidence.completedFactors === 8 ? 'Completed' : 'In progress') : 'Not started'}</p><p><strong>Course progress:</strong> {courseEvidence?.completedFactors || 0}/8 completed</p><p><strong>Latest factor completed:</strong> {courseEvidence?.timelineEvents?.length ? courseEvidence.timelineEvents[courseEvidence.timelineEvents.length - 1].label : 'None yet'}</p><p><strong>Course contribution to dashboard:</strong> Course calibration evidence</p><div className='button-row'><Link className='button primary' href='/human-equation-suite/course'>Continue Course</Link></div></article>
-    </main></div></div></section>;
+    </main></div></HumanEquationShell>;
 }

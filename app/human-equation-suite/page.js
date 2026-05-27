@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import HumanEquationShell from '../components/HumanEquationShell';
 
 const pathwaySteps = [
   { title: '1. Diagnostic', detail: 'Establish your baseline pressure profile and identify your first growth edges.' },
@@ -39,8 +40,7 @@ const factors = [
 
 export default function HumanEquationSuitePage() {
   return (
-    <section className="section help-page">
-      <div className="container">
+    <HumanEquationShell activePath="Suite Home">
         <section className="help-hero top-space-sm">
           <div className="help-hero-lines" aria-hidden="true" />
           <div className="help-logo-stage"><div className="help-logo-wrap"><Image src="/images/help-main-logo.png" alt="H.E.L.P. main brand logo" width={900} height={520} className="help-main-logo" priority /></div></div>
@@ -98,7 +98,6 @@ export default function HumanEquationSuitePage() {
             <Link href="/human-equation-suite/course" className="button secondary">Explore Course</Link>
           </div>
         </section>
-      </div>
-    </section>
+    </HumanEquationShell>
   );
 }
