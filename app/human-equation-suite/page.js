@@ -32,10 +32,10 @@ const factors = [
     summary: 'This factor measures how predictable and credible a leader feels when stakes rise. Trust is built through visible reasoning, consistency, repair, and follow-through.',
   },
   { name: 'Reality Anchoring', core: 'Separate facts, fears, stories, and assumptions.', color: 'var(--help-coral)', summary: 'This factor examines whether a leader can separate facts, fears, stories, and assumptions when pressure makes one version of reality feel obvious.' },
-  { name: 'Gray Area Leadership', core: 'Lead through competing truths and imperfect options.', color: '#8ab5ff', summary: 'This factor looks at how a leader handles competing truths, incomplete information, and decisions where fairness, humanity, policy, and timing all collide.' },
-  { name: 'Team & Systems Leadership', core: 'Distribute leadership through people and routines.', color: '#53e3d0', summary: 'This factor examines whether leadership is distributed through people, routines, and systems — or whether too many problems depend on one person personally holding everything together.' },
-  { name: 'Instructional & Academic Leadership', core: 'Protect learning conditions under pressure.', color: '#ffc56a', summary: 'This factor focuses on how leaders protect learning conditions under pressure: rigor, support, teacher feedback, implementation, and instructional coherence.' },
-  { name: 'Vision & Change Leadership', core: 'Make direction trustworthy during transition.', color: '#ff7a91', summary: 'This factor examines whether people can trust the direction of change. It looks at how leaders create meaning, pace implementation, and protect morale during transition.' },
+  { name: 'Gray Area Leadership', core: 'Lead through competing truths and imperfect options.', color: 'var(--help-violet)', summary: 'This factor looks at how a leader handles competing truths, incomplete information, and decisions where fairness, humanity, policy, and timing all collide.' },
+  { name: 'Team & Systems Leadership', core: 'Distribute leadership through people and routines.', color: 'var(--help-green)', summary: 'This factor examines whether leadership is distributed through people, routines, and systems — or whether too many problems depend on one person personally holding everything together.' },
+  { name: 'Instructional & Academic Leadership', core: 'Protect learning conditions under pressure.', color: 'var(--help-gold)', summary: 'This factor focuses on how leaders protect learning conditions under pressure: rigor, support, teacher feedback, implementation, and instructional coherence.' },
+  { name: 'Vision & Change Leadership', core: 'Make direction trustworthy during transition.', color: 'var(--help-coral)', summary: 'This factor examines whether people can trust the direction of change. It looks at how leaders create meaning, pace implementation, and protect morale during transition.' },
 ];
 
 export default function HumanEquationSuitePage() {
