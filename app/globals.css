@@ -2040,3 +2040,34 @@ p {
 .help-visual-identity summary{cursor:pointer;color:#d3e5ff;font-weight:600}
 @media (max-width: 900px){.help-journey{grid-template-columns:1fr}.help-journey-line{display:none}}
 @media (max-width: 640px){.help-hero,.help-section,.help-final-cta{padding:1.35rem}.help-tagline{font-size:1.1rem}}
+
+
+/* Scoped H.E.L.P. internal pages (exclude suite landing) */
+.help-suite-internal.help-page-dark{background:radial-gradient(circle at 12% -2%,rgba(77,169,255,.22),transparent 35%),radial-gradient(circle at 86% 0%,rgba(255,138,114,.16),transparent 32%),linear-gradient(180deg,#020817 0%,#020b1f 48%,#030a1a 100%);color:#f8fafc}
+.help-suite-internal .help-panel-dark{background:linear-gradient(135deg,#08162d,#102645);color:#f8fafc;border:1px solid rgba(148,184,255,.25)}
+.help-suite-internal .help-heading{color:#fff}
+.help-suite-internal .help-body{color:#eaf2ff}
+.help-suite-internal .help-muted{color:#cbd8ea}
+.help-suite-internal .help-label{color:#7fb4ff;letter-spacing:.12em;text-transform:uppercase}
+.help-suite-internal .help-light-card{background:#f8fbff;color:#071a33}
+.help-suite-internal .help-light-card .help-heading{color:#061225}
+.help-suite-internal .help-light-card .help-body,.help-suite-internal .help-light-card .help-muted{color:#183250}
+.help-suite-internal .help-suite-hero p,.help-suite-internal .help-suite-panel p,.help-suite-internal .help-suite-panel li,.help-suite-internal .help-suite-panel label,.help-suite-internal .help-suite-panel span{color:#eaf2ff;opacity:1}
+.help-suite-internal .help-suite-hero .eyebrow,.help-suite-internal .help-suite-panel .eyebrow{color:#7fb4ff;opacity:1}
+.help-suite-internal .help-suite-hero h1,.help-suite-internal .help-suite-hero h2,.help-suite-internal .help-suite-panel h2,.help-suite-internal .help-suite-panel h3,.help-suite-internal .help-suite-panel h4{color:#fff7e6}
+.help-suite-internal .hes-factor-panel.compact{background:linear-gradient(160deg,#08162d,#102645);border:1px solid rgba(148,184,255,.3);color:#f8fafc;position:relative}
+.help-suite-internal .hes-factor-panel.compact::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;border-radius:16px 16px 0 0;background:var(--factor-accent,#4da9ff)}
+.help-suite-internal .hes-factor-panel.compact p,.help-suite-internal .hes-factor-panel.compact span,.help-suite-internal .hes-factor-panel.compact small{color:#eaf2ff}
+.help-suite-internal .hes-factor-panel.compact h3,.help-suite-internal .hes-factor-panel.compact details summary{color:#fff}
+.help-suite-internal .help-answer-chip{background:rgba(15,35,64,.92);border:1px solid rgba(148,184,255,.35);color:#f8fafc;border-radius:999px;padding:.85rem 1.25rem;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.18);transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
+.help-suite-internal .help-answer-chip:hover{transform:translateY(-2px);background:rgba(30,64,112,.95);border-color:#4aa3ff}
+.help-suite-internal .help-answer-chip[aria-pressed="true"],.help-suite-internal .help-answer-chip.selected{background:linear-gradient(135deg,#2563eb,#2dd4bf);color:#fff;border-color:rgba(255,255,255,.65);box-shadow:0 14px 34px rgba(37,99,235,.35)}
+.help-suite-internal .help-answer-chip.help-answer-chip-gold[aria-pressed="true"]{background:linear-gradient(135deg,#f59e0b,#facc15)}
+.help-suite-internal .help-answer-chip.help-answer-chip-coral[aria-pressed="true"]{background:linear-gradient(135deg,#fb7185,#f97316)}
+.help-suite-internal .help-answer-chip.help-answer-chip-violet[aria-pressed="true"]{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+.help-suite-internal .help-answer-chip.help-answer-chip-teal[aria-pressed="true"]{background:linear-gradient(135deg,#0ea5e9,#14b8a6)}
+.help-suite-internal .hes-modal-panel,.help-suite-internal .hes-active-report,.help-suite-internal .hes-command-sidebar{background:linear-gradient(160deg,#08162d,#102645);color:#f8fafc;border:1px solid rgba(148,184,255,.25)}
+.help-suite-internal .hes-modal-panel p,.help-suite-internal .hes-active-report p,.help-suite-internal .hes-command-sidebar p,.help-suite-internal .hes-modal-panel small,.help-suite-internal .hes-active-report small{color:#eaf2ff;opacity:1}
+.help-suite-internal .hes-modal-panel h2,.help-suite-internal .hes-modal-panel h3,.help-suite-internal .hes-modal-panel h4,.help-suite-internal .hes-active-report h2,.help-suite-internal .hes-active-report h3{color:#fff}
+.help-suite-internal .help-diagnostic-question-card{background:#f8fbff;border:1px solid rgba(148,184,255,.35);color:#071a33}
+.help-suite-internal .help-diagnostic-question-card h3,.help-suite-internal .help-diagnostic-question-card p,.help-suite-internal .help-diagnostic-question-card em,.help-suite-internal .help-diagnostic-question-card strong{color:#071a33;opacity:1}

@@ -419,7 +419,7 @@ export default function HumanEquationDiagnosticPage() {
       return () => window.clearTimeout(timer);
     } catch {}
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
-  return (<section className={`section help-suite-page ${styles.diagnosticSection}`}><div className="container"><LanguageSwitcher />
+  return (<section className={`section help-suite-page help-suite-internal help-page-dark ${styles.diagnosticSection}`}><div className="container"><LanguageSwitcher />
         <div className={styles.navWrap}><div className='help-suite-nav-wrap'><HumanEquationNav /></div></div>
     {!started ? <HelpSuiteShell className={styles.helpSuiteShell}>
       <HelpHeroPanel className={styles.helpHeroPanel}>
@@ -453,14 +453,14 @@ export default function HumanEquationDiagnosticPage() {
       </HelpHeroPanel>
     </HelpSuiteShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
 
-    {started && !viewResults && currentQuestion && !isComplete && (<div ref={diagnosticRef} className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
+    {started && !viewResults && currentQuestion && !isComplete && (<div ref={diagnosticRef} className="top-space card project-card help-diagnostic-question-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
       <progress max="100" value={progressPercent} style={{ width: '100%' }} />
       <p className="top-space-sm"><em>{progressMessage}</em></p>
       <h3 className="top-space">{currentQuestion.prompt}</h3>
       {(currentQuestion.sectionKey === 'belief' || currentQuestion.sectionKey === 'self' || currentQuestion.sectionKey === 'probe') && <p className="top-space-sm"><strong>Scale:</strong> 1 = Strongly disagree, 2 = Disagree, 3 = It depends / mixed, 4 = Agree, 5 = Strongly agree</p>}
       <div className="top-space-sm" style={{ display: 'grid', gap: 10 }}>
-        {currentQuestion.sectionKey === 'scenario' ? currentQuestion.options.map((o) => <button key={o.id} className={`button secondary ${answers[currentQuestion.id] === o.id ? 'active' : ''}`} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>) : likertOptions.map((n) => <button key={n} className={`button secondary ${answers[currentQuestion.id] === n ? 'active' : ''}`} onClick={() => setAnswer(currentQuestion, n)}>{n}</button>)}
+        {currentQuestion.sectionKey === 'scenario' ? currentQuestion.options.map((o) => <button key={o.id} className={`help-answer-chip help-answer-chip-teal ${answers[currentQuestion.id] === o.id ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === o.id} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>) : likertOptions.map((n) => <button key={n} className={`help-answer-chip ${answers[currentQuestion.id] === n ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === n} onClick={() => setAnswer(currentQuestion, n)}>{n}</button>)}
       </div>
       {insightMessage && <p className="top-space-sm" style={{ opacity: 0.85 }}><em>{insightMessage}</em></p>}
       <div className="button-row top-space-sm"><button className="button secondary" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex((idx) => Math.max(0, idx - 1))}>Back</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>Finish & View Results</button></div>
