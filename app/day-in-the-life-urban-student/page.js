@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import HumanEquationNav from '../components/HumanEquationNav';
+import HumanEquationShell from '../components/HumanEquationShell';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../human-equation-suite/dashboard/profileData';
 import { buildUrbanSimulationReport, urbanReflectionQuestions, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
 import { addFactorImpact, createEvidenceEvent, saveEvidenceEvent } from '../human-equation-suite/dashboard/evidenceModel';
@@ -2303,7 +2303,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     return (
       <main className="urban-student-page">
         <section className="experience-shell">
-          <HumanEquationNav />
+          
           <article className="scene-card intro-card">
             <p className="section-label">Introduction</p>
             <h1>A Day in the Life of an Urban Student</h1>
@@ -2343,7 +2343,7 @@ export default function DayInTheLifeUrbanStudentPage() {
   }
 
   if (sceneId === 'scene_placeholder_end') {
-    return <main className="urban-student-page"><section className="experience-shell"><HumanEquationNav />
+    return <main className="urban-student-page"><section className="experience-shell">
         <article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
   }
   if (sceneId === 'scene_urban_report_complete') {
@@ -2352,7 +2352,7 @@ export default function DayInTheLifeUrbanStudentPage() {
     return (
       <main className="urban-student-page">
         <section className="experience-shell">
-          <HumanEquationNav />
+          
           <article className="scene-card">
             <p className="section-label">Completion</p>
             <h1>Urban Simulation complete: Post-simulation reflection</h1>

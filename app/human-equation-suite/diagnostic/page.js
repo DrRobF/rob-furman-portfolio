@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
-import HumanEquationNav from '../../components/HumanEquationNav';
+import HumanEquationShell from '../../components/HumanEquationShell';
 import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
 import { EVIDENCE_EVENTS_STORAGE_KEY, createEvidenceEvent, addFactorImpact } from '../dashboard/evidenceModel';
 
@@ -389,8 +389,8 @@ export default function HumanEquationDiagnosticPage() {
       return () => window.clearTimeout(timer);
     } catch {}
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
-  return (<section className="section section-light"><div className="container"><LanguageSwitcher />
-        <HumanEquationNav />
+  return (<HumanEquationShell activePath="Diagnostic">
+    <LanguageSwitcher />
     <section className="help-hero top-space-sm">
       <div className="help-hero-lines" aria-hidden="true" />
       <p className="eyebrow">H.E.L.P. Path · Step 1</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
@@ -427,5 +427,5 @@ export default function HumanEquationDiagnosticPage() {
       <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3><p>This diagnostic is a self-perception baseline. The simulations will test how these patterns hold under live pressure.</p><div className="button-row"><Link href="/human-equation-suite/dashboard" className="button primary">Open Master Dashboard</Link><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link></div>
       <div className="top-space-sm"><button className="button secondary" onClick={() => setShowDebugData((prev) => !prev)}>{showDebugData ? 'Hide' : 'Show'} Debug Data</button>{showDebugData && <pre>{JSON.stringify({ ...result, adaptiveSignals: signalScores, completionReason, answeredQuestionCount: completedCount, triggeredProbeCategories, signalCountsByDimension: Object.fromEntries(dimensions.map((d) => [d.key, result.dimensions[d.key].totalSignalCount])) }, null, 2)}</pre>}</div>
     </div>}
-  </div></section>);
+  </HumanEquationShell>);
 }
