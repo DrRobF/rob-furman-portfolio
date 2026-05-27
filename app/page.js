@@ -45,16 +45,16 @@ const featuredProjects = [
   {
     title: 'School Leader Simulation',
     description:
-      'A pressure-based leadership simulation inside the Human Equation Suite umbrella, connected to shared evidence and dashboard insights.',
+      'A pressure-based leadership simulation inside the H.E.L.P. — Human Equation Leadership Psychology umbrella, connected to shared evidence and dashboard insights.',
     href: SCHOOL_LEADER_SIMULATION_OVERVIEW_URL,
-    linkText: 'Part of Human Equation Suite →',
+    linkText: 'Part of H.E.L.P. — Human Equation Leadership Psychology →',
   },
   {
-    title: 'Human Equation Suite',
+    title: 'H.E.L.P. — Human Equation Leadership Psychology',
     description:
       'The umbrella platform for leadership psychology: dashboard, 8 factors course, diagnostic, and simulations in one system.',
     href: '/human-equation-suite',
-    linkText: 'Explore Human Equation Suite →',
+    linkText: 'Explore H.E.L.P. — Human Equation Leadership Psychology →',
   },
   {
     title: 'VIC: Virtual Co-Teacher',
@@ -67,9 +67,9 @@ const featuredProjects = [
   {
     title: 'A Day in the Life of an Urban Student',
     description:
-      'A student-perspective simulation inside the Human Equation Suite that strengthens human awareness and equity-centered leadership decisions.',
+      'A student-perspective simulation inside the H.E.L.P. — Human Equation Leadership Psychology that strengthens human awareness and equity-centered leadership decisions.',
     href: '/human-equation-suite/dashboard',
-    linkText: 'Part of Human Equation Suite →',
+    linkText: 'Part of H.E.L.P. — Human Equation Leadership Psychology →',
   },
 ];
 
@@ -95,7 +95,7 @@ export default function HomePage() {
             </p>
             <div className="button-row">
               <Link href="/human-equation-suite" className="button primary">
-                Explore the Human Equation Suite
+                Explore H.E.L.P. Suite
               </Link>
               <Link href="/projects" className="button primary">
                 Explore My Work
