@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import styles from './helpSuite.module.css';
+import { HelpButton, HelpHeroPanel, HelpReadingPanel, HelpSubnav, HelpSuiteShell } from '../../components/HelpSuiteVisuals';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
@@ -391,12 +393,24 @@ export default function HumanEquationDiagnosticPage() {
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
   return (<section className="section section-light"><div className="container"><LanguageSwitcher />
         <HumanEquationNav />
-    <section className="help-hero top-space-sm">
-      <div className="help-hero-lines" aria-hidden="true" />
-      <p className="eyebrow">H.E.L.P. Path · Step 1</p><h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
-      <p className="lead">{es ? 'Este diagnóstico es el Paso 1 del H.E.L.P. Path. Captura tu perfil base de liderazgo bajo presión para que el curso y las simulaciones agreguen evidencia útil al panel.' : 'This diagnostic is Step 1 of the H.E.L.P. Path. It captures your baseline leadership-under-pressure profile so your course work and simulations can feed meaningful evidence into the dashboard.'}</p>
-      <div className="button-row top-space-sm"><button className="button primary" onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); setRedirectingToDashboard(false); }}>Begin Diagnostic</button><Link href="/human-equation-suite" className="button secondary">Back to Suite Home</Link>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
-    </section>
+    <HelpSuiteShell className={styles.helpSuiteShell}>
+      <HelpHeroPanel className={styles.helpHeroPanel}>
+        <HelpSubnav className={styles.helpSubnav}>H.E.L.P.</HelpSubnav>
+        <h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
+        <p className="eyebrow">Step 1 of the H.E.L.P. Path</p>
+        <p className="lead">This diagnostic establishes your baseline pressure profile before course and simulation evidence begin to stack.</p>
+        <div className="button-row top-space-sm"><HelpButton className={`button primary ${styles.helpButton}`} onClick={() => { setStarted(true); setViewResults(false); setCurrentQuestionIndex(0); setQuestionFlow(coreQuestions.map((q) => q.id)); setStartedAt(Date.now()); setAnswers({}); setSignalScores({ controlCertainty: 0, consistencyAccountability: 0, selfSacrifice: 0, imagePolish: 0, detachedUrgency: 0 }); setCompletionReason(null); setTriggeredProbeCategories([]); setRedirectingToDashboard(false); }}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
+        <HelpReadingPanel className={styles.helpReadingPanel}>
+          <p className="eyebrow">What this captures</p>
+          <ol>
+            <li>Self-perception under pressure</li>
+            <li>Scenario judgment patterns</li>
+            <li>Early growth edges</li>
+            <li>First dashboard evidence</li>
+          </ol>
+        </HelpReadingPanel>
+      </HelpHeroPanel>
+    </HelpSuiteShell>
 
     {started && !viewResults && currentQuestion && !isComplete && (<div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
