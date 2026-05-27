@@ -1954,8 +1954,10 @@ p {
 .hes-progress-step.active .hes-progress-node{background:#2563eb;border-color:#1d4ed8;color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
 .hes-progress-step.complete .hes-progress-label,.hes-progress-step.active .hes-progress-label{color:#0f172a}
 .hes-awareness-page{background:linear-gradient(180deg,#dfe9ff 0%,#f8fbff 38%,#f5f8ff 100%)}
-.hes-awareness-hero{position:relative;overflow:hidden;border-radius:24px;padding:2rem;background:linear-gradient(145deg,#132445,#1e3a66 48%,#263f74);color:#e8f1ff;box-shadow:0 26px 60px rgba(9,17,39,.35)}
-.hes-awareness-hero h1{font-size:3rem;line-height:1.04}.hes-awareness-hero h2{font-size:1.25rem;color:#c7dcff}
+.hes-awareness-hero{position:relative;overflow:hidden;border-radius:24px;padding:2.6rem;background:linear-gradient(145deg,#f9f6ef 0%,#fdfcf8 56%,#eef3fb 100%);color:#0f172a;box-shadow:0 14px 34px rgba(15,23,42,.12);border:1px solid #d8dee9}
+.hes-awareness-hero::before{content:"";position:absolute;inset:-20% auto auto -10%;width:340px;height:340px;background:radial-gradient(circle,rgba(30,58,138,.12),transparent 72%);pointer-events:none}
+.hes-awareness-hero::after{content:"";position:absolute;right:-80px;bottom:-120px;width:300px;height:300px;border-radius:999px;background:radial-gradient(circle,rgba(30,64,175,.14),transparent 70%);pointer-events:none}
+.hes-awareness-hero h1{font-size:3rem;line-height:1.04;color:#0b1324}.hes-awareness-hero h2{font-size:1.25rem;color:#1f334e}.hes-awareness-hero p{color:#1e293b;max-width:70ch}.hes-awareness-hero .eyebrow{color:#1e3a8a}.hes-awareness-hero .button.secondary{border-color:#9aa6bc;background:#fff;color:#0f172a}
 .hes-awareness-glow{position:absolute;width:300px;height:300px;border-radius:999px;background:radial-gradient(circle,rgba(96,165,250,.35),transparent 70%);top:-95px;right:-70px;animation:hesGlow 6s ease-in-out infinite}.hes-awareness-glow.alt{top:auto;bottom:-130px;left:-40px;background:radial-gradient(circle,rgba(167,139,250,.28),transparent 70%);animation-delay:1.5s}
 .hes-awareness-hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:1rem;align-items:center}
 .hes-awareness-live{margin-top:1rem;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.hes-awareness-live>div{backdrop-filter:blur(6px);background:rgba(15,23,42,.35);border:1px solid rgba(196,218,255,.35);border-radius:12px;padding:.65rem}.hes-awareness-live label{display:block;font-size:.72rem;color:#d9e8ff}.hes-awareness-live strong{font-size:1rem}
@@ -1969,3 +1971,5 @@ p {
 @keyframes hesGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes hesRadar{from{opacity:.1;transform:scale(.92);transform-origin:110px 110px}to{opacity:1;transform:scale(1)}}
 @media (max-width:900px){.hes-awareness-grid,.hes-awareness-live,.hes-lesson-grid,.hes-awareness-hero-grid{grid-template-columns:1fr}.hes-awareness-hero h1{font-size:2.2rem}}
+
+.hes-interaction-context{margin:.35rem 0 .6rem;color:#334155;font-size:.95rem}
