@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import HumanEquationNav from '../../components/HumanEquationNav';
+import GuidedPressureRead from './GuidedPressureRead';
 import { addFactorImpact, createEvidenceEvent, saveEvidenceEvent } from '../dashboard/evidenceModel';
 import { factorCatalog, saveCourseEvidence } from './courseModel';
 
@@ -37,13 +38,14 @@ const signalToTendency = {
 };
 
 export default function FactorModulePage({ module }) {
-  const { factorId: factorKey, title, quote, teachingBlocks, interactions, reflectionPrompts, recoveryRehearsal, pressureShift, moduleTrains, iDoExamples = [], guidedPractice = [] } = module;
+  const { factorId: factorKey, title, quote, teachingBlocks, interactions, reflectionPrompts, recoveryRehearsal, pressureShift, moduleTrains, iDoExamples = [], guidedPressureRead } = module;
   const [answers, setAnswers] = useState({});
   const [notes, setNotes] = useState({});
   const [guidedAnswers, setGuidedAnswers] = useState({});
+  const [guidedPracticeCompleted, setGuidedPracticeCompleted] = useState(false);
   const [done, setDone] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
-  const ready = Object.keys(answers).length >= interactions.length && Object.values(notes).filter(Boolean).length >= 4;
+  const ready = guidedPracticeCompleted && Object.keys(answers).length >= interactions.length && Object.values(notes).filter(Boolean).length >= 4;
   const youDoCount = Object.keys(answers).length;
   const canShowPatternRead = done || youDoCount >= 3;
 
@@ -64,21 +66,42 @@ export default function FactorModulePage({ module }) {
   const recoveryMove = `${recoveryRehearsal?.duringPressure || ''} ${profile.recovery}`.trim();
   const evidenceSummary = `${title}: ${profile.title}; drift=${profile.drift}; recovery=${recoveryMove}`;
 
+  const handleGuidedSelection = (stepIndex, choiceIndex, options = {}) => {
+    setGuidedAnswers((previous) => ({ ...previous, [stepIndex]: choiceIndex }));
+    if (options.markComplete) {
+      setGuidedPracticeCompleted(true);
+    }
+  };
+
   const completeModule = () => {
     const completedAt = new Date().toISOString();
-    const nextFactor = factorCatalog.find((f) => f.key === factorKey);
     const saved = saveCourseEvidence((current) => ({
       ...current,
       latestCompletedFactor: factorKey,
       latestCompletedFactorTitle: title,
       interactionEvidence: { ...current.interactionEvidence, [factorKey]: answers },
+      guidedPracticeCompleted: true,
+      guidedPracticeFactor: factorKey,
+      guidedPracticeSelections: guidedAnswers,
+      guidedPracticeCompletedAt: completedAt,
+      guidedPracticeEvidence: {
+        ...(current.guidedPracticeEvidence || {}),
+        [factorKey]: {
+          guidedPracticeCompleted: true,
+          guidedPracticeFactor: factorKey,
+          guidedPracticeSelections: guidedAnswers,
+          guidedPracticeCompletedAt: completedAt,
+          coachingExposure: true,
+          reflectionReadiness: true,
+        },
+      },
       reflections: { ...current.reflections, [factorKey]: notes },
       growthSignals: [...(current.growthSignals || []), `${title}: ${profile.title}`],
       timelineEvents: [...(current.timelineEvents || []), { label: `${title} module completed`, timestamp: completedAt, source: 'course' }],
       courseEvidenceCount: (current.courseEvidenceCount || 0) + 1,
       factorEvidence: {
         ...current.factorEvidence,
-        [factorKey]: { factorId: factorKey, factorTitle: title, completed: true, dominantTendency: profile.title, driftToWatch: profile.drift, recoveryMove, reflectionResponses: notes, interactionChoices: answers, completedAt, evidenceSummary, sourceChip: 'Course' },
+        [factorKey]: { factorId: factorKey, factorTitle: title, completed: true, dominantTendency: profile.title, driftToWatch: profile.drift, recoveryMove, reflectionResponses: notes, interactionChoices: answers, guidedPracticeCompleted: true, guidedPracticeFactor: factorKey, guidedPracticeSelections: guidedAnswers, guidedPracticeCompletedAt: completedAt, completedAt, evidenceSummary, sourceChip: 'Course' },
       },
     }));
     saveEvidenceEvent(createEvidenceEvent({ sourceType: 'course_reflection', sourceId: `${factorKey}`, sourceLabel: `${title} Module`, evidenceType: 'eight_factors_course', summary: evidenceSummary, tags: ['8 Factors Course', 'Course'], factorImpacts: [addFactorImpact(factorKey, 0.75, 0.72, 'positive', 'Course calibration evidence')] }));
@@ -95,12 +118,11 @@ export default function FactorModulePage({ module }) {
       <p className='eyebrow'>Course → {title}</p>
       <div className='button-row top-space-sm'><Link className='button secondary' href='/human-equation-suite/course'>Back to Course</Link></div>
       <h1>{title}</h1><h2>{quote}</h2><p><strong>What gets harder under stress:</strong> {pressureShift}</p><p><strong>What you will practice here:</strong> {moduleTrains}</p><p><strong>What you are noticing so far:</strong> {Object.keys(answers).length ? `${profile.title} may be your first instinct under pressure.` : 'No clear pattern yet — start the pressure decisions to see what you protect first.'}</p></section>
-    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Teaching section</h2>{teachingBlocks.map((b) => <article key={b.heading} className='top-space-sm'><h3>{b.heading}</h3><p>{b.body}</p></article>)}</section>
-    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Pressure Practice Lab</h2><p>These moments are designed to show what your attention moves toward first under pressure. There may be more than one defensible answer. The point is not to be perfect; the point is to notice your first leadership instinct when tension rises.</p></section>
-    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>I Do: Watch the Factor in Action</h2>{iDoExamples.map((ex, idx)=><article key={idx} className='top-space-sm'><h3>Situation: {ex.situation}</h3><p><strong>Weak read:</strong> {ex.weakRead}</p><p><strong>Stronger read:</strong> {ex.strongerRead}</p><p><strong>Why the stronger read matters:</strong> {ex.whyItMatters}</p><p><strong>Leadership language:</strong> {ex.leadershipLanguage}</p></article>)}</section><section className='top-space-sm card help-suite-panel help-panel-dark'><h2>We Do: Practice the Read Together</h2>{guidedPractice.map((q,idx)=><article key={idx} className='top-space-sm'><h3>{q.prompt}</h3><div className='button-grid'>{q.options.map((o,i)=><button key={o.label} className={`help-answer-chip ${guidedAnswers[idx]===i?'selected':''}`} aria-pressed={guidedAnswers[idx]===i} onClick={()=>setGuidedAnswers((p)=>({...p,[idx]:i}))}>{o.label}</button>)}</div>{guidedAnswers[idx]!==undefined&&(() => { const selected=q.options[guidedAnswers[idx]]; return <p><strong>Coaching feedback:</strong> This choice may suggest {selected.notices}. A possible risk is {selected.miss}. A stronger version might be {selected.strengthen}. Better next sentence: “{selected.nextSentence}”</p>; })()}</article>)}</section><section className='top-space-sm card help-suite-panel help-panel-dark'><h2>You Do: Pressure Decisions</h2><p>Now choose the response you would most likely move toward under pressure. These choices help build your emerging leadership pattern.</p>{interactions.map((q,idx)=><article key={idx} className='top-space-sm'><h3>{q.prompt}</h3><div className='button-grid'>{q.options.map((o,i)=><button key={o.label} className={`help-answer-chip ${answers[idx]===i?'selected':''}`} aria-pressed={answers[idx]===i} onClick={()=>setAnswers((p)=>({...p,[idx]:i}))}>{o.label}</button>)}</div>{answers[idx]!==undefined&&(() => { const selected=q.options[answers[idx]]; const lens=signalFeedback[selected.signal]||signalFeedback.reflective; return <p><strong>Feedback:</strong> {selected.feedback} This choice may suggest you protect {lens.protects}. A possible risk is {lens.cost}. This response protects clarity for {lens.others}. A stronger version might be to pair this instinct with one explicit empathy+boundary sentence.</p>; })()}</article>)}</section>
-    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Reflection calibration (before debrief)</h2>{reflectionPrompts.map((r,idx)=><label key={idx} className='hes-reflect-field'><span>{r}</span><textarea rows={3} value={notes[idx]||''} onChange={(e)=>setNotes((p)=>({...p,[idx]:e.target.value}))} /></label>)}</section>
-    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Recovery Protocol</h2><p><em>How to stabilize this factor in real leadership moments.</em></p><p><strong>Before pressure:</strong> {recoveryRehearsal.beforePressure}</p><p><strong>During pressure:</strong> {recoveryRehearsal.duringPressure}</p><p><strong>After pressure:</strong> {recoveryRehearsal.afterPressure}</p><p><strong>Language shift:</strong> {recoveryRehearsal.languageShift}</p><p><strong>60-second reset:</strong> {recoveryRehearsal.reset60}</p><p><strong>What others need from you:</strong> {recoveryRehearsal.othersNeed}</p></section>
-    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Emerging Pattern Read</h2><p><em>What your responses may suggest about your leadership under stress.</em></p>{!canShowPatternRead ? <p>Your pattern will appear here after you complete the pressure decisions and reflection.</p> : <><p><strong>What you tend to protect:</strong> {profile.protects}</p><p><strong>What pressure may narrow:</strong> {profile.costs}</p><p><strong>What staff may experience:</strong> {profile.staffExperience}</p><p><strong>What parents may experience:</strong> {profile.parentExperience}</p><p><strong>Trust signal being sent:</strong> {profile.title}</p><p><strong>Drift to watch:</strong> {profile.drift}</p><p><strong>Next recovery move:</strong> {recoveryMove}</p></>}<div className='button-row'><button className='button primary' disabled={!ready||done} onClick={completeModule}>{done?'Synced ✓':'Complete Module + Sync Dashboard Evidence'}</button><Link className='button secondary' href='/human-equation-suite/course'>Back to Course</Link></div>{syncMessage&&<p className='top-space-sm'><strong>{syncMessage}</strong></p>}{done&&<div className='top-space-sm card help-suite-panel'><p>This factor has been added to your leadership profile.</p><div className='button-row'><Link className='button secondary' href='/human-equation-suite/dashboard'>Open Dashboard</Link><Link className='button secondary' href='/human-equation-suite/course'>Back to Course</Link>{nextFactor&&<Link className='button primary' href={`/human-equation-suite/course/${nextFactor.slug}`}>Continue to Next Factor</Link>}</div></div>}</section>
+    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>I DO: Learn the Factor</h2>{teachingBlocks.map((b) => <article key={b.heading} className='top-space-sm'><h3>{b.heading}</h3><p>{b.body}</p></article>)}{iDoExamples.map((ex, idx)=><article key={idx} className='top-space-sm'><h3>Modeled read: {ex.situation}</h3><p><strong>Weak read:</strong> {ex.weakRead}</p><p><strong>Stronger read:</strong> {ex.strongerRead}</p><p><strong>Why the stronger read matters:</strong> {ex.whyItMatters}</p><p><strong>Leadership language:</strong> {ex.leadershipLanguage}</p></article>)}</section>
+    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>WE DO: Guided Pressure Read</h2><GuidedPressureRead factorId={factorKey} scenarioTitle={guidedPressureRead?.scenarioTitle} scenarioContext={guidedPressureRead?.scenarioContext} steps={guidedPressureRead?.steps || []} selectedAnswers={guidedAnswers} onSelectionChange={handleGuidedSelection} completed={guidedPracticeCompleted} />{guidedPracticeCompleted&&<p className='guided-practice-complete'><strong>Guided practice complete.</strong> Now try the pressure decisions on your own.</p>}</section><section className='top-space-sm card help-suite-panel help-panel-dark'><h2>YOU DO: Pressure Decisions</h2><p>Now make the read yourself. Choose the response you would most likely move toward under pressure. These choices help build your emerging leadership pressure pattern.</p>{interactions.map((q,idx)=><article key={idx} className='top-space-sm'><h3>{q.prompt}</h3><div className='button-grid'>{q.options.map((o,i)=><button key={o.label} className={`help-answer-chip ${answers[idx]===i?'selected':''}`} aria-pressed={answers[idx]===i} onClick={()=>setAnswers((p)=>({...p,[idx]:i}))}>{o.label}</button>)}</div>{answers[idx]!==undefined&&(() => { const selected=q.options[answers[idx]]; const lens=signalFeedback[selected.signal]||signalFeedback.reflective; return <p><strong>Feedback:</strong> {selected.feedback} This choice may suggest you protect {lens.protects}. A possible risk is {lens.cost}. This response protects clarity for {lens.others}. A stronger version might be to pair this instinct with one explicit empathy+boundary sentence.</p>; })()}</article>)}</section>
+    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Reflection Calibration</h2>{reflectionPrompts.map((r,idx)=><label key={idx} className='hes-reflect-field'><span>{r}</span><textarea rows={3} value={notes[idx]||''} onChange={(e)=>setNotes((p)=>({...p,[idx]:e.target.value}))} /></label>)}</section>
+    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Recovery Rehearsal</h2><p><em>How to stabilize this factor in real leadership moments.</em></p><p><strong>Before pressure:</strong> {recoveryRehearsal.beforePressure}</p><p><strong>During pressure:</strong> {recoveryRehearsal.duringPressure}</p><p><strong>After pressure:</strong> {recoveryRehearsal.afterPressure}</p><p><strong>Language shift:</strong> {recoveryRehearsal.languageShift}</p><p><strong>60-second reset:</strong> {recoveryRehearsal.reset60}</p><p><strong>What others need from you:</strong> {recoveryRehearsal.othersNeed}</p></section>
+    <section className='top-space-sm card help-suite-panel help-panel-dark'><h2>Guided Pattern Read / Debrief</h2><p><em>What your responses may suggest about your leadership under stress.</em></p>{!canShowPatternRead ? <p>Your pattern will appear here after you complete the pressure decisions and reflection.</p> : <><p><strong>What you tend to protect:</strong> {profile.protects}</p><p><strong>What pressure may narrow:</strong> {profile.costs}</p><p><strong>What staff may experience:</strong> {profile.staffExperience}</p><p><strong>What parents may experience:</strong> {profile.parentExperience}</p><p><strong>Trust signal being sent:</strong> {profile.title}</p><p><strong>Drift to watch:</strong> {profile.drift}</p><p><strong>Next recovery move:</strong> {recoveryMove}</p></>}<div className='button-row'><button className='button primary' disabled={!ready||done} onClick={completeModule}>{done?'Synced ✓':'Complete Module + Sync Dashboard Evidence'}</button><Link className='button secondary' href='/human-equation-suite/course'>Back to Course</Link></div>{syncMessage&&<p className='top-space-sm'><strong>{syncMessage}</strong></p>}{done&&<div className='top-space-sm card help-suite-panel'><p>This factor has been added to your leadership profile.</p><div className='button-row'><Link className='button secondary' href='/human-equation-suite/dashboard'>Open Dashboard</Link><Link className='button secondary' href='/human-equation-suite/course'>Back to Course</Link>{nextFactor&&<Link className='button primary' href={`/human-equation-suite/course/${nextFactor.slug}`}>Continue to Next Factor</Link>}</div></div>}</section>
     <div className='button-row top-space-sm'><Link className='button secondary' href='/human-equation-suite/course'>Back to Course</Link></div>
   </div></main>;
 }
