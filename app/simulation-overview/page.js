@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import HumanEquationShell from '../components/HumanEquationShell';
-import HelpJourneyNav from '../components/HelpJourneyNav';
+import HelpSuiteShell from '../components/help/HelpSuiteShell';
 
 export default function SimulationOverviewPage() {
   return (
     <HumanEquationShell activePath="Leadership Simulation">
-        <h1>School Leader Simulation Overview</h1><HelpJourneyNav currentStep='simulation' explanation='Use simulation practice to test leadership decisions under pressure, then return to your dashboard to review evolving patterns.' primaryAction={{ label: 'Choose a Simulation', href: '/simulation' }} secondaryAction={{ label: 'Return to Dashboard', href: '/human-equation-suite/dashboard' }} showDashboardReturn />
+      <HelpSuiteShell currentStep="practice">
+        <h1>School Leader Simulation Overview</h1>
         <p className="lead">Most leadership training talks about what you should do.</p>
         <p>This simulation puts you in the moment where you actually have to decide.</p>
         <p>
@@ -64,6 +65,7 @@ export default function SimulationOverviewPage() {
             Choose a Simulation
           </Link>
         </div>
+      </HelpSuiteShell>
     </HumanEquationShell>
   );
 }

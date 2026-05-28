@@ -8,7 +8,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import HumanEquationNav from '../../components/HumanEquationNav';
-import HelpJourneyNav from '../../components/HelpJourneyNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
 import { EVIDENCE_EVENTS_STORAGE_KEY, createEvidenceEvent, addFactorImpact } from '../dashboard/evidenceModel';
 
@@ -452,8 +451,7 @@ export default function HumanEquationDiagnosticPage() {
           <ol><li>Review your baseline report.</li><li>Learn the 8 Factors.</li><li>Practice under pressure in simulations.</li><li>Watch the dashboard update as evidence accumulates.</li></ol>
         </HelpReadingPanel>
       </HelpHeroPanel>
-    </HelpSuiteShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><HelpJourneyNav currentStep='diagnostic' explanation='The diagnostic creates your baseline so each next step in H.E.L.P. has evidence context.' primaryAction={{ label: 'Begin Diagnostic', href: '/human-equation-suite/diagnostic' }} secondaryAction={{ label: 'View Your Dashboard', href: '/human-equation-suite/dashboard' }} />
-      <p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
+    </HelpSuiteShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
 
     {started && !viewResults && currentQuestion && !isComplete && (<div ref={diagnosticRef} className="top-space card project-card help-diagnostic-question-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import HelpJourneyNav from '../components/HelpJourneyNav';
+import HelpSuiteShell from '../components/help/HelpSuiteShell';
 
 const pathwaySteps = [
   { title: '1. Diagnostic', detail: 'Establish your baseline pressure profile and identify your first growth edges.' },
@@ -42,6 +42,7 @@ export default function HumanEquationSuitePage() {
   return (
     <section className="section help-page">
       <div className="container">
+        <HelpSuiteShell currentStep="diagnostic">
         <section className="help-hero top-space-sm">
           <div className="help-hero-lines" aria-hidden="true" />
           <div className="help-logo-stage"><div className="help-logo-wrap"><Image src="/images/help-main-logo.png" alt="H.E.L.P. main brand logo" width={900} height={520} className="help-main-logo" priority /></div></div>
@@ -53,12 +54,7 @@ export default function HumanEquationSuitePage() {
             <Link href="/human-equation-suite/diagnostic" className="button primary">Start with the Diagnostic</Link>
             <Link href="/human-equation-suite/dashboard" className="button secondary">View Your Dashboard</Link>
           </div>
-          <HelpJourneyNav
-            currentStep="diagnostic"
-            explanation="H.E.L.P. is one connected journey: diagnostic baseline, dashboard evidence, factor learning, and simulation practice."
-            primaryAction={{ label: 'Start with the Diagnostic', href: '/human-equation-suite/diagnostic' }}
-            secondaryAction={{ label: 'View Your Dashboard', href: '/human-equation-suite/dashboard' }}
-          />
+          
         </section>
 
         <section className="help-section">
@@ -101,6 +97,7 @@ export default function HumanEquationSuitePage() {
           <p className="top-space-sm">H.E.L.P. is not a static personality test; it is a pressure-practice system that turns learning and simulations into dashboard evidence.</p>
           <div className="button-row center top-space-sm help-hero-cta"><Link href="/human-equation-suite/course" className="button secondary">Explore the 8 Factors Course</Link></div>
         </section>
+        </HelpSuiteShell>
       </div>
     </section>
   );
