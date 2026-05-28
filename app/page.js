@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import HelpSuiteFeature from './components/HelpSuiteFeature';
 
 const VIC_URL = 'https://askvic.ai';
 const SCHOOL_LEADER_SIMULATION_OVERVIEW_URL = '/human-equation-suite/dashboard';
@@ -121,6 +122,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <HelpSuiteFeature />
 
       <section className="section section-soft credibility-panel">
         <div className="container">
