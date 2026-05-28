@@ -5,7 +5,7 @@ import HelpSuiteShell from '../components/help/HelpSuiteShell';
 export default function SimulationOverviewPage() {
   return (
     <HumanEquationShell activePath="Leadership Simulation">
-      <HelpSuiteShell currentArea="leadership-sim">
+      <HelpSuiteShell currentArea="leadership-sim" showHeader={false}>
         <h1>School Leader Simulation Overview</h1>
         <p className="lead">Most leadership training talks about what you should do.</p>
         <p>This simulation puts you in the moment where you actually have to decide.</p>

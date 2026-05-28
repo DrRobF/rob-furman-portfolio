@@ -2365,8 +2365,8 @@ function UrbanStudentExperience() {
                   <button
                     key={option.text}
                     type="button"
-                    className="button secondary"
-                    style={{ textAlign: 'left', marginTop: 6 }}
+                    className={`help-choice-card ${postReflectionAnswers[question.id] === option.text ? 'selected' : ''}`}
+                    aria-pressed={postReflectionAnswers[question.id] === option.text}
                     onClick={() => setPostReflectionAnswers((prev) => ({ ...prev, [question.id]: option.text }))}
                   >
                     {postReflectionAnswers[question.id] === option.text ? '✓ ' : ''}{option.text}
@@ -2511,8 +2511,8 @@ function UrbanStudentExperience() {
             <div className="choices-section">
               <p className="section-label section-divider">YOUR CHOICE</p>
               <h2>{scene.question}</h2>
-              <div className="button-group">
-                {scene.choices.filter((choice) => !choice.hiddenFromChoices).map((choice) => <button key={choice.id} type="button" onClick={() => handleChoose(choice.id)}>{choice.label}</button>)}
+              <div className="button-group help-choice-grid">
+                {scene.choices.filter((choice) => !choice.hiddenFromChoices).map((choice) => <button key={choice.id} type="button" className="help-choice-card" onClick={() => handleChoose(choice.id)}>{choice.label}</button>)}
               </div>
               {scene.id !== 'scene_urban_report_complete' && <button type="button" className="reset-button" onClick={handleEndEarly}>End Simulation Early</button>}
             </div>

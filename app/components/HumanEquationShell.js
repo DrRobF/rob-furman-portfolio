@@ -8,9 +8,11 @@ export default function HumanEquationShell({ title, intro, children, heroActions
     <section className="section help-suite-shell help-shell">
       <div className="container help-suite-container">
         {showTopNav ? <HumanEquationNav /> : null}
-        <div className="help-subnav">
-          <span className="help-mini-brand">H.E.L.P.</span>
-          <span className="help-current-path">{activePath || 'Human Equation Suite'}</span>
+        <div className="help-suite-page-header help-subnav">
+          <div>
+            <p className="help-suite-page-kicker help-mini-brand">H.E.L.P.</p>
+            <p className="help-suite-page-title help-current-path">{activePath || 'Human Equation Suite'}</p>
+          </div>
           <Link href="/human-equation-suite/dashboard" className="button secondary">Open Dashboard</Link>
         </div>
         {(title || intro || heroActions) && (
