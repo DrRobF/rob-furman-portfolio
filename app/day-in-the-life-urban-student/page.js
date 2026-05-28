@@ -2733,7 +2733,7 @@ function UrbanStudentExperience() {
 export default function DayInTheLifeUrbanStudentPage() {
   return (
     <main className="section help-suite-page help-suite-internal help-page-dark">
-      <div className="container">
+      <div className="container urban-suite-container">
         <div className="help-suite-nav-wrap"><HumanEquationNav /></div>
         <HelpSuiteShell currentArea="urban-student">
           <UrbanStudentExperience />

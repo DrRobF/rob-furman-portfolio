@@ -42,6 +42,13 @@ const titleCase = (value) => value.replace(/([A-Z])/g, ' $1').replace(/^./, (c) 
 const progressMessages = ['Building your leadership profile…', 'Refining your profile…', 'Checking pressure patterns…', 'Filling in missing signals…'];
 
 const likertOptions = [1, 2, 3, 4, 5];
+const likertLabels = {
+  1: 'Strongly disagree',
+  2: 'Disagree',
+  3: 'It depends / mixed',
+  4: 'Agree',
+  5: 'Strongly agree',
+};
 
 const questionPool = [
   { id: 'belief-trustConstruction', section: 'Leadership Belief Tensions', sectionKey: 'belief', dimension: 'trustConstruction', prompt: 'Teachers and families trust leaders more when they remain consistent, even when individual situations feel emotionally compelling.', type: 'likert', options: likertOptions, reverseScored: false, tags: ['belief-tension'], distortionSignals: { loyalist: 1 }, followUpTriggers: ['harmony'], isCore: true },
@@ -456,10 +463,19 @@ export default function HumanEquationDiagnosticPage() {
       <progress max="100" value={progressPercent} style={{ width: '100%' }} />
       <p className="top-space-sm"><em>{progressMessage}</em></p>
       <h3 className="top-space">{currentQuestion.prompt}</h3>
-      {(currentQuestion.sectionKey === 'belief' || currentQuestion.sectionKey === 'self' || currentQuestion.sectionKey === 'probe') && <p className="top-space-sm"><strong>Scale:</strong> 1 = Strongly disagree, 2 = Disagree, 3 = It depends / mixed, 4 = Agree, 5 = Strongly agree</p>}
-      <div className="top-space-sm help-choice-grid">
-        {currentQuestion.sectionKey === 'scenario' ? currentQuestion.options.map((o) => <button key={o.id} className={`help-answer-chip help-answer-chip-teal ${answers[currentQuestion.id] === o.id ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === o.id} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>) : likertOptions.map((n) => <button key={n} className={`help-answer-chip ${answers[currentQuestion.id] === n ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === n} onClick={() => setAnswer(currentQuestion, n)}>{n}</button>)}
-      </div>
+      {(currentQuestion.sectionKey === 'belief' || currentQuestion.sectionKey === 'self' || currentQuestion.sectionKey === 'probe') && <p className="top-space-sm"><strong>Scale:</strong> choose the point that best matches your honest leadership read.</p>}
+      {currentQuestion.sectionKey === 'scenario' ? <div className="top-space-sm help-choice-grid">
+        {currentQuestion.options.map((o) => <button key={o.id} className={`help-answer-chip help-answer-chip-teal ${answers[currentQuestion.id] === o.id ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === o.id} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>)}
+      </div> : <div className={styles.ratingSelector} role="group" aria-label="Select a response from 1 strongly disagree to 5 strongly agree">
+        <div className={styles.ratingRail} aria-hidden="true" />
+        <div className={styles.ratingNodes}>
+          {likertOptions.map((n) => {
+            const selected = answers[currentQuestion.id] === n;
+            return <button key={n} type="button" className={`${styles.ratingNode} ${selected ? styles.ratingNodeSelected : ''}`} aria-pressed={selected} aria-label={`${n}: ${likertLabels[n]}`} onClick={() => setAnswer(currentQuestion, n)}><span>{n}</span></button>;
+          })}
+        </div>
+        <p className={styles.ratingSelectedLabel}>{answers[currentQuestion.id] ? <><strong>{answers[currentQuestion.id]}</strong> {likertLabels[answers[currentQuestion.id]]}</> : 'Select a response to continue.'}</p>
+      </div>}
       {insightMessage && <p className="top-space-sm help-dark-muted"><em>{insightMessage}</em></p>}
       <div className="button-row top-space-sm"><button className="button secondary" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex((idx) => Math.max(0, idx - 1))}>Back</button></div>
     </div>)}

@@ -124,18 +124,21 @@ export default function HumanEquationDashboardPage() {
     return <article className="card hes-report-card hes-active-report"><h2>Pressure Distortions</h2><div className="hes-ladder"><p><strong>What this pattern means:</strong> {lens.pressure}</p><p><strong>What others may experience:</strong> {lens.others}</p><p><strong>What goes wrong under pressure:</strong> {lens.distortion}</p><p><strong>What to do in the moment:</strong> {lens.interrupt}</p><p><strong>Repair language afterward:</strong> {lens.repair}</p><p><strong>Next simulation recommendation:</strong> {lens.simulation}</p></div></article>;
   };
 
+  const growthActions = reportTabs.map((tab) => ({
+    key: tab.key,
+    label: tab.label,
+    active: activeReport === tab.key,
+    onClick: () => setActiveReport(tab.key),
+  }));
+
   return <section className="section help-suite-page help-suite-internal help-page-dark"><div className="container"><div className='help-suite-nav-wrap'><HumanEquationNav /></div>
-    <HelpSuiteShell currentArea="dashboard">
-    <div className="hes-app-layout top-space-sm"><aside className="hes-command-sidebar help-dashboard-controls">
-      <div><h3>Growth Center</h3><div className="hes-report-selector">{reportTabs.map((tab) => <button key={tab.key} className={`button ${activeReport === tab.key ? 'primary' : 'secondary'}`} onClick={() => setActiveReport(tab.key)} aria-pressed={activeReport === tab.key}>{tab.label}</button>)}</div></div>
-      <button className="button secondary" onClick={() => {
+    <HelpSuiteShell currentArea="dashboard" growthActions={growthActions}>
+    <main className="hes-main-content top-space-sm">
+      <div className="help-dashboard-utility-row"><button className="button secondary" onClick={() => {
         if (!window.confirm('Start fresh clears your leadership evidence profile so you can rebuild it from new diagnostic and simulation data. Continue?')) return;
         resetLeadershipProfile();
         setEvents([]);
-      }}>Start Fresh Profile</button>
-      <p><strong>Next recommended simulation:</strong> {getNextRecommendedSimulation(events)}</p>
-    </aside>
-    <main className="hes-main-content">
+      }}>Start Fresh Profile</button><p><strong>Next recommended simulation:</strong> {getNextRecommendedSimulation(events)}</p></div>
       
       {focusTab === 'diagnostic' ? <article className="card help-suite-panel hes-dashboard-focus"><p className="eyebrow">Diagnostic results area</p><h2>Leadership Diagnostic evidence is now connected.</h2><p>Your diagnostic baseline is reflected in the factor cards, source labels, and evidence timeline below. Continue reviewing this dashboard to compare self-perception with future simulation evidence.</p></article> : null}
       <article className="card hes-hero-profile"><div className="hes-hero-shell"><div className="hes-hero-left"><p className="eyebrow">Executive Leadership Intelligence</p><h1>Your pattern is not just what you do — it is what others feel while you do it.</h1><p>This dashboard tracks how pressure changes interpretation, pacing, trust language, and recovery behavior across real evidence moments.</p><p className="hes-confidence-meta">Evidence maturity: {profileStatus}</p></div><div className="hes-hero-right"><div className="hes-mini-radar"><svg viewBox="0 0 160 160" aria-label="Leadership radar"><circle cx="80" cy="80" r="62" /><circle cx="80" cy="80" r="48" /><circle cx="80" cy="80" r="34" /><circle cx="80" cy="80" r="20" /><polygon points={radarPoints} />{scoredFactors.slice(0,8).map((f, i) => { const angle = (Math.PI * 2 * i) / 8 - Math.PI / 2; const value = ((f.score || 2.2) / 5) * 62; const x = 80 + Math.cos(angle) * value; const y = 80 + Math.sin(angle) * value; const lx = 80 + Math.cos(angle) * 72; const ly = 80 + Math.sin(angle) * 72; return <g key={f.key}><circle cx={x} cy={y} r="2.5" className="hes-radar-marker" /><text x={lx} y={ly} className="hes-radar-label">{factorAbbreviations[f.key]}</text></g>;})}<text x="83" y="24" className="hes-radar-scale">5</text><text x="83" y="38" className="hes-radar-scale">4</text><text x="83" y="52" className="hes-radar-scale">3</text><text x="83" y="66" className="hes-radar-scale">2</text><text x="83" y="80" className="hes-radar-scale">1</text></svg><small>8-factor signal map with 1–5 scale and score markers</small></div><div className="hes-hero-metrics"><p><strong>Strongest factor:</strong> {strongest ? strongest.label : 'Emerging signal'}</p><p><strong>Fragile factor:</strong> {weakest ? weakest.label : 'Pending evidence'}</p><p><strong>Drift alert:</strong> {activeDistortion ? activeDistortion.label : 'Urgency narrowing under load'}</p><p><strong>Evidence maturity:</strong> {confidence}</p></div></div></div></article>
@@ -173,5 +176,5 @@ export default function HumanEquationDashboardPage() {
 
       <article className="card hes-relational-layer"><h2>How this may feel to others</h2><div className="hes-report-grid"><p><strong>Staff:</strong> Staff may feel protected by your steadiness, but still need clearer visibility into how decisions are being made as conditions change.</p><p><strong>Parents:</strong> Parents may experience genuine care and containment, yet still require explicit timelines and decision criteria to sustain trust under uncertainty.</p><p><strong>Teams:</strong> Teams may admire your composure while feeling they are interpreting your intent indirectly unless you narrate your logic in real time.</p><p><strong>Crisis moments:</strong> In fast escalation, people often feel your calm presence first; they need your reasoning pathway second so urgency does not become confusion.</p></div></article><article className="card hes-sim-progression"><h2>Simulation Intelligence Progression</h2><div className="hes-progression-track">{simulationStages.map((stage, idx) => { const status = idx < stageProgress ? 'complete' : idx === stageProgress ? 'active' : 'pending'; return <div key={stage} className={`hes-progress-step ${status}`}><div className="hes-progress-node">{status === 'complete' ? '✓' : idx + 1}</div><div className="hes-progress-label">{stage}</div>{idx < simulationStages.length - 1 ? <div className="hes-progress-connector" /> : null}</div>; })}</div><p>Current recommendation: <strong>{getNextRecommendedSimulation(events)}</strong>.</p></article>
       <article className='card'><h2>8 Factors Course evidence source</h2><p><strong>Status:</strong> {courseEvidence?.completedFactors ? (courseEvidence.completedFactors === 8 ? 'Completed' : 'In progress') : 'Not started'}</p><p><strong>Course progress:</strong> {courseEvidence?.completedFactors || 0}/8 completed</p><p><strong>Latest factor completed:</strong> {courseEvidence?.timelineEvents?.length ? courseEvidence.timelineEvents[courseEvidence.timelineEvents.length - 1].label : 'None yet'}</p><p><strong>Course contribution to dashboard:</strong> Course calibration evidence</p><div className='button-row'><Link className='button primary' href='/human-equation-suite/course'>Continue Course</Link></div></article>
-    </main></div></HelpSuiteShell></div></section>;
+    </main></HelpSuiteShell></div></section>;
 }
