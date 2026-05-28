@@ -1,5 +1,6 @@
 import HumanEquationExperience from './HumanEquationExperience';
 import HumanEquationShell from '../components/HumanEquationShell';
+import HelpSuiteShell from '../components/help/HelpSuiteShell';
 
 export const metadata = {
   title: 'The Human Equation | Rob Furman',
@@ -8,9 +9,10 @@ export const metadata = {
 
 export default function HumanEquationPage() {
   return (
-    <>
-      <HumanEquationShell activePath="Parent Call Rehearsal" />
-      <HumanEquationExperience />
-    </>
+    <HumanEquationShell activePath="Parent Call Rehearsal">
+      <HelpSuiteShell currentArea="parent-call">
+        <HumanEquationExperience />
+      </HelpSuiteShell>
+    </HumanEquationShell>
   );
 }

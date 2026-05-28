@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import HumanEquationShell from '../components/HumanEquationShell';
+import HumanEquationNav from '../components/HumanEquationNav';
+import HelpSuiteShell from '../components/help/HelpSuiteShell';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../human-equation-suite/dashboard/profileData';
 import { buildUrbanSimulationReport, urbanReflectionQuestions, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
 import { addFactorImpact, createEvidenceEvent, saveEvidenceEvent } from '../human-equation-suite/dashboard/evidenceModel';
@@ -1876,7 +1877,7 @@ const clampMetric = (value) => Math.max(-10, Math.min(10, value));
 const dayProgressLabels = ['Morning', 'Early School Day', 'Midday', 'Afternoon', 'End of Day', 'Reflection'];
 const postSimReflectionQuestions = urbanReflectionQuestions;
 
-export default function DayInTheLifeUrbanStudentPage() {
+function UrbanStudentExperience() {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -2301,7 +2302,7 @@ export default function DayInTheLifeUrbanStudentPage() {
 
   if (!hasStartedExperience) {
     return (
-      <main className="urban-student-page">
+      <div className="urban-student-page">
         <section className="experience-shell">
           
           <article className="scene-card intro-card">
@@ -2338,19 +2339,19 @@ export default function DayInTheLifeUrbanStudentPage() {
           .intro-list { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.6rem; color: #1e293b; line-height: 1.6; }
           button { display: block; width: 100%; background: #0f172a; color: #fff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; margin-top: 10px; text-align: center; font-weight: 600; cursor: pointer; }
         `}</style>
-      </main>
+      </div>
     );
   }
 
   if (sceneId === 'scene_placeholder_end') {
-    return <main className="urban-student-page"><section className="experience-shell">
-        <article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></main>;
+    return <div className="urban-student-page"><section className="experience-shell">
+        <article className="scene-card"><h1>Next scene not built yet.</h1><p className="paragraph-card">This path will continue from the uploaded script.</p></article></section></div>;
   }
   if (sceneId === 'scene_urban_report_complete') {
     const answeredCount = Object.keys(postReflectionAnswers).length;
     const allAnswered = answeredCount === postSimReflectionQuestions.length;
     return (
-      <main className="urban-student-page">
+      <div className="urban-student-page">
         <section className="experience-shell">
           
           <article className="scene-card">
@@ -2377,7 +2378,7 @@ export default function DayInTheLifeUrbanStudentPage() {
             {!allAnswered ? <p className="paragraph-card"><em>Complete all items to save Urban evidence.</em></p> : <p className="paragraph-card"><em>Saving and redirecting to dashboard…</em></p>}
           </article>
         </section>
-      </main>
+      </div>
     );
   }
 
@@ -2411,7 +2412,7 @@ export default function DayInTheLifeUrbanStudentPage() {
             : 'Disconnected';
 
   return (
-    <main className="urban-student-page">
+    <div className="urban-student-page">
       <section className="experience-shell">
         <div className="experience-layout">
         <article className="scene-card">
@@ -2723,6 +2724,20 @@ export default function DayInTheLifeUrbanStudentPage() {
         .scene-menu-item strong { font-size: 1rem; color: #0f172a; }
         .scene-menu-item small { font-size: 0.75rem; color: #64748b; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
       `}</style>
+    </div>
+  );
+}
+
+
+export default function DayInTheLifeUrbanStudentPage() {
+  return (
+    <main className="section help-suite-page help-suite-internal help-page-dark">
+      <div className="container">
+        <div className="help-suite-nav-wrap"><HumanEquationNav /></div>
+        <HelpSuiteShell currentArea="urban-student">
+          <UrbanStudentExperience />
+        </HelpSuiteShell>
+      </div>
     </main>
   );
 }
