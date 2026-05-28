@@ -6,45 +6,79 @@ const insights = [
   'Regulation is not softness; it is access to better judgment.',
   'Under pressure, leaders do not just make decisions. They reveal patterns.',
   'The first job of leadership pressure is to stay anchored to reality.',
+  'Evidence grows when reflection follows pressure.',
 ];
 
-const flow = [
-  { key: 'learn', title: 'Learn the 8 Factors', description: 'Build a shared language for leadership psychology.' },
-  { key: 'diagnostic', title: 'Leadership Diagnostic', description: 'Establish self-report baseline and early profile signal.' },
-  { key: 'practice', title: 'Practice Lab', description: 'Add behavioral evidence through simulations.' },
-  { key: 'growth', title: 'Growth Center', description: 'Translate patterns into recovery and growth moves.' },
+const sections = [
+  {
+    title: 'Foundation',
+    items: [
+      { key: 'course', label: '8 Factors Course', href: '/human-equation-suite/course', areas: ['course', 'learn'] },
+      { key: 'diagnostic', label: 'Leadership Diagnostic', href: '/human-equation-suite/diagnostic', areas: ['diagnostic'] },
+      { key: 'dashboard', label: 'Dashboard Evidence Profile', href: '/human-equation-suite/dashboard', areas: ['dashboard', 'growth'] },
+    ],
+  },
+  {
+    title: 'Practice Labs',
+    items: [
+      { key: 'parent-call', label: 'Parent Call Rehearsal', href: '/human-equation', areas: ['parent-call', 'practice'] },
+      { key: 'urban-student', label: 'Urban Student Simulation', href: '/day-in-the-life-urban-student', areas: ['urban-student'] },
+      { key: 'leadership-sim', label: 'Leadership Simulation', href: '/simulation-overview', areas: ['leadership-sim', 'simulation'] },
+    ],
+  },
+  {
+    title: 'Growth Center',
+    items: [
+      { key: 'pressure-distortions', label: 'Pressure Distortions', comingSoon: true },
+      { key: 'recovery-practices', label: 'Recovery Practices', comingSoon: true },
+      { key: 'evidence-timeline', label: 'Evidence Timeline', comingSoon: true },
+      { key: 'executive-reports', label: 'Executive Reports', comingSoon: true },
+    ],
+  },
 ];
 
-function getStatus(stepKey, currentStep) {
-  if (stepKey === 'learn') return 'Complete';
-  if (stepKey === 'diagnostic') return currentStep === 'diagnostic' ? 'Start' : 'Complete';
-  if (stepKey === 'practice') return 'Upcoming';
-  return 'Active';
+function isActive(item, currentArea) {
+  return item.areas?.includes(currentArea) || item.key === currentArea;
 }
 
-export default function HelpSidebar({ currentStep = 'growth' }) {
-  const insight = insights[Math.abs(currentStep.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % insights.length];
+export default function HelpSidebar({ currentStep = 'growth', currentArea }) {
+  const activeArea = currentArea || currentStep;
+  const insight = insights[Math.abs(activeArea.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % insights.length];
+
   return (
-    <aside className="help-shell-sidebar">
+    <aside className="help-shell-sidebar" aria-label="H.E.L.P. progression navigation">
       <div className="help-sidebar-panel">
-        <p className="eyebrow">Progression Flow</p>
-        <div className="help-sidebar-flow">
-          {flow.map((item, idx) => (
-            <article key={item.key} className="help-sidebar-flow-item">
-              <div className="help-sidebar-flow-head">
-                <span>{idx + 1}</span>
-                <h3>{item.title}</h3>
+        <p className="eyebrow">H.E.L.P. Progression</p>
+        <div className="help-sidebar-sections">
+          {sections.map((section) => (
+            <section key={section.title} className="help-sidebar-section">
+              <h3>{section.title}</h3>
+              <div className="help-sidebar-links">
+                {section.items.map((item) => {
+                  const active = isActive(item, activeArea);
+                  if (item.comingSoon) {
+                    return (
+                      <div key={item.key} className="help-sidebar-link muted" aria-disabled="true">
+                        <span>{item.label}</span>
+                        <small>Coming Soon</small>
+                      </div>
+                    );
+                  }
+                  return (
+                    <Link key={item.key} href={item.href} className={`help-sidebar-link ${active ? 'active' : ''}`} aria-current={active ? 'page' : undefined}>
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
               </div>
-              <small>{getStatus(item.key, currentStep)}</small>
-              <p>{item.description}</p>
-            </article>
+            </section>
           ))}
         </div>
       </div>
       <div className="help-sidebar-signal">
         <h3>Leadership Signal</h3>
         <p>{insight}</p>
-        <Link href="/human-equation-suite/dashboard" className="button tertiary">Review Evidence</Link>
+        <Link href="/human-equation-suite/dashboard" className="button tertiary">Review Dashboard</Link>
       </div>
     </aside>
   );

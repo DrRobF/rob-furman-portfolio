@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import styles from './helpSuite.module.css';
-import { HelpButton, HelpHeroPanel, HelpReadingPanel, HelpSubnav, HelpSuiteShell } from '../../components/HelpSuiteVisuals';
+import { HelpButton, HelpHeroPanel, HelpReadingPanel, HelpSubnav, HelpSuiteShell as HelpVisualShell } from '../../components/HelpSuiteVisuals';
+import HelpSuiteShell from '../../components/help/HelpSuiteShell';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
@@ -412,16 +413,13 @@ export default function HumanEquationDiagnosticPage() {
       const factorImpacts = Object.entries(payload.dimensions || {}).map(([factorId, dim]) => addFactorImpact(factorId, ((dim?.composite || 3) - 3) / 2, 0.55, 'self_report', 'Diagnostic baseline signal'));
       const diagnosticEvent = createEvidenceEvent({ sourceType: 'diagnostic', sourceId: payload.id || payload.completedAt || 'diagnostic', sourceLabel: 'Leadership Diagnostic', evidenceType: 'self_report', factorImpacts, summary: 'Leadership Diagnostic completed and baseline evidence captured.', tags: ['baseline', 'self-report'] });
       window.localStorage.setItem(EVIDENCE_EVENTS_STORAGE_KEY, JSON.stringify([...existingEvents, diagnosticEvent]));
-      setRedirectingToDashboard(true);
-      const timer = window.setTimeout(() => {
-        router.push('/human-equation-suite/dashboard?tab=diagnostic');
-      }, 900);
-      return () => window.clearTimeout(timer);
+      setRedirectingToDashboard(false);
     } catch {}
   }, [isComplete, result, completedCount, triggeredProbeCategories, router]);
   return (<section className={`section help-suite-page help-suite-internal help-page-dark ${styles.diagnosticSection}`}><div className="container"><LanguageSwitcher />
         <div className={styles.navWrap}><div className='help-suite-nav-wrap'><HumanEquationNav /></div></div>
-    {!started ? <HelpSuiteShell className={styles.helpSuiteShell}>
+    <HelpSuiteShell currentArea="diagnostic">
+    {!started ? <HelpVisualShell className={styles.helpSuiteShell}>
       <HelpHeroPanel className={styles.helpHeroPanel}>
         <HelpSubnav className={styles.helpSubnav}>H.E.L.P.</HelpSubnav>
         <h1>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1>
@@ -451,7 +449,7 @@ export default function HumanEquationDiagnosticPage() {
           <ol><li>Review your baseline report.</li><li>Learn the 8 Factors.</li><li>Practice under pressure in simulations.</li><li>Watch the dashboard update as evidence accumulates.</li></ol>
         </HelpReadingPanel>
       </HelpHeroPanel>
-    </HelpSuiteShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
+    </HelpVisualShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
 
     {started && !viewResults && currentQuestion && !isComplete && (<div ref={diagnosticRef} className="top-space card project-card help-diagnostic-question-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
@@ -463,13 +461,13 @@ export default function HumanEquationDiagnosticPage() {
         {currentQuestion.sectionKey === 'scenario' ? currentQuestion.options.map((o) => <button key={o.id} className={`help-answer-chip help-answer-chip-teal ${answers[currentQuestion.id] === o.id ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === o.id} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>) : likertOptions.map((n) => <button key={n} className={`help-answer-chip ${answers[currentQuestion.id] === n ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === n} onClick={() => setAnswer(currentQuestion, n)}>{n}</button>)}
       </div>
       {insightMessage && <p className="top-space-sm" style={{ opacity: 0.85 }}><em>{insightMessage}</em></p>}
-      <div className="button-row top-space-sm"><button className="button secondary" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex((idx) => Math.max(0, idx - 1))}>Back</button><button className="button secondary" disabled={!isComplete} onClick={() => setViewResults(true)}>Finish & View Results</button></div>
+      <div className="button-row top-space-sm"><button className="button secondary" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex((idx) => Math.max(0, idx - 1))}>Back</button></div>
     </div>)}
     {started && !viewResults && isComplete && <div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto' }}>
       <progress max="100" value={100} style={{ width: '100%' }} />
       <h3 className="top-space">Your baseline profile is ready.</h3>
       <p>We saved your diagnostic report in the Human Equation Dashboard.</p>
-      {redirectingToDashboard ? <p><em>Opening dashboard report tab…</em></p> : <button className="button primary top-space-sm" onClick={() => router.push('/human-equation-suite/dashboard?tab=diagnostic')}>Open Dashboard Report</button>}
+      {redirectingToDashboard ? <p><em>Opening dashboard report tab…</em></p> : <button className="button primary top-space-sm" onClick={() => router.push('/human-equation-suite/dashboard?tab=diagnostic')}>Finish & View Results</button>}
     </div>}
 
     {viewResults && isComplete && <div className="top-space card project-card"><h2>{result.pressureProfileTitle}</h2><h2>Leadership Pressure Profile</h2><p>{result.narrativeSummary}</p>
@@ -482,5 +480,6 @@ export default function HumanEquationDiagnosticPage() {
       <h3 className="top-space-sm">Next Step: Build Evidence</h3><p>This diagnostic is your self-perception baseline. Next, review your dashboard evidence and continue into factor learning.</p><div className="button-row"><Link href="/human-equation-suite/dashboard?tab=diagnostic" className="button primary">View Your Leadership Dashboard</Link><Link href="/human-equation-suite/course" className="button secondary">Explore the 8 Factors Course</Link></div>
       <div className="top-space-sm"><button className="button secondary" onClick={() => setShowDebugData((prev) => !prev)}>{showDebugData ? 'Hide' : 'Show'} Debug Data</button>{showDebugData && <pre>{JSON.stringify({ ...result, adaptiveSignals: signalScores, completionReason, answeredQuestionCount: completedCount, triggeredProbeCategories, signalCountsByDimension: Object.fromEntries(dimensions.map((d) => [d.key, result.dimensions[d.key].totalSignalCount])) }, null, 2)}</pre>}</div>
     </div>}
+    </HelpSuiteShell>
   </div></section>);
 }

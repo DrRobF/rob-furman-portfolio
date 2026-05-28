@@ -1,8 +1,10 @@
+import HumanEquationNav from '../../components/HumanEquationNav';
+import HelpSuiteShell from '../../components/help/HelpSuiteShell';
 export default function UrbanStudentSimulationPage() {
   return (
-    <section className="section">
+    <section className="section help-suite-page help-suite-internal help-page-dark">
       <div className="container">
-        <h1>Day in the Life of an Urban Student</h1>
+        <div className="help-suite-nav-wrap"><HumanEquationNav /></div><HelpSuiteShell currentArea="urban-student"><h1>Day in the Life of an Urban Student</h1>
         <p className="lead">
           Coming soon: an immersive simulation to help educators and leaders experience the layered
           decisions students navigate throughout a full day.
@@ -13,7 +15,7 @@ export default function UrbanStudentSimulationPage() {
           <article className="card"><h2>Peer/social pressure</h2><p>Identity, social dynamics, and conflict navigation between classes.</p></article>
           <article className="card"><h2>After-school responsibilities</h2><p>Work, caregiving, and neighborhood factors shaping learning continuity.</p></article>
           <article className="card"><h2>Reflection</h2><p>Structured debrief prompts for instructional planning and equity-focused action.</p></article>
-        </div>
+        </div></HelpSuiteShell>
       </div>
     </section>
   );
