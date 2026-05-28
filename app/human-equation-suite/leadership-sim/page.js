@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import HumanEquationShell from '../../components/HumanEquationShell';
 import HelpSuiteShell from '../../components/help/HelpSuiteShell';
+import styles from './leadershipSim.module.css';
 
 export default function LeadershipSimulationSuitePage() {
   return (
@@ -24,7 +25,7 @@ export default function LeadershipSimulationSuitePage() {
           <p className="top-space-sm">Built from over 20 years of real leadership experience.</p>
         </section>
 
-        <div className="card help-dark-panel top-space-sm">
+        <div className={`card help-dark-panel top-space-sm ${styles.overviewCard}`}>
           <h2>What You’ll Experience</h2>
           <ul className="clean-list top-space-sm">
             <li>Making real decisions under time pressure and competing priorities</li>
@@ -43,7 +44,7 @@ export default function LeadershipSimulationSuitePage() {
           </ul>
         </div>
 
-        <div className="card help-dark-panel top-space-sm">
+        <div className={`card help-dark-panel top-space-sm ${styles.overviewCard}`}>
           <h2>How It Works</h2>
           <p>You move through a full school day made up of realistic leadership scenarios.</p>
           <p>Each situation requires you to:</p>
