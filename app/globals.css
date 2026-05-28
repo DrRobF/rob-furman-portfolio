@@ -2041,6 +2041,23 @@ p {
 @media (max-width: 900px){.help-journey{grid-template-columns:1fr}.help-journey-line{display:none}}
 @media (max-width: 640px){.help-hero,.help-section,.help-final-cta{padding:1.35rem}.help-tagline{font-size:1.1rem}}
 
+.help-shell-layout{display:grid;grid-template-columns:minmax(280px,320px) minmax(0,1fr);gap:1rem;align-items:start}
+.help-shell-desktop .help-shell-sidebar{position:sticky;top:92px}
+.help-shell-mobile-toggle{display:none}
+.help-shell-content{min-width:0}
+.help-shell-sidebar{display:grid;gap:.85rem}
+.help-sidebar-panel,.help-sidebar-signal{border:1px solid rgba(95,146,235,.3);border-radius:16px;background:linear-gradient(160deg,rgba(6,18,48,.92),rgba(3,12,32,.9));padding:1rem}
+.help-sidebar-panel .eyebrow{color:#b8c7da;margin-bottom:.5rem}
+.help-sidebar-flow{display:grid;gap:.7rem}
+.help-sidebar-flow-item{padding:.65rem .75rem;border:1px solid rgba(125,188,255,.23);border-radius:12px;background:rgba(1,10,28,.65)}
+.help-sidebar-flow-head{display:flex;gap:.55rem;align-items:center}
+.help-sidebar-flow-head span{display:grid;place-items:center;width:1.2rem;height:1.2rem;border-radius:999px;border:1px solid rgba(125,188,255,.68);font-size:.72rem}
+.help-sidebar-flow-item h3{font-size:.95rem;margin:0;color:#f2f7ff}
+.help-sidebar-flow-item small{display:block;color:#9fbee9;margin:.25rem 0}
+.help-sidebar-flow-item p,.help-sidebar-signal p{color:#d7e6fb;font-size:.92rem}
+.help-sidebar-signal h3{margin-bottom:.45rem;color:#ffd07a}
+@media (max-width: 980px){.help-shell-layout{grid-template-columns:1fr}.help-shell-desktop{display:none}.help-shell-mobile-toggle{display:block;border:1px solid rgba(95,146,235,.3);border-radius:14px;background:linear-gradient(160deg,rgba(6,18,48,.92),rgba(3,12,32,.9));padding:.7rem 1rem}.help-shell-mobile-toggle summary{cursor:pointer;color:#f2f7ff;font-weight:600}.help-shell-mobile-toggle .help-shell-sidebar{padding-top:.8rem}}
+
 
 /* Scoped H.E.L.P. internal pages (exclude suite landing) */
 .help-suite-internal.help-page-dark{background:radial-gradient(circle at 12% -2%,rgba(77,169,255,.22),transparent 35%),radial-gradient(circle at 86% 0%,rgba(255,138,114,.16),transparent 32%),linear-gradient(180deg,#020817 0%,#020b1f 48%,#030a1a 100%);color:#f8fafc}
