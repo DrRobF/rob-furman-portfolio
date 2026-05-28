@@ -10,7 +10,7 @@ export const metadata = {
 export default function HumanEquationPage() {
   return (
     <HumanEquationShell activePath="Parent Call Rehearsal">
-      <HelpSuiteShell currentArea="parent-call">
+      <HelpSuiteShell currentArea="parent-call" showHeader={false}>
         <HumanEquationExperience />
       </HelpSuiteShell>
     </HumanEquationShell>

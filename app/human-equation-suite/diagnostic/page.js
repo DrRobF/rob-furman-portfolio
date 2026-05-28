@@ -457,7 +457,7 @@ export default function HumanEquationDiagnosticPage() {
       <p className="top-space-sm"><em>{progressMessage}</em></p>
       <h3 className="top-space">{currentQuestion.prompt}</h3>
       {(currentQuestion.sectionKey === 'belief' || currentQuestion.sectionKey === 'self' || currentQuestion.sectionKey === 'probe') && <p className="top-space-sm"><strong>Scale:</strong> 1 = Strongly disagree, 2 = Disagree, 3 = It depends / mixed, 4 = Agree, 5 = Strongly agree</p>}
-      <div className="top-space-sm" style={{ display: 'grid', gap: 10 }}>
+      <div className="top-space-sm help-choice-grid">
         {currentQuestion.sectionKey === 'scenario' ? currentQuestion.options.map((o) => <button key={o.id} className={`help-answer-chip help-answer-chip-teal ${answers[currentQuestion.id] === o.id ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === o.id} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>) : likertOptions.map((n) => <button key={n} className={`help-answer-chip ${answers[currentQuestion.id] === n ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === n} onClick={() => setAnswer(currentQuestion, n)}>{n}</button>)}
       </div>
       {insightMessage && <p className="top-space-sm help-dark-muted"><em>{insightMessage}</em></p>}

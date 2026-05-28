@@ -2673,3 +2673,331 @@ p {
   color: var(--help-light-body);
   opacity: 1;
 }
+
+/* H.E.L.P. internal premium UI source overrides: shared contrast, headers, and choice-card system. */
+.help-suite-internal,
+.help-suite-shell {
+  --help-dark-title: #ffffff;
+  --help-dark-heading: #fff7e6;
+  --help-dark-body: #eaf2ff;
+  --help-dark-muted: #cbd8ea;
+  --help-dark-label: #7fb4ff;
+  --help-light-title: #061225;
+  --help-light-body: #183250;
+  --help-light-muted: #40546f;
+}
+
+.help-suite-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  margin: 0.85rem 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(127, 180, 255, 0.3);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(5, 16, 42, 0.94), rgba(8, 26, 58, 0.9));
+  box-shadow: 0 16px 34px rgba(2, 8, 24, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: var(--help-dark-body);
+}
+
+.help-suite-page-kicker,
+.help-suite-page-title {
+  margin: 0;
+}
+
+.help-suite-page-kicker {
+  color: #f6c453;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.help-suite-page-title {
+  color: #ffffff;
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.help-suite-page-header .button.secondary,
+.help-subnav.help-suite-page-header .button.secondary {
+  width: auto;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: rgba(15, 35, 64, 0.92);
+  border-color: rgba(127, 180, 255, 0.42);
+  color: #f8fafc;
+  text-align: center;
+}
+
+.help-subnav.help-suite-page-header {
+  display: flex;
+  padding: 0.85rem 1rem;
+  border-radius: 18px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.help-choice-grid,
+.help-suite-internal .button-grid,
+.help-suite-shell .button-grid,
+.help-suite-internal .choices,
+.help-suite-shell .choices,
+.help-suite-internal .button-group,
+.help-suite-shell .button-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.help-choice-card,
+.help-suite-internal .help-answer-chip,
+.help-suite-shell .help-answer-chip,
+.help-suite-internal .choice,
+.help-suite-shell .choice,
+.help-suite-internal .micro-reflection-option,
+.help-suite-shell .micro-reflection-option,
+.help-suite-internal .urban-student-page .button-group button,
+.help-suite-shell .urban-student-page .button-group button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: 0.85rem 1rem 0.85rem 1.15rem;
+  border-radius: 16px;
+  background: rgba(15, 35, 64, 0.92);
+  border: 1px solid rgba(127, 180, 255, 0.34);
+  color: #f8fafc;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.help-choice-card::before,
+.help-suite-internal .help-answer-chip::before,
+.help-suite-shell .help-answer-chip::before,
+.help-suite-internal .choice::before,
+.help-suite-shell .choice::before,
+.help-suite-internal .micro-reflection-option::before,
+.help-suite-shell .micro-reflection-option::before,
+.help-suite-internal .urban-student-page .button-group button::before,
+.help-suite-shell .urban-student-page .button-group button::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 0.34rem;
+  align-self: stretch;
+  min-height: 1.8rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7fb4ff, #2dd4bf);
+  box-shadow: 0 0 14px rgba(127, 180, 255, 0.34);
+}
+
+.help-choice-card:hover,
+.help-suite-internal .help-answer-chip:hover,
+.help-suite-shell .help-answer-chip:hover,
+.help-suite-internal .choice:hover,
+.help-suite-shell .choice:hover,
+.help-suite-internal .micro-reflection-option:hover,
+.help-suite-shell .micro-reflection-option:hover,
+.help-suite-internal .urban-student-page .button-group button:hover,
+.help-suite-shell .urban-student-page .button-group button:hover {
+  transform: translateY(-2px);
+  background: rgba(22, 50, 89, 0.98);
+  border-color: #4aa3ff;
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.22);
+}
+
+.help-choice-card[aria-pressed="true"],
+.help-choice-card.selected,
+.help-suite-internal .help-answer-chip[aria-pressed="true"],
+.help-suite-shell .help-answer-chip[aria-pressed="true"],
+.help-suite-internal .help-answer-chip.selected,
+.help-suite-shell .help-answer-chip.selected,
+.help-suite-internal .choice.active,
+.help-suite-shell .choice.active,
+.help-suite-internal .micro-reflection-option.selected,
+.help-suite-shell .micro-reflection-option.selected {
+  background: linear-gradient(135deg, #2563eb, #2dd4bf);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.34), 0 0 20px rgba(45, 212, 191, 0.18);
+}
+
+.help-suite-internal .help-suite-hero,
+.help-suite-internal .hes-awareness-hero,
+.help-suite-shell .help-hero-panel,
+.help-suite-shell .help-dark-panel,
+.help-suite-internal .help-suite-panel,
+.help-suite-internal .help-panel-dark {
+  color: var(--help-dark-body);
+}
+
+.help-suite-internal .help-suite-hero h1,
+.help-suite-internal .help-suite-hero h2,
+.help-suite-internal .hes-awareness-hero h1,
+.help-suite-internal .hes-awareness-hero h2,
+.help-suite-shell .help-hero-panel h1,
+.help-suite-shell .help-dark-panel h1,
+.help-suite-internal .help-suite-panel h2,
+.help-suite-internal .help-suite-panel h3 {
+  color: var(--help-dark-heading);
+  opacity: 1;
+}
+
+.help-suite-internal .help-suite-hero p,
+.help-suite-internal .hes-awareness-hero p,
+.help-suite-shell .help-hero-panel p,
+.help-suite-shell .help-dark-panel p,
+.help-suite-internal .help-suite-panel p,
+.help-suite-internal .help-suite-panel li {
+  color: var(--help-dark-body);
+  opacity: 1;
+}
+
+.help-suite-internal .help-suite-hero strong,
+.help-suite-internal .hes-awareness-hero strong,
+.help-suite-shell .help-hero-panel strong,
+.help-suite-shell .help-dark-panel strong,
+.help-suite-internal .help-suite-panel strong {
+  color: #ffffff;
+}
+
+.help-suite-internal .help-suite-hero .eyebrow,
+.help-suite-internal .hes-awareness-hero .eyebrow,
+.help-suite-shell .help-hero-panel .eyebrow,
+.help-suite-shell .help-dark-panel .eyebrow {
+  color: var(--help-dark-label);
+}
+
+.help-suite-internal .hes-awareness-hero h2,
+.help-suite-internal .hes-awareness-hero-premium h2 {
+  color: #fff7e6;
+}
+
+.help-suite-internal .hes-awareness-hero p,
+.help-suite-internal .hes-awareness-hero-premium p {
+  color: #eaf2ff;
+}
+
+.help-suite-internal .hes-factor-panel.compact,
+.help-suite-internal .hes-insight-card,
+.help-suite-internal .hes-relational-layer,
+.help-suite-internal .hes-sim-progression,
+.help-suite-internal .hes-main-content > .card:not(.hes-hero-profile):not(.help-suite-panel),
+.help-suite-shell .card:not(.help-dark-panel):not(.help-suite-panel) {
+  color: var(--help-light-body);
+}
+
+.help-suite-internal .hes-factor-panel.compact h1,
+.help-suite-internal .hes-factor-panel.compact h2,
+.help-suite-internal .hes-factor-panel.compact h3,
+.help-suite-internal .hes-factor-panel.compact h4,
+.help-suite-internal .hes-factor-panel.compact strong,
+.help-suite-internal .hes-insight-card h3,
+.help-suite-internal .hes-insight-card h4,
+.help-suite-internal .hes-relational-layer h2,
+.help-suite-internal .hes-sim-progression h2,
+.help-suite-internal .hes-main-content > .card:not(.hes-hero-profile):not(.help-suite-panel) h2,
+.help-suite-internal .hes-main-content > .card:not(.hes-hero-profile):not(.help-suite-panel) strong,
+.help-suite-shell .card:not(.help-dark-panel):not(.help-suite-panel) h2,
+.help-suite-shell .card:not(.help-dark-panel):not(.help-suite-panel) h3,
+.help-suite-shell .card:not(.help-dark-panel):not(.help-suite-panel) strong {
+  color: var(--help-light-title);
+}
+
+.help-suite-internal .hes-factor-panel.compact p,
+.help-suite-internal .hes-factor-panel.compact small,
+.help-suite-internal .hes-factor-panel.compact summary,
+.help-suite-internal .hes-factor-signal,
+.help-suite-internal .hes-meter-block label,
+.help-suite-internal .hes-mini-bars small,
+.help-suite-internal .hes-insight-card p,
+.help-suite-internal .hes-relational-layer p,
+.help-suite-internal .hes-sim-progression p,
+.help-suite-internal .hes-progress-label,
+.help-suite-internal .hes-main-content > .card:not(.hes-hero-profile):not(.help-suite-panel) p,
+.help-suite-shell .card:not(.help-dark-panel):not(.help-suite-panel) p,
+.help-suite-shell .card:not(.help-dark-panel):not(.help-suite-panel) li,
+.help-suite-shell .clean-list li {
+  color: var(--help-light-body);
+  opacity: 1;
+}
+
+.help-suite-internal .hes-factor-panel.compact .badge,
+.help-suite-internal .hes-factor-bottom .badge,
+.help-suite-internal .hes-factor-header .badge {
+  color: #061225;
+  background: #eaf2ff;
+  border: 1px solid rgba(64, 84, 111, 0.24);
+}
+
+.help-suite-internal .help-diagnostic-question-card h3 {
+  color: #ffffff;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.22;
+}
+
+.help-suite-internal .help-diagnostic-question-card p,
+.help-suite-internal .help-diagnostic-question-card em,
+.help-suite-internal .help-diagnostic-question-card strong {
+  color: #eaf2ff;
+  opacity: 1;
+}
+
+.help-suite-internal .simulation-shell,
+.help-suite-shell .simulation-shell,
+.help-suite-internal .scenario-column.card,
+.help-suite-internal .dashboard-card.card,
+.help-suite-internal .vic-panel.card,
+.help-suite-internal .scenario-preview-card,
+.help-suite-internal .report-card,
+.help-suite-internal .decision-consequence-card,
+.help-suite-internal .decision-next-step-panel,
+.help-suite-internal .investigation-card,
+.help-suite-internal .investigation-intro-card,
+.help-suite-internal .folder-card,
+.help-suite-internal .full-email-card {
+  color: var(--help-dark-body);
+}
+
+.help-suite-internal .simulation-shell p,
+.help-suite-shell .simulation-shell p,
+.help-suite-internal .scenario-preview-card p,
+.help-suite-internal .report-card p,
+.help-suite-internal .decision-consequence-card p,
+.help-suite-internal .decision-next-step-panel p,
+.help-suite-internal .investigation-card p,
+.help-suite-internal .investigation-intro-card p,
+.help-suite-internal .folder-card p,
+.help-suite-internal .full-email-card p {
+  color: var(--help-dark-body);
+  opacity: 1;
+}
+
+@media (max-width: 760px) {
+  .help-suite-page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .help-choice-grid,
+  .help-suite-internal .button-grid,
+  .help-suite-shell .button-grid,
+  .help-suite-internal .choices,
+  .help-suite-shell .choices,
+  .help-suite-internal .button-group,
+  .help-suite-shell .button-group {
+    grid-template-columns: 1fr;
+  }
+}
