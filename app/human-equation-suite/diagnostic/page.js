@@ -43,11 +43,19 @@ const progressMessages = ['Building your leadership profile…', 'Refining your 
 
 const likertOptions = [1, 2, 3, 4, 5];
 const likertLabels = {
-  1: 'Strongly disagree',
+  1: 'Strongly Disagree',
   2: 'Disagree',
-  3: 'It depends / mixed',
+  3: 'Mixed / It Depends',
   4: 'Agree',
-  5: 'Strongly agree',
+  5: 'Strongly Agree',
+};
+
+const likertDescriptions = {
+  1: 'This does not match my read.',
+  2: 'Mostly not true for me.',
+  3: 'Context shapes my answer.',
+  4: 'Mostly true for me.',
+  5: 'This strongly matches my read.',
 };
 
 const questionPool = [
@@ -467,14 +475,20 @@ export default function HumanEquationDiagnosticPage() {
       {currentQuestion.sectionKey === 'scenario' ? <div className="top-space-sm help-choice-grid">
         {currentQuestion.options.map((o) => <button key={o.id} className={`help-answer-chip help-answer-chip-teal ${answers[currentQuestion.id] === o.id ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === o.id} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>)}
       </div> : <div className={styles.ratingSelector} role="group" aria-label="Select a response from 1 strongly disagree to 5 strongly agree">
-        <div className={styles.ratingRail} aria-hidden="true" />
-        <div className={styles.ratingNodes}>
+        <div className={styles.ratingCards}>
           {likertOptions.map((n) => {
             const selected = answers[currentQuestion.id] === n;
-            return <button key={n} type="button" className={`${styles.ratingNode} ${selected ? styles.ratingNodeSelected : ''}`} aria-pressed={selected} aria-label={`${n}: ${likertLabels[n]}`} onClick={() => setAnswer(currentQuestion, n)}><span>{n}</span></button>;
+            return (
+              <button key={n} type="button" className={`${styles.ratingCard} ${selected ? styles.ratingCardSelected : ''}`} aria-pressed={selected} aria-label={`${n}: ${likertLabels[n]}`} onClick={() => setAnswer(currentQuestion, n)}>
+                <span className={styles.ratingAccent} aria-hidden="true" />
+                <span className={styles.ratingNumber}>{n}</span>
+                <span className={styles.ratingLabel}>{likertLabels[n]}</span>
+                <span className={styles.ratingDescription}>{likertDescriptions[n]}</span>
+              </button>
+            );
           })}
         </div>
-        <p className={styles.ratingSelectedLabel}>{answers[currentQuestion.id] ? <><strong>{answers[currentQuestion.id]}</strong> {likertLabels[answers[currentQuestion.id]]}</> : 'Select a response to continue.'}</p>
+        <p className={styles.ratingSelectedLabel}>{answers[currentQuestion.id] ? <>Selected: <strong>{likertLabels[answers[currentQuestion.id]]}</strong>. Continue when ready.</> : 'Select a response to continue.'}</p>
       </div>}
       {insightMessage && <p className="top-space-sm help-dark-muted"><em>{insightMessage}</em></p>}
       <div className="button-row top-space-sm"><button className="button secondary" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex((idx) => Math.max(0, idx - 1))}>Back</button></div>

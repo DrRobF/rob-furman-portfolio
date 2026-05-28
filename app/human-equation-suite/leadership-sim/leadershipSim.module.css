@@ -1,0 +1,21 @@
+.overviewCard {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(77, 169, 255, 0.14), transparent 38%),
+    linear-gradient(135deg, #0f2340, #132b4e) !important;
+  border: 1px solid rgba(148, 184, 255, 0.32) !important;
+  box-shadow: 0 20px 48px rgba(2, 8, 24, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.overviewCard h2 {
+  color: #fff7e6 !important;
+}
+
+.overviewCard p,
+.overviewCard li {
+  color: #eaf2ff !important;
+  opacity: 1 !important;
+}
+
+.overviewCard li::marker {
+  color: #7fb4ff;
+}
