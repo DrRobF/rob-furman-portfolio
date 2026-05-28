@@ -2306,7 +2306,7 @@ export default function DayInTheLifeUrbanStudentPage() {
           
           <article className="scene-card intro-card">
             <p className="section-label">Introduction</p>
-            <h1>A Day in the Life of an Urban Student</h1>
+            <h1>A Day in the Life of an Urban Student</h1><p className="paragraph-card">This experience is part of your H.E.L.P. evidence journey. After completing simulations, return to your dashboard to reflect on leadership patterns.</p>
             <p className="paragraph-card">
               This interactive experience follows one student through a single school day shaped by exhaustion, instability, adult assumptions, school systems, peer pressure, and survival decisions.
             </p>

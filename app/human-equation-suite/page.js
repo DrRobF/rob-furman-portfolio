@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import HelpJourneyNav from '../components/HelpJourneyNav';
 
 const pathwaySteps = [
   { title: '1. Diagnostic', detail: 'Establish your baseline pressure profile and identify your first growth edges.' },
@@ -49,10 +50,15 @@ export default function HumanEquationSuitePage() {
           <p className="help-tagline">See people. Solve problems. Lead with humanity.</p>
           <p className="lead">A pressure-practice leadership system that turns learning and simulations into dashboard evidence.</p>
           <div className="button-row top-space-sm help-hero-cta">
-            <Link href="/human-equation-suite/diagnostic" className="button primary">Start the H.E.L.P. Path</Link>
-            <Link href="/human-equation-suite/course" className="button secondary">Explore the 8 Factors Course</Link>
-            <Link href="/human-equation-suite/dashboard" className="button tertiary">View Dashboard</Link>
+            <Link href="/human-equation-suite/diagnostic" className="button primary">Start with the Diagnostic</Link>
+            <Link href="/human-equation-suite/dashboard" className="button secondary">View Your Dashboard</Link>
           </div>
+          <HelpJourneyNav
+            currentStep="diagnostic"
+            explanation="H.E.L.P. is one connected journey: diagnostic baseline, dashboard evidence, factor learning, and simulation practice."
+            primaryAction={{ label: 'Start with the Diagnostic', href: '/human-equation-suite/diagnostic' }}
+            secondaryAction={{ label: 'View Your Dashboard', href: '/human-equation-suite/dashboard' }}
+          />
         </section>
 
         <section className="help-section">
@@ -93,10 +99,7 @@ export default function HumanEquationSuitePage() {
         <section className="help-final-cta">
           <h3>Start your leadership pressure profile.</h3>
           <p className="top-space-sm">H.E.L.P. is not a static personality test; it is a pressure-practice system that turns learning and simulations into dashboard evidence.</p>
-          <div className="button-row center top-space-sm help-hero-cta">
-            <Link href="/human-equation-suite/diagnostic" className="button primary">Start the H.E.L.P. Path</Link>
-            <Link href="/human-equation-suite/course" className="button secondary">Explore Course</Link>
-          </div>
+          <div className="button-row center top-space-sm help-hero-cta"><Link href="/human-equation-suite/course" className="button secondary">Explore the 8 Factors Course</Link></div>
         </section>
       </div>
     </section>

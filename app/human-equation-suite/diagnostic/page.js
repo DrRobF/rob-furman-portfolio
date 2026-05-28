@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../components/LanguageProvider';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import HumanEquationNav from '../../components/HumanEquationNav';
+import HelpJourneyNav from '../../components/HelpJourneyNav';
 import { DASHBOARD_PROFILE_STORAGE_KEY, DIAGNOSTIC_RESULT_STORAGE_KEY, toMasterProfileFromDiagnostic } from '../dashboard/profileData';
 import { EVIDENCE_EVENTS_STORAGE_KEY, createEvidenceEvent, addFactorImpact } from '../dashboard/evidenceModel';
 
@@ -431,7 +432,7 @@ export default function HumanEquationDiagnosticPage() {
         <div className={styles.heroLayout}>
           <div>
             {/* Do not point this button back to /diagnostic. It must open the real diagnostic test flow. */}
-            <div className="button-row top-space-sm"><HelpButton as="button" type="button" onClick={startDiagnostic} className={`button primary ${styles.helpButton}`}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite" className={`button secondary ${styles.helpButton}`}>Back to Suite Home</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard?tab=diagnostic" className="button tertiary">View Dashboard</HelpButton>{isComplete && <button className="button tertiary" onClick={() => setViewResults(true)}>View Results</button>}</div>
+            <div className="button-row top-space-sm"><HelpButton as="button" type="button" onClick={startDiagnostic} className={`button primary ${styles.helpButton}`}>Begin Diagnostic</HelpButton><HelpButton as={Link} href="/human-equation-suite/dashboard" className={`button secondary ${styles.helpButton}`}>View Your Dashboard</HelpButton></div>
           </div>
           <div className={styles.signalCard}>
             <p className="eyebrow">Baseline signal map</p>
@@ -451,7 +452,8 @@ export default function HumanEquationDiagnosticPage() {
           <ol><li>Review your baseline report.</li><li>Learn the 8 Factors.</li><li>Practice under pressure in simulations.</li><li>Watch the dashboard update as evidence accumulates.</li></ol>
         </HelpReadingPanel>
       </HelpHeroPanel>
-    </HelpSuiteShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
+    </HelpSuiteShell> : <div className="top-space" style={{ maxWidth: 880, marginInline: 'auto' }}><HelpJourneyNav currentStep='diagnostic' explanation='The diagnostic creates your baseline so each next step in H.E.L.P. has evidence context.' primaryAction={{ label: 'Begin Diagnostic', href: '/human-equation-suite/diagnostic' }} secondaryAction={{ label: 'View Your Dashboard', href: '/human-equation-suite/dashboard' }} />
+      <p className="eyebrow">H.E.L.P. · Step 1</p><h1 style={{ marginTop: 8 }}>{es ? 'Diagnóstico de Presión de Liderazgo' : 'Leadership Pressure Diagnostic'}</h1></div>}
 
     {started && !viewResults && currentQuestion && !isComplete && (<div ref={diagnosticRef} className="top-space card project-card help-diagnostic-question-card" style={{ maxWidth: 880, marginInline: 'auto', transition: 'all 250ms ease' }}>
       <p className="eyebrow">{currentQuestion.section}</p>
@@ -479,7 +481,7 @@ export default function HumanEquationDiagnosticPage() {
       <h3 className="top-space-sm">Likely Pressure Distortions</h3>{result.topDistortions.length ? result.topDistortions.map((distortion) => <div key={distortion}><p><strong>{titleCase(distortion)}</strong></p><p>{distortionDetails[distortion]}</p></div>) : <p>{result.distortionConfidenceLabel}</p>}
       <h3 className="top-space-sm">Strengths</h3><p>Your strongest baseline areas appear to be {result.topStrengths.join(', ')}.</p>
       <h3 className="top-space-sm">Growth Edges</h3><p>{result.growthEdges[0]} may be a useful growth edge.</p><p>Additional growth edges to watch: {result.growthEdges.slice(1).join(', ')}.</p>
-      <h3 className="top-space-sm">Next Step: Pressure-Test the Profile</h3><p>This diagnostic is a self-perception baseline. The simulations will test how these patterns hold under live pressure.</p><div className="button-row"><Link href="/human-equation-suite/dashboard" className="button primary">Open Master Dashboard</Link><Link href="/human-equation" className="button secondary">Continue to Parent Call Rehearsal</Link></div>
+      <h3 className="top-space-sm">Next Step: Build Evidence</h3><p>This diagnostic is your self-perception baseline. Next, review your dashboard evidence and continue into factor learning.</p><div className="button-row"><Link href="/human-equation-suite/dashboard?tab=diagnostic" className="button primary">View Your Leadership Dashboard</Link><Link href="/human-equation-suite/course" className="button secondary">Explore the 8 Factors Course</Link></div>
       <div className="top-space-sm"><button className="button secondary" onClick={() => setShowDebugData((prev) => !prev)}>{showDebugData ? 'Hide' : 'Show'} Debug Data</button>{showDebugData && <pre>{JSON.stringify({ ...result, adaptiveSignals: signalScores, completionReason, answeredQuestionCount: completedCount, triggeredProbeCategories, signalCountsByDimension: Object.fromEntries(dimensions.map((d) => [d.key, result.dimensions[d.key].totalSignalCount])) }, null, 2)}</pre>}</div>
     </div>}
   </div></section>);
