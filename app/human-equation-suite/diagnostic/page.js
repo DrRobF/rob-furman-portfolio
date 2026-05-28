@@ -460,17 +460,17 @@ export default function HumanEquationDiagnosticPage() {
       <div className="top-space-sm" style={{ display: 'grid', gap: 10 }}>
         {currentQuestion.sectionKey === 'scenario' ? currentQuestion.options.map((o) => <button key={o.id} className={`help-answer-chip help-answer-chip-teal ${answers[currentQuestion.id] === o.id ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === o.id} onClick={() => setAnswer(currentQuestion, o.id)}>{o.label}</button>) : likertOptions.map((n) => <button key={n} className={`help-answer-chip ${answers[currentQuestion.id] === n ? 'selected' : ''}`} aria-pressed={answers[currentQuestion.id] === n} onClick={() => setAnswer(currentQuestion, n)}>{n}</button>)}
       </div>
-      {insightMessage && <p className="top-space-sm" style={{ opacity: 0.85 }}><em>{insightMessage}</em></p>}
+      {insightMessage && <p className="top-space-sm help-dark-muted"><em>{insightMessage}</em></p>}
       <div className="button-row top-space-sm"><button className="button secondary" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex((idx) => Math.max(0, idx - 1))}>Back</button></div>
     </div>)}
-    {started && !viewResults && isComplete && <div className="top-space card project-card" style={{ maxWidth: 880, marginInline: 'auto' }}>
+    {started && !viewResults && isComplete && <div className="top-space card project-card help-diagnostic-result-card" style={{ maxWidth: 880, marginInline: 'auto' }}>
       <progress max="100" value={100} style={{ width: '100%' }} />
       <h3 className="top-space">Your baseline profile is ready.</h3>
       <p>We saved your diagnostic report in the Human Equation Dashboard.</p>
       {redirectingToDashboard ? <p><em>Opening dashboard report tab…</em></p> : <button className="button primary top-space-sm" onClick={() => router.push('/human-equation-suite/dashboard?tab=diagnostic')}>Finish & View Results</button>}
     </div>}
 
-    {viewResults && isComplete && <div className="top-space card project-card"><h2>{result.pressureProfileTitle}</h2><h2>Leadership Pressure Profile</h2><p>{result.narrativeSummary}</p>
+    {viewResults && isComplete && <div className="top-space card project-card help-diagnostic-result-card"><h2>{result.pressureProfileTitle}</h2><h2>Leadership Pressure Profile</h2><p>{result.narrativeSummary}</p>
       <p><em>Baseline confidence: {result.baselineConfidence}</em></p>
       {result.baselineConfidence === 'Early profile' && <p><em>Some areas will become clearer after simulations.</em></p>}
       <h3 className="top-space-sm">Framework Layers</h3>{dimensionLayers.map((layer) => <div key={layer.title} className="top-space-sm"><p className="eyebrow">{layer.title}</p><div className="card-grid">{layer.keys.map((key) => { const dim = dimensions.find((d) => d.key === key); const score = result.dimensions[key]; const c = score.composite; return <div key={key} className="card project-card"><p><strong>{dim.label}</strong></p>{c !== null && <><p>Composite: {`${c} / 5`}</p><progress max="5" value={c} style={{ width: '100%' }} /></>}{score.belief !== null && <p>Belief: {score.belief}</p>}{score.selfImplementation !== null && <p>Self-perception: {score.selfImplementation}</p>}{score.scenarioSignal !== null && <p>Scenario signal: {score.scenarioSignal}</p>}</div>; })}</div></div>)}

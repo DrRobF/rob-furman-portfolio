@@ -1937,7 +1937,7 @@ p {
 .hes-insight-card{box-shadow:0 6px 18px rgba(15,23,42,.08)}
 @media (max-width:900px){.human-equation-nav{width:100%;border-radius:16px}.hes-matrix-row{grid-template-columns:1fr}.hes-modal-panel{max-height:92vh}}
 
-.hes-snapshot-shell{margin:1.2rem 0 1.8rem}.hes-snapshot-shell h2{color:#0f172a;margin-bottom:.8rem}.hes-confidence-meta{font-size:.85rem;opacity:.85}.hes-matrix-legend{display:flex;gap:1rem;font-weight:700;color:#334155;margin-bottom:.8rem}
+.hes-snapshot-shell{margin:1.2rem 0 1.8rem}.hes-snapshot-shell h2{color:#0f172a;margin-bottom:.8rem}.hes-confidence-meta{font-size:.85rem;opacity:1}.hes-matrix-legend{display:flex;gap:1rem;font-weight:700;color:#334155;margin-bottom:.8rem}
 .hes-hero-profile{background:radial-gradient(circle at 20% 20%,rgba(59,130,246,.22),transparent 40%),radial-gradient(circle at 85% 10%,rgba(99,102,241,.18),transparent 35%),linear-gradient(145deg,#dbeafe,#c7d2fe 40%,#bfdbfe);border:1px solid rgba(30,64,175,.22);box-shadow:0 22px 50px rgba(15,23,42,.24)}
 .hes-hero-profile p,.hes-hero-profile h1,.hes-hero-profile h3,.hes-hero-profile .eyebrow,.hes-confidence-meta{color:#0f172a!important}
 .hes-hero-left h1{font-size:2rem;line-height:1.15;max-width:20ch}
@@ -2076,6 +2076,240 @@ p {
 @media (max-width: 1240px){.help-shell-content .hes-app-layout{grid-template-columns:minmax(0,1fr)}.help-shell-content .hes-command-sidebar{position:static}}
 
 /* Scoped H.E.L.P. internal readability and premium interaction cleanup */
+
+/* Do not use default white cards, browser buttons, or opacity-based text inside H.E.L.P. internal pages. Use H.E.L.P. scoped tokens/chips/panels so contrast remains stable. */
+.help-suite-page .help-answer-chip,
+.help-suite-shell .help-answer-chip,
+.help-suite-page .choice,
+.help-suite-shell .choice,
+.help-suite-page .button.secondary,
+.help-suite-shell .button.secondary,
+.help-suite-page .urban-student-page button,
+.help-suite-shell .urban-student-page button {
+  background: rgba(15, 35, 64, 0.92);
+  border: 1px solid rgba(148, 184, 255, 0.35);
+  border-radius: 999px;
+  color: #f8fafc;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1.35;
+  padding: 0.8rem 1.15rem;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.help-suite-page .help-answer-chip:hover,
+.help-suite-shell .help-answer-chip:hover,
+.help-suite-page .choice:hover,
+.help-suite-shell .choice:hover,
+.help-suite-page .button.secondary:hover,
+.help-suite-shell .button.secondary:hover,
+.help-suite-page .urban-student-page button:hover,
+.help-suite-shell .urban-student-page button:hover {
+  transform: translateY(-2px);
+  background: rgba(30, 64, 112, 0.95);
+  border-color: #4aa3ff;
+}
+
+.help-suite-page .help-answer-chip.selected,
+.help-suite-shell .help-answer-chip.selected,
+.help-suite-page .help-answer-chip[aria-pressed="true"],
+.help-suite-shell .help-answer-chip[aria-pressed="true"],
+.help-suite-page .choice.active,
+.help-suite-shell .choice.active,
+.help-suite-page .button.secondary.active,
+.help-suite-shell .button.secondary.active,
+.help-suite-page .button.secondary[aria-pressed="true"],
+.help-suite-shell .button.secondary[aria-pressed="true"],
+.help-suite-page .urban-student-page .micro-reflection-option.selected,
+.help-suite-shell .urban-student-page .micro-reflection-option.selected {
+  background: linear-gradient(135deg, #2563eb, #2dd4bf);
+  border-color: rgba(255, 255, 255, 0.65);
+  color: #ffffff;
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.35);
+}
+
+.help-suite-page .help-answer-chip:disabled,
+.help-suite-shell .help-answer-chip:disabled,
+.help-suite-page .button:disabled,
+.help-suite-shell .button:disabled,
+.help-suite-page .choice:disabled,
+.help-suite-shell .choice:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+  filter: saturate(0.78) brightness(0.92);
+}
+
+.help-suite-page .button-grid,
+.help-suite-shell .button-grid,
+.help-suite-page .choices,
+.help-suite-shell .choices {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.help-diagnostic-question-card,
+.help-suite-page .help-diagnostic-result-card {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(77, 169, 255, 0.18), transparent 40%),
+    linear-gradient(135deg, #07162d, #102645) !important;
+  border: 1px solid rgba(148, 184, 255, 0.3) !important;
+  border-radius: 24px;
+  color: #eaf2ff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.help-diagnostic-question-card h1,
+.help-diagnostic-question-card h2,
+.help-diagnostic-question-card h3,
+.help-suite-page .help-diagnostic-result-card h1,
+.help-suite-page .help-diagnostic-result-card h2,
+.help-suite-page .help-diagnostic-result-card h3 {
+  color: #fff7e6;
+}
+
+.help-diagnostic-question-card p,
+.help-diagnostic-question-card em,
+.help-diagnostic-question-card strong,
+.help-suite-page .help-diagnostic-result-card p,
+.help-suite-page .help-diagnostic-result-card li,
+.help-suite-page .help-diagnostic-result-card em,
+.help-suite-page .help-diagnostic-result-card strong {
+  color: #eaf2ff;
+  opacity: 1;
+}
+
+.help-diagnostic-question-card .eyebrow,
+.help-suite-page .help-diagnostic-result-card .eyebrow {
+  color: #7fb4ff;
+}
+
+.help-diagnostic-question-card progress,
+.help-suite-page .help-diagnostic-result-card progress {
+  width: 100%;
+  height: 0.85rem;
+  overflow: hidden;
+  border: 1px solid rgba(148, 184, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(2, 8, 23, 0.72);
+}
+
+.help-diagnostic-question-card progress::-webkit-progress-bar,
+.help-suite-page .help-diagnostic-result-card progress::-webkit-progress-bar {
+  background: rgba(2, 8, 23, 0.72);
+}
+
+.help-diagnostic-question-card progress::-webkit-progress-value,
+.help-suite-page .help-diagnostic-result-card progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #2563eb, #2dd4bf, #f6c453);
+  border-radius: 999px;
+}
+
+.help-diagnostic-question-card progress::-moz-progress-bar,
+.help-suite-page .help-diagnostic-result-card progress::-moz-progress-bar {
+  background: linear-gradient(90deg, #2563eb, #2dd4bf, #f6c453);
+  border-radius: 999px;
+}
+
+.help-suite-page .help-diagnostic-result-card .card,
+.help-suite-page .help-diagnostic-result-card .project-card {
+  background: #f8fbff;
+  border: 1px solid rgba(148, 184, 255, 0.3);
+  color: #183250;
+}
+
+.help-suite-page .help-diagnostic-result-card .card h3,
+.help-suite-page .help-diagnostic-result-card .project-card h3,
+.help-suite-page .help-diagnostic-result-card .card strong,
+.help-suite-page .help-diagnostic-result-card .project-card strong {
+  color: #061225;
+}
+
+.help-suite-page .help-diagnostic-result-card .card p,
+.help-suite-page .help-diagnostic-result-card .project-card p {
+  color: #183250;
+}
+
+.help-suite-page .simulation-shell,
+.help-suite-shell .simulation-shell,
+.help-suite-page .scenario-column.card,
+.help-suite-page .dashboard-card.card,
+.help-suite-page .vic-panel.card,
+.help-suite-page .scenario-preview-card,
+.help-suite-page .report-card,
+.help-suite-page .decision-consequence-card,
+.help-suite-page .decision-next-step-panel,
+.help-suite-page .investigation-card,
+.help-suite-page .investigation-intro-card,
+.help-suite-page .folder-card,
+.help-suite-page .full-email-card {
+  background: linear-gradient(135deg, #07162d, #102645);
+  border: 1px solid rgba(148, 184, 255, 0.25);
+  color: #eaf2ff;
+}
+
+.help-suite-page .simulation-shell h1,
+.help-suite-page .simulation-shell h2,
+.help-suite-page .simulation-shell h3,
+.help-suite-page .simulation-shell h4,
+.help-suite-page .scenario-column.card h1,
+.help-suite-page .scenario-column.card h2,
+.help-suite-page .scenario-column.card h3,
+.help-suite-page .scenario-preview-card h3,
+.help-suite-page .report-card h3,
+.help-suite-page .decision-consequence-card h4,
+.help-suite-page .folder-card h3 {
+  color: #fff7e6;
+}
+
+.help-suite-page .simulation-shell p,
+.help-suite-page .scenario-column.card p,
+.help-suite-page .dashboard-card.card p,
+.help-suite-page .vic-panel.card p,
+.help-suite-page .scenario-preview-card p,
+.help-suite-page .report-card p,
+.help-suite-page .decision-consequence-card p,
+.help-suite-page .decision-next-step-panel p,
+.help-suite-page .investigation-card p,
+.help-suite-page .folder-card p,
+.help-suite-page .full-email-card p {
+  color: #eaf2ff;
+}
+
+.help-suite-page .hes-snapshot-shell h2 {
+  color: #fff7e6;
+}
+
+.help-suite-page .hes-snapshot-shell {
+  background: linear-gradient(135deg, #07162d, #102645);
+  border: 1px solid rgba(148, 184, 255, 0.25);
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: 0 16px 34px rgba(2, 8, 24, 0.3);
+}
+
+.help-suite-page .hes-insight-card {
+  background: #f8fbff;
+  border: 1px solid rgba(148, 184, 255, 0.3);
+}
+
+.help-suite-page .hes-score-pill,
+.help-suite-page .badge {
+  opacity: 1;
+}
+
+.help-suite-page .hes-factor-panel.compact .badge,
+.help-suite-page .hes-factor-bottom .badge {
+  color: #061225;
+}
+
+.help-suite-page .hes-main-content > .card:not(.hes-hero-profile):not(.help-suite-panel),
+.help-suite-page .hes-relational-layer,
+.help-suite-page .hes-sim-progression {
+  background: #f8fbff;
+  border: 1px solid rgba(148, 184, 255, 0.3);
+}
+
 .help-suite-page,
 .help-suite-shell {
   --help-dark-title: #ffffff;
@@ -2361,4 +2595,81 @@ p {
   border-color: rgba(127, 180, 255, 0.75);
   color: #ffffff;
   box-shadow: 0 14px 30px rgba(47, 111, 255, 0.36), 0 0 18px rgba(42, 212, 200, 0.22);
+}
+
+/* Final H.E.L.P. internal legacy guard overrides: keep the cleanup above later legacy rules. */
+.help-suite-page .help-answer-chip,
+.help-suite-shell .help-answer-chip,
+.help-suite-page .choice,
+.help-suite-shell .choice {
+  background: rgba(15, 35, 64, 0.92);
+  border: 1px solid rgba(148, 184, 255, 0.35);
+  color: #f8fafc;
+  border-radius: 999px;
+  padding: 0.8rem 1.15rem;
+  font-weight: 700;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.help-suite-page .help-answer-chip:hover,
+.help-suite-shell .help-answer-chip:hover,
+.help-suite-page .choice:hover,
+.help-suite-shell .choice:hover {
+  transform: translateY(-2px);
+  background: rgba(30, 64, 112, 0.95);
+  border-color: #4aa3ff;
+}
+
+.help-suite-page .help-answer-chip.selected,
+.help-suite-shell .help-answer-chip.selected,
+.help-suite-page .help-answer-chip[aria-pressed="true"],
+.help-suite-shell .help-answer-chip[aria-pressed="true"],
+.help-suite-page .choice.active,
+.help-suite-shell .choice.active {
+  background: linear-gradient(135deg, #2563eb, #2dd4bf);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.35);
+}
+
+.help-suite-page .hes-snapshot-shell h2,
+.help-suite-page .hes-factor-matrix h2,
+.help-suite-page .hes-factor-matrix h3,
+.help-suite-page .hes-modal-panel h2,
+.help-suite-page .hes-modal-panel h3,
+.help-suite-page .hes-modal-panel h4 {
+  color: var(--help-dark-heading);
+}
+
+.help-suite-page .hes-snapshot-shell p,
+.help-suite-page .hes-snapshot-shell span:not(.badge),
+.help-suite-page .hes-factor-matrix p,
+.help-suite-page .hes-factor-matrix span,
+.help-suite-page .hes-modal-panel p,
+.help-suite-page .hes-modal-panel li,
+.help-suite-page .hes-modal-panel small {
+  color: var(--help-dark-body);
+  opacity: 1;
+}
+
+.help-suite-page .hes-insight-card h3,
+.help-suite-page .hes-insight-card h4,
+.help-suite-page .hes-factor-panel.compact h3,
+.help-suite-page .hes-factor-panel.compact strong,
+.help-suite-page .help-diagnostic-result-card .card strong,
+.help-suite-page .help-diagnostic-result-card .project-card strong {
+  color: var(--help-light-title);
+}
+
+.help-suite-page .hes-insight-card p,
+.help-suite-page .hes-factor-panel.compact p,
+.help-suite-page .hes-factor-panel.compact small,
+.help-suite-page .hes-factor-panel.compact summary,
+.help-suite-page .hes-meter-block label,
+.help-suite-page .hes-mini-bars small,
+.help-suite-page .help-diagnostic-result-card .card p,
+.help-suite-page .help-diagnostic-result-card .project-card p {
+  color: var(--help-light-body);
+  opacity: 1;
 }
