@@ -2074,3 +2074,291 @@ p {
 .help-suite-page .hes-command-sidebar h3{color:#ffc165}.help-suite-page .hes-command-sidebar p{color:#dbeafe}
 .hes-dashboard-focus{border-color:rgba(42,212,200,.4)!important;background:linear-gradient(135deg,rgba(47,111,255,.18),rgba(42,212,200,.1))!important;color:#e5edf8}
 @media (max-width: 1240px){.help-shell-content .hes-app-layout{grid-template-columns:minmax(0,1fr)}.help-shell-content .hes-command-sidebar{position:static}}
+
+/* Scoped H.E.L.P. internal readability and premium interaction cleanup */
+.help-suite-page,
+.help-suite-shell {
+  --help-dark-title: #ffffff;
+  --help-dark-heading: #fff7e6;
+  --help-dark-body: #eaf2ff;
+  --help-dark-muted: #cbd8ea;
+  --help-dark-label: #7fb4ff;
+  --help-light-title: #061225;
+  --help-light-body: #183250;
+  --help-light-muted: #40546f;
+}
+
+.help-dark-title { color: #ffffff; }
+.help-dark-heading { color: #fff7e6; }
+.help-dark-body { color: #eaf2ff; }
+.help-dark-muted { color: #cbd8ea; }
+.help-dark-label { color: #7fb4ff; }
+.help-light-title { color: #061225; }
+.help-light-body { color: #183250; }
+.help-light-muted { color: #40546f; }
+
+.help-suite-page .help-suite-panel h1,
+.help-suite-page .help-suite-panel h2,
+.help-suite-page .help-suite-panel h3,
+.help-suite-page .help-suite-panel h4,
+.help-suite-shell .help-dark-panel h1,
+.help-suite-shell .help-dark-panel h2,
+.help-suite-shell .help-dark-panel h3,
+.help-suite-shell .help-dark-panel h4 {
+  color: var(--help-dark-heading);
+}
+
+.help-suite-page .help-suite-panel p,
+.help-suite-page .help-suite-panel li,
+.help-suite-page .help-suite-panel label,
+.help-suite-shell .help-dark-panel p,
+.help-suite-shell .help-dark-panel li {
+  color: var(--help-dark-body);
+  opacity: 1;
+}
+
+.help-suite-page .help-suite-light-card h1,
+.help-suite-page .help-suite-light-card h2,
+.help-suite-page .help-suite-light-card h3,
+.help-suite-page .help-suite-light-card h4,
+.help-suite-page .hes-factor-panel h1,
+.help-suite-page .hes-factor-panel h2,
+.help-suite-page .hes-factor-panel h3,
+.help-suite-page .hes-factor-panel h4 {
+  color: var(--help-light-title);
+}
+
+.help-suite-page .help-suite-light-card p,
+.help-suite-page .help-suite-light-card li,
+.help-suite-page .help-suite-light-card small,
+.help-suite-page .hes-factor-panel p,
+.help-suite-page .hes-factor-panel li,
+.help-suite-page .hes-factor-panel small {
+  color: var(--help-light-body);
+  opacity: 1;
+}
+
+.help-suite-page .hes-factor-panel.compact {
+  border-top: 4px solid var(--factor-accent, #4da9ff);
+  background: linear-gradient(180deg, #ffffff, #f7fbff);
+}
+
+.help-suite-page .button.secondary,
+.help-suite-shell .button.secondary,
+.help-suite-page .choice,
+.help-suite-shell .choice {
+  background: linear-gradient(135deg, rgba(8, 25, 58, 0.92), rgba(14, 43, 78, 0.86));
+  border: 1px solid rgba(127, 180, 255, 0.34);
+  color: #fff7e6;
+  box-shadow: 0 10px 22px rgba(2, 8, 24, 0.22);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.help-suite-page .button.secondary:hover,
+.help-suite-shell .button.secondary:hover,
+.help-suite-page .choice:hover,
+.help-suite-shell .choice:hover {
+  transform: translateY(-1px);
+  border-color: rgba(42, 212, 200, 0.72);
+  box-shadow: 0 14px 28px rgba(2, 8, 24, 0.32), 0 0 0 1px rgba(77, 169, 255, 0.14);
+}
+
+.help-suite-page .button.primary,
+.help-suite-shell .button.primary,
+.help-suite-page .choice.active,
+.help-suite-shell .choice.active {
+  background: linear-gradient(135deg, #2f6fff, #2ad4c8 58%, #ffc165);
+  border-color: rgba(127, 180, 255, 0.75);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(47, 111, 255, 0.36), 0 0 18px rgba(42, 212, 200, 0.22);
+}
+
+/* Dashboard-only contrast fixes */
+.help-dashboard-controls h3,
+.help-dashboard-controls p,
+.help-dashboard-controls strong,
+.help-dashboard-controls li,
+.help-dashboard-controls span {
+  color: var(--help-dark-body);
+}
+
+.help-dashboard-controls h3 {
+  color: var(--help-dark-heading);
+}
+
+.help-dashboard-controls .button.secondary {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+.hes-hero-profile h1,
+.hes-hero-profile h2,
+.hes-hero-profile h3,
+.hes-hero-profile strong {
+  color: var(--help-dark-title);
+}
+
+.hes-hero-profile p,
+.hes-hero-profile small,
+.hes-hero-profile .hes-confidence-meta {
+  color: var(--help-dark-body);
+  opacity: 1;
+}
+
+.hes-hero-profile .eyebrow,
+.hes-mini-radar small {
+  color: var(--help-dark-label);
+}
+
+.hes-mini-radar circle {
+  stroke: rgba(203, 216, 234, 0.72);
+}
+
+.hes-mini-radar .hes-radar-label,
+.hes-mini-radar .hes-radar-scale {
+  fill: #eaf2ff;
+  opacity: 1;
+}
+
+.hes-snapshot-shell h2,
+.hes-main-content > .card h2,
+.hes-main-content > .card h3,
+.hes-main-content > .card h4,
+.hes-insight-card h4,
+.hes-factor-panel.compact h3 {
+  color: var(--help-light-title);
+}
+
+.hes-snapshot-shell,
+.hes-insight-card,
+.hes-relational-layer,
+.hes-sim-progression,
+.hes-main-content > .card:not(.hes-hero-profile):not(.help-suite-panel) {
+  color: var(--help-light-body);
+}
+
+.hes-insight-card p,
+.hes-relational-layer p,
+.hes-sim-progression p,
+.hes-main-content > .card:not(.hes-hero-profile):not(.help-suite-panel) p,
+.hes-factor-panel.compact p,
+.hes-factor-panel.compact details,
+.hes-factor-panel.compact summary,
+.hes-factor-panel.compact small,
+.hes-meter-block label,
+.hes-mini-bars small {
+  color: var(--help-light-body);
+  opacity: 1;
+}
+
+.hes-insight-card h3,
+.hes-factor-panel.compact details summary,
+.hes-matrix-label small,
+.hes-matrix-values small,
+.hes-progress-label,
+.hes-matrix-legend {
+  color: var(--help-light-muted);
+  opacity: 1;
+}
+
+.hes-factor-signal {
+  color: var(--help-light-title);
+}
+
+.hes-factor-matrix {
+  background: linear-gradient(180deg, #0f2340, #0a1a31);
+  border-color: rgba(127, 180, 255, 0.32);
+}
+
+.hes-matrix-row {
+  background: #132b4e;
+  border-left: 4px solid #4da9ff;
+  border-radius: 12px;
+  padding: 0.65rem;
+}
+
+.hes-matrix-row:nth-child(4n+2) { border-left-color: #2ad4c8; }
+.hes-matrix-row:nth-child(4n+3) { border-left-color: #ffc165; }
+.hes-matrix-row:nth-child(4n+4) { border-left-color: #ff8a72; }
+.hes-matrix-label span,
+.hes-matrix-values strong { color: var(--help-dark-title); }
+.hes-matrix-label small,
+.hes-matrix-values small { color: var(--help-dark-muted); }
+.hes-matrix-legend { color: var(--help-dark-body); }
+
+.hes-modal-backdrop {
+  background: rgba(2, 8, 23, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.hes-modal-panel {
+  background: #0f2340;
+  border: 1px solid rgba(127, 180, 255, 0.34);
+  color: var(--help-dark-body);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.48);
+}
+
+.hes-modal-header {
+  border-bottom: 1px solid rgba(203, 216, 234, 0.18);
+  padding-bottom: 0.75rem;
+}
+
+.hes-modal-header h3,
+.hes-modal-panel h2,
+.hes-modal-panel h3,
+.hes-modal-panel h4,
+.hes-modal-panel strong {
+  color: var(--help-dark-title);
+}
+
+.hes-modal-panel p,
+.hes-modal-panel li,
+.hes-modal-panel small {
+  color: var(--help-dark-body);
+  opacity: 1;
+}
+
+.hes-modal-header .button.secondary {
+  width: auto;
+  background: #132b4e;
+  color: #ffffff;
+  border-color: rgba(203, 216, 234, 0.48);
+}
+
+.hes-modal-content .card,
+.hes-active-report,
+.hes-ladder p,
+.hes-timeline article,
+.hes-exec-grid article {
+  background: #132b4e;
+  border: 1px solid rgba(127, 180, 255, 0.24);
+  border-left: 4px solid #4da9ff;
+  color: var(--help-dark-body);
+}
+
+.hes-ladder p:nth-child(4n+2),
+.hes-timeline article:nth-child(4n+2),
+.hes-exec-grid article:nth-child(4n+2) { border-left-color: #2ad4c8; }
+.hes-ladder p:nth-child(4n+3),
+.hes-timeline article:nth-child(4n+3),
+.hes-exec-grid article:nth-child(4n+3) { border-left-color: #ffc165; }
+.hes-ladder p:nth-child(4n+4),
+.hes-timeline article:nth-child(4n+4),
+.hes-exec-grid article:nth-child(4n+4) { border-left-color: #ff8a72; }
+
+.hes-timeline .node {
+  background: rgba(77, 169, 255, 0.22);
+  color: #ffffff;
+  border: 1px solid rgba(127, 180, 255, 0.42);
+}
+
+.help-suite-page .button.secondary.active,
+.help-suite-shell .button.secondary.active,
+.help-suite-page .button.secondary[aria-pressed="true"],
+.help-suite-shell .button.secondary[aria-pressed="true"] {
+  background: linear-gradient(135deg, #2f6fff, #2ad4c8 58%, #ffc165);
+  border-color: rgba(127, 180, 255, 0.75);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(47, 111, 255, 0.36), 0 0 18px rgba(42, 212, 200, 0.22);
+}

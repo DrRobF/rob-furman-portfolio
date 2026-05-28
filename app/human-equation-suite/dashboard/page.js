@@ -39,6 +39,7 @@ const factorCoachingCopy = {
   visionChangeLeadership: { see: 'Mostly baseline evidence so far. We need more evidence about how you keep direction visible during uncertainty.', drift: 'Managing the present so tightly that the future disappears.', move: 'Name the destination and the next visible step.' },
 };
 const factorAbbreviations = { regulationUnderPressure: 'RUP', humanAwareness: 'HA', trustConstruction: 'TC', realityAnchoring: 'RA', grayAreaLeadership: 'GAL', teamSystemsLeadership: 'TSL', instructionalAcademicLeadership: 'IAL', visionChangeLeadership: 'VCL' };
+const factorAccentColors = { regulationUnderPressure: '#4da9ff', humanAwareness: '#2ad4c8', trustConstruction: '#ffc165', realityAnchoring: '#ff8a72', grayAreaLeadership: '#a78bfa', teamSystemsLeadership: '#22d3a6', instructionalAcademicLeadership: '#f59e0b', visionChangeLeadership: '#fb7185' };
 
 export default function HumanEquationDashboardPage() {
   const [focusTab, setFocusTab] = useState(null);
@@ -151,7 +152,7 @@ export default function HumanEquationDashboardPage() {
         const p = factorProfiles[key];
         const factor = factorPsychologyDefinitions[key];
         const sourceLabel = p.sourceTypes.length ? p.sourceTypes.map((s) => s === 'diagnostic' ? 'Self-report baseline' : title(s)).join(' · ') : 'None yet';
-        return <article key={key} className="hes-factor-panel compact"><h3>{label}</h3>
+        return <article key={key} className="hes-factor-panel compact" style={{ '--factor-accent': factorAccentColors[key] || '#4da9ff' }}><h3>{label}</h3>
           <div className="hes-factor-topline"><span className="hes-score-pill">{p.score ? p.score.toFixed(2) : '—'} / 5</span><span className="badge badge-blue">{p.maturityLevel}</span>{p.riskMarkers > p.positiveMarkers ? <span className="badge badge-amber">Drift risk</span> : <span className="badge badge-green">Stable</span>}</div>
           <div className="hes-meter-block"><label>Current score</label><div className="hes-score-bar"><span style={{ width: `${((p.score || 0) / 5) * 100}%` }} /></div></div>
           
