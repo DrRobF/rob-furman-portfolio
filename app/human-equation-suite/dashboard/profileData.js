@@ -41,9 +41,9 @@ export const factorPsychologyDefinitions = {
 };
 const evidenceSeeds = [
   { key: 'diagnostic', label: 'Leadership Diagnostic', route: '/human-equation-suite/diagnostic' },
-  { key: 'parentCall', label: 'Parent Call Rehearsal', route: '/human-equation' },
-  { key: 'leadershipSim', label: 'Leadership Simulation', route: '/simulation-overview' },
-  { key: 'urbanSim', label: 'Urban Student Simulation', route: '/day-in-the-life-urban-student' },
+  { key: 'parentCall', label: 'Parent Call Rehearsal', route: '/human-equation-suite/parent-call' },
+  { key: 'leadershipSim', label: 'Leadership Simulation', route: '/human-equation-suite/leadership-sim' },
+  { key: 'urbanSim', label: 'Urban Student Simulation', route: '/human-equation-suite/urban-student-sim' },
   { key: 'observationLab', label: 'Observation Lab', route: '/human-equation-suite/dashboard' },
   { key: 'futureSims', label: 'Future Simulations', route: '/human-equation-suite/dashboard' },
 ];

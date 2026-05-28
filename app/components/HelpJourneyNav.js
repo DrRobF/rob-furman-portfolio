@@ -10,7 +10,7 @@ const labels = {
 const steps = [
   { key: 'diagnostic', href: '/human-equation-suite/diagnostic' },
   { key: 'factors', href: '/human-equation-suite/course' },
-  { key: 'simulation', href: '/simulation-overview' },
+  { key: 'simulation', href: '/human-equation-suite/leadership-sim' },
   { key: 'dashboard', href: '/human-equation-suite/dashboard' },
 ];
 

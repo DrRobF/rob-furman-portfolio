@@ -21,9 +21,9 @@ const sections = [
   {
     title: 'Practice Labs',
     items: [
-      { key: 'parent-call', label: 'Parent Call Rehearsal', href: '/human-equation', areas: ['parent-call', 'practice'] },
-      { key: 'urban-student', label: 'Urban Student Simulation', href: '/day-in-the-life-urban-student', areas: ['urban-student'] },
-      { key: 'leadership-sim', label: 'Leadership Simulation', href: '/simulation-overview', areas: ['leadership-sim', 'simulation'] },
+      { key: 'parent-call', label: 'Parent Call Rehearsal', href: '/human-equation-suite/parent-call', areas: ['parent-call', 'practice'] },
+      { key: 'urban-student', label: 'Urban Student Simulation', href: '/human-equation-suite/urban-student-sim', areas: ['urban-student'] },
+      { key: 'leadership-sim', label: 'Leadership Simulation', href: '/human-equation-suite/leadership-sim', areas: ['leadership-sim', 'simulation'] },
     ],
   },
   {
@@ -41,7 +41,7 @@ function isActive(item, currentArea) {
   return item.areas?.includes(currentArea) || item.key === currentArea;
 }
 
-export default function HelpSidebar({ currentStep = 'growth', currentArea }) {
+export default function HelpSidebar({ currentStep = 'growth', currentArea, growthActions = [] }) {
   const activeArea = currentArea || currentStep;
   const insight = insights[Math.abs(activeArea.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % insights.length];
 
@@ -54,7 +54,17 @@ export default function HelpSidebar({ currentStep = 'growth', currentArea }) {
             <section key={section.title} className="help-sidebar-section">
               <h3>{section.title}</h3>
               <div className="help-sidebar-links">
-                {section.items.map((item) => {
+                {section.title === 'Growth Center' && growthActions.length ? growthActions.map((action) => (
+                  <button
+                    key={action.key}
+                    type="button"
+                    className={`help-sidebar-link help-sidebar-button ${action.active ? 'active' : ''}`}
+                    aria-pressed={action.active}
+                    onClick={action.onClick}
+                  >
+                    <span>{action.label}</span>
+                  </button>
+                )) : section.items.map((item) => {
                   const active = isActive(item, activeArea);
                   if (item.comingSoon) {
                     return (

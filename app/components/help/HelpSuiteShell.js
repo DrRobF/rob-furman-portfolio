@@ -14,7 +14,7 @@ const areaTitles = {
   simulation: 'Leadership Simulation',
 };
 
-export default function HelpSuiteShell({ children, currentStep = 'growth', currentArea, title, showHeader = true }) {
+export default function HelpSuiteShell({ children, currentStep = 'growth', currentArea, title, showHeader = true, growthActions = [] }) {
   const activeArea = currentArea || currentStep;
   const pageTitle = title || areaTitles[activeArea] || 'Human Equation Suite';
 
@@ -32,10 +32,10 @@ export default function HelpSuiteShell({ children, currentStep = 'growth', curre
       <div className="help-shell-layout">
       <details className="help-shell-mobile-toggle">
         <summary>H.E.L.P. Menu</summary>
-        <HelpSidebar currentStep={currentStep} currentArea={activeArea} />
+        <HelpSidebar currentStep={currentStep} currentArea={activeArea} growthActions={growthActions} />
       </details>
       <div className="help-shell-desktop">
-        <HelpSidebar currentStep={currentStep} currentArea={activeArea} />
+        <HelpSidebar currentStep={currentStep} currentArea={activeArea} growthActions={growthActions} />
       </div>
       <div className="help-shell-content">{children}</div>
       </div>

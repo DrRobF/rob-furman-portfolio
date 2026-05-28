@@ -8,9 +8,9 @@ const navItems = [
   { label: 'Dashboard', href: '/human-equation-suite/dashboard' },
   { label: 'Course', href: '/human-equation-suite/course' },
   { label: 'Diagnostic', href: '/human-equation-suite/diagnostic' },
-  { label: 'Parent Call', href: '/human-equation' },
-  { label: 'Urban Student Sim', href: '/day-in-the-life-urban-student' },
-  { label: 'Leadership Sim', href: '/simulation-overview' },
+  { label: 'Parent Call', href: '/human-equation-suite/parent-call' },
+  { label: 'Urban Student Sim', href: '/human-equation-suite/urban-student-sim' },
+  { label: 'Leadership Sim', href: '/human-equation-suite/leadership-sim' },
 ];
 
 export default function HumanEquationNav() {
