@@ -1,3 +1,5 @@
+// Deprecated route retained for redirect/backward compatibility.
+// Current canonical route: /human-equation-suite/course
 'use client';
 import Link from 'next/link';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
