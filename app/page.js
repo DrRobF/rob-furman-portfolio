@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import HelpSuiteFeature from './components/HelpSuiteFeature';
 
-const VIC_URL = 'https://askvic.ai';
+const VIC_URL = '/vic';
 const SCHOOL_LEADER_SIMULATION_URL = '/human-equation-suite/leadership-sim';
 const URBAN_STUDENT_SIMULATION_URL = '/human-equation-suite/urban-student-sim';
 
@@ -102,8 +102,7 @@ const featuredProjects = [
       'An AI-supported instructional tool designed to guide students through learning, provide adaptive support, and extend teacher capacity.',
     why: 'It demonstrates how responsible AI can support teachers and students without replacing the human work of instruction.',
     href: VIC_URL,
-    linkText: 'See VIC in Action →',
-    external: true,
+    linkText: 'Learn About VIC →',
   },
   {
     title: 'School Leader Simulation',
@@ -151,8 +150,8 @@ export default function HomePage() {
               <Link href="/human-equation-suite" className="button secondary">
                 View H.E.L.P. Suite
               </Link>
-              <Link href={VIC_URL} className="button secondary" target="_blank" rel="noreferrer">
-                See VIC in Action
+              <Link href={VIC_URL} className="button secondary">
+                Learn About VIC
               </Link>
               <Link href="/contact" className="button secondary">
                 Contact Me
