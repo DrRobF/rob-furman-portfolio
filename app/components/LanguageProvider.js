@@ -35,7 +35,7 @@ function restoreOrTranslateStaticText(root, language) {
       return;
     }
     const trimmed = translationLookupKey(original);
-    const replacement = dictionary[trimmed];
+    const replacement = dictionary[trimmed] || dictionary[original.trim()];
     if (!replacement) {
       node.nodeValue = original;
       return;
