@@ -1,9 +1,50 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { defaultLanguage, translations } from '../../lib/i18n/translations';
+import { defaultLanguage, phraseTranslations, translations } from '../../lib/i18n/translations';
 
 const STORAGE_KEY = 'rf_interface_language';
+const ORIGINAL_TEXT = Symbol('originalText');
+
+function translationLookupKey(value) {
+  return value.trim().replace(/\s+/g, ' ');
+}
+
+function restoreOrTranslateStaticText(root, language) {
+  if (!root || typeof document === 'undefined') return;
+  const dictionary = phraseTranslations[language] || {};
+  const skipTags = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'SELECT', 'OPTION', 'CODE', 'PRE']);
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent || skipTags.has(parent.tagName) || parent.closest('[data-no-translate]')) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      return node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    },
+  });
+
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  nodes.forEach((node) => {
+    if (node[ORIGINAL_TEXT] === undefined) node[ORIGINAL_TEXT] = node.nodeValue;
+    const original = node[ORIGINAL_TEXT];
+    if (language === defaultLanguage) {
+      node.nodeValue = original;
+      return;
+    }
+    const trimmed = translationLookupKey(original);
+    const replacement = dictionary[trimmed];
+    if (!replacement) {
+      node.nodeValue = original;
+      return;
+    }
+    const prefix = original.match(/^\s*/)?.[0] || '';
+    const suffix = original.match(/\s*$/)?.[0] || '';
+    node.nodeValue = `${prefix}${replacement}${suffix}`;
+  });
+}
 
 const LanguageContext = createContext({
   language: defaultLanguage,
@@ -28,6 +69,16 @@ export function LanguageProvider({ children }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem(STORAGE_KEY, normalizeLanguage(language));
+  }, [language]);
+
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const applyTranslations = () => restoreOrTranslateStaticText(document.body, normalizeLanguage(language));
+    applyTranslations();
+    const observer = new MutationObserver(() => applyTranslations());
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, [language]);
 
   const value = useMemo(() => ({
