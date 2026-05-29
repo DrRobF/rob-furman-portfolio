@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { saveLeadershipSimEvidenceEvent } from '../human-equation-suite/dashboard/sourceEvidenceWriters';
+import { useLanguage } from '../components/LanguageProvider';
+import { translatePhrase } from '../../lib/i18n/translations';
 
 const initialFolders = {
   red: [],
@@ -1855,6 +1857,8 @@ function buildLeadershipStyleProfile({ writtenResponses = [], decisions = [] } =
 }
 
 export default function SimulationShellClient() {
+  const { language } = useLanguage();
+  const t = (value) => translatePhrase(value, language);
   const [builderMode, setBuilderMode] = useState(false);
   const [currentModule, setCurrentModule] = useState('arrival');
   const [timelineStatuses, setTimelineStatuses] = useState(initialModuleStatuses);
@@ -3873,7 +3877,7 @@ export default function SimulationShellClient() {
                             <p>Recommended sequence:</p>
                             <ol className="arrival-coaching-list">
                               {suggestedArrivalSequence.map((item) => (
-                                <li key={item}>{item}</li>
+                                <li key={item}>{t(item)}</li>
                               ))}
                             </ol>
                             <p>
@@ -3921,21 +3925,21 @@ export default function SimulationShellClient() {
                       className={`choice ${iepDecision === decision ? 'active' : ''}`}
                       onClick={() => handleIepDecisionSelect(decision)}
                     >
-                      {decision}
+                      {t(decision)}
                     </button>
                   ))}
                 </div>
 
                 {iepDecision ? (
                   <article className="decision-consequence-card" aria-live="polite">
-                    <h4>{iepDecisionCoaching[iepDecision].title}</h4>
-                    <p>{iepDecisionCoaching[iepDecision].message}</p>
+                    <h4>{t(iepDecisionCoaching[iepDecision].title)}</h4>
+                    <p>{t(iepDecisionCoaching[iepDecision].message)}</p>
                   </article>
                 ) : null}
 
                 {iepDecision ? (
                   <>
-                    <h3 className="decision-prompt">Where should this task live?</h3>
+                    <h3 className="decision-prompt">{t('Where should this task live?')}</h3>
                     <div className="choices">
                       {iepFolderOptions.map((option) => (
                         <button
@@ -3943,27 +3947,27 @@ export default function SimulationShellClient() {
                           className={`choice ${iepFolderChoice === option.id ? 'active' : ''}`}
                           onClick={() => handleIepFolderSelection(option.id)}
                         >
-                          {option.label}
+                          {t(option.label)}
                         </button>
                       ))}
                     </div>
                     {iepFolderChoice ? (
                       <article className="decision-next-step-panel" aria-live="polite">
                         <p>
-                          Added to{' '}
-                          <strong>{iepFolderChoice.charAt(0).toUpperCase() + iepFolderChoice.slice(1)}</strong>{' '}
-                          folder: {iepTaskItem}
+                          {t('Added to')}{' '}
+                          <strong>{t(iepFolderChoice.charAt(0).toUpperCase() + iepFolderChoice.slice(1))}</strong>{' '}
+                          {t('folder:')} {t(iepTaskItem)}
                         </p>
                       </article>
                     ) : null}
                     <article className="decision-consequence-card" aria-live="polite">
-                      <h4>IEP Follow-Through Insight</h4>
+                      <h4>{t('IEP Follow-Through Insight')}</h4>
                       <p>
                         IEP-related requests may seem simple, but they sit inside legal expectations and
                         parent trust. Missing small steps here can create larger problems later.
                       </p>
                       <p>
-                        <strong>Suggested folder: Red — before leaving today.</strong>
+                        <strong>{t('Suggested folder: Red — before leaving today.')}</strong>
                       </p>
                     </article>
                   </>
@@ -4006,15 +4010,15 @@ export default function SimulationShellClient() {
                       className={`choice ${announcementsDecision === decision ? 'active' : ''}`}
                       onClick={() => handleAnnouncementsDecisionSelect(decision)}
                     >
-                      {decision}
+                      {t(decision)}
                     </button>
                   ))}
                 </div>
 
                 {announcementsDecision ? (
                   <article className="decision-consequence-card" aria-live="polite">
-                    <h4>{announcementsDecisionCoaching[announcementsDecision].title}</h4>
-                    <p>{announcementsDecisionCoaching[announcementsDecision].message}</p>
+                    <h4>{t(announcementsDecisionCoaching[announcementsDecision].title)}</h4>
+                    <p>{t(announcementsDecisionCoaching[announcementsDecision].message)}</p>
                   </article>
                 ) : null}
 
@@ -4026,7 +4030,7 @@ export default function SimulationShellClient() {
                     <div className="arrival-priority-list">
                       {announcementsTasks.map((task) => (
                         <article key={task.id} className="arrival-priority-card">
-                          <span className="selected-decision-label">{task.label}</span>
+                          <span className="selected-decision-label">{t(task.label)}</span>
                           <div className="button-row arrival-rank-row">
                             {iepFolderOptions.map((option) => (
                               <button
@@ -4035,18 +4039,18 @@ export default function SimulationShellClient() {
                                 className={`button secondary ${announcementsTaskFolders[task.id] === option.id ? 'active' : ''}`}
                                 onClick={() => handleAnnouncementsTaskFolderSelection(task.id, option.id)}
                               >
-                                {option.label}
+                                {t(option.label)}
                               </button>
                             ))}
                           </div>
                           {announcementsTaskFolders[task.id] ? (
                             <p className="arrival-assigned-rank">
-                              Added to{' '}
+                              {t('Added to')}{' '}
                               <strong>
-                                {announcementsTaskFolders[task.id].charAt(0).toUpperCase()
-                                  + announcementsTaskFolders[task.id].slice(1)}
+                                {t(announcementsTaskFolders[task.id].charAt(0).toUpperCase()
+                                  + announcementsTaskFolders[task.id].slice(1))}
                               </strong>{' '}
-                              folder.
+                              {t('folder.')}
                             </p>
                           ) : null}
                         </article>
@@ -4054,7 +4058,7 @@ export default function SimulationShellClient() {
                     </div>
                     {announcementsTasks.every((task) => Boolean(announcementsTaskFolders[task.id])) ? (
                       <article className="decision-consequence-card" aria-live="polite">
-                        <h4>Hallway Leadership Insight</h4>
+                        <h4>{t('Hallway Leadership Insight')}</h4>
                         <p>
                           Visibility creates access. The more present you are in the building, the more
                           people will bring needs to you in motion. Strong leaders use a capture system —
@@ -4062,7 +4066,7 @@ export default function SimulationShellClient() {
                           the walk back to the office.
                         </p>
                         <p>
-                          <strong>Suggested folder: Red for both tasks.</strong>
+                          <strong>{t('Suggested folder: Red for both tasks.')}</strong>
                         </p>
                       </article>
                     ) : null}
@@ -4442,7 +4446,7 @@ export default function SimulationShellClient() {
                       className={`choice ${lunchClimateDecision === decision ? 'active' : ''}`}
                       onClick={() => handleLunchClimateDecisionSelect(decision)}
                     >
-                      {decision}
+                      {t(decision)}
                     </button>
                   ))}
                 </div>
@@ -4546,7 +4550,7 @@ export default function SimulationShellClient() {
                       className={`choice ${parentEscalationDecision === decision ? 'active' : ''}`}
                       onClick={() => handleParentEscalationDecisionSelect(decision)}
                     >
-                      {decision}
+                      {t(decision)}
                     </button>
                   ))}
                 </div>
@@ -4706,7 +4710,7 @@ export default function SimulationShellClient() {
                       className={`choice ${cafeteriaBoundaryDecision === decision ? 'active' : ''}`}
                       onClick={() => setCafeteriaBoundaryDecision(decision)}
                     >
-                      {decision}
+                      {t(decision)}
                     </button>
                   ))}
                 </div>
@@ -4853,7 +4857,7 @@ export default function SimulationShellClient() {
                       className={`choice ${teacherConflictDecision === decision ? 'active' : ''}`}
                       onClick={() => setTeacherConflictDecision(decision)}
                     >
-                      {decision}
+                      {t(decision)}
                     </button>
                   ))}
                 </div>
@@ -6090,38 +6094,38 @@ export default function SimulationShellClient() {
 
         <aside className="dashboard-column">
           <div className="card dashboard-card">
-            <h3>Leadership Dashboard</h3>
+            <h3>{t('Leadership Dashboard')}</h3>
             <p className="dashboard-intro">
-              Dr. Furman&apos;s Green / Orange / Red prioritization system for daily leadership flow.
+              {t("Dr. Furman's Green / Orange / Red prioritization system for daily leadership flow.")}
             </p>
 
             <div className="folder-list">
               <article className="folder-card folder-red">
-                <h4>Red</h4>
-                <p className="folder-subtitle">Must handle before leaving today</p>
+                <h4>{t('Red')}</h4>
+                <p className="folder-subtitle">{t('Must handle before leaving today')}</p>
                 <ul>
                   {folders.red.map((item) => (
-                    <li key={item}>{item}</li>
+                    <li key={item}>{t(item)}</li>
                   ))}
                 </ul>
               </article>
 
               <article className="folder-card folder-orange">
-                <h4>Orange</h4>
-                <p className="folder-subtitle">Handle within the next two days</p>
+                <h4>{t('Orange')}</h4>
+                <p className="folder-subtitle">{t('Handle within the next two days')}</p>
                 <ul>
                   {folders.orange.map((item) => (
-                    <li key={item}>{item}</li>
+                    <li key={item}>{t(item)}</li>
                   ))}
                 </ul>
               </article>
 
               <article className="folder-card folder-green">
-                <h4>Green</h4>
-                <p className="folder-subtitle">Handle within the week</p>
+                <h4>{t('Green')}</h4>
+                <p className="folder-subtitle">{t('Handle within the week')}</p>
                 <ul>
                   {folders.green.map((item) => (
-                    <li key={item}>{item}</li>
+                    <li key={item}>{t(item)}</li>
                   ))}
                 </ul>
               </article>
@@ -6129,27 +6133,27 @@ export default function SimulationShellClient() {
           </div>
 
           <details className="card vic-panel" open={isVicOpen} onToggle={(event) => setIsVicOpen(event.currentTarget.open)}>
-            <summary>VIC Leadership Guidance</summary>
-            <p>{activeGuidance.focus}</p>
-            <p className="vic-structure-title">Strong leadership response structure:</p>
+            <summary>{t('VIC Leadership Guidance')}</summary>
+            <p>{t(activeGuidance.focus)}</p>
+            <p className="vic-structure-title">{t('Strong leadership response structure:')}</p>
             <ol className="vic-structure-list">
               {activeGuidance.actions.map((action) => (
-                <li key={action}>{action}</li>
+                <li key={action}>{t(action)}</li>
               ))}
             </ol>
-            <p className="vic-note">Leadership Insight: {activeGuidance.insight}</p>
+            <p className="vic-note">{t('Leadership Insight:')} {t(activeGuidance.insight)}</p>
           </details>
 
           <details className="card" open={false}>
-            <summary>Leadership Records</summary>
+            <summary>{t('Leadership Records')}</summary>
             <div className="folder-list leadership-records-list">
               {completedTasks.length ? (
                 <article className="folder-card">
-                  <h4>Completed</h4>
-                  <p className="folder-subtitle">Closed items from this case step</p>
+                  <h4>{t('Completed')}</h4>
+                  <p className="folder-subtitle">{t('Closed items from this case step')}</p>
                   <ul>
                     {completedTasks.map((item) => (
-                      <li key={item}>{item}</li>
+                      <li key={item}>{t(item)}</li>
                     ))}
                   </ul>
                 </article>
@@ -6157,16 +6161,16 @@ export default function SimulationShellClient() {
 
               {iepLeadershipRecord ? (
                 <article className="folder-card">
-                  <h4>IEP Meeting Record</h4>
-                  <p className="folder-subtitle">Captured leadership follow-through notes</p>
+                  <h4>{t('IEP Meeting Record')}</h4>
+                  <p className="folder-subtitle">{t('Captured leadership follow-through notes')}</p>
                   <ul>
-                    <li><strong>Decision:</strong> {iepLeadershipRecord.decision}</li>
+                    <li><strong>{t('Decision:')}</strong> {t(iepLeadershipRecord.decision)}</li>
                     <li>
-                      <strong>Folder selected:</strong>{' '}
-                      {iepLeadershipRecord.folder.charAt(0).toUpperCase() + iepLeadershipRecord.folder.slice(1)}
+                      <strong>{t('Folder selected:')}</strong>{' '}
+                      {t(iepLeadershipRecord.folder.charAt(0).toUpperCase() + iepLeadershipRecord.folder.slice(1))}
                     </li>
-                    <li><strong>Coaching note:</strong> {iepLeadershipRecord.coachingNote}</li>
-                    <li><strong>Suggested folder:</strong> {iepLeadershipRecord.suggestedFolder}</li>
+                    <li><strong>{t('Coaching note:')}</strong> {t(iepLeadershipRecord.coachingNote)}</li>
+                    <li><strong>{t('Suggested folder:')}</strong> {t(iepLeadershipRecord.suggestedFolder)}</li>
                   </ul>
                 </article>
               ) : null}
@@ -6179,7 +6183,7 @@ export default function SimulationShellClient() {
                     <li><strong>Decision:</strong> {announcementsLeadershipRecord.decision}</li>
                     {announcementsTasks.map((task) => (
                       <li key={`record-${task.id}`}>
-                        <strong>{task.label}:</strong>{' '}
+                        <strong>{t(task.label)}:</strong>{' '}
                         {(announcementsLeadershipRecord.taskFolders[task.id] || '')
                           .charAt(0)
                           .toUpperCase()
@@ -6276,32 +6280,32 @@ export default function SimulationShellClient() {
           </details>
 
           <details className="card" open={false}>
-            <summary>Utilities</summary>
+            <summary>{t('Utilities')}</summary>
             <button
               type="button"
               className="button secondary"
               onClick={() => setBuilderMode((prev) => !prev)}
             >
-              Builder Mode: {builderMode ? 'On' : 'Off'}
+              {t('Builder Mode:')} {builderMode ? t('On') : t('Off')}
             </button>
             <button type="button" className="button secondary" onClick={saveSimulationProgress}>
-              Save Progress
+              {t('Save Progress')}
             </button>
-            <p className="folder-subtitle">Progress is saved only in this browser on this device.</p>
+            <p className="folder-subtitle">{t('Progress is saved only in this browser on this device.')}</p>
             {saveProgressMessage ? <p>{saveProgressMessage}</p> : null}
             {lastSavedLabel ? <p>{lastSavedLabel}</p> : null}
             {savedSnapshot ? (
               <div>
-                <p><strong>Saved progress found.</strong></p>
+                <p><strong>{t('Saved progress found.')}</strong></p>
                 <p>
-                  Last saved:{' '}
-                  {savedSnapshot.savedAt ? new Date(savedSnapshot.savedAt).toLocaleString() : 'unavailable'}
+                  {t('Last saved:')}{' '}
+                  {savedSnapshot.savedAt ? new Date(savedSnapshot.savedAt).toLocaleString() : t('unavailable')}
                 </p>
                 <button type="button" className="button secondary" onClick={handleResumeSavedSimulation}>
-                  Resume Saved Simulation
+                  {t('Resume Saved Simulation')}
                 </button>
                 <button type="button" className="button secondary" onClick={handleClearSavedProgress}>
-                  Clear Saved Progress
+                  {t('Clear Saved Progress')}
                 </button>
               </div>
             ) : null}
