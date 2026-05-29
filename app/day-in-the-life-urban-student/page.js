@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import HumanEquationNav from '../components/HumanEquationNav';
 import { useLanguage } from '../components/LanguageProvider';
+import { translatePhrase } from '../../lib/i18n/translations';
 import HelpSuiteShell from '../components/help/HelpSuiteShell';
 import { DASHBOARD_PROFILE_STORAGE_KEY, blendUrbanEvidenceIntoProfile, createEmptyMasterProfile } from '../human-equation-suite/dashboard/profileData';
 import { buildUrbanSimulationReport, urbanReflectionQuestions, URBAN_REPORT_STORAGE_KEY } from '../human-equation-suite/dashboard/urbanEvidence';
@@ -1855,16 +1856,17 @@ const LOOP_ESCAPE_SCENES = {
 };
 const ALLOW_BACKWARD_CHOICE_IDS = new Set(['restart_from_report', 'face_reflection_room']);
 
-const renderBlocks = (blocks) =>
-  blocks.map((block, index) =>
-    block.type === 'thought' ? (
+const renderBlocks = (blocks, language) =>
+  blocks.map((block, index) => {
+    const text = translatePhrase(block.text, language);
+    return block.type === 'thought' ? (
       <aside key={`${block.type}-${index}`} className="thought-wrap">
-        <div className="thought-card"><span className="thought-label">Adam thinks:</span> <em>{block.text}</em></div>
+        <div className="thought-card"><span className="thought-label">{translatePhrase('Adam thinks:', language)}</span> <em>{text}</em></div>
       </aside>
     ) : (
-      <p key={`${block.type}-${index}`} className="paragraph-card">{block.text}</p>
-    )
-  );
+      <p key={`${block.type}-${index}`} className="paragraph-card">{text}</p>
+    );
+  });
 
 const metricConfig = {
   sleep: { label: 'Sleep Reserve' },
@@ -1881,6 +1883,7 @@ const postSimReflectionQuestions = urbanReflectionQuestions;
 function UrbanStudentExperience() {
   const { language } = useLanguage();
   const reflectionPlaceholder = language === 'es' ? 'Escribe tu reflexión aquí...' : 'Type your reflection here...';
+  const t = (value) => translatePhrase(value, language);
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -2436,13 +2439,13 @@ function UrbanStudentExperience() {
           <header className="scene-header">
             <div className="tone-band" />
             <p>{scene.time}</p>
-            <h1>{scene.heading}</h1>
+            <h1>{t(scene.heading)}</h1>
           </header>
           {shouldShowSceneImage && (
             <div className="scene-image-wrap">
               <img
                 src={scene.image}
-                alt={`${scene.heading} atmospheric scene`}
+                alt={`${t(scene.heading)} ${t('atmospheric scene')}`}
                 className="scene-image"
                 onError={() => setHiddenSceneImages((prev) => ({ ...prev, [scene.id]: true }))}
               />
@@ -2498,8 +2501,8 @@ function UrbanStudentExperience() {
               </div>
             </section>
           )}
-          <p className="section-label section-divider">THE MOMENT</p>
-          <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`} className="scene-group">{renderBlocks(group)}</div>)}</div>
+          <p className="section-label section-divider">{t('THE MOMENT')}</p>
+          <div className="scene-content">{visibleGroups.map((group, index) => <div key={`group-${index}`} className="scene-group">{renderBlocks(group, language)}</div>)}</div>
           {isDeveloperMode && lastTransition && (
             <section className="debug-panel">
               <p><strong>DEV Transition Debug</strong></p>
@@ -2508,34 +2511,34 @@ function UrbanStudentExperience() {
             </section>
           )}
 
-          {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>Continue the moment</button>}
+          {!isFullyRevealed && <button type="button" className="continue-moment" onClick={handleRevealMore}>{t('Continue the moment')}</button>}
 
           {isFullyRevealed && !selectedChoice && (
             <div className="choices-section">
-              <p className="section-label section-divider">YOUR CHOICE</p>
-              <h2>{scene.question}</h2>
+              <p className="section-label section-divider">{t('YOUR CHOICE')}</p>
+              <h2>{t(scene.question)}</h2>
               <div className="button-group help-choice-grid">
-                {scene.choices.filter((choice) => !choice.hiddenFromChoices).map((choice) => <button key={choice.id} type="button" className="help-choice-card" onClick={() => handleChoose(choice.id)}>{choice.label}</button>)}
+                {scene.choices.filter((choice) => !choice.hiddenFromChoices).map((choice) => <button key={choice.id} type="button" className="help-choice-card" onClick={() => handleChoose(choice.id)}>{t(choice.label)}</button>)}
               </div>
-              {scene.id !== 'scene_urban_report_complete' && <button type="button" className="reset-button" onClick={handleEndEarly}>End Simulation Early</button>}
+              {scene.id !== 'scene_urban_report_complete' && <button type="button" className="reset-button" onClick={handleEndEarly}>{t('End Simulation Early')}</button>}
             </div>
           )}
 
           {selectedChoice && (
             <section className="result-section">
-              <p className="section-label section-divider">YOUR CHOICE</p>
-              <p className="selected-pill">You chose: {selectedChoice.label}</p>
-              <p className="section-label section-divider">CONSEQUENCE</p>
-              <div className="result-card"><h2>{selectedChoice.resultTitle}</h2>{renderBlocks(selectedChoice.result)}</div>
-              {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label section-divider">IMMEDIATE IMPACT</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{metricConfig[key].label} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
+              <p className="section-label section-divider">{t('YOUR CHOICE')}</p>
+              <p className="selected-pill">{t('You chose:')} {t(selectedChoice.label)}</p>
+              <p className="section-label section-divider">{t('CONSEQUENCE')}</p>
+              <div className="result-card"><h2>{t(selectedChoice.resultTitle)}</h2>{renderBlocks(selectedChoice.result, language)}</div>
+              {changedMetrics.length > 0 && <div className="impact-section"><p className="section-label section-divider">{t('IMMEDIATE IMPACT')}</p><div className="impact-row">{changedMetrics.map(([key, value]) => <span key={key} className={`impact-pill ${value > 0 ? (key === 'care' ? 'impact-positive-care' : 'impact-positive') : 'impact-negative'}`}>{t(metricConfig[key].label)} {value > 0 ? `+${value}` : value}</span>)}</div></div>}
               {hasReflection && (
-                <section className="reflect-panel" aria-live="polite"><p className="section-label section-divider">ADULT LEARNING CHECK</p><p className="reflect-title">Adult Learning Check</p><p className="reflect-subtitle">Pause before continuing. What might an adult miss in this moment?</p><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">Reflection Questions</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{question}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>Writing Prompt</strong></p><p>{scene.reflection.writingPrompt}</p><textarea placeholder={reflectionPlaceholder} rows={4} /></div><div className="facilitator-lens"><p><strong>What Adults Might Miss</strong></p><p>{scene.reflection.insight}</p>{scene.reflection.expandedInsight && <p>{scene.reflection.expandedInsight}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{scene.reflection.facilitatorLens}</p>}</div>{scene.reflection?.manuscriptExcerpt && <button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>Read Manuscript Excerpt</button>}{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">From the Manuscript</p><p className="insight-subheading">Extended reading for teachers and professional reflection</p><p className="insight-note">This reading is optional and can be used for discussion, journaling, or individual reflection.</p><p className="manuscript-text">{scene.reflection.manuscriptExcerpt}</p></div>}</div></section>
+                <section className="reflect-panel" aria-live="polite"><p className="section-label section-divider">{t('ADULT LEARNING CHECK')}</p><p className="reflect-title">{t('Adult Learning Check')}</p><p className="reflect-subtitle">{t('Pause before continuing. What might an adult miss in this moment?')}</p><div className="reflect-content"><div className="reflect-block"><p className="reflect-content-label">{t('Reflection Questions')}</p><ol>{scene.reflection.questions.map((question) => <li key={question}>{t(question)}</li>)}</ol></div><div className="reflect-block writing-panel"><p className="writing-prompt"><strong>{t('Writing Prompt')}</strong></p><p>{t(scene.reflection.writingPrompt)}</p><textarea placeholder={reflectionPlaceholder} rows={4} /></div><div className="facilitator-lens"><p><strong>{t('What Adults Might Miss')}</strong></p><p>{t(scene.reflection.insight)}</p>{scene.reflection.expandedInsight && <p>{t(scene.reflection.expandedInsight)}</p>}{scene.reflection?.facilitatorLens && <p className="lens-prompt">{t(scene.reflection.facilitatorLens)}</p>}</div>{scene.reflection?.manuscriptExcerpt && <button type="button" className="insight-toggle" onClick={() => setShowInsights((prev) => ({ ...prev, [scene.id]: !prev[scene.id] }))}>{t('Read Manuscript Excerpt')}</button>}{showInsights[scene.id] && scene.reflection?.manuscriptExcerpt && <div className="insight-panel"><p className="insight-heading">{t('From the Manuscript')}</p><p className="insight-subheading">{t('Extended reading for teachers and professional reflection')}</p><p className="insight-note">{t('This reading is optional and can be used for discussion, journaling, or individual reflection.')}</p><p className="manuscript-text">{t(scene.reflection.manuscriptExcerpt)}</p></div>}</div></section>
               )}
               {hasMicroReflection && (
                 <section className="micro-reflection-panel" aria-live="polite">
-                  <p className="section-label section-divider">QUICK EDUCATOR CHECK</p>
-                  <p className="micro-reflection-subheading">Before moving on, pause on what an adult might miss here.</p>
-                  <p className="micro-reflection-prompt">{scene.microReflection.prompt}</p>
+                  <p className="section-label section-divider">{t('QUICK EDUCATOR CHECK')}</p>
+                  <p className="micro-reflection-subheading">{t('Before moving on, pause on what an adult might miss here.')}</p>
+                  <p className="micro-reflection-prompt">{t(scene.microReflection.prompt)}</p>
                   <div className="micro-reflection-options">
                     {scene.microReflection.options.map((option) => (
                       <button
@@ -2544,31 +2547,31 @@ function UrbanStudentExperience() {
                         className={`micro-reflection-option ${selectedMicroReflectionAnswer === option ? 'selected' : ''}`}
                         onClick={() => setMicroReflectionAnswers((prev) => ({ ...prev, [scene.id]: option }))}
                       >
-                        {option}
+                        {t(option)}
                       </button>
                     ))}
                   </div>
-                  {selectedMicroReflectionAnswer && <p className="micro-reflection-response">{scene.microReflection.response}</p>}
+                  {selectedMicroReflectionAnswer && <p className="micro-reflection-response">{t(scene.microReflection.response)}</p>}
                 </section>
               )}
-              <button type="button" className="continue-button" onClick={handleContinue} disabled={!canContinue}>Continue</button>
-              <button type="button" className="reset-button" onClick={handleReset}>Restart Urban Simulation</button>
+              <button type="button" className="continue-button" onClick={handleContinue} disabled={!canContinue}>{t('Continue')}</button>
+              <button type="button" className="reset-button" onClick={handleReset}>{t('Restart Urban Simulation')}</button>
             </section>
           )}
         </article>
         {hasAnyChoiceSelected && <aside className="metrics-stack metrics-side-panel" aria-label="Adam current status and cumulative load">
-          <p className="section-label section-divider">STUDENT STATUS</p>
-          <p className="metric-subtitle">Current indicators based on Adam’s choices and experiences.</p>
+          <p className="section-label section-divider">{t('STUDENT STATUS')}</p>
+          <p className="metric-subtitle">{t('Current indicators based on Adam’s choices and experiences.')}</p>
           <div className="metric-context-row">
-            <p className="overall-state">Overall State <span>{overallState}</span></p>
-            <p className="day-progress">Day Progress <span>{dayProgress}</span></p>
+            <p className="overall-state">{t('Overall State')} <span>{t(overallState)}</span></p>
+            <p className="day-progress">{t('Day Progress')} <span>{t(dayProgress)}</span></p>
           </div>
           {metricOrder.map((metric) => (
             <div className="metric-row" key={metric}>
               <div className="metric-row-meta">
                 <div>
-                  <span className="metric-title">{metricConfig[metric].label}</span>
-                  <span className="metric-trend">{cumulativeMetrics[metric] <= -6 ? "Critical" : cumulativeMetrics[metric] <= -2 ? "Decreasing" : cumulativeMetrics[metric] >= 6 ? "Improving" : cumulativeMetrics[metric] >= 2 ? "Increasing" : "Stable"}</span>
+                  <span className="metric-title">{t(metricConfig[metric].label)}</span>
+                  <span className="metric-trend">{t(cumulativeMetrics[metric] <= -6 ? "Critical" : cumulativeMetrics[metric] <= -2 ? "Decreasing" : cumulativeMetrics[metric] >= 6 ? "Improving" : cumulativeMetrics[metric] >= 2 ? "Increasing" : "Stable")}</span>
                 </div>
                 <span className="metric-value">{cumulativeMetrics[metric] > 0 ? `+${cumulativeMetrics[metric]}` : cumulativeMetrics[metric]}</span>
               </div>
