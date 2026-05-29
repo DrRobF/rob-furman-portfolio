@@ -5,6 +5,7 @@ import { useLanguage } from '../components/LanguageProvider';
 import styles from './human-equation.module.css';
 import { briefings, callTimingBriefings, setupOptions } from './data/mockScenario';
 import { reportPreviewFixtures } from './data/reportPreviewFixtures';
+import { saveParentCallEvidenceEvent } from '../human-equation-suite/dashboard/sourceEvidenceWriters';
 
 const stages = ['intro', 'setup', 'incoming', 'active', 'report'];
 const randomFrom = (items = []) => items[Math.floor(Math.random() * items.length)];
@@ -787,6 +788,8 @@ export default function HumanEquationExperience() {
   const pendingOpeningUserTurnRef = useRef(null);
   const firstUserTurnCommittedRef = useRef(false);
   const openingResponseTriggeredRef = useRef(false);
+  const hasSavedDashboardEvidenceRef = useRef(false);
+
 
   const callDuration = useMemo(() => {
     if (!callStartedAt) return '00:00';
@@ -1412,6 +1415,7 @@ export default function HumanEquationExperience() {
     const canonicalScenario = setupSnapshot?.practiceMode === 'guided' ? guidedScenario : buildScenarioBriefing(setupSnapshot, callTimingBriefings?.[setupSnapshot?.callTiming] ?? selectedTimingBriefing, language);
     setCoachingStatus({ state: 'loading', source: 'pending', fallbackReason: null });
     setCoachingReport(null);
+    hasSavedDashboardEvidenceRef.current = false;
     setCallEndedAt(endedAt);
     setStage('report');
 
@@ -1436,6 +1440,18 @@ export default function HumanEquationExperience() {
       .then((res) => res.json())
       .then((report) => {
         setCoachingReport(report);
+        if (report && !hasSavedDashboardEvidenceRef.current) {
+          saveParentCallEvidenceEvent({
+            report,
+            setupSnapshot,
+            canonicalScenario,
+            callEndedAt: endedAt,
+            callDuration: durationSnapshot,
+            transcriptLines: transcriptSnapshot,
+            parentCallerName: activeParentCallerName,
+          });
+          hasSavedDashboardEvidenceRef.current = true;
+        }
         setCoachingStatus({ state: 'ready', source: asText(report?.source, 'unknown'), fallbackReason: report?.fallbackReason || null });
       })
       .catch(() => {
