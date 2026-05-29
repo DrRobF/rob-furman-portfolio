@@ -9,14 +9,17 @@ export default function HelpSuiteFeature() {
         <div className={styles.wrapper}>
           <div className={styles.content}>
             <div className={styles.copy}>
-              <p className={styles.eyebrow}>Flagship Platform</p>
-              <h2>H.E.L.P. — Human Equation Leadership Psychology</h2>
-              <p className={styles.tagline}>See people. Solve problems. Lead with humanity.</p>
+              <p className={styles.eyebrow}>Flagship Leadership System</p>
+              <h2>Flagship Leadership System: H.E.L.P.</h2>
+              <p className={styles.tagline}>Human Equation Leadership Psychology</p>
               <p className={styles.body}>
-                A pressure-practice leadership psychology system for educators and school
-                leaders. H.E.L.P. helps leaders understand how they respond under pressure,
-                practice difficult human moments, and build an evolving evidence profile through
-                diagnostics, learning, simulations, and dashboard reflection.
+                H.E.L.P. translates real school leadership pressure into practice. It helps
+                educators rehearse difficult conversations, understand how pressure changes
+                interpretation and trust, and build an evidence-based leadership profile through
+                diagnostics, course learning, simulations, and dashboard reflection.
+              </p>
+              <p className={styles.proofLine}>
+                Built from lived school leadership experience — not generic AI prompts.
               </p>
               <ul className={styles.featureList}>
                 <li>Leadership Pressure Diagnostic</li>
