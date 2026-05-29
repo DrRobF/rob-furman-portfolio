@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { saveLeadershipSimEvidenceEvent } from '../human-equation-suite/dashboard/sourceEvidenceWriters';
 
 const initialFolders = {
   red: [],
@@ -1945,6 +1946,7 @@ export default function SimulationShellClient() {
   const [lastSavedLabel, setLastSavedLabel] = useState('');
   const [savedSnapshot, setSavedSnapshot] = useState(null);
   const [hasReachedEndOfDay, setHasReachedEndOfDay] = useState(false);
+  const hasSavedDashboardEvidenceRef = useRef(false);
 
   const hasSelectedDecision = Boolean(firstDecision);
   const [scene, setScene] = useState('initial');
@@ -3440,8 +3442,13 @@ export default function SimulationShellClient() {
         if (!response.ok) throw new Error('Evaluation request failed');
         const result = await response.json();
         console.log(`[simulation/report] Evaluation source: ${result?.evaluationSource || 'unknown'}`);
+        const completedAt = payload.timestamps.completedAt;
         setEvaluationResult(result);
         window.localStorage.setItem(simulationEvaluationStorageKey, JSON.stringify(result));
+        if (!hasSavedDashboardEvidenceRef.current) {
+          saveLeadershipSimEvidenceEvent({ result, evaluationPayload: payload, completedAt });
+          hasSavedDashboardEvidenceRef.current = true;
+        }
         if (result.evaluationSource === 'heuristic-fallback') {
           setEvaluationErrorMessage('We could not complete the AI evaluation, so a basic report was generated from local scoring.');
         }
