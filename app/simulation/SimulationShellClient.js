@@ -5,6 +5,16 @@ import { saveLeadershipSimEvidenceEvent } from '../human-equation-suite/dashboar
 import { useLanguage } from '../components/LanguageProvider';
 import { translatePhrase } from '../../lib/i18n/translations';
 
+
+const localizeContent = (field, language = 'en') => {
+  if (field && typeof field === 'object' && !Array.isArray(field)) {
+    return language === 'es' ? (field.es || field.en || '') : (field.en || field.es || '');
+  }
+  return field || '';
+};
+
+const localized = (en, es) => ({ en, es });
+
 const initialFolders = {
   red: [],
   orange: [],
@@ -178,86 +188,157 @@ const builderModeModuleIds = new Set([
 
 const moduleGuidance = {
   arrival: {
-    focus: 'Start with people and urgency signals before lower-risk tasks.',
+    briefing: localized(
+      'Start with people and urgency signals before lower-risk tasks.',
+      'Comienza con las personas y las señales de urgencia antes de las tareas de menor riesgo.',
+    ),
+    focus: localized(
+      'Start with people and urgency signals before lower-risk tasks.',
+      'Comienza con las personas y las señales de urgencia antes de las tareas de menor riesgo.',
+    ),
     actions: [
-      'Choose a sequence you can defend under pressure.',
-      'Prioritize immediate human needs and time-sensitive communication.',
+      localized('Choose a sequence you can defend under pressure.', 'Elige una secuencia que puedas defender bajo presión.'),
+      localized('Prioritize immediate human needs and time-sensitive communication.', 'Prioriza las necesidades humanas inmediatas y la comunicación sensible al tiempo.'),
     ],
-    insight: 'Early triage sets the tone for every leadership decision that follows.',
+    insight: localized('Early triage sets the tone for every leadership decision that follows.', 'La priorización inicial marca el tono para cada decisión de liderazgo que sigue.'),
   },
   iepMeeting: {
-    focus: 'Treat compliance tasks as trust and legal obligations, not admin extras.',
+    briefing: localized(
+      'Treat compliance tasks as trust and legal obligations, not admin extras.',
+      'Trata las tareas de cumplimiento como obligaciones legales y de confianza, no como extras administrativos.',
+    ),
+    focus: localized(
+      'Treat compliance tasks as trust and legal obligations, not admin extras.',
+      'Trata las tareas de cumplimiento como obligaciones legales y de confianza, no como extras administrativos.',
+    ),
     actions: [
-      'Capture the task before the meeting context is lost.',
-      'Assign it to the right priority folder with a completion standard.',
+      localized('Capture the task before the meeting context is lost.', 'Registra la tarea antes de que se pierda el contexto de la reunión.'),
+      localized('Assign it to the right priority folder with a completion standard.', 'Asígnala a la carpeta de prioridad correcta con un criterio de finalización.'),
     ],
-    insight: 'Small compliance misses can create large relationship and legal risks.',
+    insight: localized('Small compliance misses can create large relationship and legal risks.', 'Pequeñas omisiones de cumplimiento pueden crear grandes riesgos legales y relacionales.'),
   },
   announcements: {
-    focus: 'Visibility creates spontaneous requests that still need reliable follow-through.',
+    briefing: localized(
+      'Visibility creates spontaneous requests that still need reliable follow-through.',
+      'La visibilidad genera solicitudes espontáneas que aun así necesitan seguimiento confiable.',
+    ),
+    focus: localized(
+      'Visibility creates spontaneous requests that still need reliable follow-through.',
+      'La visibilidad genera solicitudes espontáneas que aun así necesitan seguimiento confiable.',
+    ),
     actions: [
-      'Break hallway asks into concrete tasks.',
-      'File each task immediately so nothing is dropped.',
+      localized('Break hallway asks into concrete tasks.', 'Convierte las solicitudes de pasillo en tareas concretas.'),
+      localized('File each task immediately so nothing is dropped.', 'Registra cada tarea de inmediato para que nada se pierda.'),
     ],
-    insight: 'Leader visibility helps culture, but only systems protect execution.',
+    insight: localized('Leader visibility helps culture, but only systems protect execution.', 'La visibilidad del líder ayuda a la cultura, pero solo los sistemas protegen la ejecución.'),
   },
   voicemail: {
-    focus: 'Voicemails often carry urgency and emotion that need fast acknowledgment.',
+    briefing: localized(
+      'Voicemails often carry urgency and emotion that need fast acknowledgment.',
+      'Los buzones de voz suelen traer urgencia y emoción que requieren una confirmación rápida.',
+    ),
+    focus: localized(
+      'Voicemails often carry urgency and emotion that need fast acknowledgment.',
+      'Los buzones de voz suelen traer urgencia y emoción que requieren una confirmación rápida.',
+    ),
     actions: [
-      'Triage for risk first, then write concise next steps.',
-      'Use calm, process-based language in every callback.',
+      localized('Triage for risk first, then write concise next steps.', 'Prioriza primero el riesgo y luego escribe próximos pasos concisos.'),
+      localized('Use calm, process-based language in every callback.', 'Usa lenguaje calmado y basado en procesos en cada devolución de llamada.'),
     ],
-    insight: 'Fast acknowledgment with clear process reduces escalation pressure.',
+    insight: localized('Fast acknowledgment with clear process reduces escalation pressure.', 'Una confirmación rápida con un proceso claro reduce la presión de escalada.'),
   },
   classroomWalkthrough: {
-    focus: 'Capture objective evidence before drawing conclusions or giving direction.',
+    briefing: localized(
+      'Capture objective evidence before drawing conclusions or giving direction.',
+      'Recoge evidencia objetiva antes de sacar conclusiones o dar dirección.',
+    ),
+    focus: localized(
+      'Capture objective evidence before drawing conclusions or giving direction.',
+      'Recoge evidencia objetiva antes de sacar conclusiones o dar dirección.',
+    ),
     actions: [
-      'Anchor notes in what was seen and heard.',
-      'Use non-evaluative language that supports coaching.',
+      localized('Anchor notes in what was seen and heard.', 'Ancla las notas en lo que se vio y se escuchó.'),
+      localized('Use non-evaluative language that supports coaching.', 'Usa lenguaje no evaluativo que apoye el coaching.'),
     ],
-    insight: 'Evidence-first walkthroughs build instructional trust.',
+    insight: localized('Evidence-first walkthroughs build instructional trust.', 'Los recorridos basados primero en evidencia construyen confianza instruccional.'),
   },
   lunchClimate: {
-    focus: 'Address immediate climate needs while preserving adult professionalism.',
+    briefing: localized(
+      'Address immediate climate needs while preserving adult professionalism.',
+      'Atiende las necesidades inmediatas del clima mientras preservas la profesionalidad adulta.',
+    ),
+    focus: localized(
+      'Address immediate climate needs while preserving adult professionalism.',
+      'Atiende las necesidades inmediatas del clima mientras preservas la profesionalidad adulta.',
+    ),
     actions: [
-      'Give direct next-step guidance to staff.',
-      'Balance student safety, supervision, and team tone.',
+      localized('Give direct next-step guidance to staff.', 'Da al personal una orientación directa sobre los próximos pasos.'),
+      localized('Balance student safety, supervision, and team tone.', 'Equilibra seguridad estudiantil, supervisión y tono del equipo.'),
     ],
-    insight: 'In public spaces, your direction shapes safety and culture simultaneously.',
+    insight: localized('In public spaces, your direction shapes safety and culture simultaneously.', 'En espacios públicos, tu dirección moldea seguridad y cultura al mismo tiempo.'),
   },
   parentEscalation: {
-    focus: 'Acknowledge emotion without sacrificing process or accuracy.',
+    briefing: localized(
+      'Acknowledge emotion without sacrificing process or accuracy.',
+      'Reconoce la emoción sin sacrificar el proceso ni la precisión.',
+    ),
+    focus: localized(
+      'Acknowledge emotion without sacrificing process or accuracy.',
+      'Reconoce la emoción sin sacrificar el proceso ni la precisión.',
+    ),
     actions: [
-      'Respond quickly with empathy and boundaries.',
-      'Name what you will review and when follow-up will happen.',
+      localized('Respond quickly with empathy and boundaries.', 'Responde rápido con empatía y límites.'),
+      localized('Name what you will review and when follow-up will happen.', 'Nombra qué revisarás y cuándo ocurrirá el seguimiento.'),
     ],
-    insight: 'Trust grows when families feel heard and see disciplined follow-through.',
+    insight: localized('Trust grows when families feel heard and see disciplined follow-through.', 'La confianza crece cuando las familias se sienten escuchadas y ven seguimiento disciplinado.'),
   },
   cafeteriaBoundary: {
-    focus: 'Hold staff boundaries firmly while keeping the conversation professional.',
+    briefing: localized(
+      'Hold staff boundaries firmly while keeping the conversation professional.',
+      'Sostén los límites del personal con firmeza mientras mantienes la conversación profesional.',
+    ),
+    focus: localized(
+      'Hold staff boundaries firmly while keeping the conversation professional.',
+      'Sostén los límites del personal con firmeza mientras mantienes la conversación profesional.',
+    ),
     actions: [
-      'Start with clarity, not accusation.',
-      'Set the immediate expectation and document next steps.',
+      localized('Start with clarity, not accusation.', 'Empieza con claridad, no con acusación.'),
+      localized('Set the immediate expectation and document next steps.', 'Establece la expectativa inmediata y documenta los próximos pasos.'),
     ],
-    insight: 'Professional tone protects accountability from becoming personal conflict.',
+    insight: localized('Professional tone protects accountability from becoming personal conflict.', 'El tono profesional evita que la rendición de cuentas se convierta en conflicto personal.'),
   },
   teacherConflict: {
-    focus: 'De-escalate adult conflict and return the team to student-centered work.',
+    briefing: localized(
+      'De-escalate adult conflict and return the team to student-centered work.',
+      'Desescala el conflicto adulto y devuelve al equipo al trabajo centrado en los estudiantes.',
+    ),
+    focus: localized(
+      'De-escalate adult conflict and return the team to student-centered work.',
+      'Desescala el conflicto adulto y devuelve al equipo al trabajo centrado en los estudiantes.',
+    ),
     actions: [
-      'Open with shared expectations and neutral language.',
-      'Set a process for resolution and follow-up.',
+      localized('Open with shared expectations and neutral language.', 'Abre con expectativas compartidas y lenguaje neutral.'),
+      localized('Set a process for resolution and follow-up.', 'Establece un proceso de resolución y seguimiento.'),
     ],
-    insight: 'Conflict leadership is measured by clarity, fairness, and reset.',
+    insight: localized('Conflict leadership is measured by clarity, fairness, and reset.', 'El liderazgo en conflicto se mide por claridad, justicia y capacidad de reajuste.'),
   },
   endOfDayEmail: {
-    focus: 'Close every active case with ownership, documentation, and a next action.',
+    briefing: localized(
+      'Close every active case with ownership, documentation, and a next action.',
+      'Cierra cada caso activo con responsable, documentación y una próxima acción.',
+    ),
+    focus: localized(
+      'Close every active case with ownership, documentation, and a next action.',
+      'Cierra cada caso activo con responsable, documentación y una próxima acción.',
+    ),
     actions: [
-      'Work cases in any order, but finish each with a clear record.',
-      'Use responses that acknowledge concern and define process.',
+      localized('Work cases in any order, but finish each with a clear record.', 'Trabaja los casos en cualquier orden, pero termina cada uno con un registro claro.'),
+      localized('Use responses that acknowledge concern and define process.', 'Usa respuestas que reconozcan la preocupación y definan el proceso.'),
     ],
-    insight: 'End-of-day quality determines tomorrow’s trust load.',
+    insight: localized('End-of-day quality determines tomorrow’s trust load.', 'La calidad del cierre del día determina la carga de confianza de mañana.'),
   },
 };
+
 
 const moduleStatuses = {
   upcoming: 'upcoming',
@@ -907,6 +988,65 @@ const teacherConflictEvidenceCards = [
       'Effective leaders introduce change by building understanding and buy-in, not just presenting a better method.',
   },
 ];
+
+const leadershipSimulationScenarios = {
+  arrival: {
+    title: localized('The Day Begins', 'Comienza el día'),
+    narrative: [
+      localized(
+        'You arrive before most of the building is moving. For a few minutes, the office is quiet — but the day is already waiting for you.',
+        'Llegas antes de que la mayor parte del edificio esté en movimiento. Durante unos minutos, la oficina está tranquila, pero el día ya te está esperando.',
+      ),
+      localized(
+        'Your voicemail light is blinking. Your inbox has unread messages. A stack of physical mail is sitting on your desk. A teacher has also stopped by to ask if you have a minute.',
+        'La luz del buzón de voz está parpadeando. Tienes mensajes sin leer en la bandeja. Hay una pila de correo físico sobre tu escritorio. Una docente también pasó para preguntar si tienes un minuto.',
+      ),
+    ],
+    prompt: localized(
+      'All of these require your attention today. The leadership challenge is deciding what comes first — and why.',
+      'Todo esto requiere tu atención hoy. El reto de liderazgo es decidir qué va primero y por qué.',
+    ),
+    choices: arrivalSortItems.map((item) => localized(item, translatePhrase(item, 'es'))),
+  },
+  iepMeeting: {
+    title: localized('IEP Meeting', 'Reunión de IEP'),
+    narrative: [
+      localized(
+        'Teachers have arrived, and you are already in an IEP meeting. The earlier messages, mailbox items, and email stack will have to wait.',
+        'Los docentes han llegado y ya estás en una reunión de IEP. Los mensajes anteriores, el correo físico y la pila de correos electrónicos tendrán que esperar.',
+      ),
+      localized(
+        'At the end of the meeting, the Special Education Director asks you to retrieve the IDEA manual, send a copy to the parents, and CC her.',
+        'Al final de la reunión, la directora de educación especial te pide que busques el manual de IDEA, envíes una copia a las familias y la pongas en copia.',
+      ),
+    ],
+    prompt: localized(
+      'This is not complicated, but it is compliance-sensitive. What do you do with this task?',
+      'No es complicado, pero es sensible al cumplimiento. ¿Qué haces con esta tarea?',
+    ),
+    choices: Object.keys(iepDecisionCoaching).map((decision) => localized(decision, translatePhrase(decision, 'es'))),
+    options: iepFolderOptions.map((option) => ({ id: option.id, label: localized(option.label, translatePhrase(option.label, 'es')) })),
+  },
+  announcements: {
+    title: localized('Morning Announcements', 'Anuncios de la mañana'),
+    narrative: [
+      localized(
+        'You finish morning announcements with the student TV crew. These moments matter — students see the principal as present, visible, and part of the life of the school.',
+        'Terminas los anuncios de la mañana con el equipo estudiantil de televisión. Estos momentos importan: los estudiantes ven a la dirección presente, visible y como parte de la vida escolar.',
+      ),
+      localized(
+        'On your way back to the office, a teacher stops you. Her classroom TV was not working, so her students could not hear the announcements. She asks if you can get her a copy and also let maintenance know her TV needs attention.',
+        'De camino a la oficina, una docente te detiene. El televisor de su aula no funcionaba, así que sus estudiantes no pudieron escuchar los anuncios. Te pregunta si puedes conseguirle una copia y avisar a mantenimiento que el televisor necesita atención.',
+      ),
+    ],
+    prompt: localized(
+      'You are only steps away from the office, but this is how a principal’s day fills up: one hallway request becomes three things to remember before you even sit down.',
+      'Estás a solo unos pasos de la oficina, pero así se llena el día de una dirección: una solicitud de pasillo se convierte en tres cosas que recordar antes de sentarte.',
+    ),
+    choices: Object.keys(announcementsDecisionCoaching).map((decision) => localized(decision, translatePhrase(decision, 'es'))),
+    options: announcementsTasks.map((task) => ({ id: task.id, label: localized(task.label, translatePhrase(task.label, 'es')) })),
+  },
+};
 
 const initialModuleStatuses = dayModules.reduce((acc, module) => {
   acc[module.id] = module.id === 'arrival' ? moduleStatuses.active : moduleStatuses.upcoming;
@@ -1859,6 +1999,8 @@ function buildLeadershipStyleProfile({ writtenResponses = [], decisions = [] } =
 export default function SimulationShellClient() {
   const { language } = useLanguage();
   const t = (value) => translatePhrase(value, language);
+  const lt = (value) => localizeContent(value, language);
+  const scenarioText = (moduleId) => leadershipSimulationScenarios[moduleId] || {};
   const [builderMode, setBuilderMode] = useState(false);
   const [currentModule, setCurrentModule] = useState('arrival');
   const [timelineStatuses, setTimelineStatuses] = useState(initialModuleStatuses);
@@ -1999,11 +2141,14 @@ export default function SimulationShellClient() {
       const itemTitle = deskStackItems.find((item) => item.id === currentDeskStackItem)?.title || 'Current case';
       return {
         ...moduleGuidance.endOfDayEmail,
-        insight: `${itemTitle}: keep your response calm, documented, and action-oriented.`,
+        insight: localized(
+          `${itemTitle}: keep your response calm, documented, and action-oriented.`,
+          `${t(itemTitle)}: mantén tu respuesta calmada, documentada y orientada a la acción.`,
+        ),
       };
     }
     return moduleGuidance[currentModule] || moduleGuidance.arrival;
-  }, [currentModule, currentDeskStackItem]);
+  }, [currentModule, currentDeskStackItem, language]);
 
   useEffect(() => {
     if (currentModule !== 'voicemail') return;
@@ -3825,28 +3970,19 @@ export default function SimulationShellClient() {
                 ) : (
                   <>
                     <p className="eyebrow">7:30 AM</p>
-                    <h2>The Day Begins</h2>
+                    <h2>{lt(scenarioText('arrival').title)}</h2>
                     <article className="scenario-preview-card">
-                      <p>
-                        You arrive before most of the building is moving. For a few minutes, the office is
-                        quiet — but the day is already waiting for you.
-                      </p>
-                      <p>
-                        Your voicemail light is blinking. Your inbox has unread messages. A stack of physical
-                        mail is sitting on your desk. A teacher has also stopped by to ask if you have a
-                        minute.
-                      </p>
+                      {scenarioText('arrival').narrative.map((paragraph) => (
+                        <p key={lt(paragraph)}>{lt(paragraph)}</p>
+                      ))}
                     </article>
                     <article className="report-card" aria-live="polite">
                         <h3>Sequence Your Priorities</h3>
-                        <p>
-                          All of these require your attention today. The leadership challenge is deciding what
-                          comes first — and why.
-                        </p>
+                        <p>{lt(scenarioText('arrival').prompt)}</p>
                         <div className="arrival-priority-list">
-                          {arrivalSortItems.map((item) => (
+                          {arrivalSortItems.map((item, index) => (
                             <div key={item} className="arrival-priority-card">
-                              <span className="selected-decision-label">{item}</span>
+                              <span className="selected-decision-label">{lt(scenarioText('arrival').choices[index])}</span>
                               <div className="button-row arrival-rank-row">
                                 {arrivalPriorityRanks.map((rank) => (
                                   <button
@@ -3903,29 +4039,22 @@ export default function SimulationShellClient() {
             ) : currentModule === 'iepMeeting' ? (
               <>
                 <p className="eyebrow">8:15 AM</p>
-                <h2>IEP Meeting</h2>
+                <h2>{lt(scenarioText('iepMeeting').title)}</h2>
                 <article className="scenario-preview-card">
-                  <p>
-                    Teachers have arrived, and you are already in an IEP meeting. The earlier messages,
-                    mailbox items, and email stack will have to wait.
-                  </p>
-                  <p>
-                    At the end of the meeting, the Special Education Director asks you to retrieve the IDEA
-                    manual, send a copy to the parents, and CC her.
-                  </p>
+                  {scenarioText('iepMeeting').narrative.map((paragraph) => (
+                    <p key={lt(paragraph)}>{lt(paragraph)}</p>
+                  ))}
                 </article>
 
-                <h3 className="decision-prompt">
-                  This is not complicated, but it is compliance-sensitive. What do you do with this task?
-                </h3>
+                <h3 className="decision-prompt">{lt(scenarioText('iepMeeting').prompt)}</h3>
                 <div className="choices">
-                  {Object.keys(iepDecisionCoaching).map((decision) => (
+                  {Object.keys(iepDecisionCoaching).map((decision, index) => (
                     <button
                       key={decision}
                       className={`choice ${iepDecision === decision ? 'active' : ''}`}
                       onClick={() => handleIepDecisionSelect(decision)}
                     >
-                      {t(decision)}
+                      {lt(scenarioText('iepMeeting').choices[index])}
                     </button>
                   ))}
                 </div>
@@ -3941,13 +4070,13 @@ export default function SimulationShellClient() {
                   <>
                     <h3 className="decision-prompt">{t('Where should this task live?')}</h3>
                     <div className="choices">
-                      {iepFolderOptions.map((option) => (
+                      {iepFolderOptions.map((option, index) => (
                         <button
                           key={option.id}
                           className={`choice ${iepFolderChoice === option.id ? 'active' : ''}`}
                           onClick={() => handleIepFolderSelection(option.id)}
                         >
-                          {t(option.label)}
+                          {lt(scenarioText('iepMeeting').options[index]?.label || option.label)}
                         </button>
                       ))}
                     </div>
@@ -3987,30 +4116,21 @@ export default function SimulationShellClient() {
             ) : currentModule === 'announcements' ? (
               <>
                 <p className="eyebrow">9:00 AM</p>
-                <h2>Morning Announcements</h2>
+                <h2>{lt(scenarioText('announcements').title)}</h2>
                 <article className="scenario-preview-card">
-                  <p>
-                    You finish morning announcements with the student TV crew. These moments matter —
-                    students see the principal as present, visible, and part of the life of the school.
-                  </p>
-                  <p>
-                    On your way back to the office, a teacher stops you. Her classroom TV was not
-                    working, so her students could not hear the announcements. She asks if you can get her
-                    a copy and also let maintenance know her TV needs attention.
-                  </p>
+                  {scenarioText('announcements').narrative.map((paragraph) => (
+                    <p key={lt(paragraph)}>{lt(paragraph)}</p>
+                  ))}
                 </article>
-                <h3 className="decision-prompt">
-                  You are only steps away from the office, but this is how a principal&apos;s day fills up:
-                  one hallway request becomes three things to remember before you even sit down.
-                </h3>
+                <h3 className="decision-prompt">{lt(scenarioText('announcements').prompt)}</h3>
                 <div className="choices">
-                  {Object.keys(announcementsDecisionCoaching).map((decision) => (
+                  {Object.keys(announcementsDecisionCoaching).map((decision, index) => (
                     <button
                       key={decision}
                       className={`choice ${announcementsDecision === decision ? 'active' : ''}`}
                       onClick={() => handleAnnouncementsDecisionSelect(decision)}
                     >
-                      {t(decision)}
+                      {lt(scenarioText('announcements').choices[index])}
                     </button>
                   ))}
                 </div>
@@ -4028,9 +4148,9 @@ export default function SimulationShellClient() {
                       What needs to be captured from this hallway request?
                     </h3>
                     <div className="arrival-priority-list">
-                      {announcementsTasks.map((task) => (
+                      {announcementsTasks.map((task, index) => (
                         <article key={task.id} className="arrival-priority-card">
-                          <span className="selected-decision-label">{t(task.label)}</span>
+                          <span className="selected-decision-label">{lt(scenarioText('announcements').options[index]?.label || task.label)}</span>
                           <div className="button-row arrival-rank-row">
                             {iepFolderOptions.map((option) => (
                               <button
@@ -6134,14 +6254,14 @@ export default function SimulationShellClient() {
 
           <details className="card vic-panel" open={isVicOpen} onToggle={(event) => setIsVicOpen(event.currentTarget.open)}>
             <summary>{t('VIC Leadership Guidance')}</summary>
-            <p>{t(activeGuidance.focus)}</p>
+            <p>{lt(activeGuidance.briefing || activeGuidance.focus)}</p>
             <p className="vic-structure-title">{t('Strong leadership response structure:')}</p>
             <ol className="vic-structure-list">
               {activeGuidance.actions.map((action) => (
-                <li key={action}>{t(action)}</li>
+                <li key={lt(action)}>{lt(action)}</li>
               ))}
             </ol>
-            <p className="vic-note">{t('Leadership Insight:')} {t(activeGuidance.insight)}</p>
+            <p className="vic-note">{t('Leadership Insight:')} {lt(activeGuidance.insight)}</p>
           </details>
 
           <details className="card" open={false}>
