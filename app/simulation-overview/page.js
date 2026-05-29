@@ -1,3 +1,5 @@
+// Deprecated route retained for redirect/backward compatibility.
+// Current canonical route: /human-equation-suite/leadership-sim
 import Link from 'next/link';
 import HumanEquationShell from '../components/HumanEquationShell';
 import HelpSuiteShell from '../components/help/HelpSuiteShell';

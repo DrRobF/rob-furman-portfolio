@@ -1,3 +1,5 @@
+// Deprecated route retained for redirect/backward compatibility.
+// Current canonical route: /human-equation-suite/urban-student-sim
 import HumanEquationNav from '../../components/HumanEquationNav';
 import HelpSuiteShell from '../../components/help/HelpSuiteShell';
 export default function UrbanStudentSimulationPage() {
