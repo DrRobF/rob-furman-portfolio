@@ -4791,6 +4791,35 @@ p {
   white-space: pre;
 }
 
+
+.solo-rhythm-map {
+  border-top: 1px solid rgba(250, 204, 21, 0.22);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e0f2fe;
+  display: grid;
+  gap: 0.18rem;
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(0.78rem, 1.1vw, 1rem);
+  font-weight: 900;
+  padding: 0.48rem 0.65rem 0.58rem;
+  text-align: center;
+  white-space: pre;
+}
+
+.solo-rhythm-map strong {
+  color: #facc15;
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+}
+
+.solo-rhythm-map em {
+  color: #93c5fd;
+  font-family: inherit;
+  font-size: 0.78em;
+  font-style: normal;
+  text-transform: capitalize;
+}
+
 .solo-generator-fullscreen .solo-output-header {
   grid-template-columns: minmax(0, 1fr) auto;
 }

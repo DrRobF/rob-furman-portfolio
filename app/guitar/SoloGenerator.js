@@ -61,65 +61,87 @@ function midiToFrequency(midi) {
   return 440 * (2 ** ((midi - 69) / 12));
 }
 
-function parseTabBar(tab, barIndex = 0) {
-  const lines = tab.split('\n').map((line) => {
-    const match = line.match(/^([eBGDAE])\|([^|]*)\|/);
-    return match ? { string: match[1], notes: match[2] } : null;
-  }).filter(Boolean);
-  const events = [];
+const rhythmSlots = ['1', '&', '2', '&', '3', '&', '4', '&'];
 
-  lines.forEach((line) => {
-    const baseMidi = stringMidi[line.string];
+const rhythmTemplates = [
+  { name: 'quarter note sustain', starts: [0, 1, 2, 3], durations: [1, 1, 1, 1] },
+  { name: 'two eighth-note pickup', starts: [0.5, 1, 2, 3], durations: [0.5, 1, 0.5, 1] },
+  { name: 'rest on beat 1, answer on beat 2', starts: [1, 1.5, 2.5, 3], durations: [0.5, 0.5, 0.5, 1] },
+  { name: 'syncopated pickup into beat 3', starts: [0.5, 1.5, 2, 3], durations: [0.5, 0.5, 1, 0.5] },
+  { name: 'held bend over two beats', starts: [0, 2, 3], durations: [2, 0.5, 1] },
+  { name: 'short phrase ending on beat 4', starts: [0, 1, 2.5, 3], durations: [0.5, 0.5, 0.5, 1] },
+];
+
+function extractTabNotes(bar) {
+  const notes = [];
+  Object.entries(bar).forEach(([string, value]) => {
+    const baseMidi = stringMidi[string];
     if (baseMidi === undefined) return;
 
-    for (let index = 0; index < line.notes.length; index += 1) {
-      if (!/\d/.test(line.notes[index])) continue;
-
+    for (let index = 0; index < value.length; index += 1) {
+      if (!/\d/.test(value[index])) continue;
       const fretStart = index;
       let fretText = '';
-      while (index < line.notes.length && /\d/.test(line.notes[index])) {
-        fretText += line.notes[index];
+      while (index < value.length && /\d/.test(value[index])) {
+        fretText += value[index];
         index += 1;
       }
-
-      const before = line.notes[fretStart - 1] || '';
-      const after = line.notes[index] || '';
-      const marking = after === 'b' ? 'bend' : after === 'h' || before === 'h' ? 'hammer' : after === '/' || after === '\\' || before === '/' || before === '\\' ? 'slide' : '';
-
-      events.push({
-        string: line.string,
-        fret: Number(fretText),
-        startBeat: (barIndex * 4) + ((fretStart / Math.max(line.notes.length, 1)) * 4),
-        midi: baseMidi + Number(fretText),
-        technique: marking,
-      });
-
+      const before = value[fretStart - 1] || '';
+      const after = value[index] || '';
+      const technique = after === 'b' ? 'bend' : after === 'h' || before === 'h' ? 'hammer' : after === '/' || after === '\\' || before === '/' || before === '\\' ? 'slide' : '';
+      notes.push({ string, fret: Number(fretText), order: fretStart, midi: baseMidi + Number(fretText), technique });
       index -= 1;
     }
   });
 
-  return events.sort((a, b) => a.startBeat - b.startBeat || b.midi - a.midi);
+  return notes.sort((a, b) => a.order - b.order || b.midi - a.midi);
+}
+
+function eventsToTab(events) {
+  const tab = { e: '----------------', B: '----------------', G: '----------------', D: '----------------', A: '----------------', E: '----------------' };
+  events.forEach((event) => {
+    const slot = Math.round((event.beat - 1) * 2);
+    const marker = event.technique === 'bend' ? 'b' : event.technique === 'hammer' ? 'h' : event.technique === 'slide' ? '/' : '';
+    const token = `${event.fret}${marker}`;
+    const chars = tab[event.string].split('');
+    [...token].forEach((char, offset) => {
+      if (slot + offset < chars.length) chars[slot + offset] = char;
+    });
+    tab[event.string] = chars.join('');
+  });
+  return cleanTab(tab);
+}
+
+function makeRhythmMap(events) {
+  const hits = Array(8).fill('-');
+  events.forEach((event) => {
+    const slot = Math.round((event.beat - 1) * 2);
+    if (slot >= 0 && slot < hits.length) hits[slot] = 'X';
+  });
+  return { labels: rhythmSlots.join(' '), hits: hits.join(' ') };
 }
 
 function barsToNoteEvents(bars) {
-  const notes = bars.flatMap((bar, barIndex) => parseTabBar(cleanTab(bar), barIndex));
-
-  return notes.map((note, index) => {
-    const nextBeat = notes[index + 1]?.startBeat ?? 32;
-    return {
+  return bars.flatMap((bar, barIndex) => {
+    const sourceNotes = extractTabNotes(bar);
+    const template = rhythmTemplates[barIndex % rhythmTemplates.length];
+    const count = Math.min(sourceNotes.length, template.starts.length);
+    return sourceNotes.slice(0, count).map((note, index) => ({
+      bar: barIndex + 1,
+      beat: template.starts[index] + 1,
+      startBeat: (barIndex * 4) + template.starts[index],
+      durationBeats: template.durations[index],
       string: note.string,
       fret: note.fret,
-      startBeat: Number(note.startBeat.toFixed(3)),
-      durationBeats: Number(Math.max(0.25, Math.min(1, nextBeat - note.startBeat)).toFixed(3)),
-      technique: note.technique || '',
-    };
+      technique: template.name === 'held bend over two beats' && index === 0 ? 'bend' : note.technique,
+      rhythmName: template.name,
+    }));
   });
 }
 
 function preparePlaybackEvents(noteEvents) {
   return noteEvents.map((event) => ({
     ...event,
-    beat: event.startBeat,
     midi: stringMidi[event.string] + event.fret,
     marking: event.technique,
   }));
@@ -174,11 +196,19 @@ function playPluckedNote(audioContext, destination, event, startTime, secondsPer
 
 const cleanTab = ({ e = '--------------------', B = '--------------------', G = '--------------------', D = '--------------------', A = '--------------------', E = '--------------------' }) => `e|${e}|\nB|${B}|\nG|${G}|\nD|${D}|\nA|${A}|\nE|${E}|`;
 
-const makeBars = (style, bars, chordProgression = styleFallbackProgressions[style]) => bars.map((tab, index) => ({
-  number: index + 1,
-  chord: chordProgression[index],
-  tab: cleanTab(tab),
-}));
+function makeBars(style, noteEvents, chordProgression = styleFallbackProgressions[style]) {
+  return Array.from({ length: 8 }, (_, index) => {
+    const events = noteEvents.filter((event) => event.bar === index + 1);
+    return {
+      number: index + 1,
+      chord: chordProgression[index],
+      tab: eventsToTab(events),
+      rhythmMap: makeRhythmMap(events),
+      rhythmName: events[0]?.rhythmName ?? 'intentional rest',
+      events,
+    };
+  });
+}
 
 function makeSolo({ title, key, style, difficulty = 'Beginner', tempo, rhythmLabel = 'varied 2-bar phrasing', musicalityLevel = 'standard', notes, steps, bars }) {
   return {
@@ -193,17 +223,12 @@ function makeSolo({ title, key, style, difficulty = 'Beginner', tempo, rhythmLab
     sourceBars: bars,
     sourceProgression: styleFallbackProgressions[style],
     chordProgression: keyProgressions[key] ?? styleFallbackProgressions[style],
-    bars: makeBars(style, bars, keyProgressions[key] ?? styleFallbackProgressions[style]),
     noteEvents: barsToNoteEvents(bars),
+    bars: makeBars(style, barsToNoteEvents(bars), keyProgressions[key] ?? styleFallbackProgressions[style]),
     totalBeats: 32,
     musicalityNotes: notes,
     practiceSteps: steps,
   };
-}
-
-function resolveFinalBarToRoot(key) {
-  const rootFrets = { A: { G: '---2----------------' }, C: { B: '---1----------------' }, D: { B: '---3----------------' }, E: { D: '---2----------------' }, G: { D: '---5----------------' } };
-  return rootFrets[key] ?? rootFrets.A;
 }
 
 function transposeSoloToKey(solo, targetKey) {
@@ -211,17 +236,15 @@ function transposeSoloToKey(solo, targetKey) {
   const semitones = rawSemitones < 0 ? rawSemitones + 12 : rawSemitones;
   const range = fretRangeForBars(solo.sourceBars, semitones);
   const tabSemitones = range.max <= 15 ? semitones : rawSemitones;
-  const transposedBars = solo.sourceBars.map((bar) => transposeBarInput(bar, tabSemitones));
-  const finalRootBars = transposedBars.map((bar, index) => (index === transposedBars.length - 1 ? resolveFinalBarToRoot(targetKey) : bar));
   const noteEvents = resolveEventsToRoot(transposeNoteEvents(solo.noteEvents, tabSemitones), targetKey);
   const chordProgression = keyProgressions[targetKey];
 
   return {
     ...solo,
-    title: solo.key === targetKey ? (solo.sourceTitle ?? solo.title) : `${solo.sourceTitle} in ${targetKey}`,
+    title: `${targetKey} ${solo.style} Solo`,
     key: targetKey,
     chordProgression,
-    bars: makeBars(solo.style, finalRootBars, chordProgression),
+    bars: makeBars(solo.style, noteEvents, chordProgression),
     noteEvents,
     totalBeats: 32,
     musicalityNotes: [
@@ -253,32 +276,40 @@ function resolveEventsToRoot(noteEvents, key) {
   const events = [...noteEvents];
   const root = rootEventForKey(key);
   const lastIndex = events.length - 1;
-  if (lastIndex < 0) return [{ ...root, startBeat: 31, durationBeats: 1, technique: '' }];
+  if (lastIndex < 0) return [{ ...root, bar: 8, beat: 4, startBeat: 31, durationBeats: 1, technique: '', rhythmName: 'short phrase ending on beat 4' }];
   events[lastIndex] = {
     ...events[lastIndex],
     ...root,
-    startBeat: Math.min(events[lastIndex].startBeat, 31),
-    durationBeats: Math.max(0.75, Math.min(1, 32 - Math.min(events[lastIndex].startBeat, 31))),
+    bar: 8,
+    beat: 4,
+    startBeat: 31,
+    durationBeats: 1,
     technique: '',
   };
   return events;
 }
 
-function validateSolo(solo) {
+function validateSolo(solo, selectedKey) {
   const messages = [];
-  const expectedProgression = keyProgressions[solo.key] ?? [];
+  const expectedProgression = keyProgressions[selectedKey] ?? [];
   const finalEvent = solo.noteEvents.at(-1);
-  const root = rootEventForKey(solo.key);
+  const root = rootEventForKey(selectedKey);
   const hasRootEnding = finalEvent?.string === root.string && finalEvent?.fret === root.fret;
   const progressionMatches = expectedProgression.join('|') === solo.chordProgression.join('|');
-  const populatedBars = new Set(solo.noteEvents.map((event) => Math.floor(event.startBeat / 4) + 1));
+  const barLabelsMatch = solo.bars.every((bar, index) => bar.chord === solo.chordProgression[index]);
+  const populatedBars = new Set(solo.noteEvents.map((event) => event.bar));
+  const titleMatchesKey = solo.title.includes(selectedKey);
+  const metadataMatchesKey = solo.key === selectedKey;
+  const gridAligned = solo.noteEvents.every((event) => event.bar >= 1 && event.bar <= 8 && event.beat >= 1 && event.beat <= 4 && Number.isInteger((event.beat - 1) * 2) && event.durationBeats > 0 && event.startBeat >= 0 && event.startBeat < 32);
+  const audioMatchesTab = solo.bars.every((bar) => bar.events.every((event) => solo.noteEvents.includes(event)));
 
-  if (solo.totalBeats === 32) messages.push('Timeline confirmed: 8 bars × 4 beats = 32 beats.');
-  if (hasRootEnding) messages.push(`Final note confirmed: resolves to ${solo.key}.`);
-  if (progressionMatches) messages.push(`Progression confirmed for key of ${solo.key}.`);
-  if (populatedBars.size === 8) messages.push('Continuity confirmed: every bar has scheduled notes; spaces are intentional rests inside the 32-beat timeline.');
+  if (solo.totalBeats === 32 && gridAligned) messages.push('Timeline confirmed: 8 bars × 4 beats = 32 beats on the 1 & 2 & 3 & 4 & grid.');
+  if (metadataMatchesKey && titleMatchesKey) messages.push(`Title and metadata confirmed for key of ${selectedKey}.`);
+  if (barLabelsMatch && progressionMatches) messages.push(`Bar labels and progression confirmed for key of ${selectedKey}.`);
+  if (hasRootEnding) messages.push(`Final note confirmed: resolves to ${selectedKey}.`);
+  if (populatedBars.size === 8 && audioMatchesTab) messages.push('Display tab, rhythm map, and audio all use the same note events.');
 
-  return { isValid: solo.totalBeats === 32 && hasRootEnding && progressionMatches && populatedBars.size === 8, messages };
+  return { isValid: solo.totalBeats === 32 && metadataMatchesKey && titleMatchesKey && hasRootEnding && progressionMatches && barLabelsMatch && populatedBars.size === 8 && gridAligned && audioMatchesTab, messages };
 }
 
 const curatedSolos = [
@@ -322,14 +353,19 @@ export function SoloGenerator() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [countInEnabled, setCountInEnabled] = useState(true);
   const [playbackPosition, setPlaybackPosition] = useState({ bar: 1, beat: 1 });
+  const [selectedSolo, setSelectedSolo] = useState(() => selectCuratedSolo('Blues', 'Beginner', 'A', '', false));
   const audioContextRef = useRef(null);
   const stopTimerRef = useRef(null);
   const beatTimerRef = useRef(null);
   const previousTitleRef = useRef('');
 
-  const solo = useMemo(() => selectCuratedSolo(style, difficulty, selectedKey, previousTitleRef.current, preferMoreMusical), [style, difficulty, selectedKey, preferMoreMusical, soloSeed]);
-  const playbackEvents = useMemo(() => preparePlaybackEvents(solo.noteEvents), [solo.noteEvents]);
-  const soloValidation = useMemo(() => validateSolo(solo), [solo]);
+  useEffect(() => {
+    setSelectedSolo(selectCuratedSolo(style, difficulty, selectedKey, previousTitleRef.current, preferMoreMusical));
+  }, [style, difficulty, selectedKey, preferMoreMusical, soloSeed]);
+
+  const soloValidation = useMemo(() => validateSolo(selectedSolo, selectedKey), [selectedSolo, selectedKey]);
+  const selectedSoloIsValid = soloValidation.isValid;
+  const playbackEvents = useMemo(() => (selectedSoloIsValid ? preparePlaybackEvents(selectedSolo.noteEvents) : []), [selectedSolo.noteEvents, selectedSoloIsValid]);
 
   const stopPlayback = useCallback(() => {
     if (stopTimerRef.current) {
@@ -383,7 +419,10 @@ export function SoloGenerator() {
     masterGain.connect(audioContext.destination);
 
     const secondsPerBeat = 60 / playbackTempos[playbackTempo];
-    if (!soloValidation.isValid) return;
+    if (!selectedSoloIsValid) {
+      setSelectedSolo(selectCuratedSolo(style, difficulty, selectedKey, previousTitleRef.current, preferMoreMusical));
+      return;
+    }
 
     const countInBeats = countInEnabled ? 4 : 0;
     const startTime = audioContext.currentTime + 0.08;
@@ -395,7 +434,7 @@ export function SoloGenerator() {
       }
     }
 
-    for (let beat = 0; beat < solo.totalBeats; beat += 1) {
+    for (let beat = 0; beat < selectedSolo.totalBeats; beat += 1) {
       playMetronomeClick(audioContext, masterGain, soloStartTime + (beat * secondsPerBeat), beat % 4 === 0);
     }
 
@@ -403,19 +442,19 @@ export function SoloGenerator() {
       playPluckedNote(audioContext, masterGain, event, soloStartTime + (event.startBeat * secondsPerBeat), secondsPerBeat);
     });
 
-    const totalMs = ((countInBeats + solo.totalBeats) * secondsPerBeat * 1000) + 450;
+    const totalMs = ((countInBeats + selectedSolo.totalBeats) * secondsPerBeat * 1000) + 450;
     setIsPlaying(true);
     beatTimerRef.current = window.setInterval(() => {
       const elapsedBeats = (audioContext.currentTime - soloStartTime) / secondsPerBeat;
-      const clampedBeat = Math.max(0, Math.min(solo.totalBeats - 0.001, elapsedBeats));
+      const clampedBeat = Math.max(0, Math.min(selectedSolo.totalBeats - 0.001, elapsedBeats));
       setPlaybackPosition({ bar: Math.floor(clampedBeat / 4) + 1, beat: Math.floor(clampedBeat % 4) + 1 });
     }, 90);
     stopTimerRef.current = window.setTimeout(stopPlayback, totalMs);
   };
 
   useEffect(() => {
-    previousTitleRef.current = solo.sourceTitle ?? solo.title;
-  }, [solo.title]);
+    previousTitleRef.current = selectedSolo.sourceTitle ?? selectedSolo.title;
+  }, [selectedSolo.title]);
 
   useEffect(() => () => stopPlayback(), [stopPlayback]);
 
@@ -436,8 +475,8 @@ export function SoloGenerator() {
 
       <section className="solo-output-card" aria-labelledby="generated-solo-title">
         <div className="solo-output-header">
-          <div><p className="guitar-kicker">Curated 8-bar solo</p><h2 id="generated-solo-title">{solo.title}</h2></div>
-          <div className="solo-meta"><span>Key {solo.key}</span><span>{solo.style}</span><span>{solo.rhythmLabel}</span><span>{solo.difficulty}</span><span>{solo.tempo} bpm</span></div>
+          <div><p className="guitar-kicker">Curated 8-bar solo</p><h2 id="generated-solo-title">{selectedSolo.title}</h2></div>
+          <div className="solo-meta"><span>Key {selectedSolo.key}</span><span>{selectedSolo.style}</span><span>{selectedSolo.rhythmLabel}</span><span>{selectedSolo.difficulty}</span><span>{selectedSolo.tempo} bpm</span></div>
         </div>
         <div className="solo-playback-panel" aria-label="Solo playback controls">
           <button className="solo-play-button" type="button" onClick={playSolo}>{isPlaying ? 'Restart Solo' : 'Play Solo'}</button>
@@ -453,14 +492,19 @@ export function SoloGenerator() {
         <div className="solo-progression" aria-label="Chord progression">
           <strong>Chord progression:</strong>
           <div className="solo-progression-grid">
-            {solo.chordProgression.map((chord, index) => <span key={`${chord}-${index}`}>{chord}</span>)}
+            {selectedSolo.chordProgression.map((chord, index) => <span key={`${chord}-${index}`}>{chord}</span>)}
           </div>
         </div>
         <div className="solo-tab-grid" aria-label="8-bar curated tablature">
-          {solo.bars.map((bar) => (
+          {selectedSolo.bars.map((bar) => (
             <article className="solo-bar" key={`bar-${bar.number}`}>
               <div className="solo-bar-heading">Bar {bar.number} - {bar.chord}</div>
               <pre className="solo-tab">{bar.tab}</pre>
+              <div className="solo-rhythm-map" aria-label={`Bar ${bar.number} rhythm map`}>
+                <span>{bar.rhythmMap.labels}</span>
+                <strong>{bar.rhythmMap.hits}</strong>
+                <em>{bar.rhythmName}</em>
+              </div>
             </article>
           ))}
         </div>
@@ -481,8 +525,8 @@ export function SoloGenerator() {
           </>)}
         </div>
         <div className="solo-learning-grid">
-          {!isPracticeFullscreen && showWhy && <div className="practice-box"><h3>Musicality Notes</h3><ul>{solo.musicalityNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>}
-          {!isPracticeFullscreen && showSteps && <div className="practice-box"><h3>Practice Steps</h3><ol>{solo.practiceSteps.map((step) => <li key={step}>{step}</li>)}</ol></div>}
+          {!isPracticeFullscreen && showWhy && <div className="practice-box"><h3>Musicality Notes</h3><ul>{selectedSolo.musicalityNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>}
+          {!isPracticeFullscreen && showSteps && <div className="practice-box"><h3>Practice Steps</h3><ol>{selectedSolo.practiceSteps.map((step) => <li key={step}>{step}</li>)}</ol></div>}
         </div>
       </section>
     </div>
