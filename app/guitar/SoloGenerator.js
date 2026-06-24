@@ -21,23 +21,23 @@ const stringMidi = {
   E: 40,
 };
 
-const progressions = {
-  Blues: ['A7', 'D7', 'A7', 'A7', 'D7', 'D7', 'A7', 'E7'],
-  Rock: ['E5', 'G', 'A', 'E5', 'E5', 'G', 'A', 'B'],
-  'Soulful Major': ['G', 'C', 'G', 'D', 'Em', 'C', 'G', 'D'],
-  'Country-ish': ['D', 'G', 'D', 'A', 'D', 'G', 'A', 'D'],
+const keyProgressions = {
+  A: ['A7', 'D7', 'A7', 'A7', 'D7', 'D7', 'A7', 'E7'],
+  E: ['E5', 'G', 'A', 'E5', 'E5', 'G', 'A', 'B7'],
+  G: ['G', 'C', 'D', 'G', 'Em', 'C', 'D', 'G'],
+  C: ['C', 'F', 'G', 'C', 'Am', 'F', 'G', 'C'],
+  D: ['D', 'G', 'D', 'A', 'G', 'D', 'A', 'D'],
 };
 
-const noteNames = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const styleFallbackProgressions = {
+  Blues: keyProgressions.A,
+  Rock: keyProgressions.E,
+  'Soulful Major': keyProgressions.G,
+  'Country-ish': keyProgressions.C,
+};
+
 const keyRootIndex = { C: 0, D: 2, E: 4, G: 7, A: 9 };
 
-function transposeChord(chord, semitones) {
-  const match = chord.match(/^([A-G](?:b|#)?)(.*)$/);
-  if (!match) return chord;
-  const rootIndex = noteNames.indexOf(match[1]);
-  if (rootIndex === -1) return chord;
-  return `${noteNames[(rootIndex + semitones + 120) % 12]}${match[2]}`;
-}
 
 function transposeTabValue(value, semitones) {
   return value.replace(/\d+/g, (fret) => String(Math.max(0, Number(fret) + semitones)));
@@ -61,7 +61,7 @@ function midiToFrequency(midi) {
   return 440 * (2 ** ((midi - 69) / 12));
 }
 
-function parseTabBar(tab) {
+function parseTabBar(tab, barIndex = 0) {
   const lines = tab.split('\n').map((line) => {
     const match = line.match(/^([eBGDAE])\|([^|]*)\|/);
     return match ? { string: match[1], notes: match[2] } : null;
@@ -87,32 +87,42 @@ function parseTabBar(tab) {
       const marking = after === 'b' ? 'bend' : after === 'h' || before === 'h' ? 'hammer' : after === '/' || after === '\\' || before === '/' || before === '\\' ? 'slide' : '';
 
       events.push({
-        offset: fretStart / Math.max(line.notes.length, 1),
+        string: line.string,
+        fret: Number(fretText),
+        startBeat: (barIndex * 4) + ((fretStart / Math.max(line.notes.length, 1)) * 4),
         midi: baseMidi + Number(fretText),
-        marking,
+        technique: marking,
       });
 
       index -= 1;
     }
   });
 
-  return events.sort((a, b) => a.offset - b.offset || b.midi - a.midi);
+  return events.sort((a, b) => a.startBeat - b.startBeat || b.midi - a.midi);
 }
 
-function tabToPlaybackEvents(bars) {
-  const barBeats = 4;
-  const notes = bars.flatMap((bar, barIndex) => parseTabBar(bar.tab).map((note) => ({
-    ...note,
-    beat: (barIndex * barBeats) + (note.offset * barBeats),
-  })));
+function barsToNoteEvents(bars) {
+  const notes = bars.flatMap((bar, barIndex) => parseTabBar(cleanTab(bar), barIndex));
 
   return notes.map((note, index) => {
-    const nextBeat = notes[index + 1]?.beat ?? ((bars.length + 0.15) * barBeats);
+    const nextBeat = notes[index + 1]?.startBeat ?? 32;
     return {
-      ...note,
-      durationBeats: Math.max(0.22, Math.min(0.9, nextBeat - note.beat)),
+      string: note.string,
+      fret: note.fret,
+      startBeat: Number(note.startBeat.toFixed(3)),
+      durationBeats: Number(Math.max(0.25, Math.min(1, nextBeat - note.startBeat)).toFixed(3)),
+      technique: note.technique || '',
     };
   });
+}
+
+function preparePlaybackEvents(noteEvents) {
+  return noteEvents.map((event) => ({
+    ...event,
+    beat: event.startBeat,
+    midi: stringMidi[event.string] + event.fret,
+    marking: event.technique,
+  }));
 }
 
 function playPluckedNote(audioContext, destination, event, startTime, secondsPerBeat) {
@@ -135,19 +145,19 @@ function playPluckedNote(audioContext, destination, event, startTime, secondsPer
   oscillator.frequency.setValueAtTime(frequency, startTime);
   overtone.frequency.setValueAtTime(frequency * 2.01, startTime);
 
-  if (event.marking === 'bend') {
+  if (event.technique === 'bend' || event.marking === 'bend') {
     oscillator.frequency.linearRampToValueAtTime(frequency * 1.06, startTime + Math.min(0.24, duration * 0.65));
     overtone.frequency.linearRampToValueAtTime(frequency * 2.13, startTime + Math.min(0.24, duration * 0.65));
   }
 
-  if (event.marking === 'slide') {
+  if (event.technique === 'slide' || event.marking === 'slide') {
     oscillator.frequency.setValueAtTime(frequency * 0.94, startTime);
     oscillator.frequency.linearRampToValueAtTime(frequency, startTime + Math.min(0.16, duration * 0.45));
     overtone.frequency.setValueAtTime(frequency * 1.88, startTime);
     overtone.frequency.linearRampToValueAtTime(frequency * 2.01, startTime + Math.min(0.16, duration * 0.45));
   }
 
-  if (event.marking === 'hammer') {
+  if (event.technique === 'hammer' || event.marking === 'hammer') {
     gain.gain.setValueAtTime(0.13, startTime + Math.min(0.1, duration * 0.35));
     gain.gain.exponentialRampToValueAtTime(0.22, startTime + Math.min(0.16, duration * 0.55));
   }
@@ -164,7 +174,7 @@ function playPluckedNote(audioContext, destination, event, startTime, secondsPer
 
 const cleanTab = ({ e = '--------------------', B = '--------------------', G = '--------------------', D = '--------------------', A = '--------------------', E = '--------------------' }) => `e|${e}|\nB|${B}|\nG|${G}|\nD|${D}|\nA|${A}|\nE|${E}|`;
 
-const makeBars = (style, bars, chordProgression = progressions[style]) => bars.map((tab, index) => ({
+const makeBars = (style, bars, chordProgression = styleFallbackProgressions[style]) => bars.map((tab, index) => ({
   number: index + 1,
   chord: chordProgression[index],
   tab: cleanTab(tab),
@@ -181,9 +191,11 @@ function makeSolo({ title, key, style, difficulty = 'Beginner', tempo, rhythmLab
     rhythmLabel,
     musicalityLevel,
     sourceBars: bars,
-    sourceProgression: progressions[style],
-    chordProgression: progressions[style],
-    bars: makeBars(style, bars),
+    sourceProgression: styleFallbackProgressions[style],
+    chordProgression: keyProgressions[key] ?? styleFallbackProgressions[style],
+    bars: makeBars(style, bars, keyProgressions[key] ?? styleFallbackProgressions[style]),
+    noteEvents: barsToNoteEvents(bars),
+    totalBeats: 32,
     musicalityNotes: notes,
     practiceSteps: steps,
   };
@@ -195,31 +207,23 @@ function resolveFinalBarToRoot(key) {
 }
 
 function transposeSoloToKey(solo, targetKey) {
-  const semitones = transpositionFrom(solo.key, targetKey);
-  if (solo.key === targetKey) {
-    const finalRootBars = solo.sourceBars.map((bar, index) => (index === solo.sourceBars.length - 1 ? resolveFinalBarToRoot(targetKey) : bar));
-    return {
-      ...solo,
-      title: solo.sourceTitle ?? solo.title,
-      bars: makeBars(solo.style, finalRootBars, solo.sourceProgression),
-      musicalityNotes: [
-        ...solo.musicalityNotes,
-        `Final note rule: this version resolves directly to ${targetKey}, the root, so the last phrase sounds finished.`,
-      ],
-    };
-  }
+  const rawSemitones = transpositionFrom(solo.key, targetKey);
+  const semitones = rawSemitones < 0 ? rawSemitones + 12 : rawSemitones;
   const range = fretRangeForBars(solo.sourceBars, semitones);
-  const transposedBars = range.min >= 0 && range.max <= 15
-    ? solo.sourceBars.map((bar) => transposeBarInput(bar, semitones))
-    : solo.sourceBars;
+  const tabSemitones = range.max <= 15 ? semitones : rawSemitones;
+  const transposedBars = solo.sourceBars.map((bar) => transposeBarInput(bar, tabSemitones));
   const finalRootBars = transposedBars.map((bar, index) => (index === transposedBars.length - 1 ? resolveFinalBarToRoot(targetKey) : bar));
-  const chordProgression = solo.sourceProgression.map((chord) => transposeChord(chord, semitones));
+  const noteEvents = resolveEventsToRoot(transposeNoteEvents(solo.noteEvents, tabSemitones), targetKey);
+  const chordProgression = keyProgressions[targetKey];
+
   return {
     ...solo,
-    title: `${solo.sourceTitle} in ${targetKey}`,
+    title: solo.key === targetKey ? (solo.sourceTitle ?? solo.title) : `${solo.sourceTitle} in ${targetKey}`,
     key: targetKey,
     chordProgression,
     bars: makeBars(solo.style, finalRootBars, chordProgression),
+    noteEvents,
+    totalBeats: 32,
     musicalityNotes: [
       ...solo.musicalityNotes,
       `Final note rule: this version resolves directly to ${targetKey}, the root, so the last phrase sounds finished.`,
@@ -227,6 +231,55 @@ function transposeSoloToKey(solo, targetKey) {
   };
 }
 
+function transposeNoteEvents(noteEvents, semitones) {
+  return noteEvents.map((event) => ({
+    ...event,
+    fret: Math.max(0, Math.min(15, event.fret + semitones)),
+  }));
+}
+
+function rootEventForKey(key) {
+  const roots = {
+    A: { string: 'G', fret: 2 },
+    C: { string: 'B', fret: 1 },
+    D: { string: 'B', fret: 3 },
+    E: { string: 'D', fret: 2 },
+    G: { string: 'D', fret: 5 },
+  };
+  return roots[key] ?? roots.A;
+}
+
+function resolveEventsToRoot(noteEvents, key) {
+  const events = [...noteEvents];
+  const root = rootEventForKey(key);
+  const lastIndex = events.length - 1;
+  if (lastIndex < 0) return [{ ...root, startBeat: 31, durationBeats: 1, technique: '' }];
+  events[lastIndex] = {
+    ...events[lastIndex],
+    ...root,
+    startBeat: Math.min(events[lastIndex].startBeat, 31),
+    durationBeats: Math.max(0.75, Math.min(1, 32 - Math.min(events[lastIndex].startBeat, 31))),
+    technique: '',
+  };
+  return events;
+}
+
+function validateSolo(solo) {
+  const messages = [];
+  const expectedProgression = keyProgressions[solo.key] ?? [];
+  const finalEvent = solo.noteEvents.at(-1);
+  const root = rootEventForKey(solo.key);
+  const hasRootEnding = finalEvent?.string === root.string && finalEvent?.fret === root.fret;
+  const progressionMatches = expectedProgression.join('|') === solo.chordProgression.join('|');
+  const populatedBars = new Set(solo.noteEvents.map((event) => Math.floor(event.startBeat / 4) + 1));
+
+  if (solo.totalBeats === 32) messages.push('Timeline confirmed: 8 bars × 4 beats = 32 beats.');
+  if (hasRootEnding) messages.push(`Final note confirmed: resolves to ${solo.key}.`);
+  if (progressionMatches) messages.push(`Progression confirmed for key of ${solo.key}.`);
+  if (populatedBars.size === 8) messages.push('Continuity confirmed: every bar has scheduled notes; spaces are intentional rests inside the 32-beat timeline.');
+
+  return { isValid: solo.totalBeats === 32 && hasRootEnding && progressionMatches && populatedBars.size === 8, messages };
+}
 
 const curatedSolos = [
   makeSolo({ title: 'Front Porch A Blues', key: 'A', style: 'Blues', tempo: 72, rhythmLabel: 'shuffle feel with space', musicalityLevel: 'more', notes: ['Bars 1–2 state a compact A blues-box motif and answer it.', 'Bars 3–4 repeat the bend-and-resolution idea with more space.', 'Bars 7–8 land on A/C# chord tones before the E7 turnaround.'], steps: ['Clap the rests before adding notes.', 'Practice the 7b9 bend slowly and keep it vocal.', 'Loop bars 7–8 until the ending feels settled.'], bars: [{ B: '------------5h8-5---', G: '--------5h6-------6--' }, { e: '-----------5--------', B: '-------5h8---8-5----', G: '-----6-----------6--' }, { B: '-----5--------------', G: '-7b9---7-5----------', D: '-----------7--------' }, { B: '-----5---5----------', G: '---5h6---6-5--------', D: '-7-----------7------' }, { e: '---------5----------', B: '-----5h8---8-5------', G: '---6-----------6----' }, { B: '-8-5----------------', G: '-----7-5------------', D: '---------7-5h7------' }, { B: '-----5--------------', G: '-5h6---6-5----------', D: '-----------7--------' }, { e: '-----5--------------', B: '-8-5---8-5----------', G: '-----------6--------' }] }),
@@ -267,17 +320,26 @@ export function SoloGenerator() {
   const [isPracticeFullscreen, setIsPracticeFullscreen] = useState(false);
   const [playbackTempo, setPlaybackTempo] = useState('Medium');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [countInEnabled, setCountInEnabled] = useState(true);
+  const [playbackPosition, setPlaybackPosition] = useState({ bar: 1, beat: 1 });
   const audioContextRef = useRef(null);
   const stopTimerRef = useRef(null);
+  const beatTimerRef = useRef(null);
   const previousTitleRef = useRef('');
 
   const solo = useMemo(() => selectCuratedSolo(style, difficulty, selectedKey, previousTitleRef.current, preferMoreMusical), [style, difficulty, selectedKey, preferMoreMusical, soloSeed]);
-  const playbackEvents = useMemo(() => tabToPlaybackEvents(solo.bars), [solo]);
+  const playbackEvents = useMemo(() => preparePlaybackEvents(solo.noteEvents), [solo.noteEvents]);
+  const soloValidation = useMemo(() => validateSolo(solo), [solo]);
 
   const stopPlayback = useCallback(() => {
     if (stopTimerRef.current) {
       window.clearTimeout(stopTimerRef.current);
       stopTimerRef.current = null;
+    }
+
+    if (beatTimerRef.current) {
+      window.clearInterval(beatTimerRef.current);
+      beatTimerRef.current = null;
     }
 
     if (audioContextRef.current) {
@@ -286,7 +348,22 @@ export function SoloGenerator() {
     }
 
     setIsPlaying(false);
+    setPlaybackPosition({ bar: 1, beat: 1 });
   }, []);
+
+  const playMetronomeClick = (audioContext, destination, startTime, strong = false) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(strong ? 1320 : 880, startTime);
+    gain.gain.setValueAtTime(0.0001, startTime);
+    gain.gain.exponentialRampToValueAtTime(strong ? 0.22 : 0.14, startTime + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.06);
+    oscillator.connect(gain);
+    gain.connect(destination);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + 0.08);
+  };
 
   const playSolo = async () => {
     stopPlayback();
@@ -306,16 +383,33 @@ export function SoloGenerator() {
     masterGain.connect(audioContext.destination);
 
     const secondsPerBeat = 60 / playbackTempos[playbackTempo];
+    if (!soloValidation.isValid) return;
+
+    const countInBeats = countInEnabled ? 4 : 0;
     const startTime = audioContext.currentTime + 0.08;
+    const soloStartTime = startTime + (countInBeats * secondsPerBeat);
+
+    if (countInEnabled) {
+      for (let beat = 0; beat < countInBeats; beat += 1) {
+        playMetronomeClick(audioContext, masterGain, startTime + (beat * secondsPerBeat), beat === 0);
+      }
+    }
+
+    for (let beat = 0; beat < solo.totalBeats; beat += 1) {
+      playMetronomeClick(audioContext, masterGain, soloStartTime + (beat * secondsPerBeat), beat % 4 === 0);
+    }
 
     playbackEvents.forEach((event) => {
-      playPluckedNote(audioContext, masterGain, event, startTime + (event.beat * secondsPerBeat), secondsPerBeat);
+      playPluckedNote(audioContext, masterGain, event, soloStartTime + (event.startBeat * secondsPerBeat), secondsPerBeat);
     });
 
-    const finalBeat = playbackEvents.at(-1)?.beat ?? 0;
-    const finalDuration = playbackEvents.at(-1)?.durationBeats ?? 0;
-    const totalMs = ((finalBeat + finalDuration) * secondsPerBeat * 1000) + 450;
+    const totalMs = ((countInBeats + solo.totalBeats) * secondsPerBeat * 1000) + 450;
     setIsPlaying(true);
+    beatTimerRef.current = window.setInterval(() => {
+      const elapsedBeats = (audioContext.currentTime - soloStartTime) / secondsPerBeat;
+      const clampedBeat = Math.max(0, Math.min(solo.totalBeats - 0.001, elapsedBeats));
+      setPlaybackPosition({ bar: Math.floor(clampedBeat / 4) + 1, beat: Math.floor(clampedBeat % 4) + 1 });
+    }, 90);
     stopTimerRef.current = window.setTimeout(stopPlayback, totalMs);
   };
 
@@ -348,7 +442,13 @@ export function SoloGenerator() {
         <div className="solo-playback-panel" aria-label="Solo playback controls">
           <button className="solo-play-button" type="button" onClick={playSolo}>{isPlaying ? 'Restart Solo' : 'Play Solo'}</button>
           <button className="solo-stop-button" type="button" onClick={stopPlayback} disabled={!isPlaying}>Stop</button>
+          <button className={countInEnabled ? 'active' : ''} type="button" onClick={() => setCountInEnabled((value) => !value)}>Count In {countInEnabled ? 'On' : 'Off'}</button>
+          <div className="solo-beat-display" aria-live="polite">Bar {playbackPosition.bar} / Beat {playbackPosition.beat}</div>
           <fieldset className="solo-tempo-control"><legend>Playback speed</legend>{Object.keys(playbackTempos).map((tempo) => <button className={playbackTempo === tempo ? 'active' : ''} key={tempo} type="button" onClick={() => setPlaybackTempo(tempo)}>{tempo}</button>)}</fieldset>
+        </div>
+        <div className="solo-validation" aria-label="Solo validation">
+          <strong>{soloValidation.isValid ? 'Ready to play:' : 'Check solo:'}</strong>
+          <ul>{soloValidation.messages.map((message) => <li key={message}>{message}</li>)}</ul>
         </div>
         <div className="solo-progression" aria-label="Chord progression">
           <strong>Chord progression:</strong>
