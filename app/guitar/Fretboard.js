@@ -13,47 +13,62 @@ const standardTuning = [
 ];
 const frets = Array.from({ length: 13 }, (_, fret) => fret);
 
-function getNoteAtFret(startNote, fret) {
+export function getNoteAtFret(startNote, fret) {
   const startIndex = chromaticNotes.indexOf(startNote);
   return chromaticNotes[(startIndex + fret) % chromaticNotes.length];
 }
 
-export function Fretboard() {
+export function getFretboardStrings() {
+  return standardTuning.map((string) => ({
+    ...string,
+    notes: frets.map((fret) => ({ fret, note: getNoteAtFret(string.startNote, fret) })),
+  }));
+}
+
+export function Fretboard({
+  mode = 'learn',
+  title = 'Tap the neck. Learn the notes.',
+  instructions = 'Tap any note on the neck to learn its name.',
+  selectedNoteLabel = 'Selected note',
+  selectedNoteValue,
+  selectedNoteDetail,
+  foundPositionKeys,
+  incorrectPositionKey,
+  onNoteSelect,
+} = {}) {
   const [displayMode, setDisplayMode] = useState('selected');
   const [selectedNote, setSelectedNote] = useState(null);
 
   const strings = useMemo(
     () =>
-      standardTuning.map((string) => ({
-        ...string,
-        notes: frets.map((fret) => ({ fret, note: getNoteAtFret(string.startNote, fret) })),
-      })),
+      getFretboardStrings(),
     [],
   );
 
   const shouldShowNote = (octaveName, fret) => {
+    if (mode === 'game') return false;
     if (displayMode === 'all') return true;
     if (displayMode === 'hidden') return false;
     return selectedNote?.octaveName === octaveName && selectedNote?.fret === fret;
   };
 
   return (
-    <div className="fretboard-card" aria-label="Interactive standard tuning guitar fretboard">
+    <div className={`fretboard-card${mode === 'game' ? ' game-fretboard' : ''}`} aria-label="Interactive standard tuning guitar fretboard">
       <div className="fretboard-header">
         <div>
           <p className="guitar-kicker">Interactive Fretboard</p>
-          <h2>Tap the neck. Learn the notes.</h2>
+          <h2>{title}</h2>
         </div>
         <div className="fretboard-selected-note" aria-live="polite">
-          <span>Selected note</span>
-          <strong>{selectedNote ? selectedNote.note : '—'}</strong>
-          <small>{selectedNote ? `${selectedNote.octaveName} string · fret ${selectedNote.fret}` : 'Tap any position'}</small>
+          <span>{selectedNoteLabel}</span>
+          <strong>{selectedNoteValue ?? (selectedNote ? selectedNote.note : '—')}</strong>
+          <small>{selectedNoteDetail ?? (selectedNote ? `${selectedNote.octaveName} string · fret ${selectedNote.fret}` : 'Tap any position')}</small>
         </div>
       </div>
 
-      <div className="fretboard-instructions">Tap any note on the neck to learn its name.</div>
+      <div className="fretboard-instructions">{instructions}</div>
 
-      <fieldset className="fretboard-controls">
+      {mode === 'learn' ? <fieldset className="fretboard-controls">
         <legend>Note display</legend>
         <label>
           <input
@@ -85,7 +100,7 @@ export function Fretboard() {
           />
           Show only selected note
         </label>
-      </fieldset>
+      </fieldset> : null}
 
       <div className="fretboard-scroll" role="region" aria-label="Scrollable fretboard with frets zero through twelve">
         <div className="fretboard-grid">
@@ -99,15 +114,22 @@ export function Fretboard() {
               <span>{string.label}</span>
             </div>,
             ...string.notes.map(({ fret, note }) => {
+              const positionKey = `${string.octaveName}-${fret}`;
               const isSelected = selectedNote?.octaveName === string.octaveName && selectedNote?.fret === fret;
-              const showName = shouldShowNote(string.octaveName, fret) || isSelected;
+              const isFound = foundPositionKeys?.has(positionKey);
+              const isIncorrect = incorrectPositionKey === positionKey;
+              const showName = shouldShowNote(string.octaveName, fret) || isSelected || isFound || isIncorrect;
 
               return (
                 <button
-                  className={`fret-position${isSelected ? ' selected' : ''}`}
+                  className={`fret-position${isSelected ? ' selected' : ''}${isFound ? ' correct' : ''}${isIncorrect ? ' incorrect' : ''}`}
                   key={`${string.octaveName}-${fret}`}
                   type="button"
-                  onClick={() => setSelectedNote({ ...string, stringLabel: string.label, fret, note })}
+                  onClick={() => {
+                    const position = { ...string, stringLabel: string.label, fret, note };
+                    setSelectedNote(position);
+                    onNoteSelect?.(position);
+                  }}
                   aria-label={`${note} note on the ${string.octaveName} string, fret ${fret}`}
                 >
                   <span className="string-line" aria-hidden="true" />
