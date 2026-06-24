@@ -18,17 +18,17 @@ export default function GuitarPage() {
             <div className="guitar-hero-copy">
               <p className="guitar-kicker">Guitar learning app</p>
               <h1 id="fretboard-freedom-title">Fretboard Freedom</h1>
-              <p className="guitar-tagline">Learn the neck. Understand CAGED. Play real music.</p>
+              <p className="guitar-tagline">Cast it. Hold the guitar. Practice now.</p>
               <p className="guitar-purpose">
-                Fretboard Freedom is designed to help players understand the fretboard, learn the
-                CAGED system, connect chords to scales, and learn to improvise through practical
-                musical exercises rather than memorization alone.
+                Fretboard Freedom is practice-first: cast the app to a TV, hold your guitar,
+                and follow large on-screen fretboard maps, CAGED chord targets, and simple
+                exercises you can play immediately.
               </p>
             </div>
             <div className="guitar-tv-panel" aria-label="Designed for phone casting and large screens">
               <span>Landscape-first</span>
               <strong>Phone · Desktop · TV</strong>
-              <p>Large text, high contrast, and room-readable practice layouts.</p>
+              <p>Large text, high contrast, wide fretboards, and room-readable practice cards.</p>
             </div>
           </div>
 
