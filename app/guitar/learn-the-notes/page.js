@@ -1,5 +1,5 @@
 import { GuitarNav } from '../GuitarNav';
-import { Fretboard } from '../Fretboard';
+import { NoteFinderGame } from '../NoteFinderGame';
 
 export const metadata = {
   title: 'Learn the Notes | Fretboard Freedom',
@@ -17,7 +17,7 @@ export default function LearnTheNotesPage() {
             <h1>Learn the Notes</h1>
             <p className="guitar-tagline">Interactive fretboard note-learning games and exercises.</p>
           </div>
-          <Fretboard />
+          <NoteFinderGame />
         </div>
       </section>
     </div>
