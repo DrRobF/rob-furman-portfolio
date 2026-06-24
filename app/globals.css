@@ -1653,7 +1653,7 @@ p {
 .followup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
 .impact-section { padding: 0.9rem; }
 .impact-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 16px; }
-.competency-gauge-card { border: 1px solid #d6e0ef; border-radius: 12px; padding: 0.75rem; background: #fff; min-height: 148px; display: grid; align-content: start; gap: 0.35rem; }
+.competency-gauge-card { border: 1px solid #d6e0ef; border-radius: 12px; padding: 0.75rem; background: #fff; min-height: 148px; display: grid; align-content: flex-start; gap: 0.35rem; }
 .competency-gauge-card h4 { margin: 0 0 0.35rem; font-size: 0.87rem; }
 .competency-gauge-card p { margin: 0.4rem 0 0; font-size: 0.83rem; color: #385070; }
 .domain-score-head { display: flex; justify-content: space-between; gap: 0.75rem; }
@@ -1668,7 +1668,7 @@ p {
 .band-amber { background: #c58a2d; }
 .band-limited { background: #cc6f2e; }
 .band-concern { background: #b54545; }
-.impact-tile { border: 1px solid #d6e0ef; border-radius: 12px; background: #fff; min-height: 200px; max-height: 220px; padding: 0.75rem; display: grid; align-content: start; gap: 0.45rem; }
+.impact-tile { border: 1px solid #d6e0ef; border-radius: 12px; background: #fff; min-height: 200px; max-height: 220px; padding: 0.75rem; display: grid; align-content: flex-start; gap: 0.45rem; }
 .impact-tile h4 { margin: 0; font-size: 0.92rem; }
 .impact-tile-main { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 .impact-rating-badge { margin: 0.15rem 0 0.45rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px; background: #edf3fa; }
@@ -1763,13 +1763,13 @@ p {
 .report-dashboard-main { display: grid; gap: 0.9rem; }
 .report-section { display: block; }
 .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
-.summary-card { display: grid; align-content: start; gap: 0.4rem; min-height: 200px; }
+.summary-card { display: grid; align-content: flex-start; gap: 0.4rem; min-height: 200px; }
 .competency-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; align-items: stretch; }
-.competency-card { border: 1px solid #d6e0ef; border-radius: 12px; padding: 0.75rem; background: #fff; display: grid; align-content: start; gap: 0.35rem; }
+.competency-card { border: 1px solid #d6e0ef; border-radius: 12px; padding: 0.75rem; background: #fff; display: grid; align-content: flex-start; gap: 0.35rem; }
 .insight-card { min-height: auto; }
 .strength-growth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
 .impact-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.8rem; align-items: stretch; }
-.impact-card { border: 1px solid #d6e0ef; border-radius: 12px; background: #fff; min-height: 168px; padding: 0.75rem; display: grid; align-content: start; gap: 0.45rem; }
+.impact-card { border: 1px solid #d6e0ef; border-radius: 12px; background: #fff; min-height: 168px; padding: 0.75rem; display: grid; align-content: flex-start; gap: 0.45rem; }
 .pressure-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
 .followup-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem; }
 
@@ -4499,5 +4499,159 @@ p {
   .caged-picker button {
     min-height: 48px;
     padding: 0.55rem 0.8rem;
+  }
+}
+
+/* Solo Generator TV Practice Mode. */
+.solo-generator {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.4rem);
+}
+
+.solo-generator-controls,
+.solo-output-card {
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 28px;
+  background: rgba(15, 23, 42, 0.84);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.3);
+  padding: clamp(1rem, 2.2vw, 1.55rem);
+}
+
+.solo-generator-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: clamp(0.8rem, 1.8vw, 1.2rem);
+}
+
+.solo-generator-controls fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-content: flex-start;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 20px;
+  margin: 0;
+  padding: 0.8rem;
+}
+
+.solo-generator-controls legend {
+  color: #fde68a;
+  font-size: clamp(1rem, 1.8vw, 1.22rem);
+  font-weight: 950;
+  padding: 0 0.35rem;
+}
+
+.solo-generator-controls button,
+.solo-generate-button {
+  min-height: 54px;
+  border: 1px solid rgba(226, 232, 240, 0.26);
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.92);
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: clamp(1rem, 1.9vw, 1.2rem);
+  font-weight: 950;
+  padding: 0.78rem 1.05rem;
+}
+
+.solo-generator-controls button.active,
+.solo-generator-controls button:hover,
+.solo-generator-controls button:focus-visible,
+.solo-generate-button:hover,
+.solo-generate-button:focus-visible {
+  background: #facc15;
+  color: #111827;
+  outline: none;
+}
+
+.solo-generate-button {
+  grid-column: 1 / -1;
+  min-height: clamp(72px, 13vh, 118px);
+  background: linear-gradient(135deg, #facc15, #fb923c);
+  color: #111827;
+  font-size: clamp(1.55rem, 4vw, 3rem);
+  box-shadow: 0 18px 40px rgba(250, 204, 21, 0.22);
+}
+
+.solo-output-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.solo-output-header,
+.solo-meta,
+.solo-learning-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.solo-output-header {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.45fr);
+  align-items: center;
+}
+
+.solo-output-header h2 {
+  color: #ffffff;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 1;
+  margin: 0.1rem 0 0;
+}
+
+.solo-meta span,
+.solo-progression {
+  border: 1px solid rgba(45, 212, 191, 0.34);
+  border-radius: 18px;
+  background: rgba(20, 184, 166, 0.12);
+  color: #ccfbf1;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 900;
+  padding: 0.72rem 0.9rem;
+}
+
+.solo-progression {
+  margin: 0;
+}
+
+.solo-learning-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.solo-explainer h3 {
+  color: #ffffff;
+  font-size: clamp(1.35rem, 2.6vw, 2rem);
+  margin: 0 0 0.55rem;
+}
+
+.solo-explainer p,
+.practice-box ul {
+  margin: 0;
+}
+
+@media (max-width: 980px), (orientation: portrait) {
+  .solo-generator-controls,
+  .solo-output-header,
+  .solo-learning-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .solo-generator-controls,
+  .solo-output-card {
+    padding: 0.75rem;
+  }
+
+  .solo-generate-button {
+    min-height: 64px;
+    font-size: clamp(1.35rem, 4vw, 2.2rem);
+  }
+
+  .solo-output-header h2 {
+    font-size: clamp(1.7rem, 5vw, 3rem);
+  }
+
+  .solo-tab {
+    font-size: clamp(1rem, 2.6vw, 1.65rem);
+    line-height: 1.25;
   }
 }
