@@ -13,6 +13,14 @@ const standardTuning = [
 ];
 const frets = Array.from({ length: 13 }, (_, fret) => fret);
 
+function getFretLabel(fret) {
+  return fret === 0 ? 'Open' : `Fret ${fret}`;
+}
+
+function getPositionDescription(octaveName, fret) {
+  return fret === 0 ? `${octaveName} string · open` : `${octaveName} string · fret ${fret}`;
+}
+
 export function getNoteAtFret(startNote, fret) {
   const startIndex = chromaticNotes.indexOf(startNote);
   return chromaticNotes[(startIndex + fret) % chromaticNotes.length];
@@ -63,7 +71,7 @@ export function Fretboard({
         <div className="fretboard-selected-note" aria-live="polite">
           <span>{selectedNoteLabel}</span>
           <strong>{selectedNoteValue ?? (selectedNote ? selectedNote.note : '—')}</strong>
-          <small>{selectedNoteDetail ?? (selectedNote ? `${selectedNote.octaveName} string · fret ${selectedNote.fret}` : 'Tap any position')}</small>
+          <small>{selectedNoteDetail ?? (selectedNote ? getPositionDescription(selectedNote.octaveName, selectedNote.fret) : 'Tap any position')}</small>
         </div>
       </div>
 
@@ -103,11 +111,13 @@ export function Fretboard({
         </label>
       </fieldset> : null}
 
-      <div className="fretboard-scroll" role="region" aria-label="Scrollable fretboard with frets zero through twelve">
+      <div className="fretboard-scroll" role="region" aria-label="Scrollable fretboard with open strings and frets one through twelve">
         <div className="fretboard-grid">
           <div className="fretboard-corner" aria-hidden="true">String</div>
           {frets.map((fret) => (
-            <div className="fret-number" key={fret}>Fret {fret}</div>
+            <div className={`fret-number${fret === 0 ? ' open-fret-label' : ''}`} key={fret}>
+              {getFretLabel(fret)}
+            </div>
           ))}
 
           {strings.map((string) => [
@@ -125,7 +135,7 @@ export function Fretboard({
 
               return (
                 <button
-                  className={`fret-position${isSelected ? ' selected' : ''}${isFound ? ' correct' : ''}${isIncorrect ? ' incorrect' : ''}${highlight ? ` highlighted ${highlight.type}` : ''}`}
+                  className={`fret-position${fret === 0 ? ' open-position' : ''}${isSelected ? ' selected' : ''}${isFound ? ' correct' : ''}${isIncorrect ? ' incorrect' : ''}${highlight ? ` highlighted ${highlight.type}` : ''}`}
                   key={`${string.octaveName}-${fret}`}
                   type="button"
                   onClick={() => {
@@ -133,7 +143,7 @@ export function Fretboard({
                     setSelectedNote(position);
                     onNoteSelect?.(position);
                   }}
-                  aria-label={`${note} note on the ${string.octaveName} string, fret ${fret}`}
+                  aria-label={fret === 0 ? `${note} note on the open ${string.octaveName} string` : `${note} note on the ${string.octaveName} string, fret ${fret}`}
                 >
                   <span className="string-line" aria-hidden="true" />
                   <span className="note-marker">{showName ? markerLabel : ''}</span>

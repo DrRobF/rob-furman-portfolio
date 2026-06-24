@@ -3891,6 +3891,11 @@ p {
   text-transform: uppercase;
 }
 
+.open-fret-label {
+  background: rgba(15, 23, 42, 0.94);
+  color: #ffffff;
+}
+
 .fret-position {
   position: relative;
   display: grid;
@@ -3902,6 +3907,21 @@ p {
   color: #111827;
   cursor: pointer;
   padding: 0;
+}
+
+.fret-position.open-position {
+  border-left: 0;
+  border-right: 10px solid #f8fafc;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.fret-position.open-position::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 10px;
+  background: linear-gradient(90deg, #cbd5e1, #ffffff, #cbd5e1);
+  box-shadow: -4px 0 10px rgba(15, 23, 42, 0.28);
 }
 
 .fret-position:hover,
