@@ -4598,6 +4598,22 @@ p {
   gap: 1rem;
 }
 
+.solo-generator-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: auto;
+  background:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.14), transparent 34rem),
+    linear-gradient(135deg, #020617 0%, #111827 54%, #1e1b4b 100%);
+  padding: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+.solo-generator-fullscreen .solo-output-card {
+  min-height: calc(100vh - clamp(1rem, 3vw, 2rem));
+  align-content: start;
+}
+
 .solo-output-header,
 .solo-meta,
 .solo-learning-grid {
@@ -4632,6 +4648,91 @@ p {
   margin: 0;
 }
 
+.solo-progression strong {
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+.solo-progression-grid,
+.solo-tab-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.45rem, 1vw, 0.75rem);
+}
+
+.solo-progression-grid span {
+  border-right: 2px solid rgba(204, 251, 241, 0.42);
+  color: #ffffff;
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(1.2rem, 2.6vw, 2rem);
+  text-align: center;
+}
+
+.solo-progression-grid span:nth-child(4n) {
+  border-right: 0;
+}
+
+.solo-bar {
+  border: 2px solid rgba(250, 204, 21, 0.58);
+  border-radius: 18px;
+  background: rgba(2, 6, 23, 0.7);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.solo-bar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: rgba(250, 204, 21, 0.14);
+  border-bottom: 1px solid rgba(250, 204, 21, 0.36);
+  color: #fef9c3;
+  font-size: clamp(0.95rem, 1.6vw, 1.35rem);
+  font-weight: 950;
+  padding: 0.45rem 0.65rem;
+}
+
+.solo-bar-heading strong {
+  color: #ffffff;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.solo-tab-grid .solo-tab {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ffffff;
+  font-size: clamp(0.72rem, 1.12vw, 1.08rem);
+  line-height: 1.35;
+  overflow-x: auto;
+  padding: clamp(0.45rem, 0.9vw, 0.7rem);
+  white-space: pre;
+}
+
+.solo-generator-fullscreen .solo-output-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.solo-generator-fullscreen .solo-output-header h2 {
+  font-size: clamp(1.65rem, 3.8vw, 3.4rem);
+}
+
+.solo-generator-fullscreen .solo-meta {
+  grid-auto-flow: column;
+  grid-template-columns: none;
+}
+
+.solo-generator-fullscreen .solo-tab-grid .solo-tab {
+  font-size: clamp(0.68rem, 1.35vw, 1.12rem);
+  line-height: 1.22;
+}
+
+.solo-generator-fullscreen .solo-learning-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .solo-learning-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -4653,6 +4754,15 @@ p {
   .solo-learning-grid {
     grid-template-columns: 1fr;
   }
+
+  .solo-progression-grid,
+  .solo-tab-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .solo-progression-grid span:nth-child(2n) {
+    border-right: 0;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 520px) {
@@ -4673,5 +4783,29 @@ p {
   .solo-tab {
     font-size: clamp(1rem, 2.6vw, 1.65rem);
     line-height: 1.25;
+  }
+
+  .solo-output-card {
+    gap: 0.55rem;
+  }
+
+  .solo-meta span,
+  .solo-progression {
+    padding: 0.45rem 0.6rem;
+  }
+
+  .solo-tab-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .solo-bar-heading {
+    padding: 0.3rem 0.45rem;
+  }
+
+  .solo-tab-grid .solo-tab {
+    font-size: clamp(0.62rem, 1.55vw, 0.9rem);
+    line-height: 1.12;
+    padding: 0.35rem;
   }
 }

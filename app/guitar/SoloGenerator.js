@@ -97,8 +97,12 @@ function buildSolo(key, style, difficulty, emphasis = '') {
     style,
     difficulty,
     suggestedTempo: `${tempoBase + tempoBoost}–${tempoBase + tempoBoost + 12} bpm`,
-    chordProgression: getProgression(key, style).join(' | '),
-    tab: bars.map((bar, index) => `Bar ${index + 1}\n${bar}`).join('\n\n'),
+    chordProgression: getProgression(key, style),
+    bars: bars.map((tab, index) => ({
+      number: index + 1,
+      chord: getProgression(key, style)[index],
+      tab,
+    })),
     practiceNotes: [
       `Stay near frets 2–8 and keep your first finger relaxed before each phrase.`,
       `Bars 3 and 7 repeat a motif so the solo sounds intentional, not random.`,
@@ -116,6 +120,7 @@ export function SoloGenerator() {
   const [soloSeed, setSoloSeed] = useState(0);
   const [showWhy, setShowWhy] = useState(true);
   const [showSteps, setShowSteps] = useState(true);
+  const [isPracticeFullscreen, setIsPracticeFullscreen] = useState(false);
 
   const solo = useMemo(() => buildSolo(keyName, style, difficulty, emphasis), [keyName, style, difficulty, emphasis, soloSeed]);
 
@@ -125,14 +130,14 @@ export function SoloGenerator() {
   };
 
   return (
-    <div className="solo-generator">
+    <div className={`solo-generator${isPracticeFullscreen ? ' solo-generator-fullscreen' : ''}`}>
       {/* TODO: audio playback */}
       {/* TODO: backing tracks */}
       {/* TODO: animated note-by-note fretboard playback */}
       {/* TODO: save favorite solos */}
       {/* TODO: AI-generated solos */}
       {/* TODO: print/export tab */}
-      <section className="solo-generator-controls" aria-label="Solo generator controls">
+      <section className="solo-generator-controls" aria-label="Solo generator controls" hidden={isPracticeFullscreen}>
         <fieldset><legend>Key</legend>{keys.map((item) => <button className={keyName === item ? 'active' : ''} key={item} type="button" onClick={() => setKeyName(item)}>{item}</button>)}</fieldset>
         <fieldset><legend>Style</legend>{styles.map((item) => <button className={style === item ? 'active' : ''} key={item} type="button" onClick={() => setStyle(item)}>{item}</button>)}</fieldset>
         <fieldset><legend>Difficulty</legend>{difficulties.map((item) => <button className={difficulty === item ? 'active' : ''} key={item} type="button" onClick={() => setDifficulty(item)}>{item}</button>)}</fieldset>
@@ -144,20 +149,39 @@ export function SoloGenerator() {
           <div><p className="guitar-kicker">Generated 8-bar solo</p><h2 id="generated-solo-title">{solo.title}</h2></div>
           <div className="solo-meta"><span>Key: {solo.key}</span><span>Style: {solo.style}</span><span>Tempo: {solo.suggestedTempo}</span></div>
         </div>
-        <p className="solo-progression"><strong>Chord progression:</strong> {solo.chordProgression}</p>
-        <pre className="solo-tab">{solo.tab}</pre>
+        <div className="solo-progression" aria-label="Chord progression">
+          <strong>Chord progression:</strong>
+          <div className="solo-progression-grid">
+            {solo.chordProgression.map((chord, index) => <span key={`${chord}-${index}`}>{chord}</span>)}
+          </div>
+        </div>
+        <div className="solo-tab-grid" aria-label="8-bar generated tablature">
+          {solo.bars.map((bar) => (
+            <article className="solo-bar" key={`bar-${bar.number}`}>
+              <div className="solo-bar-heading"><span>Bar {bar.number}</span><strong>{bar.chord}</strong></div>
+              <pre className="solo-tab">{bar.tab}</pre>
+            </article>
+          ))}
+        </div>
         <div className="solo-buttons" aria-label="Solo action buttons">
           <button type="button" onClick={() => regenerate('')}>Generate New Solo</button>
-          <button type="button" onClick={() => { setDifficulty('Beginner'); regenerate('Easier'); }}>Easier</button>
-          <button type="button" onClick={() => { setStyle('Blues'); regenerate('More Bluesy'); }}>More Bluesy</button>
-          <button type="button" onClick={() => { setStyle('Rock'); regenerate('More Rock'); }}>More Rock</button>
-          <button className={showWhy ? 'active' : ''} type="button" onClick={() => setShowWhy((value) => !value)}>Show Why It Works</button>
-          <button className={showSteps ? 'active' : ''} type="button" onClick={() => setShowSteps((value) => !value)}>Show Practice Steps</button>
+          {isPracticeFullscreen ? (
+            <button type="button" onClick={() => setIsPracticeFullscreen(false)}>Exit Full Screen</button>
+          ) : (
+            <button type="button" onClick={() => setIsPracticeFullscreen(true)}>Full Screen Practice</button>
+          )}
+          {!isPracticeFullscreen && (<>
+            <button type="button" onClick={() => { setDifficulty('Beginner'); regenerate('Easier'); }}>Easier</button>
+            <button type="button" onClick={() => { setStyle('Blues'); regenerate('More Bluesy'); }}>More Bluesy</button>
+            <button type="button" onClick={() => { setStyle('Rock'); regenerate('More Rock'); }}>More Rock</button>
+            <button className={showWhy ? 'active' : ''} type="button" onClick={() => setShowWhy((value) => !value)}>Show Why It Works</button>
+            <button className={showSteps ? 'active' : ''} type="button" onClick={() => setShowSteps((value) => !value)}>Show Practice Steps</button>
+          </>)}
         </div>
         <div className="solo-learning-grid">
           <div className="practice-box"><h3>Practice notes</h3><ul>{solo.practiceNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>
-          {showWhy && <div className="solo-explainer"><h3>Why it works</h3><p>{solo.whyItWorks}</p></div>}
-          {showSteps && <div className="practice-box"><h3>Learning prompts</h3><ol>{learningPrompts.map((prompt) => <li key={prompt}>{prompt}</li>)}</ol></div>}
+          {!isPracticeFullscreen && showWhy && <div className="solo-explainer"><h3>Why it works</h3><p>{solo.whyItWorks}</p></div>}
+          {!isPracticeFullscreen && showSteps && <div className="practice-box"><h3>Learning prompts</h3><ol>{learningPrompts.map((prompt) => <li key={prompt}>{prompt}</li>)}</ol></div>}
         </div>
       </section>
     </div>
