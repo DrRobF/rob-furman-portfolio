@@ -20,6 +20,13 @@ export const guitarSections = [
       'Lessons that show how CAGED chord shapes become practical soloing areas with roots, chord tones, and pentatonic notes.',
   },
   {
+    title: 'Solo Generator',
+    href: '/guitar/solo-generator',
+    label: 'SOLO GENERATOR',
+    description:
+      'One-button 8-bar solo ideas with big readable tab for TV Practice Mode.',
+  },
+  {
     title: 'Simple Solos',
     href: '/guitar/simple-solos',
     label: 'SIMPLE SOLOS',
