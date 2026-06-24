@@ -4767,6 +4767,17 @@ p {
   font-family: "Courier New", Courier, monospace;
 }
 
+.solo-bar-role {
+  margin: 0;
+  border-bottom: 1px solid rgba(250, 204, 21, 0.18);
+  color: #fde68a;
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 0.38rem 0.65rem 0;
+  text-transform: capitalize;
+}
+
 .solo-tab-grid .solo-tab {
   margin: 0;
   border: 0;
