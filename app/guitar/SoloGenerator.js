@@ -146,56 +146,159 @@ const fallbackProgressions = {
   D: ['D', 'G', 'D', 'A', 'Bm', 'G', 'D', 'A'],
 };
 
+
+const makeTab = ({ e = '----------------', B = '----------------', G = '----------------', D = '----------------', A = '----------------', E = '----------------' }) => `e|${e}|
+B|${B}|
+G|${G}|
+D|${D}|
+A|${A}|
+E|${E}|`;
+
+const lick = (tab, tags, role = 'middle') => ({ tab, tags, role });
+
+const bluesLicks = [
+  lick(makeTab({ B: '-----5----------', G: '-5h6---6-5------', D: '-----------7----' }), ['ascending', 'hammer']),
+  lick(makeTab({ e: '---------5------', B: '-5---8-5---8-5--', G: '---6------------' }), ['repeated motif', 'busy']),
+  lick(makeTab({ B: '-----5----------', G: '-7b9---7-5------', D: '-----------7----' }), ['bend', 'descending']),
+  lick(makeTab({ B: '-5-----5--------', G: '---7-5---6------', D: '-----------7----' }), ['repeated motif', 'resolution']),
+  lick(makeTab({ B: '-------5-8-5----', G: '---5h6-------6--' }), ['ascending', 'busy']),
+  lick(makeTab({ e: '-5--------------', B: '---8-5----------', G: '-------7-5------', D: '-----------7----' }), ['descending', 'longer run']),
+  lick(makeTab({ B: '-----5---5------', G: '-7b9---7---5----', D: '-------------7--' }), ['bend', 'repeated motif']),
+  lick(makeTab({ G: '---5-6----------', D: '-7-----7--------' }), ['spacious', 'two-note phrase']),
+  lick(makeTab({ B: '-5---5----------', G: '---7---5--------', D: '---------7------' }), ['spacious', 'descending']),
+  lick(makeTab({ e: '-----5----------', B: '-5h8---8-5------', G: '-----------6----' }), ['ascending', 'hammer']),
+  lick(makeTab({ G: '-5-7b8-5--------', D: '---------7------' }), ['bend', 'spacious']),
+  lick(makeTab({ B: '---5------------', G: '-6---6-5--------', D: '---------7------' }), ['descending', 'resolution']),
+  lick(makeTab({ e: '-------5--------', B: '---5-8---8-5----', G: '-6-----------6--' }), ['busy', 'ascending']),
+  lick(makeTab({ B: '-8-5------------', G: '-----7-5--------', D: '---------7-5----' }), ['descending', 'longer run']),
+  lick(makeTab({ B: '-----5----------', G: '-------5-6------', D: '-7-7-------7----' }), ['repeated motif', 'ascending']),
+  lick(makeTab({ G: '-5--------------', D: '---7---5-7------' }), ['spacious', 'call']),
+  lick(makeTab({ B: '---------5------', G: '-----5h6---6----', D: '-5h7------------' }), ['answer', 'ascending']),
+  lick(makeTab({ e: '---5------------', B: '-8---8-5--------', G: '---------7b8-5--' }), ['bend', 'descending']),
+  lick(makeTab({ B: '-5-5------------', G: '-----7-5--------', D: '---------7------' }), ['repeated motif', 'spacious']),
+  lick(makeTab({ B: '-------5--------', G: '-5-6-7---7-5----', D: '-------------7--' }), ['busy', 'longer run']),
+];
+
+const rockLicks = [
+  lick(makeTab({ G: '-----2-4-2------', D: '-2-4-------4-2--' }), ['ascending', 'descending']),
+  lick(makeTab({ B: '-----3----------', G: '-2h4---4-2------', D: '-----------4----' }), ['hammer', 'ascending']),
+  lick(makeTab({ G: '-4-2------------', D: '-----4-2--------', A: '---------2------' }), ['descending', 'resolution']),
+  lick(makeTab({ e: '-----3-0--------', B: '-3-0-----3-0----', G: '-------------2--' }), ['busy', 'descending']),
+  lick(makeTab({ G: '-2-2-4-2--------', D: '---------4-2----' }), ['repeated motif', 'punchy']),
+  lick(makeTab({ D: '-2-4-5-4-2------', A: '-----------2----' }), ['ascending', 'descending']),
+  lick(makeTab({ B: '---3---3--------', G: '-4---4---2------' }), ['repeated motif', 'spacious']),
+  lick(makeTab({ G: '-2/4-2----------', D: '-------4-2------' }), ['slide', 'descending']),
+  lick(makeTab({ e: '---------3------', B: '-----3-5---5-3--' }), ['ascending', 'busy']),
+  lick(makeTab({ G: '-4b5-4-2--------', D: '---------4------' }), ['bend', 'punchy']),
+  lick(makeTab({ B: '-3--------------', G: '---4-2----------', D: '-------4-2------' }), ['descending', 'spacious']),
+  lick(makeTab({ G: '-----2----------', D: '-2-4---4-2------' }), ['answer', 'ascending']),
+  lick(makeTab({ e: '-3-0------------', B: '-----3-0--------', G: '---------2------' }), ['descending', 'longer run']),
+  lick(makeTab({ G: '-2---2---4------', D: '---4---4--------' }), ['repeated motif', 'climbing']),
+  lick(makeTab({ D: '-2-2------------', A: '-----5-2--------' }), ['two-note phrase', 'punchy']),
+  lick(makeTab({ G: '-------2-4------', D: '-2-4-5----------' }), ['climbing', 'busy']),
+  lick(makeTab({ B: '-----3----------', G: '-4-2---4-2------' }), ['call', 'repeated motif']),
+  lick(makeTab({ B: '-3-5-3----------', G: '-------4-2------' }), ['answer', 'descending']),
+  lick(makeTab({ G: '-2-4-2-4--------', D: '---------2------' }), ['repeated motif', 'busy']),
+  lick(makeTab({ B: '---3-5b6-3------', G: '-4---------4----' }), ['bend', 'climbing']),
+];
+
+const soulfulMajorLicks = [
+  lick(makeTab({ B: '-----3-5-3------', G: '-2h4-------4-2--' }), ['ascending', 'hammer']),
+  lick(makeTab({ e: '-------3--------', B: '-3-5-----5-3----', G: '-----4-------4--' }), ['busy', 'smooth']),
+  lick(makeTab({ B: '-3-----3--------', G: '---4-2---4-2----', D: '-------------5--' }), ['repeated motif', 'descending']),
+  lick(makeTab({ e: '-----3----------', B: '-3-5---5-3------', G: '-----------4----' }), ['ascending', 'resolution']),
+  lick(makeTab({ B: '---3-5----------', G: '-4-----4--------' }), ['two-note phrase', 'smooth']),
+  lick(makeTab({ e: '-3--------------', B: '---5-3----------', G: '-------4-2------' }), ['descending', 'spacious']),
+  lick(makeTab({ B: '-3h5-3----------', G: '-------4-2------' }), ['hammer', 'answer']),
+  lick(makeTab({ e: '-------3-5------', B: '-3-5-6----------' }), ['climbing', 'busy']),
+  lick(makeTab({ B: '-5-3------------', G: '-----4-2--------', D: '---------5------' }), ['descending', 'resolution']),
+  lick(makeTab({ G: '-2-4-2----------', D: '-------5--------' }), ['spacious', 'call']),
+  lick(makeTab({ B: '-----3----------', G: '-2h4---4-2------' }), ['answer', 'hammer']),
+  lick(makeTab({ e: '-3-5-3----------', B: '-------5-3------' }), ['smooth', 'descending']),
+  lick(makeTab({ B: '-3---3---5------', G: '---4---4--------' }), ['repeated motif', 'climbing']),
+  lick(makeTab({ e: '-----3----------', B: '-6-5---3--------', G: '---------4------' }), ['descending', 'soulful']),
+  lick(makeTab({ B: '---3------------', G: '-4---2----------' }), ['two-note phrase', 'spacious']),
+  lick(makeTab({ e: '---------3------', B: '-----3-5---5----', G: '-2h4------------' }), ['longer run', 'ascending']),
+  lick(makeTab({ B: '-3/5-3----------', G: '-------4-2------' }), ['slide', 'smooth']),
+  lick(makeTab({ B: '---3-5-3--------', G: '-4-------4-2----' }), ['call', 'answer']),
+  lick(makeTab({ e: '-5-3------------', B: '-----5-3--------', G: '---------4------' }), ['descending', 'longer run']),
+  lick(makeTab({ B: '-----3-5--------', G: '-2-4-----4------' }), ['climbing', 'smooth']),
+];
+
+const countryLicks = [
+  lick(makeTab({ e: '-2-3-2----------', B: '-------3--------', G: '---------2------' }), ['descending', 'open']),
+  lick(makeTab({ e: '-----2-5-2------', B: '-3-5-------5-3--' }), ['busy', 'ascending']),
+  lick(makeTab({ e: '-2-----2--------', B: '---3-5---3------', G: '-----------2----' }), ['repeated motif', 'resolution']),
+  lick(makeTab({ e: '---2-3-5--------', B: '-3--------------' }), ['climbing', 'spacious']),
+  lick(makeTab({ B: '-3-5-3----------', G: '-------4-2------' }), ['descending', 'answer']),
+  lick(makeTab({ e: '-5-3-2----------', B: '-------5-3------' }), ['descending', 'longer run']),
+  lick(makeTab({ e: '-----2----------', B: '-3h5---5-3------' }), ['hammer', 'country']),
+  lick(makeTab({ B: '-3---3----------', G: '---2---2--------' }), ['two-note phrase', 'spacious']),
+  lick(makeTab({ e: '-2/5-2----------', B: '-------3--------' }), ['slide', 'spacious']),
+  lick(makeTab({ e: '---2------------', B: '-5---3----------', G: '-------2--------' }), ['descending', 'smooth']),
+  lick(makeTab({ B: '-----3-5--------', G: '-2-4-----2------' }), ['climbing', 'busy']),
+  lick(makeTab({ e: '-2-2------------', B: '-----3-5--------' }), ['repeated motif', 'punchy']),
+  lick(makeTab({ e: '-------2-5------', B: '-3-5-3----------' }), ['call', 'climbing']),
+  lick(makeTab({ e: '-5-2------------', B: '-----5-3--------' }), ['answer', 'descending']),
+  lick(makeTab({ B: '-3h5-3----------', G: '-------2--------' }), ['hammer', 'resolution']),
+  lick(makeTab({ e: '---2-3-2--------', B: '-3-------3------' }), ['repeated motif', 'smooth']),
+  lick(makeTab({ G: '-2-4-2----------', D: '-------4--------' }), ['spacious', 'two-note phrase']),
+  lick(makeTab({ e: '-2-3-5-3-2------', B: '-----------3----' }), ['longer run', 'busy']),
+  lick(makeTab({ B: '-5b6-5-3--------', G: '---------2------' }), ['bend', 'country']),
+  lick(makeTab({ e: '-----2----------', B: '-3-5---3--------', G: '---------2------' }), ['ending', 'resolution']),
+];
+
 const phraseLibrary = {
-  A: {
-    Blues: [
-      'e|----------------|\nB|-----5----------|\nG|-5h6---6-5------|\nD|-----------7----|\nA|----------------|\nE|----------------|',
-      'e|---------5------|\nB|-5---8-5---8-5--|\nG|---6------------|\nD|----------------|\nA|----------------|\nE|----------------|',
-      'e|----------------|\nB|-----5----------|\nG|-7b9---7-5------|\nD|-----------7----|\nA|----------------|\nE|----------------|',
-      'e|----------------|\nB|-5-----5--------|\nG|---7-5---6------|\nD|-----------7----|\nA|----------------|\nE|----------------|',
-    ],
-  },
-  E: {
-    Rock: [
-      'e|----------------|\nB|----------------|\nG|-----2-4-2------|\nD|-2-4-------4-2--|\nA|----------------|\nE|----------------|',
-      'e|----------------|\nB|-----3----------|\nG|-2h4---4-2------|\nD|-----------4----|\nA|----------------|\nE|----------------|',
-      'e|----------------|\nB|----------------|\nG|-4-2------------|\nD|-----4-2--------|\nA|---------2------|\nE|----------------|',
-      'e|-----3-0--------|\nB|-3-0-----3-0----|\nG|-------------2--|\nD|----------------|\nA|----------------|\nE|----------------|',
-    ],
-  },
-  G: {
-    'Soulful Major': [
-      'e|----------------|\nB|-----3-5-3------|\nG|-2h4-------4-2--|\nD|----------------|\nA|----------------|\nE|----------------|',
-      'e|-------3--------|\nB|-3-5-----5-3----|\nG|-----4-------4--|\nD|----------------|\nA|----------------|\nE|----------------|',
-      'e|----------------|\nB|-3-----3--------|\nG|---4-2---4-2----|\nD|-------------5--|\nA|----------------|\nE|----------------|',
-      'e|-----3----------|\nB|-3-5---5-3------|\nG|-----------4----|\nD|----------------|\nA|----------------|\nE|----------------|',
-    ],
-  },
-  D: {
-    'Country-ish': [
-      'e|-2-3-2----------|\nB|-------3--------|\nG|---------2------|\nD|----------------|\nA|----------------|\nE|----------------|',
-      'e|-----2-5-2------|\nB|-3-5-------5-3--|\nG|----------------|\nD|----------------|\nA|----------------|\nE|----------------|',
-      'e|-2-----2--------|\nB|---3-5---3------|\nG|-----------2----|\nD|----------------|\nA|----------------|\nE|----------------|',
-    ],
-  },
-  C: {
-    'Soulful Major': [
-      'e|----------------|\nB|-----5-6-5------|\nG|-5h7-------7-5--|\nD|----------------|\nA|----------------|\nE|----------------|',
-      'e|-----5----------|\nB|-5-6---6-5------|\nG|-----------5----|\nD|----------------|\nA|----------------|\nE|----------------|',
-      'e|----------------|\nB|-5-----5--------|\nG|---7-5---5------|\nD|-----------7----|\nA|----------------|\nE|----------------|',
-    ],
-  },
+  A: { Blues: bluesLicks },
+  E: { Rock: rockLicks },
+  G: { 'Soulful Major': soulfulMajorLicks },
+  D: { 'Country-ish': countryLicks },
+  C: { 'Soulful Major': soulfulMajorLicks },
 };
 
 const styleBackups = {
-  Blues: phraseLibrary.A.Blues,
-  Rock: phraseLibrary.E.Rock,
-  'Soulful Major': phraseLibrary.G['Soulful Major'],
-  'Country-ish': phraseLibrary.D['Country-ish'],
+  Blues: bluesLicks,
+  Rock: rockLicks,
+  'Soulful Major': soulfulMajorLicks,
+  'Country-ish': countryLicks,
 };
+
+const endingLicks = {
+  Blues: [
+    lick(makeTab({ B: '-----5----------', G: '-6-5------------', D: '-----7----------' }), ['ending', 'resolution'], 'ending'),
+    lick(makeTab({ e: '-----5----------', B: '-8-5------------', G: '-----6----------' }), ['ending', 'root'], 'ending'),
+    lick(makeTab({ G: '-5h6------------', D: '-----7----------' }), ['ending', 'third'], 'ending'),
+    lick(makeTab({ B: '-5--------------', G: '---6-5----------', D: '-------7--------' }), ['ending', 'resolution'], 'ending'),
+  ],
+  Rock: [
+    lick(makeTab({ G: '-4-2------------', D: '-----2----------' }), ['ending', 'root'], 'ending'),
+    lick(makeTab({ B: '-----3----------', G: '-4-2------------', D: '-----2----------' }), ['ending', 'resolution'], 'ending'),
+    lick(makeTab({ D: '-4-2------------', A: '-----2----------' }), ['ending', 'root'], 'ending'),
+    lick(makeTab({ G: '-2--------------', D: '---4-2----------' }), ['ending', 'third'], 'ending'),
+  ],
+  'Soulful Major': [
+    lick(makeTab({ B: '-5-3------------', G: '-----4----------' }), ['ending', 'third'], 'ending'),
+    lick(makeTab({ B: '-----3----------', G: '-4-2------------', D: '-----5----------' }), ['ending', 'root'], 'ending'),
+    lick(makeTab({ e: '-3--------------', B: '---5-3----------' }), ['ending', 'resolution'], 'ending'),
+    lick(makeTab({ G: '-2h4------------', D: '-----5----------' }), ['ending', 'root'], 'ending'),
+  ],
+  'Country-ish': [
+    lick(makeTab({ e: '-2--------------', B: '---3------------' }), ['ending', 'root'], 'ending'),
+    lick(makeTab({ e: '-5-3-2----------', B: '-------3--------' }), ['ending', 'resolution'], 'ending'),
+    lick(makeTab({ B: '-3h5-3----------', G: '-------2--------' }), ['ending', 'third'], 'ending'),
+    lick(makeTab({ e: '-----2----------', B: '-3-5---3--------' }), ['ending', 'root'], 'ending'),
+  ],
+};
+
+const personalities = ['Smooth', 'Bluesy', 'Punchy', 'Repeating motif', 'Climbing', 'Answering phrase'];
 
 function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
+}
+
+function pickWithTag(bank, tags, usedTabs) {
+  const candidates = bank.filter((item) => tags.some((tag) => item.tags.includes(tag)) && !usedTabs.has(item.tab));
+  return pick(candidates.length ? candidates : bank.filter((item) => !usedTabs.has(item.tab)));
 }
 
 function getProgression(key, style) {
@@ -205,31 +308,67 @@ function getProgression(key, style) {
   return fallbackProgressions[key] || progressions['G-Soulful Major'];
 }
 
-function buildSolo(key, style, difficulty, emphasis = '') {
+function buildSolo(key, style, difficulty, emphasis = '', previousOpening = '') {
   const bank = phraseLibrary[key]?.[style] || styleBackups[style] || styleBackups.Blues;
-  const motif = pick(bank);
-  const bars = Array.from({ length: 8 }, (_, index) => (index === 2 || index === 6 ? motif : pick(bank)));
+  const endingBank = endingLicks[style] || endingLicks.Blues;
+  const personality = emphasis || pick(personalities);
+  const lowerPersonality = personality.toLowerCase();
+  const usedTabs = new Set();
+  const tagPlan = lowerPersonality.includes('motif')
+    ? [['repeated motif'], ['spacious', 'two-note phrase'], ['repeated motif'], ['answer'], ['climbing', 'ascending'], ['bend', 'slide'], ['busy', 'longer run']]
+    : lowerPersonality.includes('climbing')
+      ? [['spacious'], ['ascending'], ['climbing'], ['busy'], ['ascending'], ['bend', 'slide'], ['longer run']]
+      : lowerPersonality.includes('answer')
+        ? [['call'], ['answer'], ['spacious'], ['call'], ['answer'], ['busy'], ['descending']]
+        : lowerPersonality.includes('punchy')
+          ? [['punchy', 'repeated motif'], ['spacious'], ['bend'], ['busy'], ['two-note phrase'], ['ascending'], ['descending']]
+          : lowerPersonality.includes('smooth')
+            ? [['smooth', 'spacious'], ['ascending'], ['descending'], ['two-note phrase'], ['smooth'], ['answer'], ['resolution']]
+            : [['bend'], ['descending'], ['repeated motif'], ['spacious'], ['ascending'], ['busy'], ['resolution']];
+
+  let opening = pickWithTag(bank, tagPlan[0], new Set());
+  if (opening.tab === previousOpening) {
+    const alternateOpenings = bank.filter((item) => item.tab !== previousOpening);
+    opening = pick(alternateOpenings.length ? alternateOpenings : bank);
+  }
+  usedTabs.add(opening.tab);
+
+  const selected = [opening];
+  tagPlan.slice(1).forEach((tags) => {
+    const next = pickWithTag(bank, tags, usedTabs);
+    selected.push(next);
+    usedTabs.add(next.tab);
+  });
+  const availableEndings = endingBank.filter((item) => !usedTabs.has(item.tab));
+  const ending = pick(availableEndings.length ? availableEndings : endingBank);
+  selected.push(ending);
+
   const tempoBase = difficulty === 'Beginner' ? 72 : 88;
   const tempoBoost = style === 'Rock' ? 8 : style === 'Country-ish' ? 4 : 0;
+  const progression = getProgression(key, style);
+  const flavor = `${personality}${personality.toLowerCase().includes(style.toLowerCase().split('-')[0]) ? '' : ` ${style.toLowerCase()}`}`;
 
   return {
-    title: `${key} ${emphasis || style} TV Practice Solo`,
+    title: `${key} ${personality} TV Practice Solo`,
     key,
     style,
     difficulty,
+    flavor,
+    openingTab: opening.tab,
     suggestedTempo: `${tempoBase + tempoBoost}–${tempoBase + tempoBoost + 12} bpm`,
-    chordProgression: getProgression(key, style),
-    bars: bars.map((tab, index) => ({
+    chordProgression: progression,
+    bars: selected.map((item, index) => ({
       number: index + 1,
-      chord: getProgression(key, style)[index],
-      tab,
+      chord: progression[index],
+      tab: item.tab,
+      tags: item.tags,
     })),
     practiceNotes: [
-      `Stay near frets 2–8 and keep your first finger relaxed before each phrase.`,
-      `Bars 3 and 7 repeat a motif so the solo sounds intentional, not random.`,
+      `Flavor: ${flavor}. Listen for the mix of space, motion, repetition, and a final-bar resolution.`,
+      `Every bar is unique in this solo, so practice one bar at a time before connecting them.`,
       difficulty === 'Beginner' ? 'Use downstrokes first, then add hammer-ons only after the rhythm feels steady.' : 'Add small bends or slides only on notes you can already play in time.',
     ],
-    whyItWorks: `${key} ${style} uses mostly pentatonic shapes, repeats a short idea, and lands phrases on roots or chord tones when the harmony changes. The rests leave space so a beginner can reset their hand and still sound musical.`,
+    whyItWorks: `${key} ${style} stays mostly around frets 2–8, alternates busy and spacious ideas, and uses ${personality.toLowerCase()} phrasing so the solo feels intentional. Bar 8 comes from a separate ending bank and resolves strongly to the root or 3rd.`,
   };
 }
 
@@ -246,8 +385,9 @@ export function SoloGenerator() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef(null);
   const stopTimerRef = useRef(null);
+  const previousOpeningRef = useRef('');
 
-  const solo = useMemo(() => buildSolo(keyName, style, difficulty, emphasis), [keyName, style, difficulty, emphasis, soloSeed]);
+  const solo = useMemo(() => buildSolo(keyName, style, difficulty, emphasis, previousOpeningRef.current), [keyName, style, difficulty, emphasis, soloSeed]);
   const playbackEvents = useMemo(() => tabToPlaybackEvents(solo.bars), [solo]);
 
   const stopPlayback = useCallback(() => {
@@ -295,6 +435,10 @@ export function SoloGenerator() {
     stopTimerRef.current = window.setTimeout(stopPlayback, totalMs);
   };
 
+  useEffect(() => {
+    previousOpeningRef.current = solo.openingTab;
+  }, [solo.openingTab]);
+
   useEffect(() => () => stopPlayback(), [stopPlayback]);
 
   const regenerate = (nextEmphasis = emphasis) => {
@@ -323,7 +467,7 @@ export function SoloGenerator() {
       <section className="solo-output-card" aria-labelledby="generated-solo-title">
         <div className="solo-output-header">
           <div><p className="guitar-kicker">Generated 8-bar solo</p><h2 id="generated-solo-title">{solo.title}</h2></div>
-          <div className="solo-meta"><span>Key: {solo.key}</span><span>Style: {solo.style}</span><span>Tempo: {solo.suggestedTempo}</span></div>
+          <div className="solo-meta"><span>Key: {solo.key}</span><span>Style: {solo.style}</span><span>Flavor: {solo.flavor}</span><span>Tempo: {solo.suggestedTempo}</span></div>
         </div>
         <div className="solo-playback-panel" aria-label="Solo playback controls">
           <button className="solo-play-button" type="button" onClick={playSolo}>{isPlaying ? 'Restart Solo' : 'Play Solo'}</button>
@@ -352,9 +496,9 @@ export function SoloGenerator() {
             <button type="button" onClick={() => setIsPracticeFullscreen(true)}>Full Screen Practice</button>
           )}
           {!isPracticeFullscreen && (<>
-            <button type="button" onClick={() => { setDifficulty('Beginner'); regenerate('Easier'); }}>Easier</button>
-            <button type="button" onClick={() => { setStyle('Blues'); regenerate('More Bluesy'); }}>More Bluesy</button>
-            <button type="button" onClick={() => { setStyle('Rock'); regenerate('More Rock'); }}>More Rock</button>
+            <button type="button" onClick={() => { setDifficulty('Beginner'); regenerate('Smooth'); }}>Easier</button>
+            <button type="button" onClick={() => { setStyle('Blues'); regenerate('Bluesy'); }}>More Bluesy</button>
+            <button type="button" onClick={() => { setStyle('Rock'); regenerate('Punchy'); }}>More Rock</button>
             <button className={showWhy ? 'active' : ''} type="button" onClick={() => setShowWhy((value) => !value)}>Show Why It Works</button>
             <button className={showSteps ? 'active' : ''} type="button" onClick={() => setShowSteps((value) => !value)}>Show Practice Steps</button>
           </>)}
