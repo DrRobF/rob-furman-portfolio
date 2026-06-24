@@ -13,6 +13,13 @@ export const guitarSections = [
       'Visual lessons showing how chord shapes connect across the neck and how scales fit around those shapes.',
   },
   {
+    title: 'CAGED Solo Zones',
+    href: '/guitar/caged-solo-zones',
+    label: 'CAGED SOLO ZONES',
+    description:
+      'Lessons that show how CAGED chord shapes become practical soloing areas with roots, chord tones, and pentatonic notes.',
+  },
+  {
     title: 'Simple Solos',
     href: '/guitar/simple-solos',
     label: 'SIMPLE SOLOS',
