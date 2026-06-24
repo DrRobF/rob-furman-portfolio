@@ -2,10 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const keys = ['A', 'C', 'D', 'E', 'G'];
 const styles = ['Blues', 'Rock', 'Soulful Major', 'Country-ish'];
 const difficulties = ['Beginner', 'Easy-Plus'];
-
 
 const playbackTempos = {
   Slow: 60,
@@ -20,6 +18,13 @@ const stringMidi = {
   D: 50,
   A: 45,
   E: 40,
+};
+
+const progressions = {
+  Blues: ['A7', 'D7', 'A7', 'A7', 'D7', 'D7', 'A7', 'E7'],
+  Rock: ['E5', 'G', 'A', 'E5', 'E5', 'G', 'A', 'B'],
+  'Soulful Major': ['G', 'C', 'G', 'D', 'Em', 'C', 'G', 'D'],
+  'Country-ish': ['D', 'G', 'D', 'A', 'D', 'G', 'A', 'D'],
 };
 
 function midiToFrequency(midi) {
@@ -127,27 +132,7 @@ function playPluckedNote(audioContext, destination, event, startTime, secondsPer
   overtone.stop(startTime + duration + 0.04);
 }
 
-const learningPrompts = [
-  'Find the root notes first.',
-  'Circle the notes that repeat.',
-  'Play it once slowly.',
-  'Play it again and change the ending.',
-  'Notice which notes land on the chord changes.',
-];
-
-const progressions = {
-  Blues: ['A7', 'D7', 'A7', 'A7', 'D7', 'D7', 'A7', 'E7'],
-  Rock: ['E5', 'G', 'A', 'E5', 'E5', 'G', 'A', 'B'],
-  'Soulful Major': ['G', 'C', 'G', 'D', 'Em', 'C', 'G', 'D'],
-  'Country-ish': ['D', 'G', 'D', 'A', 'D', 'G', 'A', 'D'],
-};
-
-const cleanTab = ({ e = '--------------------', B = '--------------------', G = '--------------------', D = '--------------------', A = '--------------------', E = '--------------------' }) => `e|${e}|
-B|${B}|
-G|${G}|
-D|${D}|
-A|${A}|
-E|${E}|`;
+const cleanTab = ({ e = '--------------------', B = '--------------------', G = '--------------------', D = '--------------------', A = '--------------------', E = '--------------------' }) => `e|${e}|\nB|${B}|\nG|${G}|\nD|${D}|\nA|${A}|\nE|${E}|`;
 
 const makeBars = (style, bars) => bars.map((tab, index) => ({
   number: index + 1,
@@ -155,130 +140,50 @@ const makeBars = (style, bars) => bars.map((tab, index) => ({
   tab: cleanTab(tab),
 }));
 
-const solo = (title, vibe, why, bars) => ({ title, vibe, why, bars });
-
-const curatedSolos = {
-  Blues: [
-    solo('Front Porch A Blues', 'Shuffle call-and-response', 'Short A minor pentatonic ideas answer each other, with the C to C# blues move resolving against A7.', [
-      { B: '------------5h8-5---', G: '--------5h6-------6--' }, { e: '-----------5--------', B: '-------5h8---8-5----', G: '-----6-----------6--' }, { B: '-----5--------------', G: '-7b9---7-5----------', D: '-----------7--------' }, { B: '-----5---5----------', G: '---5h6---6-5--------', D: '-7-----------7------' }, { e: '---------5----------', B: '-----5h8---8-5------', G: '---6-----------6----' }, { B: '-8-5----------------', G: '-----7-5------------', D: '---------7-5h7------' }, { B: '-----5--------------', G: '-5h6---6-5----------', D: '-----------7--------' }, { e: '-----5--------------', B: '-8-5---8-5----------', G: '-----------6--------' },
-    ]),
-    solo('Slow Bend A Blues', 'Big bends with space', 'The solo leaves room after each answer so the bend notes can sound vocal instead of crowded.', [
-      { B: '-----5--------------', G: '-7b9---7-5----------', D: '-----------7--------' }, { e: '---------5----------', B: '-----5h8---8-5------', G: '---6-----------6----' }, { B: '-5-----5------------', G: '---7-5---6----------', D: '-----------7--------' }, { G: '---5-6--------------', D: '-7-----7------------' }, { B: '-------5-8-5--------', G: '---5h6-------6------' }, { e: '-5------------------', B: '---8-5--------------', G: '-------7-5----------', D: '-----------7--------' }, { G: '-5-7b8-5------------', D: '---------7----------' }, { B: '-5------------------', G: '---6-5--------------', D: '-------7------------' },
-    ]),
-    solo('Box One Shuffle', 'Classic box-one movement', 'Everything stays in a comfortable A blues box so the phrase is easy to memorize and repeat.', [
-      { B: '-------5------------', G: '-5h6-----6-5--------', D: '-------------7------' }, { e: '-----5--------------', B: '-5h8---8-5----------', G: '-----------6--------' }, { B: '-5---8-5------------', G: '---6-----7-5--------', D: '-------------7------' }, { G: '-5h6-5--------------', D: '-------7------------' }, { B: '-----5---8-5--------', G: '-5h6---6-----6------' }, { B: '-8-5----------------', G: '-----7-5------------', D: '---------7----------' }, { B: '-----5--------------', G: '-6-5----------------', D: '-----7--------------' }, { e: '---------5----------', B: '-----5h8---5--------', G: '---6---------6------' },
-    ]),
-    solo('Answer Back Blues', 'Question then answer', 'Bars 1–4 ask a simple idea, and bars 5–8 answer with the same rhythm landing more strongly.', [
-      { G: '---5-6--------------', D: '-7-----7------------' }, { B: '-----5--------------', G: '---5h6---6----------', D: '-7----------7-------' }, { B: '-5-----5------------', G: '---7-5---6----------', D: '-----------7--------' }, { e: '-----5--------------', B: '-8-5---8-5----------', G: '-----------6--------' }, { B: '-------5-8-5--------', G: '---5h6-------6------' }, { e: '-5------------------', B: '---8-5--------------', G: '-------7-5----------', D: '-----------7--------' }, { B: '-----5---5----------', G: '-7b9---7---5--------', D: '-------------7------' }, { G: '-5h6----------------', D: '-----7--------------' },
-    ]),
-    solo('Easy Turnaround Blues', 'Beginner turnaround', 'The line keeps the final E7 bar clear and resolved for looped 8-bar practice.', [
-      { B: '-----5--------------', G: '-5h6---6-5----------', D: '-----------7--------' }, { e: '-------5------------', B: '---5h8---8-5--------', G: '-6-----------6------' }, { B: '-5-5----------------', G: '-----7-5------------', D: '---------7----------' }, { G: '-5--------------', D: '---7---5-7----------' }, { B: '-----5-8-5----------', G: '-5h6-------6--------' }, { e: '---5----------------', B: '-8---8-5------------', G: '---------7b8-5------' }, { B: '-5---5--------------', G: '---7---5------------', D: '---------7----------' }, { e: '-----5--------------', B: '-8-5----------------', G: '-----6--------------' },
-    ]),
-  ],
-  Rock: [
-    solo('Garage E Rock', 'Punchy minor pentatonic', 'Repeated E minor pentatonic shapes make the line feel like a riff, not a scale exercise.', [
-      { G: '-----2-4-2----------', D: '-2-4-------4-2------' }, { B: '-----3--------------', G: '-2h4---4-2----------', D: '-----------4--------' }, { G: '-2-2-4-2------------', D: '---------4-2--------' }, { e: '-----3-0------------', B: '-3-0-----3-0--------', G: '-------------2------' }, { D: '-2-4-5-4-2----------', A: '-----------2--------' }, { G: '-4b5-4-2------------', D: '---------4----------' }, { B: '-3-5-3--------------', G: '-------4-2----------' }, { G: '-4-2----------------', D: '-----2--------------' },
-    ]),
-    solo('Power Chord Answer', 'Rock call-and-answer', 'The upper strings answer the lower-string riff so each two-bar phrase has a clear hook.', [
-      { D: '-2-4-5-4-2----------', A: '-----------2--------' }, { G: '-----2--------------', D: '-2-4---4-2----------' }, { B: '---3---3------------', G: '-4---4---2----------' }, { G: '-2/4-2--------------', D: '-------4-2----------' }, { G: '-2---2---4----------', D: '---4---4------------' }, { e: '-3-0----------------', B: '-----3-0------------', G: '---------2----------' }, { B: '---3-5b6-3----------', G: '-4---------4--------' }, { D: '-4-2----------------', A: '-----2--------------' },
-    ]),
-    solo('Open Road Rock', 'Driving eighth-note feel', 'Simple repeated rhythm keeps the solo locked to the groove and readable at TV distance.', [
-      { G: '-2-4-2-4------------', D: '---------2----------' }, { B: '-----3--------------', G: '-4-2---4-2----------' }, { G: '-------2-4----------', D: '-2-4-5--------------' }, { G: '-4-2----------------', D: '-----4-2------------', A: '---------2----------' }, { B: '-3------------------', G: '---4-2--------------', D: '-------4-2----------' }, { e: '---------3----------', B: '-----3-5---5-3------' }, { G: '-2/4-2--------------', D: '-------4-2----------' }, { B: '-----3--------------', G: '-4-2----------------', D: '-----2--------------' },
-    ]),
-    solo('Arena Rock Mini', 'Bigger held notes', 'Held target notes and short slides create a bigger rock sound without making the tab dense.', [
-      { B: '-----3--------------', G: '-2h4---4-2----------' }, { G: '-4-2----------------', D: '-----4-2------------', A: '---------2----------' }, { e: '---------3----------', B: '-----3-5---5-3------' }, { D: '-2-2----------------', A: '-----5-2------------' }, { G: '-----2-4-2----------', D: '-2-4-------4-2------' }, { B: '-3-5-3--------------', G: '-------4-2----------' }, { G: '-4b5-4-2------------', D: '---------4----------' }, { G: '-2------------------', D: '---4-2--------------' },
-    ]),
-    solo('Simple E Rock Loop', 'Loopable practice solo', 'The final bar resolves to E so the phrase can loop cleanly while practicing timing.', [
-      { G: '-----2--------------', D: '-2-4---4-2----------' }, { G: '-2-2-4-2------------', D: '---------4-2--------' }, { B: '---3---3------------', G: '-4---4---2----------' }, { e: '-3-0----------------', B: '-----3-0------------', G: '---------2----------' }, { D: '-2-4-5-4-2----------' }, { G: '-2/4-2--------------', D: '-------4-2----------' }, { B: '-----3--------------', G: '-4-2---4-2----------' }, { G: '-4-2----------------', D: '-----2--------------' },
-    ]),
-  ],
-};
-
-curatedSolos['Soulful Major'] = [
-  solo('Sweet G Major', 'Major pentatonic melody', 'The solo favors the sweet 3rd and 6th sounds and leaves space between answers.', makeBars('Soulful Major', [
-    { B: '-----3-5-3----------', G: '-2h4-------4-2------' }, { e: '-------3------------', B: '-3-5-----5-3--------', G: '-----4-------4------' }, { B: '-3-----3------------', G: '---4-2---4-2--------', D: '-------------5------' }, { e: '-----3--------------', B: '-3-5---5-3----------', G: '-----------4--------' }, { B: '---3-5--------------', G: '-4-----4------------' }, { e: '-3------------------', B: '---5-3--------------', G: '-------4-2----------' }, { B: '-3h5-3--------------', G: '-------4-2----------' }, { B: '-5-3----------------', G: '-----4--------------' },
-  ])),
-  solo('Churchy G Answer', 'Warm call-and-response', 'Small slides and repeated answers make the major sound sing instead of run.', makeBars('Soulful Major', [
-    { G: '-2-4-2--------------', D: '-------5------------' }, { B: '-----3--------------', G: '-2h4---4-2----------' }, { e: '-3-5-3--------------', B: '-------5-3----------' }, { B: '-3---3---5----------', G: '---4---4------------' }, { e: '-----3--------------', B: '-6-5---3------------', G: '---------4----------' }, { B: '---3----------------', G: '-4---2--------------' }, { B: '---3-5-3------------', G: '-4-------4-2--------' }, { e: '-3------------------', B: '---5-3--------------' },
-  ])),
-  solo('Porch Soul Major', 'Relaxed melodic phrase', 'The line uses fewer notes so the player can focus on tone and timing.', makeBars('Soulful Major', [
-    { B: '---3-5--------------', G: '-4-----4------------' }, { e: '---------3----------', B: '-----3-5---5--------', G: '-2h4----------------' }, { B: '-3/5-3--------------', G: '-------4-2----------' }, { B: '---3-5-3------------', G: '-4-------4-2--------' }, { e: '-5-3----------------', B: '-----5-3------------', G: '---------4----------' }, { B: '-----3-5------------', G: '-2-4-----4----------' }, { B: '-3h5-3--------------', G: '-------4-2----------' }, { G: '-2h4----------------', D: '-----5--------------' },
-  ])),
-  solo('Major Lift', 'Climbing then resolving', 'Bars 5–6 lift the energy, then bars 7–8 settle back to a strong G chord tone.', makeBars('Soulful Major', [
-    { e: '-----3--------------', B: '-3-5---5-3----------' }, { B: '-5-3----------------', G: '-----4-2------------', D: '---------5----------' }, { B: '-----3-5-3----------', G: '-2h4-------4-2------' }, { e: '-------3-5----------', B: '-3-5-6--------------' }, { B: '-3---3---5----------', G: '---4---4------------' }, { e: '---------3----------', B: '-----3-5---5--------' }, { e: '-5-3----------------', B: '-----5-3------------' }, { B: '-----3--------------', G: '-4-2----------------', D: '-----5--------------' },
-  ])),
-  solo('Simple Soul Loop', 'Easy TV-readable melody', 'Clear two-bar statements keep the solo easy to read and easy to loop.', makeBars('Soulful Major', [
-    { B: '-----3--------------', G: '-2h4---4-2----------' }, { e: '-3-5-3--------------', B: '-------5-3----------' }, { B: '-3-----3------------', G: '---4-2---4-2--------' }, { e: '-----3--------------', B: '-3-5---5-3----------' }, { G: '-2-4-2--------------', D: '-------5------------' }, { B: '---3-5--------------', G: '-4-----4------------' }, { B: '-5-3----------------', G: '-----4-2------------' }, { e: '-3------------------', B: '---5-3--------------' },
-  ])),
-];
-
-curatedSolos['Country-ish'] = [
-  solo('Bright D Country', 'Major pentatonic snap', 'Hammer-ons and open-position shapes create a country feel while staying easy to read.', makeBars('Country-ish', [
-    { e: '-2-3-2--------------', B: '-------3------------', G: '---------2----------' }, { e: '-----2-5-2----------', B: '-3-5-------5-3------' }, { e: '-2-----2------------', B: '---3-5---3----------', G: '-----------2--------' }, { e: '---2-3-5------------', B: '-3------------------' }, { B: '-3-5-3--------------', G: '-------4-2----------' }, { e: '-5-3-2--------------', B: '-------5-3----------' }, { e: '-----2--------------', B: '-3h5---5-3----------' }, { e: '-2------------------', B: '---3----------------' },
-  ])),
-  solo('Chicken Pickin Easy', 'Snappy answers', 'The solo alternates short high-string ideas with simple lower-string resolutions.', makeBars('Country-ish', [
-    { B: '-3---3--------------', G: '---2---2------------' }, { e: '-2/5-2--------------', B: '-------3------------' }, { e: '---2----------------', B: '-5---3--------------', G: '-------2------------' }, { B: '-----3-5------------', G: '-2-4-----2----------' }, { e: '-2-2----------------', B: '-----3-5------------' }, { e: '-------2-5----------', B: '-3-5-3--------------' }, { e: '-5-2----------------', B: '-----5-3------------' }, { B: '-3h5-3--------------', G: '-------2------------' },
-  ])),
-  solo('Front Porch Country', 'Melodic and open', 'Longer spaces keep the phrase playable and give the notes room to twang.', makeBars('Country-ish', [
-    { e: '---2-3-2------------', B: '-3-------3----------' }, { G: '-2-4-2--------------', D: '-------4------------' }, { e: '-2-3-5-3-2----------', B: '-----------3--------' }, { B: '-5b6-5-3------------', G: '---------2----------' }, { e: '-----2--------------', B: '-3-5---3------------', G: '---------2----------' }, { e: '-5-3-2--------------', B: '-------3------------' }, { B: '-3h5-3--------------', G: '-------2------------' }, { e: '-2------------------', B: '---3----------------' },
-  ])),
-  solo('D Major Roadhouse', 'Upbeat major line', 'The two-bar phrases climb and answer in a way that fits over a simple D progression.', makeBars('Country-ish', [
-    { e: '-----2--------------', B: '-3h5---5-3----------' }, { e: '-2-----2------------', B: '---3-5---3----------' }, { e: '---2-3-5------------', B: '-3------------------' }, { e: '-5-3-2--------------', B: '-------5-3----------' }, { B: '-----3-5------------', G: '-2-4-----2----------' }, { e: '-------2-5----------', B: '-3-5-3--------------' }, { B: '-5b6-5-3------------', G: '---------2----------' }, { e: '-----2--------------', B: '-3-5---3------------' },
-  ])),
-  solo('Simple Country Loop', 'Beginner-friendly loop', 'The ending lands clearly so the whole 8 bars can repeat without feeling unfinished.', makeBars('Country-ish', [
-    { e: '-2-3-2--------------', B: '-------3------------' }, { B: '-3-5-3--------------', G: '-------4-2----------' }, { e: '-----2-5-2----------', B: '-3-5-------5-3------' }, { e: '-2/5-2--------------', B: '-------3------------' }, { e: '-5-2----------------', B: '-----5-3------------' }, { e: '---2-3-2------------', B: '-3-------3----------' }, { e: '-2-3-5-3-2----------', B: '-----------3--------' }, { e: '-2------------------', B: '---3----------------' },
-  ])),
-];
-
-const curatedPhraseLibrary = Object.fromEntries(Object.entries(curatedSolos).map(([styleName, solos]) => [
-  styleName,
-  solos.flatMap((entry) => [0, 2, 4, 6].map((start, phraseIndex) => ({
-    title: `${entry.title} bars ${start + 1}-${start + 2}`,
-    phraseIndex,
-    vibe: entry.vibe,
-    why: entry.why,
-    bars: entry.bars.slice(start, start + 2),
-  }))),
-]));
-
-function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
-
-function cloneBars(styleName, bars) {
-  return bars.map((bar, index) => ({
-    ...bar,
-    number: index + 1,
-    chord: progressions[styleName][index],
-    tab: bar.tab || cleanTab(bar),
-  }));
-}
-
-function buildSolo(key, style, difficulty, emphasis = '') {
-  const styleSolos = curatedSolos[style] || curatedSolos.Blues;
-  const useFullSolo = !emphasis || Math.random() < 0.65;
-  const chosen = useFullSolo ? pick(styleSolos) : null;
-  const phrases = curatedPhraseLibrary[style] || curatedPhraseLibrary.Blues;
-  const selectedPhrases = chosen ? [] : [0, 1, 2, 3].map((phraseIndex) => pick(phrases.filter((phrase) => phrase.phraseIndex === phraseIndex)));
-  const bars = chosen ? cloneBars(style, chosen.bars) : cloneBars(style, selectedPhrases.flatMap((phrase) => phrase.bars));
-  const title = chosen ? chosen.title : `${style} Phrase Mix`;
-  const vibe = emphasis || chosen?.vibe || 'Curated two-bar phrase mix';
-  const why = chosen?.why || `This solo combines four compatible two-bar ${style.toLowerCase()} phrases, keeping each idea playable and readable before moving to the next answer.`;
-  const tempoBase = difficulty === 'Beginner' ? 72 : 88;
-  const tempoBoost = style === 'Rock' ? 8 : style === 'Country-ish' ? 4 : 0;
-
+function makeSolo({ title, key, style, difficulty = 'Beginner', tempo, notes, steps, bars }) {
   return {
-    title: `${title} Practice Sheet`, key, style, difficulty, flavor: vibe, openingTab: bars[0].tab,
-    suggestedTempo: `${tempoBase + tempoBoost}–${tempoBase + tempoBoost + 12} bpm`, chordProgression: bars.map((bar) => bar.chord), bars,
-    practiceNotes: ['Read one two-bar phrase at a time before trying the full solo.', 'Keep the rhythm relaxed; these are practice-sheet phrases, not tiny generated fragments.', difficulty === 'Beginner' ? 'Loop bars 1–2 until they feel automatic, then add the next pair.' : 'After learning the tab, change only the final note of each two-bar phrase.'],
-    musicalityNotes: ['Bars 1–2 introduce a clear lick.', 'Bars 3–4 answer or repeat the idea.', 'Bars 5–6 lift the energy without crowding the tab.', 'Bars 7–8 resolve clearly so the solo can loop.'],
-    whyItWorks: `${why} The long labels are kept here instead of inside the tab grid so the TV view stays clean.`,
+    title,
+    key,
+    style,
+    difficulty,
+    tempo,
+    chordProgression: progressions[style],
+    bars: makeBars(style, bars),
+    musicalityNotes: notes,
+    practiceSteps: steps,
   };
 }
 
+const curatedSolos = [
+  makeSolo({ title: 'Front Porch A Blues', key: 'A', style: 'Blues', tempo: 72, notes: ['Bars 1–2 state a compact A blues-box motif and answer it.', 'Bars 3–4 repeat the bend-and-resolution idea with more space.', 'Bars 7–8 land on A/C# chord tones before the E7 turnaround.'], steps: ['Clap the rests before adding notes.', 'Practice the 7b9 bend slowly and keep it vocal.', 'Loop bars 7–8 until the ending feels settled.'], bars: [{ B: '------------5h8-5---', G: '--------5h6-------6--' }, { e: '-----------5--------', B: '-------5h8---8-5----', G: '-----6-----------6--' }, { B: '-----5--------------', G: '-7b9---7-5----------', D: '-----------7--------' }, { B: '-----5---5----------', G: '---5h6---6-5--------', D: '-7-----------7------' }, { e: '---------5----------', B: '-----5h8---8-5------', G: '---6-----------6----' }, { B: '-8-5----------------', G: '-----7-5------------', D: '---------7-5h7------' }, { B: '-----5--------------', G: '-5h6---6-5----------', D: '-----------7--------' }, { e: '-----5--------------', B: '-8-5---8-5----------', G: '-----------6--------' }] }),
+  makeSolo({ title: 'Slow Bend A Blues', key: 'A', style: 'Blues', difficulty: 'Easy-Plus', tempo: 68, notes: ['The same bend sound returns so the solo has a hook.', 'Open spaces after each answer keep it from sounding like an exercise.', 'The final bar resolves to the A major third for a clear blues ending.'], steps: ['Sing each bend before playing it.', 'Mute unused strings during the rests.', 'Play the last note longer than written.'], bars: [{ B: '-----5--------------', G: '-7b9---7-5----------', D: '-----------7--------' }, { e: '---------5----------', B: '-----5h8---8-5------', G: '---6-----------6----' }, { B: '-5-----5------------', G: '---7-5---6----------', D: '-----------7--------' }, { G: '---5-6--------------', D: '-7-----7------------' }, { B: '-------5-8-5--------', G: '---5h6-------6------' }, { e: '-5------------------', B: '---8-5--------------', G: '-------7-5----------', D: '-----------7--------' }, { G: '-5-7b8-5------------', D: '---------7----------' }, { B: '-5------------------', G: '---6-5--------------', D: '-------7------------' }] }),
+  makeSolo({ title: 'Answer Back Blues', key: 'A', style: 'Blues', tempo: 76, notes: ['Bars 1–4 ask a small question and bars 5–8 answer it.', 'Hammer-ons are used as vocal pickups, not as fast filler.', 'The ending outlines A7 against the E7 bar for a loopable turnaround.'], steps: ['Learn bars 1–2 as one sentence.', 'Copy that timing in bars 5–6.', 'Make the last two bars quieter and more relaxed.'], bars: [{ G: '---5-6--------------', D: '-7-----7------------' }, { B: '-----5--------------', G: '---5h6---6----------', D: '-7----------7-------' }, { B: '-5-----5------------', G: '---7-5---6----------', D: '-----------7--------' }, { e: '-----5--------------', B: '-8-5---8-5----------', G: '-----------6--------' }, { B: '-------5-8-5--------', G: '---5h6-------6------' }, { e: '-5------------------', B: '---8-5--------------', G: '-------7-5----------', D: '-----------7--------' }, { B: '-----5---5----------', G: '-7b9---7---5--------', D: '-------------7------' }, { G: '-5h6----------------', D: '-----7--------------' }] }),
+  makeSolo({ title: 'Garage E Rock', key: 'E', style: 'Rock', tempo: 92, notes: ['A repeated E minor-pentatonic riff anchors the solo.', 'The high-string answer in bar 4 gives the phrase a chorus-like lift.', 'The final E note makes the line resolve instead of drift.'], steps: ['Palm-mute the lower string notes lightly.', 'Keep the bar-4 answer short and punchy.', 'Loop with a steady down-up picking pattern.'], bars: [{ G: '-----2-4-2----------', D: '-2-4-------4-2------' }, { B: '-----3--------------', G: '-2h4---4-2----------', D: '-----------4--------' }, { G: '-2-2-4-2------------', D: '---------4-2--------' }, { e: '-----3-0------------', B: '-3-0-----3-0--------', G: '-------------2------' }, { D: '-2-4-5-4-2----------', A: '-----------2--------' }, { G: '-4b5-4-2------------', D: '---------4----------' }, { B: '-3-5-3--------------', G: '-------4-2----------' }, { G: '-4-2----------------', D: '-----2--------------' }] }),
+  makeSolo({ title: 'Power Chord Answer', key: 'E', style: 'Rock', difficulty: 'Easy-Plus', tempo: 96, notes: ['Lower-string riffs are answered by upper-string hooks.', 'Slides and a small bend add attitude without adding clutter.', 'The last bar resolves directly to E.'], steps: ['Practice the first two bars with a metronome.', 'Let the slide in bar 4 connect smoothly.', 'Accent the first note of every two-bar phrase.'], bars: [{ D: '-2-4-5-4-2----------', A: '-----------2--------' }, { G: '-----2--------------', D: '-2-4---4-2----------' }, { B: '---3---3------------', G: '-4---4---2----------' }, { G: '-2/4-2--------------', D: '-------4-2----------' }, { G: '-2---2---4----------', D: '---4---4------------' }, { e: '-3-0----------------', B: '-----3-0------------', G: '---------2----------' }, { B: '---3-5b6-3----------', G: '-4---------4--------' }, { D: '-4-2----------------', A: '-----2--------------' }] }),
+  makeSolo({ title: 'Open Road Rock', key: 'E', style: 'Rock', tempo: 88, notes: ['The rhythm repeats enough to feel like a real riff.', 'Bars 5–6 climb into a simple melodic peak.', 'The ending comes back to the low E center.'], steps: ['Count four beats in every bar before playing.', 'Keep bends small and controlled.', 'Record yourself and check that the motif is recognizable.'], bars: [{ G: '-2-4-2-4------------', D: '---------2----------' }, { B: '-----3--------------', G: '-4-2---4-2----------' }, { G: '-------2-4----------', D: '-2-4-5--------------' }, { G: '-4-2----------------', D: '-----4-2------------', A: '---------2----------' }, { B: '-3------------------', G: '---4-2--------------', D: '-------4-2----------' }, { e: '---------3----------', B: '-----3-5---5-3------' }, { G: '-2/4-2--------------', D: '-------4-2----------' }, { B: '-----3--------------', G: '-4-2----------------', D: '-----2--------------' }] }),
+  makeSolo({ title: 'Sweet G Major', key: 'G', style: 'Soulful Major', tempo: 76, notes: ['Major-pentatonic notes create a warm, vocal sound.', 'The opening motif returns in smaller pieces later in the solo.', 'The final G/B sound resolves sweetly over the D bar.'], steps: ['Play every phrase legato and relaxed.', 'Hold the first note after each rest.', 'Name the G, B, and D chord tones as you play.'], bars: [{ B: '-----3-5-3----------', G: '-2h4-------4-2------' }, { e: '-------3------------', B: '-3-5-----5-3--------', G: '-----4-------4------' }, { B: '-3-----3------------', G: '---4-2---4-2--------', D: '-------------5------' }, { e: '-----3--------------', B: '-3-5---5-3----------', G: '-----------4--------' }, { B: '---3-5--------------', G: '-4-----4------------' }, { e: '-3------------------', B: '---5-3--------------', G: '-------4-2----------' }, { B: '-3h5-3--------------', G: '-------4-2----------' }, { B: '-5-3----------------', G: '-----4--------------' }] }),
+  makeSolo({ title: 'Churchy G Answer', key: 'G', style: 'Soulful Major', difficulty: 'Easy-Plus', tempo: 72, notes: ['Call-and-response phrasing makes the melody sing.', 'Small hammer-ons add expression while staying beginner-friendly.', 'The last phrase relaxes into a G major color.'], steps: ['Use light vibrato on held notes.', 'Do not rush the pickups.', 'Practice bars 7–8 as the ending first.'], bars: [{ G: '-2-4-2--------------', D: '-------5------------' }, { B: '-----3--------------', G: '-2h4---4-2----------' }, { e: '-3-5-3--------------', B: '-------5-3----------' }, { B: '-3---3---5----------', G: '---4---4------------' }, { e: '-----3--------------', B: '-6-5---3------------', G: '---------4----------' }, { B: '---3----------------', G: '-4---2--------------' }, { B: '---3-5-3------------', G: '-4-------4-2--------' }, { e: '-3------------------', B: '---5-3--------------' }] }),
+  makeSolo({ title: 'Porch Soul Major', key: 'G', style: 'Soulful Major', tempo: 70, notes: ['Fewer notes leave more room for tone.', 'The slide in bar 3 sounds like a singer leaning into a note.', 'The final bar lands on G for a complete ending.'], steps: ['Play it at speaking speed first.', 'Make the slide audible but gentle.', 'Add your own vibrato only on the final note.'], bars: [{ B: '---3-5--------------', G: '-4-----4------------' }, { e: '---------3----------', B: '-----3-5---5--------', G: '-2h4----------------' }, { B: '-3/5-3--------------', G: '-------4-2----------' }, { B: '---3-5-3------------', G: '-4-------4-2--------' }, { e: '-5-3----------------', B: '-----5-3------------', G: '---------4----------' }, { B: '-----3-5------------', G: '-2-4-----4----------' }, { B: '-3h5-3--------------', G: '-------4-2----------' }, { G: '-2h4----------------', D: '-----5--------------' }] }),
+  makeSolo({ title: 'Bright D Country', key: 'D', style: 'Country-ish', tempo: 84, notes: ['Open-position D major shapes give the solo twang.', 'Hammer-ons and quick answers create a country feel without speed.', 'The final D/F# shape resolves cleanly.'], steps: ['Use a bright pick attack.', 'Keep the hammer-ons even.', 'Let the final D ring.'], bars: [{ e: '-2-3-2--------------', B: '-------3------------', G: '---------2----------' }, { e: '-----2-5-2----------', B: '-3-5-------5-3------' }, { e: '-2-----2------------', B: '---3-5---3----------', G: '-----------2--------' }, { e: '---2-3-5------------', B: '-3------------------' }, { B: '-3-5-3--------------', G: '-------4-2----------' }, { e: '-5-3-2--------------', B: '-------5-3----------' }, { e: '-----2--------------', B: '-3h5---5-3----------' }, { e: '-2------------------', B: '---3----------------' }] }),
+  makeSolo({ title: 'Chicken Pickin Easy', key: 'D', style: 'Country-ish', difficulty: 'Easy-Plus', tempo: 88, notes: ['Short snappy answers create the chicken-pickin character.', 'The slide gives one flashy moment without making the solo hard.', 'The ending targets D chord tones.'], steps: ['Play staccato in bars 1–2.', 'Slide slowly at first, then tighten the timing.', 'Practice muting after each short phrase.'], bars: [{ B: '-3---3--------------', G: '---2---2------------' }, { e: '-2/5-2--------------', B: '-------3------------' }, { e: '---2----------------', B: '-5---3--------------', G: '-------2------------' }, { B: '-----3-5------------', G: '-2-4-----2----------' }, { e: '-2-2----------------', B: '-----3-5------------' }, { e: '-------2-5----------', B: '-3-5-3--------------' }, { e: '-5-2----------------', B: '-----5-3------------' }, { B: '-3h5-3--------------', G: '-------2------------' }] }),
+  makeSolo({ title: 'Front Porch Country', key: 'D', style: 'Country-ish', tempo: 80, notes: ['Long spaces make the melody feel relaxed and playable.', 'The bend in bar 4 is the expressive peak.', 'Bars 7–8 close like a complete sentence.'], steps: ['Leave silence after each two-bar idea.', 'Bend bar 4 only slightly and return in tune.', 'Play the ending three times in a row without stopping.'], bars: [{ e: '---2-3-2------------', B: '-3-------3----------' }, { G: '-2-4-2--------------', D: '-------4------------' }, { e: '-2-3-5-3-2----------', B: '-----------3--------' }, { B: '-5b6-5-3------------', G: '---------2----------' }, { e: '-----2--------------', B: '-3-5---3------------', G: '---------2----------' }, { e: '-5-3-2--------------', B: '-------3------------' }, { B: '-3h5-3--------------', G: '-------2------------' }, { e: '-2------------------', B: '---3----------------' }] }),
+];
+
+function pick(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function selectCuratedSolo(style, difficulty, previousTitle = '') {
+  const styleSolos = curatedSolos.filter((entry) => entry.style === style);
+  const difficultyMatches = styleSolos.filter((entry) => entry.difficulty === difficulty);
+  const pool = difficultyMatches.length ? difficultyMatches : styleSolos;
+  const freshPool = pool.length > 1 ? pool.filter((entry) => entry.title !== previousTitle) : pool;
+  return pick(freshPool.length ? freshPool : pool);
+}
+
 export function SoloGenerator() {
-  const [keyName, setKeyName] = useState('A');
   const [style, setStyle] = useState('Blues');
   const [difficulty, setDifficulty] = useState('Beginner');
-  const [emphasis, setEmphasis] = useState('');
   const [soloSeed, setSoloSeed] = useState(0);
   const [showWhy, setShowWhy] = useState(true);
   const [showSteps, setShowSteps] = useState(true);
@@ -287,9 +192,9 @@ export function SoloGenerator() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef(null);
   const stopTimerRef = useRef(null);
-  const previousOpeningRef = useRef('');
+  const previousTitleRef = useRef('');
 
-  const solo = useMemo(() => buildSolo(keyName, style, difficulty, emphasis, previousOpeningRef.current), [keyName, style, difficulty, emphasis, soloSeed]);
+  const solo = useMemo(() => selectCuratedSolo(style, difficulty, previousTitleRef.current), [style, difficulty, soloSeed]);
   const playbackEvents = useMemo(() => tabToPlaybackEvents(solo.bars), [solo]);
 
   const stopPlayback = useCallback(() => {
@@ -338,43 +243,33 @@ export function SoloGenerator() {
   };
 
   useEffect(() => {
-    previousOpeningRef.current = solo.openingTab;
-  }, [solo.openingTab]);
+    previousTitleRef.current = solo.title;
+  }, [solo.title]);
 
   useEffect(() => () => stopPlayback(), [stopPlayback]);
 
-  const regenerate = (nextEmphasis = emphasis) => {
+  const regenerate = () => {
     stopPlayback();
-    setEmphasis(nextEmphasis);
     setSoloSeed((value) => value + 1);
   };
 
   return (
     <div className={`solo-generator${isPracticeFullscreen ? ' solo-generator-fullscreen' : ''}`}>
-      {/* TODO: realistic guitar samples */}
-      {/* TODO: export audio file */}
-      {/* TODO: backing track playback */}
-      {/* TODO: metronome count-in */}
-      {/* TODO: animated fretboard playback */}
-      {/* TODO: save favorite solos */}
-      {/* TODO: AI-generated solos */}
-      {/* TODO: print/export tab */}
       <section className="solo-generator-controls" aria-label="Solo generator controls" hidden={isPracticeFullscreen}>
-        <fieldset><legend>Key</legend>{keys.map((item) => <button className={keyName === item ? 'active' : ''} key={item} type="button" onClick={() => setKeyName(item)}>{item}</button>)}</fieldset>
         <fieldset><legend>Style</legend>{styles.map((item) => <button className={style === item ? 'active' : ''} key={item} type="button" onClick={() => setStyle(item)}>{item}</button>)}</fieldset>
         <fieldset><legend>Difficulty</legend>{difficulties.map((item) => <button className={difficulty === item ? 'active' : ''} key={item} type="button" onClick={() => setDifficulty(item)}>{item}</button>)}</fieldset>
-        <button className="solo-generate-button" type="button" onClick={() => regenerate('')}>Generate New Solo</button>
+        <button className="solo-generate-button" type="button" onClick={regenerate}>Generate New Solo</button>
       </section>
 
       <section className="solo-output-card" aria-labelledby="generated-solo-title">
         <div className="solo-output-header">
-          <div><p className="guitar-kicker">Generated 8-bar solo</p><h2 id="generated-solo-title">{solo.title}</h2></div>
-          <div className="solo-meta"><span>{solo.style}</span><span>{solo.suggestedTempo}</span></div>
+          <div><p className="guitar-kicker">Curated 8-bar solo</p><h2 id="generated-solo-title">{solo.title}</h2></div>
+          <div className="solo-meta"><span>{solo.key}</span><span>{solo.style}</span><span>{solo.difficulty}</span><span>{solo.tempo} bpm</span></div>
         </div>
         <div className="solo-playback-panel" aria-label="Solo playback controls">
           <button className="solo-play-button" type="button" onClick={playSolo}>{isPlaying ? 'Restart Solo' : 'Play Solo'}</button>
           <button className="solo-stop-button" type="button" onClick={stopPlayback} disabled={!isPlaying}>Stop</button>
-          <fieldset className="solo-tempo-control"><legend>Tempo</legend>{Object.keys(playbackTempos).map((tempo) => <button className={playbackTempo === tempo ? 'active' : ''} key={tempo} type="button" onClick={() => setPlaybackTempo(tempo)}>{tempo}</button>)}</fieldset>
+          <fieldset className="solo-tempo-control"><legend>Playback speed</legend>{Object.keys(playbackTempos).map((tempo) => <button className={playbackTempo === tempo ? 'active' : ''} key={tempo} type="button" onClick={() => setPlaybackTempo(tempo)}>{tempo}</button>)}</fieldset>
         </div>
         <div className="solo-progression" aria-label="Chord progression">
           <strong>Chord progression:</strong>
@@ -382,7 +277,7 @@ export function SoloGenerator() {
             {solo.chordProgression.map((chord, index) => <span key={`${chord}-${index}`}>{chord}</span>)}
           </div>
         </div>
-        <div className="solo-tab-grid" aria-label="8-bar generated tablature">
+        <div className="solo-tab-grid" aria-label="8-bar curated tablature">
           {solo.bars.map((bar) => (
             <article className="solo-bar" key={`bar-${bar.number}`}>
               <div className="solo-bar-heading">Bar {bar.number} - {bar.chord}</div>
@@ -391,25 +286,23 @@ export function SoloGenerator() {
           ))}
         </div>
         <div className="solo-buttons" aria-label="Solo action buttons">
-          <button type="button" onClick={() => regenerate('')}>Generate New Solo</button>
+          <button type="button" onClick={regenerate}>Generate New Solo</button>
           {isPracticeFullscreen ? (
             <button type="button" onClick={() => setIsPracticeFullscreen(false)}>Exit Full Screen</button>
           ) : (
             <button type="button" onClick={() => setIsPracticeFullscreen(true)}>Full Screen Practice</button>
           )}
           {!isPracticeFullscreen && (<>
-            <button type="button" onClick={() => { setDifficulty('Beginner'); regenerate('Smooth'); }}>Easier</button>
-            <button type="button" onClick={() => { setStyle('Blues'); regenerate('Bluesy'); }}>More Bluesy</button>
-            <button type="button" onClick={() => { setStyle('Rock'); regenerate('Punchy'); }}>More Rock</button>
-            <button className={showWhy ? 'active' : ''} type="button" onClick={() => setShowWhy((value) => !value)}>Show Why It Works</button>
+            <button type="button" onClick={() => { setDifficulty('Beginner'); regenerate(); }}>Easier</button>
+            <button type="button" onClick={() => { setStyle('Blues'); regenerate(); }}>More Bluesy</button>
+            <button type="button" onClick={() => { setStyle('Rock'); regenerate(); }}>More Rock</button>
+            <button className={showWhy ? 'active' : ''} type="button" onClick={() => setShowWhy((value) => !value)}>Show Musicality Notes</button>
             <button className={showSteps ? 'active' : ''} type="button" onClick={() => setShowSteps((value) => !value)}>Show Practice Steps</button>
           </>)}
         </div>
         <div className="solo-learning-grid">
-          <div className="practice-box"><h3>Practice notes</h3><ul>{solo.practiceNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>
-          {!isPracticeFullscreen && showWhy && <div className="solo-explainer"><h3>Why it works</h3><p>{solo.whyItWorks}</p></div>}
-          {!isPracticeFullscreen && <div className="practice-box"><h3>Musicality Notes</h3><ul>{solo.musicalityNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>}
-          {!isPracticeFullscreen && showSteps && <div className="practice-box"><h3>Learning prompts</h3><ol>{learningPrompts.map((prompt) => <li key={prompt}>{prompt}</li>)}</ol></div>}
+          {!isPracticeFullscreen && showWhy && <div className="practice-box"><h3>Musicality Notes</h3><ul>{solo.musicalityNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>}
+          {!isPracticeFullscreen && showSteps && <div className="practice-box"><h3>Practice Steps</h3><ol>{solo.practiceSteps.map((step) => <li key={step}>{step}</li>)}</ol></div>}
         </div>
       </section>
     </div>
