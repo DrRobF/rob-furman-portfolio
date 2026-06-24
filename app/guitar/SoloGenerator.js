@@ -1,10 +1,131 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const keys = ['A', 'C', 'D', 'E', 'G'];
 const styles = ['Blues', 'Rock', 'Soulful Major', 'Country-ish'];
 const difficulties = ['Beginner', 'Easy-Plus'];
+
+
+const playbackTempos = {
+  Slow: 60,
+  Medium: 82,
+  'Full Speed': 104,
+};
+
+const stringMidi = {
+  e: 64,
+  B: 59,
+  G: 55,
+  D: 50,
+  A: 45,
+  E: 40,
+};
+
+function midiToFrequency(midi) {
+  return 440 * (2 ** ((midi - 69) / 12));
+}
+
+function parseTabBar(tab) {
+  const lines = tab.split('\n').map((line) => {
+    const match = line.match(/^([eBGDAE])\|([^|]*)\|/);
+    return match ? { string: match[1], notes: match[2] } : null;
+  }).filter(Boolean);
+  const events = [];
+
+  lines.forEach((line) => {
+    const baseMidi = stringMidi[line.string];
+    if (baseMidi === undefined) return;
+
+    for (let index = 0; index < line.notes.length; index += 1) {
+      if (!/\d/.test(line.notes[index])) continue;
+
+      const fretStart = index;
+      let fretText = '';
+      while (index < line.notes.length && /\d/.test(line.notes[index])) {
+        fretText += line.notes[index];
+        index += 1;
+      }
+
+      const before = line.notes[fretStart - 1] || '';
+      const after = line.notes[index] || '';
+      const marking = after === 'b' ? 'bend' : after === 'h' || before === 'h' ? 'hammer' : after === '/' || after === '\\' || before === '/' || before === '\\' ? 'slide' : '';
+
+      events.push({
+        offset: fretStart / Math.max(line.notes.length, 1),
+        midi: baseMidi + Number(fretText),
+        marking,
+      });
+
+      index -= 1;
+    }
+  });
+
+  return events.sort((a, b) => a.offset - b.offset || b.midi - a.midi);
+}
+
+function tabToPlaybackEvents(bars) {
+  const barBeats = 4;
+  const notes = bars.flatMap((bar, barIndex) => parseTabBar(bar.tab).map((note) => ({
+    ...note,
+    beat: (barIndex * barBeats) + (note.offset * barBeats),
+  })));
+
+  return notes.map((note, index) => {
+    const nextBeat = notes[index + 1]?.beat ?? ((bars.length + 0.15) * barBeats);
+    return {
+      ...note,
+      durationBeats: Math.max(0.22, Math.min(0.9, nextBeat - note.beat)),
+    };
+  });
+}
+
+function playPluckedNote(audioContext, destination, event, startTime, secondsPerBeat) {
+  const oscillator = audioContext.createOscillator();
+  const overtone = audioContext.createOscillator();
+  const filter = audioContext.createBiquadFilter();
+  const gain = audioContext.createGain();
+  const frequency = midiToFrequency(event.midi);
+  const duration = Math.max(0.12, event.durationBeats * secondsPerBeat * 0.9);
+
+  oscillator.type = 'triangle';
+  overtone.type = 'sawtooth';
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(2200, startTime);
+  filter.frequency.exponentialRampToValueAtTime(520, startTime + duration);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.26, startTime + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+  oscillator.frequency.setValueAtTime(frequency, startTime);
+  overtone.frequency.setValueAtTime(frequency * 2.01, startTime);
+
+  if (event.marking === 'bend') {
+    oscillator.frequency.linearRampToValueAtTime(frequency * 1.06, startTime + Math.min(0.24, duration * 0.65));
+    overtone.frequency.linearRampToValueAtTime(frequency * 2.13, startTime + Math.min(0.24, duration * 0.65));
+  }
+
+  if (event.marking === 'slide') {
+    oscillator.frequency.setValueAtTime(frequency * 0.94, startTime);
+    oscillator.frequency.linearRampToValueAtTime(frequency, startTime + Math.min(0.16, duration * 0.45));
+    overtone.frequency.setValueAtTime(frequency * 1.88, startTime);
+    overtone.frequency.linearRampToValueAtTime(frequency * 2.01, startTime + Math.min(0.16, duration * 0.45));
+  }
+
+  if (event.marking === 'hammer') {
+    gain.gain.setValueAtTime(0.13, startTime + Math.min(0.1, duration * 0.35));
+    gain.gain.exponentialRampToValueAtTime(0.22, startTime + Math.min(0.16, duration * 0.55));
+  }
+
+  oscillator.connect(filter);
+  overtone.connect(filter);
+  filter.connect(gain);
+  gain.connect(destination);
+  oscillator.start(startTime);
+  overtone.start(startTime);
+  oscillator.stop(startTime + duration + 0.04);
+  overtone.stop(startTime + duration + 0.04);
+}
 
 const learningPrompts = [
   'Find the root notes first.',
@@ -121,19 +242,74 @@ export function SoloGenerator() {
   const [showWhy, setShowWhy] = useState(true);
   const [showSteps, setShowSteps] = useState(true);
   const [isPracticeFullscreen, setIsPracticeFullscreen] = useState(false);
+  const [playbackTempo, setPlaybackTempo] = useState('Medium');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioContextRef = useRef(null);
+  const stopTimerRef = useRef(null);
 
   const solo = useMemo(() => buildSolo(keyName, style, difficulty, emphasis), [keyName, style, difficulty, emphasis, soloSeed]);
+  const playbackEvents = useMemo(() => tabToPlaybackEvents(solo.bars), [solo]);
+
+  const stopPlayback = useCallback(() => {
+    if (stopTimerRef.current) {
+      window.clearTimeout(stopTimerRef.current);
+      stopTimerRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+
+    setIsPlaying(false);
+  }, []);
+
+  const playSolo = async () => {
+    stopPlayback();
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const audioContext = new AudioContextClass();
+    audioContextRef.current = audioContext;
+
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
+
+    const masterGain = audioContext.createGain();
+    masterGain.gain.value = 0.78;
+    masterGain.connect(audioContext.destination);
+
+    const secondsPerBeat = 60 / playbackTempos[playbackTempo];
+    const startTime = audioContext.currentTime + 0.08;
+
+    playbackEvents.forEach((event) => {
+      playPluckedNote(audioContext, masterGain, event, startTime + (event.beat * secondsPerBeat), secondsPerBeat);
+    });
+
+    const finalBeat = playbackEvents.at(-1)?.beat ?? 0;
+    const finalDuration = playbackEvents.at(-1)?.durationBeats ?? 0;
+    const totalMs = ((finalBeat + finalDuration) * secondsPerBeat * 1000) + 450;
+    setIsPlaying(true);
+    stopTimerRef.current = window.setTimeout(stopPlayback, totalMs);
+  };
+
+  useEffect(() => () => stopPlayback(), [stopPlayback]);
 
   const regenerate = (nextEmphasis = emphasis) => {
+    stopPlayback();
     setEmphasis(nextEmphasis);
     setSoloSeed((value) => value + 1);
   };
 
   return (
     <div className={`solo-generator${isPracticeFullscreen ? ' solo-generator-fullscreen' : ''}`}>
-      {/* TODO: audio playback */}
-      {/* TODO: backing tracks */}
-      {/* TODO: animated note-by-note fretboard playback */}
+      {/* TODO: realistic guitar samples */}
+      {/* TODO: export audio file */}
+      {/* TODO: backing track playback */}
+      {/* TODO: metronome count-in */}
+      {/* TODO: animated fretboard playback */}
       {/* TODO: save favorite solos */}
       {/* TODO: AI-generated solos */}
       {/* TODO: print/export tab */}
@@ -148,6 +324,11 @@ export function SoloGenerator() {
         <div className="solo-output-header">
           <div><p className="guitar-kicker">Generated 8-bar solo</p><h2 id="generated-solo-title">{solo.title}</h2></div>
           <div className="solo-meta"><span>Key: {solo.key}</span><span>Style: {solo.style}</span><span>Tempo: {solo.suggestedTempo}</span></div>
+        </div>
+        <div className="solo-playback-panel" aria-label="Solo playback controls">
+          <button className="solo-play-button" type="button" onClick={playSolo}>{isPlaying ? 'Restart Solo' : 'Play Solo'}</button>
+          <button className="solo-stop-button" type="button" onClick={stopPlayback} disabled={!isPlaying}>Stop</button>
+          <fieldset className="solo-tempo-control"><legend>Tempo</legend>{Object.keys(playbackTempos).map((tempo) => <button className={playbackTempo === tempo ? 'active' : ''} key={tempo} type="button" onClick={() => setPlaybackTempo(tempo)}>{tempo}</button>)}</fieldset>
         </div>
         <div className="solo-progression" aria-label="Chord progression">
           <strong>Chord progression:</strong>
