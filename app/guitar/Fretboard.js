@@ -34,6 +34,7 @@ export function Fretboard({
   selectedNoteDetail,
   foundPositionKeys,
   incorrectPositionKey,
+  highlightedPositions,
   onNoteSelect,
 } = {}) {
   const [displayMode, setDisplayMode] = useState('selected');
@@ -118,11 +119,13 @@ export function Fretboard({
               const isSelected = selectedNote?.octaveName === string.octaveName && selectedNote?.fret === fret;
               const isFound = foundPositionKeys?.has(positionKey);
               const isIncorrect = incorrectPositionKey === positionKey;
-              const showName = shouldShowNote(string.octaveName, fret) || isSelected || isFound || isIncorrect;
+              const highlight = highlightedPositions?.get(positionKey);
+              const showName = shouldShowNote(string.octaveName, fret) || isSelected || isFound || isIncorrect || highlight;
+              const markerLabel = highlight?.label ?? note;
 
               return (
                 <button
-                  className={`fret-position${isSelected ? ' selected' : ''}${isFound ? ' correct' : ''}${isIncorrect ? ' incorrect' : ''}`}
+                  className={`fret-position${isSelected ? ' selected' : ''}${isFound ? ' correct' : ''}${isIncorrect ? ' incorrect' : ''}${highlight ? ` highlighted ${highlight.type}` : ''}`}
                   key={`${string.octaveName}-${fret}`}
                   type="button"
                   onClick={() => {
@@ -133,7 +136,7 @@ export function Fretboard({
                   aria-label={`${note} note on the ${string.octaveName} string, fret ${fret}`}
                 >
                   <span className="string-line" aria-hidden="true" />
-                  <span className="note-marker">{showName ? note : ''}</span>
+                  <span className="note-marker">{showName ? markerLabel : ''}</span>
                 </button>
               );
             }),
