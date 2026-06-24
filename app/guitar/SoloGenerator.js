@@ -212,8 +212,10 @@ function makeBars(style, noteEvents, chordProgression = styleFallbackProgression
 
 function makeSolo({ title, key, style, difficulty = 'Beginner', tempo, rhythmLabel = 'varied 2-bar phrasing', musicalityLevel = 'standard', notes, steps, bars }) {
   return {
+    id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
     title,
     sourceTitle: title,
+    sourceId: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
     key,
     style,
     difficulty,
@@ -241,7 +243,8 @@ function transposeSoloToKey(solo, targetKey) {
 
   return {
     ...solo,
-    title: `${targetKey} ${solo.style} Solo`,
+    id: `${solo.sourceId}-${targetKey.toLowerCase()}`,
+    title: `${targetKey} ${solo.sourceTitle.replace(/^[A-G]\s+|\s+[A-G]\s+/g, ' ')}`,
     key: targetKey,
     chordProgression,
     bars: makeBars(solo.style, noteEvents, chordProgression),
@@ -331,13 +334,15 @@ function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-function selectCuratedSolo(style, difficulty, key, previousTitle = '', preferMoreMusical = false) {
+function selectCuratedSolo(style, difficulty, key, previousSoloId = '', preferMoreMusical = false) {
   const styleSolos = curatedSolos.filter((entry) => entry.style === style);
   const difficultyMatches = styleSolos.filter((entry) => entry.difficulty === difficulty);
   const musicalMatches = preferMoreMusical ? difficultyMatches.filter((entry) => entry.musicalityLevel === 'more') : [];
-  const pool = musicalMatches.length ? musicalMatches : (difficultyMatches.length ? difficultyMatches : styleSolos);
-  const freshPool = pool.length > 1 ? pool.filter((entry) => entry.sourceTitle !== previousTitle && entry.title !== previousTitle) : pool;
-  return transposeSoloToKey(pick(freshPool.length ? freshPool : pool), key);
+  const preferredPool = musicalMatches.length ? musicalMatches : difficultyMatches;
+  const pool = preferredPool.length > 1 ? preferredPool : (styleSolos.length ? styleSolos : preferredPool);
+  const freshPool = pool.length > 1 ? pool.filter((entry) => entry.id !== previousSoloId) : pool;
+  const selected = transposeSoloToKey(pick(freshPool.length ? freshPool : pool), key);
+  return { ...selected, difficulty };
 }
 
 export function SoloGenerator() {
@@ -345,7 +350,6 @@ export function SoloGenerator() {
   const [difficulty, setDifficulty] = useState('Beginner');
   const [selectedKey, setSelectedKey] = useState('A');
   const [preferMoreMusical, setPreferMoreMusical] = useState(false);
-  const [soloSeed, setSoloSeed] = useState(0);
   const [showWhy, setShowWhy] = useState(true);
   const [showSteps, setShowSteps] = useState(true);
   const [isPracticeFullscreen, setIsPracticeFullscreen] = useState(false);
@@ -357,11 +361,7 @@ export function SoloGenerator() {
   const audioContextRef = useRef(null);
   const stopTimerRef = useRef(null);
   const beatTimerRef = useRef(null);
-  const previousTitleRef = useRef('');
-
-  useEffect(() => {
-    setSelectedSolo(selectCuratedSolo(style, difficulty, selectedKey, previousTitleRef.current, preferMoreMusical));
-  }, [style, difficulty, selectedKey, preferMoreMusical, soloSeed]);
+  const previousSoloIdRef = useRef('');
 
   const soloValidation = useMemo(() => validateSolo(selectedSolo, selectedKey), [selectedSolo, selectedKey]);
   const selectedSoloIsValid = soloValidation.isValid;
@@ -420,7 +420,9 @@ export function SoloGenerator() {
 
     const secondsPerBeat = 60 / playbackTempos[playbackTempo];
     if (!selectedSoloIsValid) {
-      setSelectedSolo(selectCuratedSolo(style, difficulty, selectedKey, previousTitleRef.current, preferMoreMusical));
+      const nextSolo = selectCuratedSolo(style, difficulty, selectedKey, selectedSolo.sourceId ?? previousSoloIdRef.current, preferMoreMusical);
+      previousSoloIdRef.current = nextSolo.sourceId;
+      setSelectedSolo(nextSolo);
       return;
     }
 
@@ -452,25 +454,50 @@ export function SoloGenerator() {
     stopTimerRef.current = window.setTimeout(stopPlayback, totalMs);
   };
 
-  useEffect(() => {
-    previousTitleRef.current = selectedSolo.sourceTitle ?? selectedSolo.title;
-  }, [selectedSolo.title]);
-
   useEffect(() => () => stopPlayback(), [stopPlayback]);
+
+  const rebuildSolo = useCallback((nextOptions = {}) => {
+    const nextStyle = nextOptions.style ?? style;
+    const nextDifficulty = nextOptions.difficulty ?? difficulty;
+    const nextKey = nextOptions.key ?? selectedKey;
+    const nextPreferMoreMusical = nextOptions.preferMoreMusical ?? preferMoreMusical;
+    const previousSoloId = nextOptions.previousSoloId ?? previousSoloIdRef.current;
+    const nextSolo = selectCuratedSolo(nextStyle, nextDifficulty, nextKey, previousSoloId, nextPreferMoreMusical);
+    previousSoloIdRef.current = nextSolo.sourceId;
+    setSelectedSolo(nextSolo);
+  }, [difficulty, preferMoreMusical, selectedKey, style]);
+
+  const handleStyleChange = (nextStyle) => {
+    stopPlayback();
+    setStyle(nextStyle);
+    rebuildSolo({ style: nextStyle });
+  };
+
+  const handleKeyChange = (nextKey) => {
+    stopPlayback();
+    setSelectedKey(nextKey);
+    rebuildSolo({ key: nextKey, previousSoloId: selectedSolo.sourceId });
+  };
+
+  const handleDifficultyChange = (nextDifficulty) => {
+    stopPlayback();
+    setDifficulty(nextDifficulty);
+    rebuildSolo({ difficulty: nextDifficulty });
+  };
 
   const regenerate = () => {
     stopPlayback();
-    setSoloSeed((value) => value + 1);
+    rebuildSolo({ previousSoloId: selectedSolo.sourceId });
   };
 
   return (
     <div className={`solo-generator${isPracticeFullscreen ? ' solo-generator-fullscreen' : ''}`}>
       <section className="solo-generator-controls" aria-label="Solo generator controls" hidden={isPracticeFullscreen}>
-        <fieldset><legend>Style</legend>{styles.map((item) => <button className={style === item ? 'active' : ''} key={item} type="button" onClick={() => setStyle(item)}>{item}</button>)}</fieldset>
-        <fieldset><legend>Key</legend>{keys.map((item) => <button className={selectedKey === item ? 'active' : ''} key={item} type="button" onClick={() => setSelectedKey(item)}>{item}</button>)}</fieldset>
-        <fieldset><legend>Difficulty</legend>{difficulties.map((item) => <button className={difficulty === item ? 'active' : ''} key={item} type="button" onClick={() => setDifficulty(item)}>{item}</button>)}</fieldset>
+        <fieldset><legend>Style</legend>{styles.map((item) => <button className={style === item ? 'active' : ''} key={item} type="button" onClick={() => handleStyleChange(item)}>{item}</button>)}</fieldset>
+        <fieldset><legend>Key</legend>{keys.map((item) => <button className={selectedKey === item ? 'active' : ''} key={item} type="button" onClick={() => handleKeyChange(item)}>{item}</button>)}</fieldset>
+        <fieldset><legend>Difficulty</legend>{difficulties.map((item) => <button className={difficulty === item ? 'active' : ''} key={item} type="button" onClick={() => handleDifficultyChange(item)}>{item}</button>)}</fieldset>
         <button className="solo-generate-button" type="button" onClick={regenerate}>Generate New Solo</button>
-        <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { setPreferMoreMusical(true); setDifficulty('Easy-Plus'); regenerate(); }}>Too Basic / More Musical</button>
+        <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Easy-Plus'); rebuildSolo({ difficulty: 'Easy-Plus', preferMoreMusical: true, previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
       </section>
 
       <section className="solo-output-card" aria-labelledby="generated-solo-title">
@@ -510,16 +537,16 @@ export function SoloGenerator() {
         </div>
         <div className="solo-buttons" aria-label="Solo action buttons">
           <button type="button" onClick={regenerate}>Generate New Solo</button>
-          <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { setPreferMoreMusical(true); setDifficulty('Easy-Plus'); regenerate(); }}>Too Basic / More Musical</button>
+          <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Easy-Plus'); rebuildSolo({ difficulty: 'Easy-Plus', preferMoreMusical: true, previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
           {isPracticeFullscreen ? (
             <button type="button" onClick={() => setIsPracticeFullscreen(false)}>Exit Full Screen</button>
           ) : (
             <button type="button" onClick={() => setIsPracticeFullscreen(true)}>Full Screen Practice</button>
           )}
           {!isPracticeFullscreen && (<>
-            <button type="button" onClick={() => { setDifficulty('Beginner'); regenerate(); }}>Easier</button>
-            <button type="button" onClick={() => { setStyle('Blues'); regenerate(); }}>More Bluesy</button>
-            <button type="button" onClick={() => { setStyle('Rock'); regenerate(); }}>More Rock</button>
+            <button type="button" onClick={() => { setDifficulty('Beginner'); rebuildSolo({ difficulty: 'Beginner', previousSoloId: selectedSolo.sourceId }); }}>Easier</button>
+            <button type="button" onClick={() => { setStyle('Blues'); rebuildSolo({ style: 'Blues', previousSoloId: selectedSolo.sourceId }); }}>More Bluesy</button>
+            <button type="button" onClick={() => { setStyle('Rock'); rebuildSolo({ style: 'Rock', previousSoloId: selectedSolo.sourceId }); }}>More Rock</button>
             <button className={showWhy ? 'active' : ''} type="button" onClick={() => setShowWhy((value) => !value)}>Show Musicality Notes</button>
             <button className={showSteps ? 'active' : ''} type="button" onClick={() => setShowSteps((value) => !value)}>Show Practice Steps</button>
           </>)}
