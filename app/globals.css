@@ -4726,7 +4726,7 @@ p {
 .solo-tab-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.45rem, 1vw, 0.75rem);
+  gap: clamp(0.7rem, 1.2vw, 1rem);
 }
 
 .solo-progression-grid span {
@@ -4744,22 +4744,22 @@ p {
 .solo-bar {
   border: 2px solid rgba(250, 204, 21, 0.58);
   border-radius: 18px;
-  background: rgba(2, 6, 23, 0.7);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: #020617;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
 .solo-bar-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.5rem;
-  background: rgba(250, 204, 21, 0.14);
-  border-bottom: 1px solid rgba(250, 204, 21, 0.36);
+  background: rgba(250, 204, 21, 0.18);
+  border-bottom: 1px solid rgba(250, 204, 21, 0.42);
   color: #fef9c3;
-  font-size: clamp(0.95rem, 1.6vw, 1.35rem);
+  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
   font-weight: 950;
-  padding: 0.45rem 0.65rem;
+  padding: 0.5rem 0.65rem;
 }
 
 .solo-bar-heading strong {
@@ -4784,10 +4784,10 @@ p {
   border-radius: 0;
   background: transparent;
   color: #ffffff;
-  font-size: clamp(0.72rem, 1.12vw, 1.08rem);
-  line-height: 1.35;
-  overflow-x: auto;
-  padding: clamp(0.45rem, 0.9vw, 0.7rem);
+  font-size: clamp(0.86rem, 1.28vw, 1.2rem);
+  line-height: 1.42;
+  overflow: hidden;
+  padding: clamp(0.6rem, 1vw, 0.85rem);
   white-space: pre;
 }
 
@@ -4805,8 +4805,8 @@ p {
 }
 
 .solo-generator-fullscreen .solo-tab-grid .solo-tab {
-  font-size: clamp(0.68rem, 1.35vw, 1.12rem);
-  line-height: 1.22;
+  font-size: clamp(0.82rem, 1.45vw, 1.22rem);
+  line-height: 1.28;
 }
 
 .solo-generator-fullscreen .solo-learning-grid {
@@ -4886,8 +4886,8 @@ p {
   }
 
   .solo-tab-grid .solo-tab {
-    font-size: clamp(0.62rem, 1.55vw, 0.9rem);
-    line-height: 1.12;
-    padding: 0.35rem;
+    font-size: clamp(0.72rem, 1.62vw, 0.98rem);
+    line-height: 1.18;
+    padding: 0.4rem;
   }
 }
