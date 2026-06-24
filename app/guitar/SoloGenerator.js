@@ -292,13 +292,108 @@ const endingLicks = {
 
 const personalities = ['Smooth', 'Bluesy', 'Punchy', 'Repeating motif', 'Climbing', 'Answering phrase'];
 
-function pick(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
+const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const openStringPitches = { e: 64, B: 59, G: 55, D: 50, A: 45, E: 40 };
 
-function pickWithTag(bank, tags, usedTabs) {
-  const candidates = bank.filter((item) => tags.some((tag) => item.tags.includes(tag)) && !usedTabs.has(item.tab));
-  return pick(candidates.length ? candidates : bank.filter((item) => !usedTabs.has(item.tab)));
+const rhythmTemplates = [
+  { name: 'long note + short answer', beats: [0, 2.5, 3], sustain: true, space: true },
+  { name: 'two-note pickup', beats: [1.5, 2, 3], pickup: true },
+  { name: 'rest then phrase', beats: [1, 1.5, 2.5, 3.25], space: true },
+  { name: 'repeated eighth notes', beats: [0, 0.5, 1, 1.5, 2, 2.5], repeated: true },
+  { name: 'quarter-note bends', beats: [0, 1, 2.5], technique: 'bend', space: true },
+  { name: 'triplet feel', beats: [0, 0.66, 1.33, 2, 3], triplet: true },
+  { name: 'syncopated rock rhythm', beats: [0, 0.75, 1.5, 2.5, 3.25], syncopated: true },
+  { name: 'blues shuffle feel', beats: [0, 0.66, 1.33, 2, 2.66, 3.33], shuffle: true },
+  { name: 'spacious soulful phrase', beats: [0.5, 2, 3], space: true, sustain: true },
+  { name: 'fast ending run', beats: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5], run: true },
+  { name: 'call with held first note', beats: [0, 1.5, 2.25, 3], sustain: true },
+  { name: 'answer after a breath', beats: [1.25, 2, 2.5, 3.25], space: true },
+  { name: 'short stab then rest', beats: [0, 0.5, 2.5], space: true },
+  { name: 'three-note motif', beats: [0, 0.75, 1.5, 3], motif: true },
+  { name: 'lazy backbeat answer', beats: [1, 2, 3], space: true },
+  { name: 'front porch shuffle', beats: [0, 0.66, 1.33, 3], shuffle: true, space: true },
+  { name: 'rock push on the and', beats: [0.5, 1, 1.5, 2.5, 3], syncopated: true },
+  { name: 'held bend release', beats: [0, 2, 3], technique: 'bend', sustain: true, space: true },
+  { name: 'major pentatonic skip', beats: [0, 1, 1.5, 2.5], space: true },
+  { name: 'country snap', beats: [0, 0.5, 1, 2.5, 3], technique: 'hammer' },
+  { name: 'slide into answer', beats: [0.5, 1, 2, 3], technique: 'slide', space: true },
+  { name: 'two long tones', beats: [0, 2], space: true, sustain: true },
+  { name: 'question mark ending', beats: [0, 1, 2.75], space: true },
+  { name: 'falling eighths', beats: [0, 0.5, 1, 1.5, 3], fall: true },
+  { name: 'climbing pickup run', beats: [1, 1.5, 2, 2.5, 3], climb: true },
+  { name: 'soul pause and reply', beats: [0, 2.25, 3], space: true, sustain: true },
+  { name: 'blues rake idea', beats: [0, 0.5, 1.5, 2.5], technique: 'bend' },
+  { name: 'punchy root repeat', beats: [0, 0.5, 1, 2, 2.5], repeated: true },
+  { name: 'turnaround breath', beats: [0, 1.5, 2.5, 3.5], space: true },
+  { name: 'final held resolve', beats: [0, 1, 2.5], space: true, sustain: true },
+  { name: 'quick hammer answer', beats: [0.5, 1, 1.5, 3], technique: 'hammer' },
+  { name: 'syncopated two-bar lift', beats: [0, 0.75, 2, 2.75, 3.5], syncopated: true },
+];
+
+const styleSettings = {
+  Blues: { scale: [0, 3, 5, 6, 7, 10], targets: [0, 4, 7, 10], techniques: ['bend', 'hammer'], notes: 'bends, flat-3 to major-3 flavor, dominant-7 targets, and repeated call-and-response ideas' },
+  Rock: { scale: [0, 3, 5, 7, 10], targets: [0, 7], techniques: ['slide', 'bend'], notes: 'punchy repeated notes, slides, short aggressive phrases, and strong root endings' },
+  'Soulful Major': { scale: [0, 2, 4, 7, 9], targets: [0, 4, 7, 9], techniques: ['slide', 'hammer'], notes: 'fewer notes, more space, and sweet 3rd/6th resolutions' },
+  'Country-ish': { scale: [0, 2, 4, 7, 9], targets: [0, 4, 7], techniques: ['hammer', 'slide'], notes: 'major-pentatonic hammer-on/pull-off style movement with bright chord-tone endings' },
+};
+
+function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+function noteIndex(name) { return noteNames.indexOf(name.replace('b', '#')); }
+function pitchClass(midi) { return ((midi % 12) + 12) % 12; }
+function chordRoot(chord) { return chord.match(/[A-G]#?/)[0]; }
+function chordTones(chord, style) {
+  const root = noteIndex(chordRoot(chord));
+  const dominant = chord.includes('7') || style === 'Blues';
+  const minor = chord.includes('m') && !chord.includes('maj');
+  return [0, minor ? 3 : 4, 7, ...(dominant ? [10] : [])].map((interval) => (root + interval) % 12);
+}
+function scaleFor(key, style) { const root = noteIndex(key); return styleSettings[style].scale.map((interval) => (root + interval) % 12); }
+function findPosition(pc, preferredMidi = 62) {
+  const choices = Object.entries(openStringPitches).flatMap(([string, open]) => Array.from({ length: 7 }, (_, i) => i + 2).filter((fret) => pitchClass(open + fret) === pc).map((fret) => ({ string, fret, midi: open + fret })));
+  return choices.sort((a, b) => Math.abs(a.midi - preferredMidi) - Math.abs(b.midi - preferredMidi))[0] || { string: 'G', fret: 5, midi: 60 };
+}
+function templateFor(type, style) {
+  const wanted = {
+    question: ['long note + short answer', 'two-note pickup', 'question mark ending'], answer: ['answer after a breath', 'lazy backbeat answer'],
+    'repeat motif': ['three-note motif', 'repeated eighth notes', 'punchy root repeat'], variation: ['syncopated rock rhythm', 'slide into answer', 'major pentatonic skip'],
+    climb: ['climbing pickup run', 'syncopated two-bar lift'], fall: ['falling eighths'], 'bend-and-resolve': ['quarter-note bends', 'held bend release', 'blues rake idea'],
+    'space/rest': ['two long tones', 'spacious soulful phrase', 'soul pause and reply'], 'turnaround ending': ['fast ending run', 'turnaround breath', 'final held resolve'],
+  }[type];
+  const styleExtra = style === 'Blues' ? ['blues shuffle feel', 'front porch shuffle'] : style === 'Country-ish' ? ['country snap', 'quick hammer answer'] : [];
+  return pick(rhythmTemplates.filter((t) => [...wanted, ...styleExtra].includes(t.name)));
+}
+function contourNotes(type, count, motif, scale, chordTargets, finalTarget, style) {
+  if (type === 'space/rest') return Array(count).fill(finalTarget ?? pick(chordTargets));
+  let pcs = type === 'repeat motif' ? motif.slice(0, count) : type === 'variation' ? motif.map((pc, i) => i === motif.length - 1 ? pick(chordTargets) : pc) : [];
+  while (pcs.length < count) pcs.push(pick(type === 'answer' || type === 'bend-and-resolve' ? chordTargets.concat(scale) : scale));
+  if (type === 'climb') pcs = pcs.sort((a, b) => a - b);
+  if (type === 'fall') pcs = pcs.sort((a, b) => b - a);
+  pcs[count - 1] = finalTarget ?? (Math.random() < 0.7 ? pick(chordTargets) : pcs[count - 1]);
+  if (style === 'Blues' && count > 2 && Math.random() < 0.55) pcs[0] = (noteIndex('A') + 3) % 12;
+  return pcs.slice(0, count);
+}
+function renderTab(events) {
+  const width = 16;
+  const rows = { e: Array(width).fill('-'), B: Array(width).fill('-'), G: Array(width).fill('-'), D: Array(width).fill('-'), A: Array(width).fill('-'), E: Array(width).fill('-') };
+  events.forEach((event) => {
+    const col = Math.min(width - 2, Math.round(event.beat * 4));
+    const text = `${event.fret}${event.technique === 'bend' ? 'b' : event.technique === 'hammer' ? 'h' : event.technique === 'slide' ? '/' : ''}`;
+    text.split('').forEach((char, i) => { if (col + i < width) rows[event.string][col + i] = char; });
+  });
+  return makeTab(rows);
+}
+function makeBar({ number, chord, type, style, scale, motif, finalTarget }) {
+  const targets = chordTones(chord, style).filter((pc) => scale.includes(pc) || styleSettings[style].targets.includes((pc - noteIndex(chordRoot(chord)) + 12) % 12));
+  const rhythm = templateFor(type, style);
+  const target = finalTarget ?? pick(targets.length ? targets : scale);
+  const pcs = contourNotes(type, rhythm.beats.length, motif, scale, targets.length ? targets : scale, target, style);
+  const events = pcs.map((pc, index) => {
+    const pos = findPosition(pc, 59 + number + index);
+    const strongBeat = Number.isInteger(rhythm.beats[index]);
+    const resolves = index === pcs.length - 1 || strongBeat;
+    return { ...pos, beat: rhythm.beats[index], technique: resolves ? '' : (rhythm.technique || (Math.random() < 0.18 ? pick(styleSettings[style].techniques) : '')) };
+  });
+  return { number, chord, phraseType: type, rhythm: rhythm.name, targetNote: noteNames[target], ending: noteNames[pcs.at(-1)], tab: renderTab(events), hasSpace: rhythm.space || events.length <= 3, tags: [type, rhythm.name] };
 }
 
 function getProgression(key, style) {
@@ -309,66 +404,25 @@ function getProgression(key, style) {
 }
 
 function buildSolo(key, style, difficulty, emphasis = '', previousOpening = '') {
-  const bank = phraseLibrary[key]?.[style] || styleBackups[style] || styleBackups.Blues;
-  const endingBank = endingLicks[style] || endingLicks.Blues;
   const personality = emphasis || pick(personalities);
-  const lowerPersonality = personality.toLowerCase();
-  const usedTabs = new Set();
-  const tagPlan = lowerPersonality.includes('motif')
-    ? [['repeated motif'], ['spacious', 'two-note phrase'], ['repeated motif'], ['answer'], ['climbing', 'ascending'], ['bend', 'slide'], ['busy', 'longer run']]
-    : lowerPersonality.includes('climbing')
-      ? [['spacious'], ['ascending'], ['climbing'], ['busy'], ['ascending'], ['bend', 'slide'], ['longer run']]
-      : lowerPersonality.includes('answer')
-        ? [['call'], ['answer'], ['spacious'], ['call'], ['answer'], ['busy'], ['descending']]
-        : lowerPersonality.includes('punchy')
-          ? [['punchy', 'repeated motif'], ['spacious'], ['bend'], ['busy'], ['two-note phrase'], ['ascending'], ['descending']]
-          : lowerPersonality.includes('smooth')
-            ? [['smooth', 'spacious'], ['ascending'], ['descending'], ['two-note phrase'], ['smooth'], ['answer'], ['resolution']]
-            : [['bend'], ['descending'], ['repeated motif'], ['spacious'], ['ascending'], ['busy'], ['resolution']];
-
-  let opening = pickWithTag(bank, tagPlan[0], new Set());
-  if (opening.tab === previousOpening) {
-    const alternateOpenings = bank.filter((item) => item.tab !== previousOpening);
-    opening = pick(alternateOpenings.length ? alternateOpenings : bank);
-  }
-  usedTabs.add(opening.tab);
-
-  const selected = [opening];
-  tagPlan.slice(1).forEach((tags) => {
-    const next = pickWithTag(bank, tags, usedTabs);
-    selected.push(next);
-    usedTabs.add(next.tab);
-  });
-  const availableEndings = endingBank.filter((item) => !usedTabs.has(item.tab));
-  const ending = pick(availableEndings.length ? availableEndings : endingBank);
-  selected.push(ending);
-
+  const progression = getProgression(key, style);
+  const scale = scaleFor(key, style);
+  const finalTargets = chordTones(progression[7], style).filter((pc) => [0, 4, 7].map((i) => (noteIndex(chordRoot(progression[7])) + i) % 12).includes(pc));
+  const motif = Array.from({ length: 3 + Math.floor(Math.random() * 3) }, (_, i) => scale[(i + Math.floor(Math.random() * 3)) % scale.length]);
+  const phrasePlan = ['question', pick(['answer', 'space/rest']), pick(['repeat motif', 'variation']), 'variation', pick(['answer', 'climb']), pick(['climb', 'bend-and-resolve', 'fall']), pick(['fall', 'bend-and-resolve', 'space/rest']), 'turnaround ending'];
+  if (phrasePlan.filter((type) => type === 'space/rest').length < 1) phrasePlan[1] = 'space/rest';
+  const bars = phrasePlan.map((type, index) => makeBar({ number: index + 1, chord: progression[index], type, style, scale, motif, finalTarget: index === 7 ? pick(finalTargets.length ? finalTargets : chordTones(progression[7], style)) : undefined }));
+  if (bars.filter((bar) => bar.hasSpace).length < 2) bars[5] = makeBar({ number: 6, chord: progression[5], type: 'space/rest', style, scale, motif });
   const tempoBase = difficulty === 'Beginner' ? 72 : 88;
   const tempoBoost = style === 'Rock' ? 8 : style === 'Country-ish' ? 4 : 0;
-  const progression = getProgression(key, style);
   const flavor = `${personality}${personality.toLowerCase().includes(style.toLowerCase().split('-')[0]) ? '' : ` ${style.toLowerCase()}`}`;
-
+  const openingTab = bars[0].tab === previousOpening ? bars[1].tab : bars[0].tab;
   return {
-    title: `${key} ${personality} TV Practice Solo`,
-    key,
-    style,
-    difficulty,
-    flavor,
-    openingTab: opening.tab,
-    suggestedTempo: `${tempoBase + tempoBoost}–${tempoBase + tempoBoost + 12} bpm`,
-    chordProgression: progression,
-    bars: selected.map((item, index) => ({
-      number: index + 1,
-      chord: progression[index],
-      tab: item.tab,
-      tags: item.tags,
-    })),
-    practiceNotes: [
-      `Flavor: ${flavor}. Listen for the mix of space, motion, repetition, and a final-bar resolution.`,
-      `Every bar is unique in this solo, so practice one bar at a time before connecting them.`,
-      difficulty === 'Beginner' ? 'Use downstrokes first, then add hammer-ons only after the rhythm feels steady.' : 'Add small bends or slides only on notes you can already play in time.',
-    ],
-    whyItWorks: `${key} ${style} stays mostly around frets 2–8, alternates busy and spacious ideas, and uses ${personality.toLowerCase()} phrasing so the solo feels intentional. Bar 8 comes from a separate ending bank and resolves strongly to the root or 3rd.`,
+    title: `${key} ${personality} Musical Phrase Solo`, key, style, difficulty, flavor, openingTab,
+    suggestedTempo: `${tempoBase + tempoBoost}–${tempoBase + tempoBoost + 12} bpm`, chordProgression: progression, bars,
+    practiceNotes: [`Flavor: ${flavor}. This version separates rhythm, contour, target notes, and phrase endings instead of stitching together fixed tab patterns.`, `Motif memory: the opening ${motif.length}-note idea returns later as a repeat, variation, or simpler answer.`, difficulty === 'Beginner' ? 'Let the rests ring; the silence is part of the phrase.' : 'Keep bends, slides, and hammer-ons small so the line remains easy-plus and TV-friendly.'],
+    musicalityNotes: ['Bars 1-2 ask a short question, then leave space so it feels like a real phrase.', 'Bars 3-4 repeat or vary the opening motif with a different rhythm or ending.', 'Bars 5-6 answer the idea and lift the energy toward the final phrase.', `Bars 7-8 create a clear ending and resolve bar 8 to ${bars[7].ending}, a strong chord tone.`],
+    whyItWorks: `${key} ${style} uses ${styleSettings[style].notes}. Strong beats usually target chord tones from the current chord, passing notes connect them, at least two bars breathe with rests or longer notes, and the final bar resolves deliberately instead of landing on a random scale note.`,
   };
 }
 
@@ -484,6 +538,7 @@ export function SoloGenerator() {
           {solo.bars.map((bar) => (
             <article className="solo-bar" key={`bar-${bar.number}`}>
               <div className="solo-bar-heading"><span>Bar {bar.number}</span><strong>{bar.chord}</strong></div>
+              <p className="solo-bar-role">{bar.phraseType} · {bar.rhythm} · targets {bar.targetNote}</p>
               <pre className="solo-tab">{bar.tab}</pre>
             </article>
           ))}
@@ -506,6 +561,7 @@ export function SoloGenerator() {
         <div className="solo-learning-grid">
           <div className="practice-box"><h3>Practice notes</h3><ul>{solo.practiceNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>
           {!isPracticeFullscreen && showWhy && <div className="solo-explainer"><h3>Why it works</h3><p>{solo.whyItWorks}</p></div>}
+          {!isPracticeFullscreen && <div className="practice-box"><h3>Musicality Notes</h3><ul>{solo.musicalityNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>}
           {!isPracticeFullscreen && showSteps && <div className="practice-box"><h3>Learning prompts</h3><ol>{learningPrompts.map((prompt) => <li key={prompt}>{prompt}</li>)}</ol></div>}
         </div>
       </section>
