@@ -4920,3 +4920,43 @@ p {
     padding: 0.4rem;
   }
 }
+
+.solo-debug-panel {
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.62);
+  color: #dbeafe;
+  font-family: "Courier New", Courier, monospace;
+  font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+  padding: 0.85rem;
+}
+
+.solo-debug-panel dl {
+  display: grid;
+  gap: 0.35rem 0.75rem;
+  grid-template-columns: max-content minmax(0, 1fr);
+  margin: 0;
+}
+
+.solo-debug-panel dt {
+  color: #fde68a;
+  font-weight: 900;
+}
+
+.solo-debug-panel dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.solo-data-mismatch {
+  display: block;
+  border-radius: 12px;
+  background: #dc2626;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  font-weight: 950;
+  margin-bottom: 0.7rem;
+  padding: 0.65rem 0.8rem;
+  text-align: center;
+}
