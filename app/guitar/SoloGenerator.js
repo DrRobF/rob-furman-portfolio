@@ -288,6 +288,42 @@ function makeSolo({ title, key, style, difficulty = 'Beginner', tempo, rhythmFam
   };
 }
 
+function getFinalNote(noteEvents) {
+  const finalEvent = noteEvents.at(-1);
+  return finalEvent ? {
+    bar: finalEvent.bar,
+    beat: finalEvent.beat,
+    string: finalEvent.string,
+    fret: finalEvent.fret,
+    technique: finalEvent.technique,
+  } : null;
+}
+
+function completeSelectedSolo(solo) {
+  return {
+    id: solo.id,
+    title: solo.title,
+    key: solo.key,
+    style: solo.style,
+    difficulty: solo.difficulty,
+    tempo: solo.tempo,
+    rhythmFeel: solo.rhythmFeel,
+    chordProgression: solo.chordProgression,
+    barChords: solo.barChords,
+    bars: solo.bars,
+    noteEvents: solo.noteEvents,
+    finalNote: getFinalNote(solo.noteEvents),
+    sourceId: solo.sourceId,
+    sourceTitle: solo.sourceTitle,
+    sourceBars: solo.sourceBars,
+    sourceProgression: solo.sourceProgression,
+    totalBeats: solo.totalBeats,
+    musicalityLevel: solo.musicalityLevel,
+    musicalityNotes: solo.musicalityNotes,
+    practiceSteps: solo.practiceSteps,
+  };
+}
+
 function transposeSoloToKey(solo, targetKey) {
   const rawSemitones = transpositionFrom(solo.key, targetKey);
   const semitones = rawSemitones < 0 ? rawSemitones + 12 : rawSemitones;
@@ -348,24 +384,24 @@ function resolveEventsToRoot(noteEvents, key) {
   return events;
 }
 
-function validateSolo(solo, selectedKey) {
+function validateSolo(solo) {
   const messages = [];
-  const expectedProgression = keyProgressions[selectedKey] ?? [];
+  const expectedProgression = keyProgressions[solo.key] ?? [];
   const finalEvent = solo.noteEvents.at(-1);
-  const root = rootEventForKey(selectedKey);
+  const root = rootEventForKey(solo.key);
   const hasRootEnding = finalEvent?.string === root.string && finalEvent?.fret === root.fret;
   const progressionMatches = expectedProgression.join('|') === solo.chordProgression.join('|');
   const barLabelsMatch = solo.bars.every((bar, index) => bar.chord === solo.barChords[index] && solo.barChords[index] === solo.chordProgression[index]);
   const populatedBars = new Set(solo.noteEvents.map((event) => event.bar));
-  const titleMatchesKey = solo.title.includes(selectedKey);
-  const metadataMatchesKey = solo.key === selectedKey;
+  const titleMatchesKey = solo.title.includes(solo.key);
+  const metadataMatchesKey = Boolean(solo.key);
   const gridAligned = solo.noteEvents.every((event) => event.bar >= 1 && event.bar <= 8 && event.beat >= 1 && event.beat <= 4 && Number.isInteger((event.beat - 1) * 2) && event.durationBeats > 0 && event.startBeat >= 0 && event.startBeat < 32);
   const audioMatchesTab = solo.bars.every((bar) => bar.events.every((event) => solo.noteEvents.includes(event)));
 
   if (solo.totalBeats === 32 && gridAligned) messages.push('Timeline confirmed: 8 bars × 4 beats = 32 beats on the 1 & 2 & 3 & 4 & grid.');
-  if (metadataMatchesKey && titleMatchesKey) messages.push(`Title and metadata confirmed for key of ${selectedKey}.`);
-  if (barLabelsMatch && progressionMatches) messages.push(`Bar labels and progression confirmed for key of ${selectedKey}.`);
-  if (hasRootEnding) messages.push(`Final note confirmed: resolves to ${selectedKey}.`);
+  if (metadataMatchesKey && titleMatchesKey) messages.push(`Title and metadata confirmed for key of ${solo.key}.`);
+  if (barLabelsMatch && progressionMatches) messages.push(`Bar labels and progression confirmed for key of ${solo.key}.`);
+  if (hasRootEnding) messages.push(`Final note confirmed: resolves to ${solo.key}.`);
   if (populatedBars.size === 8 && audioMatchesTab) messages.push('Display tab, rhythm map, and audio all use the same note events.');
 
   return { isValid: solo.totalBeats === 32 && metadataMatchesKey && titleMatchesKey && hasRootEnding && progressionMatches && barLabelsMatch && populatedBars.size === 8 && gridAligned && audioMatchesTab, messages };
@@ -390,23 +426,30 @@ function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-function selectCuratedSolo(style, difficulty, key, previousSoloId = '', preferMoreMusical = false, previousRhythmFamily = '', previousOpeningRhythm = '') {
+function selectCuratedSolo(style, difficulty, key, previousSoloId = '') {
   const styleSolos = curatedSolos.filter((entry) => entry.style === style);
   const difficultyMatches = styleSolos.filter((entry) => entry.difficulty === difficulty);
-  const musicalMatches = preferMoreMusical ? difficultyMatches.filter((entry) => entry.musicalityLevel === 'more') : [];
-  const preferredPool = musicalMatches.length ? musicalMatches : difficultyMatches;
-  const pool = preferredPool.length > 1 ? preferredPool : (styleSolos.length ? styleSolos : preferredPool);
+  const pool = difficultyMatches.length ? difficultyMatches : styleSolos;
   const freshSoloPool = pool.length > 1 ? pool.filter((entry) => entry.id !== previousSoloId) : pool;
-  const rhythmFreshPool = freshSoloPool.length > 1 ? freshSoloPool.filter((entry) => entry.rhythmFeel !== previousRhythmFamily) : freshSoloPool;
-  const openingFreshPool = rhythmFreshPool.length > 1 ? rhythmFreshPool.filter((entry) => entry.noteEvents[0]?.rhythmName !== previousOpeningRhythm) : rhythmFreshPool;
-  const selected = transposeSoloToKey(pick(openingFreshPool.length ? openingFreshPool : (rhythmFreshPool.length ? rhythmFreshPool : (freshSoloPool.length ? freshSoloPool : pool))), key);
+  const selected = transposeSoloToKey(pick(freshSoloPool.length ? freshSoloPool : pool), key);
   return { ...selected, difficulty };
+}
+
+function buildSelectedSolo({ key, style, difficulty, soloId = '' }) {
+  return completeSelectedSolo(selectCuratedSolo(style, difficulty, key, soloId));
+}
+
+function hasSoloDataMismatch(selectedSolo) {
+  const progression = selectedSolo.chordProgression.join('|');
+  const barChords = selectedSolo.barChords.join('|');
+  const barLabels = selectedSolo.bars.map((bar) => bar.chord).join('|');
+
+  return progression !== barChords || progression !== barLabels;
 }
 
 export function SoloGenerator() {
   const [style, setStyle] = useState('Blues');
   const [difficulty, setDifficulty] = useState('Beginner');
-  const [selectedKey, setSelectedKey] = useState('A');
   const [preferMoreMusical, setPreferMoreMusical] = useState(false);
   const [showWhy, setShowWhy] = useState(true);
   const [showSteps, setShowSteps] = useState(true);
@@ -415,15 +458,14 @@ export function SoloGenerator() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [countInEnabled, setCountInEnabled] = useState(true);
   const [playbackPosition, setPlaybackPosition] = useState({ bar: 1, beat: 1 });
-  const [selectedSolo, setSelectedSolo] = useState(() => selectCuratedSolo('Blues', 'Beginner', 'A', '', false));
+  const [selectedSolo, setSelectedSolo] = useState(() => buildSelectedSolo({ key: 'A', style: 'Blues', difficulty: 'Beginner' }));
   const audioContextRef = useRef(null);
   const stopTimerRef = useRef(null);
   const beatTimerRef = useRef(null);
   const previousSoloIdRef = useRef('');
-  const previousRhythmFamilyRef = useRef('');
-  const previousOpeningRhythmRef = useRef('');
 
-  const soloValidation = useMemo(() => validateSolo(selectedSolo, selectedKey), [selectedSolo, selectedKey]);
+  const soloValidation = useMemo(() => validateSolo(selectedSolo), [selectedSolo]);
+  const soloDataMismatch = useMemo(() => hasSoloDataMismatch(selectedSolo), [selectedSolo]);
   const selectedSoloIsValid = soloValidation.isValid;
   const playbackEvents = useMemo(() => (selectedSoloIsValid ? preparePlaybackEvents(selectedSolo.noteEvents) : []), [selectedSolo.noteEvents, selectedSoloIsValid]);
 
@@ -480,10 +522,8 @@ export function SoloGenerator() {
 
     const secondsPerBeat = 60 / playbackTempos[playbackTempo];
     if (!selectedSoloIsValid) {
-      const nextSolo = selectCuratedSolo(style, difficulty, selectedKey, selectedSolo.sourceId ?? previousSoloIdRef.current, preferMoreMusical, previousRhythmFamilyRef.current, previousOpeningRhythmRef.current);
+      const nextSolo = buildSelectedSolo({ key: selectedSolo.key, style: selectedSolo.style, difficulty: selectedSolo.difficulty, soloId: selectedSolo.sourceId ?? previousSoloIdRef.current });
       previousSoloIdRef.current = nextSolo.sourceId;
-      previousRhythmFamilyRef.current = nextSolo.rhythmFeel;
-      previousOpeningRhythmRef.current = nextSolo.noteEvents[0]?.rhythmName ?? '';
       setSelectedSolo(nextSolo);
       return;
     }
@@ -521,15 +561,12 @@ export function SoloGenerator() {
   const rebuildSolo = useCallback((nextOptions = {}) => {
     const nextStyle = nextOptions.style ?? style;
     const nextDifficulty = nextOptions.difficulty ?? difficulty;
-    const nextKey = nextOptions.key ?? selectedKey;
-    const nextPreferMoreMusical = nextOptions.preferMoreMusical ?? preferMoreMusical;
+    const nextKey = nextOptions.key ?? selectedSolo.key;
     const previousSoloId = nextOptions.previousSoloId ?? previousSoloIdRef.current;
-    const nextSolo = selectCuratedSolo(nextStyle, nextDifficulty, nextKey, previousSoloId, nextPreferMoreMusical, previousRhythmFamilyRef.current, previousOpeningRhythmRef.current);
+    const nextSolo = buildSelectedSolo({ key: nextKey, style: nextStyle, difficulty: nextDifficulty, soloId: previousSoloId });
     previousSoloIdRef.current = nextSolo.sourceId;
-    previousRhythmFamilyRef.current = nextSolo.rhythmFeel;
-    previousOpeningRhythmRef.current = nextSolo.noteEvents[0]?.rhythmName ?? '';
     setSelectedSolo(nextSolo);
-  }, [difficulty, preferMoreMusical, selectedKey, style]);
+  }, [difficulty, selectedSolo.key, style]);
 
   const handleStyleChange = (nextStyle) => {
     stopPlayback();
@@ -539,7 +576,6 @@ export function SoloGenerator() {
 
   const handleKeyChange = (nextKey) => {
     stopPlayback();
-    setSelectedKey(nextKey);
     rebuildSolo({ key: nextKey, previousSoloId: selectedSolo.sourceId });
   };
 
@@ -557,11 +593,11 @@ export function SoloGenerator() {
   return (
     <div className={`solo-generator${isPracticeFullscreen ? ' solo-generator-fullscreen' : ''}`}>
       <section className="solo-generator-controls" aria-label="Solo generator controls" hidden={isPracticeFullscreen}>
-        <fieldset><legend>Style</legend>{styles.map((item) => <button className={style === item ? 'active' : ''} key={item} type="button" onClick={() => handleStyleChange(item)}>{item}</button>)}</fieldset>
-        <fieldset><legend>Key</legend>{keys.map((item) => <button className={selectedKey === item ? 'active' : ''} key={item} type="button" onClick={() => handleKeyChange(item)}>{item}</button>)}</fieldset>
-        <fieldset><legend>Difficulty</legend>{difficulties.map((item) => <button className={difficulty === item ? 'active' : ''} key={item} type="button" onClick={() => handleDifficultyChange(item)}>{item}</button>)}</fieldset>
+        <fieldset><legend>Style</legend>{styles.map((item) => <button className={selectedSolo.style === item ? 'active' : ''} key={item} type="button" onClick={() => handleStyleChange(item)}>{item}</button>)}</fieldset>
+        <fieldset><legend>Key</legend>{keys.map((item) => <button className={selectedSolo.key === item ? 'active' : ''} key={item} type="button" onClick={() => handleKeyChange(item)}>{item}</button>)}</fieldset>
+        <fieldset><legend>Difficulty</legend>{difficulties.map((item) => <button className={selectedSolo.difficulty === item ? 'active' : ''} key={item} type="button" onClick={() => handleDifficultyChange(item)}>{item}</button>)}</fieldset>
         <button className="solo-generate-button" type="button" onClick={regenerate}>Generate New Solo</button>
-        <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Easy-Plus'); rebuildSolo({ difficulty: 'Easy-Plus', preferMoreMusical: true, previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
+        <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Easy-Plus'); rebuildSolo({ difficulty: 'Easy-Plus', previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
       </section>
 
       <section className="solo-output-card" aria-labelledby="generated-solo-title">
@@ -587,16 +623,27 @@ export function SoloGenerator() {
           <strong>{soloValidation.isValid ? 'Ready to play:' : 'Check solo:'}</strong>
           <ul>{soloValidation.messages.map((message) => <li key={message}>{message}</li>)}</ul>
         </div>
+        <div className="solo-debug-panel" aria-label="Selected solo debug data">
+          {soloDataMismatch && <strong className="solo-data-mismatch">SOLO DATA MISMATCH</strong>}
+          <dl>
+            <dt>selectedSolo.id</dt><dd>{selectedSolo.id}</dd>
+            <dt>selectedSolo.title</dt><dd>{selectedSolo.title}</dd>
+            <dt>selectedSolo.key</dt><dd>{selectedSolo.key}</dd>
+            <dt>selectedSolo.chordProgression</dt><dd>{JSON.stringify(selectedSolo.chordProgression)}</dd>
+            <dt>selectedSolo.barChords</dt><dd>{JSON.stringify(selectedSolo.barChords)}</dd>
+            <dt>selectedSolo.bars.map(b =&gt; b.chord)</dt><dd>{JSON.stringify(selectedSolo.bars.map((bar) => bar.chord))}</dd>
+          </dl>
+        </div>
         <div className="solo-progression" aria-label="Chord progression">
           <strong>Chord progression:</strong>
           <div className="solo-progression-grid">
-            {selectedSolo.barChords.map((chord, index) => <span key={`${chord}-${index}`}>{chord}</span>)}
+            {selectedSolo.chordProgression.map((chord, index) => <span key={`${chord}-${index}`}>{chord}</span>)}
           </div>
         </div>
         <div className="solo-tab-grid" aria-label="8-bar curated tablature">
           {selectedSolo.bars.map((bar, barIndex) => (
             <article className="solo-bar" key={`bar-${bar.number}`}>
-              <div className="solo-bar-heading">Bar {bar.number} - {selectedSolo.barChords[barIndex]}</div>
+              <div className="solo-bar-heading">Bar {bar.number} - {selectedSolo.bars[barIndex].chord}</div>
               <pre className="solo-tab">{bar.tab}</pre>
               <div className="solo-rhythm-map" aria-label={`Bar ${bar.number} rhythm map`}>
                 <span>{bar.rhythmMap.labels}</span>
@@ -608,7 +655,7 @@ export function SoloGenerator() {
         </div>
         <div className="solo-buttons" aria-label="Solo action buttons">
           <button type="button" onClick={regenerate}>Generate New Solo</button>
-          <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Easy-Plus'); rebuildSolo({ difficulty: 'Easy-Plus', preferMoreMusical: true, previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
+          <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Easy-Plus'); rebuildSolo({ difficulty: 'Easy-Plus', previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
           {isPracticeFullscreen ? (
             <button type="button" onClick={() => setIsPracticeFullscreen(false)}>Exit Full Screen</button>
           ) : (
