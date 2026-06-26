@@ -4722,8 +4722,7 @@ p {
   margin-bottom: 0.6rem;
 }
 
-.solo-progression-grid,
-.solo-tab-grid {
+.solo-progression-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(0.7rem, 1.2vw, 1rem);
@@ -4741,56 +4740,61 @@ p {
   border-right: 0;
 }
 
-.solo-bar {
-  border: 2px solid rgba(250, 204, 21, 0.58);
-  border-radius: 18px;
+.solo-tab-staff {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.55rem);
+}
+
+.solo-tab-system {
+  border: 1px solid rgba(250, 204, 21, 0.38);
+  border-radius: 22px;
   background: #020617;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
   overflow: hidden;
+  padding: clamp(0.75rem, 1.7vw, 1.25rem);
 }
 
-.solo-bar-heading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background: rgba(250, 204, 21, 0.18);
-  border-bottom: 1px solid rgba(250, 204, 21, 0.42);
-  color: #fef9c3;
-  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
-  font-weight: 950;
-  padding: 0.5rem 0.65rem;
-}
-
-.solo-bar-heading strong {
+.solo-system-labels,
+.solo-tab-system .solo-tab {
+  margin: 0;
   color: #ffffff;
   font-family: "Courier New", Courier, monospace;
+  overflow: hidden;
+  white-space: pre;
 }
 
-.solo-bar-role {
-  margin: 0;
-  border-bottom: 1px solid rgba(250, 204, 21, 0.18);
-  color: #fde68a;
-  font-size: clamp(0.72rem, 1vw, 0.9rem);
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  padding: 0.38rem 0.65rem 0;
-  text-transform: capitalize;
+.solo-system-bars {
+  color: #cbd5e1;
+  font-size: clamp(0.9rem, 1.5vw, 1.24rem);
+  font-weight: 900;
+  line-height: 1.05;
 }
 
-.solo-tab-grid .solo-tab {
-  margin: 0;
+.solo-system-chords {
+  color: #fef08a;
+  font-size: clamp(1.25rem, 2.45vw, 2rem);
+  font-weight: 950;
+  line-height: 1.15;
+  margin-bottom: 0.3rem;
+}
+
+.solo-tab-system .solo-tab {
   border: 0;
   border-radius: 0;
   background: transparent;
   color: #ffffff;
-  font-size: clamp(0.86rem, 1.28vw, 1.2rem);
-  line-height: 1.42;
-  overflow: hidden;
-  padding: clamp(0.6rem, 1vw, 0.85rem);
-  white-space: pre;
+  font-size: clamp(1.06rem, 1.65vw, 1.58rem);
+  font-weight: 900;
+  line-height: 1.32;
+  padding: 0;
 }
 
+.solo-system-rhythm-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: clamp(0.65rem, 1.4vw, 1rem);
+}
 
 .solo-rhythm-map {
   border-top: 1px solid rgba(250, 204, 21, 0.22);
@@ -4833,7 +4837,7 @@ p {
   grid-template-columns: none;
 }
 
-.solo-generator-fullscreen .solo-tab-grid .solo-tab {
+.solo-generator-fullscreen .solo-tab-system .solo-tab {
   font-size: clamp(0.82rem, 1.45vw, 1.22rem);
   line-height: 1.28;
 }
@@ -4866,7 +4870,7 @@ p {
   }
 
   .solo-progression-grid,
-  .solo-tab-grid {
+  .solo-system-rhythm-map {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4905,19 +4909,22 @@ p {
     padding: 0.45rem 0.6rem;
   }
 
-  .solo-tab-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.4rem;
+  .solo-tab-staff {
+    gap: 0.45rem;
   }
 
-  .solo-bar-heading {
-    padding: 0.3rem 0.45rem;
+  .solo-tab-system {
+    padding: 0.55rem;
   }
 
-  .solo-tab-grid .solo-tab {
-    font-size: clamp(0.72rem, 1.62vw, 0.98rem);
+  .solo-tab-system .solo-tab {
+    font-size: clamp(0.76rem, 1.62vw, 1.02rem);
     line-height: 1.18;
-    padding: 0.4rem;
+  }
+
+  .solo-system-rhythm-map {
+    gap: 0.35rem;
+    margin-top: 0.45rem;
   }
 }
 
