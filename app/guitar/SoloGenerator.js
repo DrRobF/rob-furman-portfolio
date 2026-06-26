@@ -247,7 +247,37 @@ function playPluckedNote(audioContext, destination, event, startTime, secondsPer
   overtone.stop(startTime + duration + 0.04);
 }
 
-const cleanTab = ({ e = '--------------------', B = '--------------------', G = '--------------------', D = '--------------------', A = '--------------------', E = '--------------------' }) => `e|${e}|\nB|${B}|\nG|${G}|\nD|${D}|\nA|${A}|\nE|${E}|`;
+const tabStrings = ['e', 'B', 'G', 'D', 'A', 'E'];
+const emptyTabSegment = '----------------';
+
+const cleanTab = ({ e = emptyTabSegment, B = emptyTabSegment, G = emptyTabSegment, D = emptyTabSegment, A = emptyTabSegment, E = emptyTabSegment }) => `e|${e}|\nB|${B}|\nG|${G}|\nD|${D}|\nA|${A}|\nE|${E}|`;
+
+function extractTabSegments(tab) {
+  return Object.fromEntries(tab.split('\n').map((line) => {
+    const [stringName, content = ''] = line.split('|');
+    return [stringName, content];
+  }));
+}
+
+function centerTabLabel(label, width) {
+  const text = String(label);
+  if (text.length >= width) return text.slice(0, width);
+  const left = Math.floor((width - text.length) / 2);
+  return `${' '.repeat(left)}${text}${' '.repeat(width - text.length - left)}`;
+}
+
+function buildTabSystem(bars) {
+  const barSegments = bars.map((bar) => ({ ...bar, segments: extractTabSegments(bar.tab) }));
+  const barWidth = Math.max(emptyTabSegment.length, ...barSegments.flatMap((bar) => tabStrings.map((stringName) => bar.segments[stringName]?.length ?? 0)));
+  const barLabels = barSegments.map((bar) => centerTabLabel(bar.number, barWidth)).join(' ');
+  const chords = barSegments.map((bar) => centerTabLabel(bar.chord, barWidth)).join(' ');
+  const staff = tabStrings.map((stringName) => {
+    const line = barSegments.map((bar) => (bar.segments[stringName] ?? emptyTabSegment).padEnd(barWidth, '-')).join('|');
+    return `${stringName}|${line}|`;
+  }).join('\n');
+
+  return { barLabels, chords, staff, bars: barSegments };
+}
 
 function makeBars(style, noteEvents, barChords = styleFallbackProgressions[style]) {
   return Array.from({ length: 8 }, (_, index) => {
@@ -467,6 +497,10 @@ export function SoloGenerator() {
   const soloValidation = useMemo(() => validateSolo(selectedSolo), [selectedSolo]);
   const soloDataMismatch = useMemo(() => hasSoloDataMismatch(selectedSolo), [selectedSolo]);
   const selectedSoloIsValid = soloValidation.isValid;
+  const tabSystems = useMemo(() => [
+    buildTabSystem(selectedSolo.bars.slice(0, 4)),
+    buildTabSystem(selectedSolo.bars.slice(4, 8)),
+  ], [selectedSolo.bars]);
   const playbackEvents = useMemo(() => (selectedSoloIsValid ? preparePlaybackEvents(selectedSolo.noteEvents) : []), [selectedSolo.noteEvents, selectedSoloIsValid]);
 
   const stopPlayback = useCallback(() => {
@@ -640,17 +674,22 @@ export function SoloGenerator() {
             {selectedSolo.chordProgression.map((chord, index) => <span key={`${chord}-${index}`}>{chord}</span>)}
           </div>
         </div>
-        <div className="solo-tab-grid" aria-label="8-bar curated tablature">
-          {selectedSolo.bars.map((bar, barIndex) => (
-            <article className="solo-bar" key={`bar-${bar.number}`}>
-              <div className="solo-bar-heading">Bar {bar.number} - {selectedSolo.bars[barIndex].chord}</div>
-              <pre className="solo-tab">{bar.tab}</pre>
-              <div className="solo-rhythm-map" aria-label={`Bar ${bar.number} rhythm map`}>
-                <span>{bar.rhythmMap.labels}</span>
-                <strong>{bar.rhythmMap.hits}</strong>
-                <em>{bar.rhythmName}</em>
+        <div className="solo-tab-staff" aria-label="8-bar continuous tablature">
+          {tabSystems.map((system, systemIndex) => (
+            <section className="solo-tab-system" key={`system-${systemIndex + 1}`} aria-label={`System ${systemIndex + 1}: bars ${system.bars[0].number}-${system.bars.at(-1).number}`}>
+              <pre className="solo-system-labels solo-system-bars" aria-hidden="true">  {system.barLabels}</pre>
+              <pre className="solo-system-labels solo-system-chords" aria-label={`Chord symbols for bars ${system.bars[0].number}-${system.bars.at(-1).number}`}>  {system.chords}</pre>
+              <pre className="solo-tab">{system.staff}</pre>
+              <div className="solo-system-rhythm-map" aria-label={`Rhythm map for bars ${system.bars[0].number}-${system.bars.at(-1).number}`}>
+                {system.bars.map((bar) => (
+                  <div className="solo-rhythm-map" key={`rhythm-${bar.number}`} aria-label={`Bar ${bar.number} rhythm map`}>
+                    <span>Bar {bar.number}: {bar.rhythmMap.labels}</span>
+                    <strong>{bar.rhythmMap.hits}</strong>
+                    <em>{bar.rhythmName}</em>
+                  </div>
+                ))}
               </div>
-            </article>
+            </section>
           ))}
         </div>
         <div className="solo-buttons" aria-label="Solo action buttons">
