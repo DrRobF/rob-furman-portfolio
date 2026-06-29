@@ -4970,7 +4970,8 @@ p {
 
 /* TV-friendly lick library. */
 .lick-library-controls,
-.lick-practice-card {
+.lick-practice-card,
+.lick-build-solo-placeholder {
   border: 1px solid rgba(226, 232, 240, 0.18);
   border-radius: 28px;
   background: rgba(15, 23, 42, 0.84);
@@ -4979,7 +4980,7 @@ p {
 
 .lick-library-controls {
   display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
   gap: clamp(0.85rem, 2vw, 1.2rem);
   padding: clamp(1rem, 2vw, 1.4rem);
 }
@@ -5089,6 +5090,24 @@ p {
   border-left: 6px solid #facc15;
   margin: 0;
   padding-left: 1rem;
+}
+
+.lick-build-solo-placeholder {
+  margin-top: clamp(1rem, 2.5vw, 1.6rem);
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+}
+
+.lick-build-solo-placeholder h2 {
+  color: #ffffff;
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  margin: 0.2rem 0 0.35rem;
+}
+
+.lick-build-solo-placeholder p:last-child {
+  color: #dbeafe;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 800;
+  margin: 0;
 }
 
 .lick-detail-grid {
