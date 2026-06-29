@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const styles = ['Blues', 'Rock', 'Soulful Major', 'Country-ish'];
-const keys = ['A', 'C', 'D', 'E', 'G'];
-const difficulties = ['Beginner', 'Easy', 'Intermediate', 'Advanced', 'Professional Jam'];
+export const styles = ['Blues', 'Rock', 'Soulful Major', 'Country-ish'];
+export const keys = ['A', 'C', 'D', 'E', 'G'];
+export const difficulties = ['Beginner', 'Easy', 'Intermediate', 'Advanced', 'Professional Jam'];
 
 const difficultyRank = { Beginner: 0, Easy: 1, Intermediate: 2, Advanced: 3, 'Professional Jam': 4 };
 
@@ -320,6 +320,7 @@ function makeSolo({ title, key, style, difficulty = 'Beginner', tempo, rhythmFam
     totalBeats: 32,
     musicalityNotes: notes,
     practiceSteps: steps,
+    phraseFlow: ['Opening phrase', 'Answer phrase', 'Development phrase', 'Ending phrase'],
   };
 }
 
@@ -356,6 +357,7 @@ function completeSelectedSolo(solo) {
     musicalityLevel: solo.musicalityLevel,
     musicalityNotes: solo.musicalityNotes,
     practiceSteps: solo.practiceSteps,
+    phraseFlow: solo.phraseFlow ?? ['Opening phrase', 'Answer phrase', 'Development phrase', 'Ending phrase'],
   };
 }
 
@@ -428,18 +430,17 @@ function validateSolo(solo) {
   const progressionMatches = expectedProgression.join('|') === solo.chordProgression.join('|');
   const barLabelsMatch = solo.bars.every((bar, index) => bar.chord === solo.barChords[index] && solo.barChords[index] === solo.chordProgression[index]);
   const populatedBars = new Set(solo.noteEvents.map((event) => event.bar));
-  const titleMatchesKey = solo.title.includes(solo.key);
   const metadataMatchesKey = Boolean(solo.key);
   const gridAligned = solo.noteEvents.every((event) => event.bar >= 1 && event.bar <= 8 && event.beat >= 1 && event.beat <= 4 && event.durationBeats > 0 && event.startBeat >= 0 && event.startBeat < 32);
   const audioMatchesTab = solo.bars.every((bar) => bar.events.every((event) => solo.noteEvents.includes(event)));
 
   if (solo.totalBeats === 32 && gridAligned) messages.push('Timeline confirmed: 8 bars × 4 beats = 32 beats with rests, holds, anticipations, and delayed resolutions.');
-  if (metadataMatchesKey && titleMatchesKey) messages.push(`Title and metadata confirmed for key of ${solo.key}.`);
+  if (metadataMatchesKey) messages.push(`Metadata confirmed from selected solo: key of ${solo.key}.`);
   if (barLabelsMatch && progressionMatches) messages.push(`Bar labels and progression confirmed for key of ${solo.key}.`);
   if (hasRootEnding) messages.push(`Final note confirmed: resolves to ${solo.key}.`);
   if (populatedBars.size === 8 && audioMatchesTab) messages.push('Display tab, rhythm map, and audio all use the same note events.');
 
-  return { isValid: solo.totalBeats === 32 && metadataMatchesKey && titleMatchesKey && hasRootEnding && progressionMatches && barLabelsMatch && populatedBars.size === 8 && gridAligned && audioMatchesTab, messages };
+  return { isValid: solo.totalBeats === 32 && metadataMatchesKey && hasRootEnding && progressionMatches && barLabelsMatch && populatedBars.size === 8 && gridAligned && audioMatchesTab, messages };
 }
 
 const curatedSolos = [
@@ -456,6 +457,24 @@ const curatedSolos = [
   makeSolo({ title: 'Chicken Pickin Easy', key: 'D', style: 'Country-ish', difficulty: 'Easy', tempo: 88, rhythmFamily: 'Busy ending run', musicalityLevel: 'more', notes: ['Short snappy answers create the chicken-pickin character.', 'The slide gives one flashy moment without making the solo hard.', 'The ending targets root-position chord tones.'], steps: ['Play staccato in bars 1–2.', 'Slide slowly at first, then tighten the timing.', 'Practice muting after each short phrase.'], bars: [{ B: '-3---3--------------', G: '---2---2------------' }, { e: '-2/5-2--------------', B: '-------3------------' }, { e: '---2----------------', B: '-5---3--------------', G: '-------2------------' }, { B: '-----3-5------------', G: '-2-4-----2----------' }, { e: '-2-2----------------', B: '-----3-5------------' }, { e: '-------2-5----------', B: '-3-5-3--------------' }, { e: '-5-2----------------', B: '-----5-3------------' }, { B: '-3h5-3--------------', G: '-------2------------' }] }),
   makeSolo({ title: 'Front Porch Country', key: 'D', style: 'Country-ish', tempo: 80, rhythmFamily: 'Long-note bends', musicalityLevel: 'more', notes: ['Long spaces make the melody feel relaxed and playable.', 'The bend in bar 4 is the expressive peak.', 'Bars 7–8 close like a complete sentence.'], steps: ['Leave silence after each two-bar idea.', 'Bend bar 4 only slightly and return in tune.', 'Play the ending three times in a row without stopping.'], bars: [{ e: '---2-3-2------------', B: '-3-------3----------' }, { G: '-2-4-2--------------', D: '-------4------------' }, { e: '-2-3-5-3-2----------', B: '-----------3--------' }, { B: '-5b6-5-3------------', G: '---------2----------' }, { e: '-----2--------------', B: '-3-5---3------------', G: '---------2----------' }, { e: '-5-3-2--------------', B: '-------3------------' }, { B: '-3h5-3--------------', G: '-------2------------' }, { e: '-2------------------', B: '---3----------------' }] }),
 ];
+
+export const lickLibrary = [
+  { id: 'opening-blues-box', name: 'Opening lick', style: 'Blues', difficulty: 'Beginner', keyNeutralIntervalPattern: ['1', 'b3', '4', '5'], rhythmPattern: 'question motif with space', techniques: ['hammer-on'], startingChordFunction: 'I7', endingChordFunction: 'I7', tab: "e|----------------|\nB|------------5h8-|\nG|--------5h6-----|\nD|----------------|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'A-shape', chord: 'I7', mood: 'confident', targetNotes: ['root', 'minor third', 'fifth'], pentatonic: 'minor pentatonic', whyItWorks: 'It states the home sound with a vocal hammer-on and leaves space for an answer.', resolvesTo: 'I7' },
+  { id: 'question-blues-bend', name: 'Question lick', style: 'Blues', difficulty: 'Easy', keyNeutralIntervalPattern: ['4', 'b5', '4', 'b3', '1'], rhythmPattern: 'held bend over two beats', techniques: ['bend', 'release'], startingChordFunction: 'I7', endingChordFunction: 'I7', tab: "e|----------------|\nB|-----5----------|\nG|-7b9---7-5------|\nD|-----------7----|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'E-shape', chord: 'I7', mood: 'vocal', targetNotes: ['fourth', 'blue note', 'root'], pentatonic: 'minor pentatonic plus blue note', whyItWorks: 'The bend creates tension, then resolves back into the minor-pentatonic box.', resolvesTo: 'I7' },
+  { id: 'answer-major-third', name: 'Answer lick', style: 'Blues', difficulty: 'Beginner', keyNeutralIntervalPattern: ['b3', '3', '1'], rhythmPattern: 'varied motif answer', techniques: ['hammer-on'], startingChordFunction: 'IV7', endingChordFunction: 'I7', tab: "e|----------------|\nB|-----5----------|\nG|-5h6---6-5------|\nD|-----------7----|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'C-shape', chord: 'I7', mood: 'resolved', targetNotes: ['major third', 'root'], pentatonic: 'minor-to-major blues blend', whyItWorks: 'The move from minor third to major third is classic blues language over a dominant chord.', resolvesTo: 'I7' },
+  { id: 'turnaround-root', name: 'Turnaround lick', style: 'Blues', difficulty: 'Intermediate', keyNeutralIntervalPattern: ['5', 'b3', '1', '5', 'b3', '3'], rhythmPattern: 'release phrase', techniques: ['pull-off feel'], startingChordFunction: 'V7', endingChordFunction: 'I7', tab: "e|-----5----------|\nB|-8-5---8-5------|\nG|-----------6----|\nD|----------------|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'E-shape', chord: 'V7 to I7', mood: 'closing', targetNotes: ['fifth', 'major third'], pentatonic: 'minor pentatonic with major third', whyItWorks: 'It uses a familiar box shape, then points the ear back to the home chord.', resolvesTo: 'I7' },
+  { id: 'ending-root-hold', name: 'Ending lick', style: 'Soulful Major', difficulty: 'Beginner', keyNeutralIntervalPattern: ['3', '2', '1'], rhythmPattern: 'confident held root', techniques: ['vibrato'], startingChordFunction: 'V', endingChordFunction: 'I', tab: "e|----------------|\nB|-5-3------------|\nG|-----4----------|\nD|----------------|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'G-shape', chord: 'I', mood: 'sweet', targetNotes: ['third', 'root'], pentatonic: 'major pentatonic', whyItWorks: 'A short descent into the root sounds like a complete sentence.', resolvesTo: 'I' },
+  { id: 'texas-double-stop', name: 'Texas-style lick', style: 'Blues', difficulty: 'Advanced', keyNeutralIntervalPattern: ['b7', '6', '5', '3'], rhythmPattern: 'syncopated stab', techniques: ['double-stop', 'bend'], startingChordFunction: 'I7', endingChordFunction: 'IV7', tab: "e|-----5----------|\nB|-----5---5------|\nG|-7b9---7---5----|\nD|-------------7--|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'E-shape', chord: 'I7', mood: 'greasy', targetNotes: ['flat seven', 'third'], pentatonic: 'minor pentatonic', whyItWorks: 'Double-stops add bar-band authority while the bend keeps it conversational.', resolvesTo: 'IV7' },
+  { id: 'minor-pentatonic-core', name: 'Minor pentatonic lick', style: 'Rock', difficulty: 'Easy', keyNeutralIntervalPattern: ['1', 'b3', '4', '5', 'b7'], rhythmPattern: 'straight eighth rock', techniques: ['alternate picking'], startingChordFunction: 'i', endingChordFunction: 'i', tab: "e|----------------|\nB|----------------|\nG|-----2-4-2------|\nD|-2-4-------4-2--|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'E-shape', chord: 'i', mood: 'driving', targetNotes: ['root', 'fifth'], pentatonic: 'minor pentatonic', whyItWorks: 'It sounds like a riff first and a scale second because the rhythm has a clear hook.', resolvesTo: 'i' },
+  { id: 'major-pentatonic-soul', name: 'Major pentatonic lick', style: 'Soulful Major', difficulty: 'Easy', keyNeutralIntervalPattern: ['1', '2', '3', '5', '6'], rhythmPattern: 'sparse soulful', techniques: ['legato', 'vibrato'], startingChordFunction: 'I', endingChordFunction: 'I', tab: "e|-------3--------|\nB|-3-5-----5-3----|\nG|-----4-------4--|\nD|----------------|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'G-shape', chord: 'I', mood: 'warm', targetNotes: ['third', 'fifth'], pentatonic: 'major pentatonic', whyItWorks: 'The major-pentatonic color targets sweet chord tones instead of blues tension.', resolvesTo: 'I' },
+  { id: 'country-double-stop', name: 'Country double-stop lick', style: 'Country-ish', difficulty: 'Intermediate', keyNeutralIntervalPattern: ['3', '5', '6', '5'], rhythmPattern: 'syncopated pickup', techniques: ['double-stop', 'hybrid picking'], startingChordFunction: 'I', endingChordFunction: 'I', tab: "e|-2-2------------|\nB|-----3-5--------|\nG|----------------|\nD|----------------|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'D-shape', chord: 'I', mood: 'bright', targetNotes: ['third', 'fifth', 'sixth'], pentatonic: 'major pentatonic', whyItWorks: 'Double-stops outline the chord while the sixth adds country sweetness.', resolvesTo: 'I' },
+  { id: 'blues-bend-peak', name: 'Blues bend lick', style: 'Blues', difficulty: 'Intermediate', keyNeutralIntervalPattern: ['4', 'b5', '5', 'b3', '1'], rhythmPattern: 'long-note bends', techniques: ['bend', 'vibrato'], startingChordFunction: 'IV7', endingChordFunction: 'I7', tab: "e|----------------|\nB|-----5----------|\nG|-7b8---7-5------|\nD|-----------7----|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'E-shape', chord: 'IV7 to I7', mood: 'yearning', targetNotes: ['fifth', 'root'], pentatonic: 'minor pentatonic plus blue note', whyItWorks: 'The peak bend gives the phrase a vocal high point before it relaxes home.', resolvesTo: 'I7' },
+  { id: 'soulful-hold-bend', name: 'Soulful hold-and-bend lick', style: 'Soulful Major', difficulty: 'Advanced', keyNeutralIntervalPattern: ['6', '5', '3', '2', '1'], rhythmPattern: 'held note then soft answer', techniques: ['hold', 'bend', 'vibrato'], startingChordFunction: 'I', endingChordFunction: 'I', tab: "e|-5----------------|\nB|---8-5------------|\nG|-------7-5--------|\nD|-----------7------|\nA|------------------|\nE|------------------|", length: '1 bar', cagedPosition: 'C-shape', chord: 'I', mood: 'soulful', targetNotes: ['sixth', 'third', 'root'], pentatonic: 'major/minor pentatonic blend', whyItWorks: 'The held note lets the listener hear emotion before the answer resolves.', resolvesTo: 'I' },
+  { id: 'rock-repeating-note', name: 'Rock repeating-note lick', style: 'Rock', difficulty: 'Professional Jam', keyNeutralIntervalPattern: ['1', '1', 'b3', '4', '1'], rhythmPattern: 'repeated-note burst', techniques: ['syncopation', 'alternate picking'], startingChordFunction: 'i', endingChordFunction: 'V7', tab: "e|----------------|\nB|----------------|\nG|-2-2-4-2--------|\nD|---------4-2----|\nA|----------------|\nE|----------------|", length: '1 bar', cagedPosition: 'E-shape', chord: 'i to V7', mood: 'urgent', targetNotes: ['root', 'flat third'], pentatonic: 'minor pentatonic', whyItWorks: 'Repeating the root creates a hook before the lick moves through the box.', resolvesTo: 'V7' },
+].map((lick) => ({
+  ...lick,
+  noteEvents: barsToNoteEvents([extractTabSegments(lick.tab)], lick.rhythmPattern),
+}));
 
 function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
@@ -546,7 +565,7 @@ export function SoloGenerator() {
     buildTabSystem(selectedSolo.bars.slice(0, 4)),
     buildTabSystem(selectedSolo.bars.slice(4, 8)),
   ], [selectedSolo.bars]);
-  const playbackEvents = useMemo(() => (selectedSoloIsValid ? preparePlaybackEvents(selectedSolo.noteEvents) : []), [selectedSolo.noteEvents, selectedSoloIsValid]);
+  const playbackEvents = useMemo(() => preparePlaybackEvents(selectedSolo.noteEvents ?? []), [selectedSolo.noteEvents]);
 
   const stopPlayback = useCallback(() => {
     if (stopTimerRef.current) {
@@ -600,12 +619,7 @@ export function SoloGenerator() {
     masterGain.connect(audioContext.destination);
 
     const secondsPerBeat = 60 / playbackTempos[playbackTempo];
-    if (!selectedSoloIsValid) {
-      const nextSolo = buildSelectedSolo({ key: selectedSolo.key, style: selectedSolo.style, difficulty: selectedSolo.difficulty, soloId: selectedSolo.sourceId ?? previousSoloIdRef.current });
-      previousSoloIdRef.current = nextSolo.sourceId;
-      setSelectedSolo(nextSolo);
-      return;
-    }
+    if (!playbackEvents.length) return;
 
     const countInBeats = countInEnabled ? 4 : 0;
     const startTime = audioContext.currentTime + 0.08;
@@ -675,21 +689,21 @@ export function SoloGenerator() {
         <fieldset><legend>Style</legend>{styles.map((item) => <button className={selectedSolo.style === item ? 'active' : ''} key={item} type="button" onClick={() => handleStyleChange(item)}>{item}</button>)}</fieldset>
         <fieldset><legend>Key</legend>{keys.map((item) => <button className={selectedSolo.key === item ? 'active' : ''} key={item} type="button" onClick={() => handleKeyChange(item)}>{item}</button>)}</fieldset>
         <fieldset><legend>Difficulty</legend>{difficulties.map((item) => <button className={selectedSolo.difficulty === item ? 'active' : ''} key={item} type="button" onClick={() => handleDifficultyChange(item)}>{item}</button>)}</fieldset>
-        <button className="solo-generate-button" type="button" onClick={regenerate}>Generate New Solo</button>
+        <button className="solo-generate-button" type="button" onClick={regenerate}>Build New Solo</button>
         <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Advanced'); rebuildSolo({ difficulty: 'Advanced', previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
       </section>
 
       <section className="solo-output-card" aria-labelledby="generated-solo-title">
         <div className="solo-output-header">
-          <div><p className="guitar-kicker">Curated 8-bar solo</p><h2 id="generated-solo-title">{selectedSolo.title}</h2></div>
-          <div className="solo-meta"><span>Key {selectedSolo.key}</span><span>{selectedSolo.style}</span><span>{selectedSolo.rhythmFeel}</span><span>{selectedSolo.difficulty}</span><span>{selectedSolo.tempo} bpm</span></div>
+          <div><p className="guitar-kicker">Guitarist-built 8-bar solo</p>{selectedSolo.title ? <h2 id="generated-solo-title">{selectedSolo.title}</h2> : null}</div>
+          <div className="solo-meta">{selectedSolo.key ? <span>Key {selectedSolo.key}</span> : null}{selectedSolo.style ? <span>{selectedSolo.style}</span> : null}{selectedSolo.rhythmFeel ? <span>{selectedSolo.rhythmFeel}</span> : null}{selectedSolo.difficulty ? <span>{selectedSolo.difficulty}</span> : null}{selectedSolo.tempo ? <span>{selectedSolo.tempo} bpm</span> : null}</div>
         </div>
         <div className="solo-detail-panel" aria-label="Solo details">
-          <span>Key: {selectedSolo.key}</span>
-          <span>Style: {selectedSolo.style}</span>
-          <span>Rhythm feel: {selectedSolo.rhythmFeel}</span>
-          <span>Difficulty: {selectedSolo.difficulty}</span>
-          <span>Tempo: {selectedSolo.tempo} bpm</span>
+          {selectedSolo.key ? <span>Key: {selectedSolo.key}</span> : null}
+          {selectedSolo.style ? <span>Style: {selectedSolo.style}</span> : null}
+          {selectedSolo.rhythmFeel ? <span>Rhythm feel: {selectedSolo.rhythmFeel}</span> : null}
+          {selectedSolo.difficulty ? <span>Difficulty: {selectedSolo.difficulty}</span> : null}
+          {selectedSolo.tempo ? <span>Tempo: {selectedSolo.tempo} bpm</span> : null}
         </div>
         <div className="solo-playback-panel" aria-label="Solo playback controls">
           <button className="solo-play-button" type="button" onClick={playSolo}>{isPlaying ? 'Restart Solo' : 'Play Solo'}</button>
@@ -738,7 +752,7 @@ export function SoloGenerator() {
           ))}
         </div>
         <div className="solo-buttons" aria-label="Solo action buttons">
-          <button type="button" onClick={regenerate}>Generate New Solo</button>
+          <button type="button" onClick={regenerate}>Build New Solo</button>
           <button className={preferMoreMusical ? 'active' : ''} type="button" onClick={() => { stopPlayback(); setPreferMoreMusical(true); setDifficulty('Advanced'); rebuildSolo({ difficulty: 'Advanced', previousSoloId: selectedSolo.sourceId }); }}>Too Basic / More Musical</button>
           {isPracticeFullscreen ? (
             <button type="button" onClick={() => setIsPracticeFullscreen(false)}>Exit Full Screen</button>
@@ -754,6 +768,7 @@ export function SoloGenerator() {
           </>)}
         </div>
         <div className="solo-learning-grid">
+          {!isPracticeFullscreen && <div className="practice-box"><h3>Phrase Architecture</h3><ol>{selectedSolo.phraseFlow.map((phrase) => <li key={phrase}>{phrase}</li>)}</ol></div>}
           {!isPracticeFullscreen && showWhy && <div className="practice-box"><h3>Musicality Notes</h3><ul>{selectedSolo.musicalityNotes.map((note) => <li key={note}>{note}</li>)}</ul></div>}
           {!isPracticeFullscreen && showSteps && <div className="practice-box"><h3>Practice Steps</h3><ol>{selectedSolo.practiceSteps.map((step) => <li key={step}>{step}</li>)}</ol></div>}
         </div>
