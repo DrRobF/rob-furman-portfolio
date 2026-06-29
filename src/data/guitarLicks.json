@@ -1,0 +1,19 @@
+{
+  "_devNote": "Admin/dev-only import file. Add imported licks to the licks array; the app renders only this imported JSON data.",
+  "_format": {
+    "title": "string",
+    "style": "string",
+    "key": "string",
+    "difficulty": "string",
+    "tempo": "number",
+    "chord": "string",
+    "tab": "string",
+    "audioUrl": "string, optional",
+    "source": "string",
+    "license": "string",
+    "attribution": "string",
+    "whyItWorks": "string",
+    "practiceSteps": ["string"]
+  },
+  "licks": []
+}

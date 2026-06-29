@@ -1,10 +1,9 @@
 import { GuitarNav } from '../GuitarNav';
 import { LickLibrary } from '../LickLibrary';
-import { guitarLicks } from '../lickData';
 
 export const metadata = {
   title: 'Lick Library | Fretboard Freedom',
-  description: 'A TV-friendly library of hand-written original guitar licks for focused practice.',
+  description: 'A TV-friendly library of imported guitar licks with source and license attribution.',
 };
 
 export default function LickLibraryPage() {
@@ -16,9 +15,9 @@ export default function LickLibraryPage() {
           <div className="guitar-lesson-intro">
             <p className="guitar-kicker">LICK LIBRARY</p>
             <h1>Lick Library</h1>
-            <p className="guitar-tagline">TV-friendly guitar language: one clean, original lick at a time.</p>
+            <p className="guitar-tagline">Imported guitar language with visible source and license attribution under every lick.</p>
           </div>
-          <LickLibrary licks={guitarLicks} />
+          <LickLibrary />
         </div>
       </section>
     </div>
