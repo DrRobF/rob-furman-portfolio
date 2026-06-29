@@ -1,5 +1,6 @@
 import { GuitarNav } from '../GuitarNav';
 import { LickLibrary } from '../LickLibrary';
+import { guitarLicks } from '../lickData';
 
 export const metadata = {
   title: 'Lick Library | Fretboard Freedom',
@@ -17,7 +18,7 @@ export default function LickLibraryPage() {
             <h1>Lick Library</h1>
             <p className="guitar-tagline">TV-friendly guitar language: one clean, original lick at a time.</p>
           </div>
-          <LickLibrary />
+          <LickLibrary licks={guitarLicks} />
         </div>
       </section>
     </div>
