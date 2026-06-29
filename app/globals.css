@@ -5078,7 +5078,9 @@ p {
 
 .lick-subtitle,
 .lick-chord,
-.lick-audio-note {
+.lick-audio-note,
+.lick-attribution,
+.lick-empty-state {
   color: #dbeafe;
   font-size: clamp(1.15rem, 2.2vw, 1.55rem);
   font-weight: 800;
@@ -5160,7 +5162,9 @@ p {
   outline: none;
 }
 
-.lick-audio-note {
+.lick-audio-note,
+.lick-attribution,
+.lick-empty-state {
   border-left: 6px solid #facc15;
   margin: 0;
   padding-left: 1rem;
