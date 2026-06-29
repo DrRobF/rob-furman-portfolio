@@ -4970,8 +4970,7 @@ p {
 
 /* TV-friendly lick library. */
 .lick-library-controls,
-.lick-practice-card,
-.lick-build-solo-placeholder {
+.lick-practice-card {
   border: 1px solid rgba(226, 232, 240, 0.18);
   border-radius: 28px;
   background: rgba(15, 23, 42, 0.84);
@@ -5048,6 +5047,37 @@ p {
   padding: 1rem 1.2rem;
 }
 
+
+.lick-meta-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.lick-meta-list div {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.58);
+  padding: 0.85rem 1rem;
+}
+
+.lick-meta-list dt {
+  color: #93c5fd;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+
+.lick-meta-list dd {
+  color: #ffffff;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  font-weight: 900;
+  margin: 0;
+}
+
 .lick-tab {
   overflow-x: auto;
   border: 1px solid rgba(250, 204, 21, 0.42);
@@ -5092,24 +5122,6 @@ p {
   padding-left: 1rem;
 }
 
-.lick-build-solo-placeholder {
-  margin-top: clamp(1rem, 2.5vw, 1.6rem);
-  padding: clamp(1rem, 2.4vw, 1.5rem);
-}
-
-.lick-build-solo-placeholder h2 {
-  color: #ffffff;
-  font-size: clamp(1.8rem, 3.5vw, 3rem);
-  margin: 0.2rem 0 0.35rem;
-}
-
-.lick-build-solo-placeholder p:last-child {
-  color: #dbeafe;
-  font-size: clamp(1.05rem, 2vw, 1.35rem);
-  font-weight: 800;
-  margin: 0;
-}
-
 .lick-detail-grid {
   display: grid;
   grid-template-columns: minmax(220px, 0.7fr) minmax(280px, 1fr) minmax(280px, 1fr);
@@ -5144,7 +5156,8 @@ p {
 
 @media (max-width: 980px), (orientation: portrait) {
   .lick-library-controls,
-  .lick-detail-grid {
+  .lick-detail-grid,
+  .lick-meta-list {
     grid-template-columns: 1fr;
   }
 }
