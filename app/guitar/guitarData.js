@@ -20,6 +20,13 @@ export const guitarSections = [
       'Lessons that show how CAGED chord shapes become practical soloing areas with roots, chord tones, and pentatonic notes.',
   },
   {
+    title: 'Lick Library',
+    href: '/guitar/lick-library',
+    label: 'LICK LIBRARY',
+    description:
+      'Original guitar licks with CAGED positions, target notes, techniques, and teaching notes.',
+  },
+  {
     title: 'Solo Generator',
     href: '/guitar/solo-generator',
     label: 'SOLO GENERATOR',
