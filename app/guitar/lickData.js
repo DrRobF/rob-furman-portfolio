@@ -71,4 +71,53 @@ export const guitarLicks = [
     why: 'The wide top-string skip sounds like a country chime, then the line spells A major pentatonic back to a sturdy root.',
     steps: ['Practice the first string skip alone.', 'Use pick-and-fingers for extra snap if possible.', 'Keep the 4h6 hammer-on bright and in time.', 'Loop slowly until every string change is clean.'],
   },
+
+  {
+    title: 'River Bend Reply', key: 'C', style: 'Blues', difficulty: 'Easy', tempo: '82 bpm', chord: 'C7', mood: 'Smoky', targetNotes: ['E (3rd)', 'Bb (b7)', 'C (root)'],
+    tab: `e|------------------------|\nB|------8-11b12-8---------|\nG|--8/9----------9-8------|\nD|-------------------10---|\nA|------------------------|\nE|------------------------|`,
+    why: 'The phrase leans into the C7 third, then answers with a compact blues bend that resolves to the chord root area.',
+    steps: ['Slide into E with confidence.', 'Keep the bend narrow and vocal.', 'Let the 8th fret on B breathe for a beat.', 'Resolve to the 10th fret on D without rushing.'],
+  },
+  {
+    title: 'Delta Door Knock', key: 'D', style: 'Blues', difficulty: 'Intermediate', tempo: '90 bpm', chord: 'D7', mood: 'Raw', targetNotes: ['F# (3rd)', 'C (b7)', 'D (root)'],
+    tab: `e|------------------------|\nB|--13r10-----------------|\nG|--------12-10h11--------|\nD|----------------12-10---|\nA|---------------------12-|\nE|------------------------|`,
+    why: 'The release gives the lick a vocal blues entrance while the half-step hammer-on spells the dominant chord sound.',
+    steps: ['Hear the bend release before picking it.', 'Make 10h11 on G the chord-tone moment.', 'Mute around the descending line.', 'Finish with a sturdy D root on the A string.'],
+  },
+  {
+    title: 'Backbeat Spark', key: 'C', style: 'Rock', difficulty: 'Easy', tempo: '112 bpm', chord: 'C5', mood: 'Driving', targetNotes: ['C (root)', 'Eb (b3)', 'G (5th)'],
+    tab: `e|------------------------|\nB|------------------------|\nG|------3-5-3-------------|\nD|--3h5-------5-3---------|\nA|----------------5-3-----|\nE|--------------------6---|`,
+    why: 'A tight minor-pentatonic cell climbs and snaps back, giving a useful rock response over a C power chord.',
+    steps: ['Keep the hammer-on punchy.', 'Accent the 5th fret on G.', 'Palm mute the lower-string ending lightly.', 'Loop it with a C5 backbeat.'],
+  },
+  {
+    title: 'Stadium Step Down', key: 'G', style: 'Rock', difficulty: 'Intermediate', tempo: '124 bpm', chord: 'G5', mood: 'Bold', targetNotes: ['G (root)', 'Bb (b3)', 'D (5th)'],
+    tab: `e|------------------------|\nB|--15-13-----------------|\nG|--------15-12-----------|\nD|--------------15-12-----|\nA|-------------------13---|\nE|------------------------|`,
+    why: 'Wide-position notes create a bigger rock sound while every landing point stays inside G minor pentatonic.',
+    steps: ['Use alternate picking at a slow tempo.', 'Let the opening note sound like a hook.', 'Keep the string crossings relaxed.', 'End with a strong downstroke.'],
+  },
+  {
+    title: 'Maple Street Glide', key: 'A', style: 'Soulful Major', difficulty: 'Easy', tempo: '74 bpm', chord: 'Amaj7', mood: 'Tender', targetNotes: ['C# (3rd)', 'F# (6th)', 'G# (7th)'],
+    tab: `e|----------4-5-----------|\nB|------5-------5---------|\nG|--4/6---6-------6-4-----|\nD|--------------------7---|\nA|------------------------|\nE|------------------------|`,
+    why: 'The major 6th and 7th add sweetness without making the line too busy for a slow groove.',
+    steps: ['Use a clean tone.', 'Slide into C# smoothly.', 'Keep the top notes connected.', 'Resolve gently to A on the D string.'],
+  },
+  {
+    title: 'Late Train Resolve', key: 'D', style: 'Soulful Major', difficulty: 'Intermediate', tempo: '80 bpm', chord: 'D6', mood: 'Hopeful', targetNotes: ['F# (3rd)', 'B (6th)', 'D (root)'],
+    tab: `e|------------------------|\nB|--7-10-7----------------|\nG|---------9-7h9-7--------|\nD|-----------------9-7-4--|\nA|------------------------|\nE|------------------------|`,
+    why: 'The sixth gives the phrase lift while the final D chord tone makes the melody feel complete.',
+    steps: ['Sing the first three notes before playing.', 'Keep the hammer-on relaxed.', 'Do not over-accent the descent.', 'Land softly on the 4th fret of D.'],
+  },
+  {
+    title: 'Front Porch Snap', key: 'C', style: 'Country-ish', difficulty: 'Easy', tempo: '100 bpm', chord: 'C', mood: 'Cheerful', targetNotes: ['E (3rd)', 'G (5th)', 'C (root)'],
+    tab: `e|----------8-------------|\nB|------8h10--10p8--------|\nG|--7/9------------9-7----|\nD|---------------------10-|\nA|------------------------|\nE|------------------------|`,
+    why: 'Major-pentatonic movement and a quick pull-off create a friendly country-pop lick in C.',
+    steps: ['Try hybrid picking on the B string.', 'Keep the pull-off light.', 'Let the slide sound bright.', 'Resolve clearly to C.'],
+  },
+  {
+    title: 'Barn Light Tag', key: 'E', style: 'Country-ish', difficulty: 'Intermediate', tempo: '112 bpm', chord: 'E', mood: 'Snappy', targetNotes: ['G# (3rd)', 'B (5th)', 'E (root)'],
+    tab: `e|--12-9------------------|\nB|-------12-9-------------|\nG|------------11-9h11-9---|\nD|----------------------11|\nA|------------------------|\nE|------------------------|`,
+    why: 'The high-string skip and quick hammer-on outline E major pentatonic with a crisp country finish.',
+    steps: ['Pick the top note firmly.', 'Keep the string skip clean.', 'Snap the 9h11 hammer-on in time.', 'Try it after an E-A-E rhythm figure.'],
+  },
 ];
