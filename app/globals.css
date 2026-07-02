@@ -4969,6 +4969,17 @@ p {
 }
 
 /* TV-friendly lick library. */
+.lick-imported-section-intro {
+  margin-top: clamp(2rem, 5vw, 4rem);
+}
+
+.lick-imported-section-intro h2 {
+  color: #ffffff;
+  font-size: clamp(2rem, 5vw, 4.4rem);
+  line-height: 1;
+  margin: 0;
+}
+
 .lick-library-controls,
 .lick-practice-card {
   border: 1px solid rgba(226, 232, 240, 0.18);
@@ -5168,6 +5179,21 @@ p {
   border-left: 6px solid #facc15;
   margin: 0;
   padding-left: 1rem;
+}
+
+.lick-attribution {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.lick-attribution p {
+  margin: 0;
+}
+
+.lick-attribution a {
+  color: #fef3c7;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }
 
 .lick-detail-grid {

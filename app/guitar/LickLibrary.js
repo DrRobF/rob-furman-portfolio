@@ -16,6 +16,7 @@ const defaultFilters = { style: allOption, difficulty: allOption, key: allOption
 const importedLicks = Array.isArray(importedLickData) ? importedLickData : importedLickData.licks ?? [];
 
 const normalizeList = (value) => (Array.isArray(value) ? value.filter(Boolean) : []);
+const hasReusePermission = (lick) => Boolean(lick.sourceUrl && lick.license && lick.attribution && lick.licenseNotes);
 const normalizeLick = (lick, index) => ({
   id: lick.id || `${lick.title || 'imported-lick'}-${index}`,
   title: lick.title || 'Untitled lick',
@@ -24,11 +25,14 @@ const normalizeLick = (lick, index) => ({
   difficulty: lick.difficulty || 'Unspecified difficulty',
   tempo: lick.tempo || 'Unspecified tempo',
   chord: lick.chord || 'Unspecified chord',
-  tab: lick.tab || '',
-  audioUrl: lick.audioUrl || '',
+  tab: lick.tabSourceAllowed === true ? lick.tab || '' : '',
+  tabSourceAllowed: lick.tabSourceAllowed === true,
   source: lick.source || 'Source not provided',
+  sourceUrl: lick.sourceUrl || '',
+  audioUrl: lick.audioUrl || '',
   license: lick.license || 'License not provided',
   attribution: lick.attribution || 'Attribution not provided',
+  licenseNotes: lick.licenseNotes || '',
   whyItWorks: lick.whyItWorks || '',
   practiceSteps: normalizeList(lick.practiceSteps),
 });
@@ -41,7 +45,7 @@ const matchesField = (lick, field, value) => value === allOption || lick[field] 
 const exactMatch = (lick, filters) => filterFields.every(([field]) => matchesField(lick, field, filters[field]));
 
 export function LickLibrary({ licks = importedLicks }) {
-  const importedItems = useMemo(() => licks.map(normalizeLick).filter((lick) => lick.tab), [licks]);
+  const importedItems = useMemo(() => licks.filter(hasReusePermission).map(normalizeLick).filter((lick) => lick.tab || lick.audioUrl), [licks]);
   const [filters, setFilters] = useState(defaultFilters);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [speed, setSpeed] = useState('Medium');
@@ -119,7 +123,7 @@ export function LickLibrary({ licks = importedLicks }) {
         <div className="lick-practice-topline"><p className="guitar-kicker">Imported lick</p><p>{activeIndex + 1} / {displayedLicks.length}</p></div>
         <header className="lick-practice-header"><div><h2>{lick.title}</h2><p className="lick-subtitle">{lick.style} · Key {lick.key} · {lick.difficulty} · {lick.tempo} bpm</p></div><div className="lick-chord">Works over <strong>{lick.chord}</strong></div></header>
         <dl className="lick-meta-list"><div><dt>Key</dt><dd>{lick.key}</dd></div><div><dt>Style</dt><dd>{lick.style}</dd></div><div><dt>Difficulty</dt><dd>{lick.difficulty}</dd></div><div><dt>Tempo</dt><dd>{lick.tempo} bpm</dd></div></dl>
-        <pre className="lick-tab" aria-label={`${lick.title} guitar tablature`}>{lick.tab}</pre>
+        {lick.tabSourceAllowed && lick.tab ? <pre className="lick-tab" aria-label={`${lick.title} guitar tablature`}>{lick.tab}</pre> : <p className="lick-audio-note">Tab not included due to licensing.</p>}
         <div className="lick-action-row"><button type="button" onClick={() => move(-1)}>Previous Lick</button><button type="button" onClick={() => move(1)}>Next Lick</button></div>
         {lick.audioUrl ? (
           <div className="lick-action-row" aria-label="Lick audio controls">
@@ -127,7 +131,7 @@ export function LickLibrary({ licks = importedLicks }) {
             <button type="button" onClick={playPlayback}>{isPlaying ? 'Restart' : 'Play'}</button><button type="button" onClick={stopPlayback}>Stop</button><button type="button" className={isLooping ? 'active' : ''} onClick={() => setIsLooping((value) => !value)}>Loop {isLooping ? 'On' : 'Off'}</button>{Object.keys(speedMultipliers).map((option) => <button type="button" key={option} className={speed === option ? 'active' : ''} onClick={() => setSpeed(option)}>{option}</button>)}
           </div>
         ) : <p className="lick-audio-note">No audio file imported for this lick.</p>}
-        <p className="lick-attribution"><strong>Source:</strong> {lick.source} · <strong>License:</strong> {lick.license} · <strong>Attribution:</strong> {lick.attribution}</p>
+        <div className="lick-attribution"><p><strong>Source:</strong> {lick.sourceUrl ? <a href={lick.sourceUrl} target="_blank" rel="noreferrer">{lick.source}</a> : lick.source}</p><p><strong>License:</strong> {lick.license}</p><p><strong>Attribution:</strong> {lick.attribution}</p><p><strong>License notes:</strong> {lick.licenseNotes}</p></div>
         <div className="lick-detail-grid"><section><h3>Why it works</h3><p>{lick.whyItWorks || 'No analysis imported yet.'}</p></section><section className="lick-steps"><h3>Practice steps</h3>{lick.practiceSteps.length ? <ol>{lick.practiceSteps.map((step) => <li key={step}>{step}</li>)}</ol> : <p>No practice steps imported yet.</p>}</section></div>
       </article>
     </>
