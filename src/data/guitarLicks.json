@@ -1,5 +1,5 @@
 {
-  "_devNote": "Admin/dev-only import file. Add imported licks to the licks array; the app renders only this imported JSON data.",
+  "_devNote": "Admin/dev-only import file. Add imported licks to the licks array; the app renders only this imported JSON data. Do not add a lick unless the source has clear reuse permission for every imported asset. If tabSourceAllowed is false, leave tab empty and provide audioUrl plus license/source details.",
   "_format": {
     "title": "string",
     "style": "string",
@@ -7,13 +7,22 @@
     "difficulty": "string",
     "tempo": "number",
     "chord": "string",
-    "tab": "string",
-    "audioUrl": "string, optional",
+    "tab": "string, optional; include only when tabSourceAllowed is true",
     "source": "string",
+    "sourceUrl": "string",
+    "audioUrl": "string, optional",
     "license": "string",
     "attribution": "string",
+    "licenseNotes": "string",
+    "tabSourceAllowed": "boolean; true only when tablature reuse is clearly permitted",
     "whyItWorks": "string",
     "practiceSteps": ["string"]
   },
+  "_importRules": [
+    "Only import licks from sources with clear reuse permission.",
+    "Keep sourceUrl, license, attribution, and licenseNotes populated for every lick.",
+    "Set tabSourceAllowed to true only when tablature reuse is explicitly allowed.",
+    "When tabSourceAllowed is false, do not include tab content; the app will show audio only with a licensing note."
+  ],
   "licks": []
 }
