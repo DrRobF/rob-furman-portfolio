@@ -5,9 +5,9 @@ import Script from 'next/script';
 import { LanguageProvider } from './components/LanguageProvider';
 
 export const metadata = {
-  title: 'Dr. Rob Furman | AI + Learning Design Portfolio',
+  title: 'Dr. Rob Furman | Education Keynote Speaker & Human-Centered AI Leader',
   description:
-    'Portfolio of Dr. Rob Furman focused on AI learning systems, simulation design, educational leadership, speaking, and publications.',
+    'Keynotes and practical leadership guidance from Dr. Rob Furman on school leadership under pressure, The Human Test, and AI that strengthens educators and learners.',
 };
 
 export default function RootLayout({ children }) {
