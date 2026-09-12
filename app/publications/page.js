@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+const PRINCIPAL_AI_KIT_URL = 'https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile';
+
 const featuredBooks = [
   {
     title: 'The Future Ready Challenge',
@@ -94,6 +96,25 @@ export default function PublicationsPage() {
           His work has appeared in outlets including K12Digest, Authority Magazine, EdTech Review,
           and other national education platforms.
         </p>
+
+        <aside className="resource-callout top-space" aria-label="Principal AI Starter Kit">
+          <div>
+            <p className="eyebrow">New digital resource</p>
+            <h2>Principal AI Starter Kit</h2>
+            <p>
+              Practical AI resources for school leaders who want to save time while keeping people,
+              judgment, and learning at the center.
+            </p>
+          </div>
+          <a
+            href={PRINCIPAL_AI_KIT_URL}
+            className="button primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View the Starter Kit →
+          </a>
+        </aside>
 
         <h2 className="top-space">Books and Selected Work</h2>
 
