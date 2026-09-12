@@ -15,7 +15,7 @@ export default function ContactPage() {
             </a>
           </p>
           <p>
-            <strong>Location:</strong> West Palm Beach, FL
+            <strong>Location:</strong> Vero Beach, FL
           </p>
           <p>
             <strong>LinkedIn:</strong>{' '}
