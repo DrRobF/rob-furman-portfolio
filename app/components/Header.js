@@ -29,6 +29,15 @@ export function Header() {
                 <Link href={href}>{t(key)}</Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Shop Resources
+              </Link>
+            </li>
           </ul>
         </nav>
         <LanguageSwitcher />
