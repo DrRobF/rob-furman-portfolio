@@ -5,6 +5,7 @@ import HelpSuiteFeature from './components/HelpSuiteFeature';
 const VIC_URL = '/vic';
 const SCHOOL_LEADER_SIMULATION_URL = '/human-equation-suite/leadership-sim';
 const URBAN_STUDENT_SIMULATION_URL = '/human-equation-suite/urban-student-sim';
+const PRINCIPAL_AI_KIT_URL = 'https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile';
 
 const proofCards = [
   {
@@ -167,6 +168,14 @@ export default function HomePage() {
               <Link href={VIC_URL} className="button secondary">
                 See AI That Helps
               </Link>
+              <a
+                href={PRINCIPAL_AI_KIT_URL}
+                className="button secondary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get the AI Starter Kit
+              </a>
             </div>
           </div>
 
@@ -186,6 +195,30 @@ export default function HomePage() {
                 <span key={credential}>{credential}</span>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-dark resource-cta-section" aria-labelledby="principal-ai-kit">
+        <div className="container resource-cta-layout">
+          <div>
+            <p className="eyebrow">Practical resource for school leaders</p>
+            <h2 id="principal-ai-kit">Principal AI Starter Kit</h2>
+            <p>
+              A practical starting point for school leaders who want to use AI with clarity,
+              purpose, and sound professional judgment—not hype or generic prompts.
+            </p>
+          </div>
+          <div className="resource-cta-actions">
+            <a
+              href={PRINCIPAL_AI_KIT_URL}
+              className="button primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get the Starter Kit →
+            </a>
+            <span>Instant digital access through Gumroad</span>
           </div>
         </div>
       </section>
