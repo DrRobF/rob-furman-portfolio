@@ -42,8 +42,26 @@ const proofCards = [
 const credentialStack = [
   'Ed.D. Instructional Leadership',
   '16+ Years School Leadership',
-  'Author & National Presenter',
+  'TEDx Speaker & National Presenter',
   'AI + Learning Systems Builder',
+];
+
+const signatureIdeas = [
+  {
+    title: 'What Would You Do?',
+    detail:
+      'Real school dilemmas that place leaders, teachers, and families inside the decision—before revealing the leadership principle underneath it.',
+  },
+  {
+    title: 'The Human Test',
+    detail:
+      'A practical standard for AI, policy, and school innovation: Does it deepen learning, strengthen educators, protect dignity, and solve a real human problem?',
+  },
+  {
+    title: 'AI That Actually Helps Schools',
+    detail:
+      'A grounded approach to using AI to extend human judgment and student thinking rather than replacing either one.',
+  },
 ];
 
 const leadershipDomains = [
@@ -128,33 +146,26 @@ export default function HomePage() {
       <section className="hero section section-light leadership-hero">
         <div className="container hero-layout">
           <div className="hero-content">
-            <p className="eyebrow">DR. ROB FURMAN · ED.D. · EDUCATIONAL LEADER</p>
-            <h1>Educational Leadership for Schools, Systems, and the Human Moments That Shape Both</h1>
+            <p className="eyebrow">NATIONAL EDUCATION SPEAKER · SCHOOL LEADER · HUMAN-CENTERED AI</p>
+            <h1>Better Human Decisions for the Future of Education</h1>
             <p className="lead">
-              I help schools and organizations improve how people lead, learn, communicate, and
-              perform under real-world pressure — drawing from decades of experience as a
-              principal, instructional leader, author, speaker, and builder of practical learning
-              systems.
+              Dr. Rob Furman helps educators lead under pressure and use AI to strengthen—not
+              replace—human judgment, professional expertise, and student thinking.
             </p>
             <p>
-              My work sits at the intersection of school leadership, instructional design,
-              organizational performance, and responsible AI. Whether leading schools, developing
-              educators, writing and speaking nationally, or building tools like H.E.L.P. and VIC,
-              my focus is the same: helping people make better decisions when the work is complex,
-              human, and high-stakes.
+              Drawing from decades as a principal, instructional leader, author, TEDx speaker, and
+              systems builder, I turn difficult school realities into memorable stories,
+              practical frameworks, and actions educators can use immediately.
             </p>
             <div className="button-row">
-              <Link href="#leadership-work" className="button primary">
-                Explore My Leadership Work
+              <Link href="/speaking" className="button primary">
+                Bring Dr. Rob to Your Event
               </Link>
-              <Link href="/human-equation-suite" className="button secondary">
-                View H.E.L.P. Suite
+              <Link href="#signature-ideas" className="button secondary">
+                Explore the Big Ideas
               </Link>
               <Link href={VIC_URL} className="button secondary">
-                Learn About VIC
-              </Link>
-              <Link href="/contact" className="button secondary">
-                Contact Me
+                See AI That Helps
               </Link>
             </div>
           </div>
@@ -175,6 +186,33 @@ export default function HomePage() {
                 <span key={credential}>{credential}</span>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-soft signature-ideas-section" id="signature-ideas">
+        <div className="container">
+          <div className="section-intro">
+            <p className="eyebrow">Ideas educators remember and use</p>
+            <h2>A Distinctive Voice for Leadership in the Age of AI</h2>
+            <p>
+              The future of education is not a technology problem alone. It is a human judgment
+              problem—and school leaders need practical ways to think clearly when the pressure is
+              real.
+            </p>
+          </div>
+          <div className="card-grid three-up top-space">
+            {signatureIdeas.map((idea) => (
+              <article className="card signature-idea-card" key={idea.title}>
+                <h3>{idea.title}</h3>
+                <p>{idea.detail}</p>
+              </article>
+            ))}
+          </div>
+          <div className="button-row top-space">
+            <Link href="/speaking" className="button primary">
+              Explore Keynotes and Workshops
+            </Link>
           </div>
         </div>
       </section>
@@ -325,16 +363,16 @@ export default function HomePage() {
             />
           </div>
           <div>
-            <p className="eyebrow">Speaking · Consulting · Application</p>
-            <h2>Leadership Ideas Designed for Real Implementation</h2>
+            <p className="eyebrow">Keynotes · Leadership Institutes · Professional Learning</p>
+            <h2>Give Educators More Than Inspiration</h2>
             <p>
-              I work with schools and organizations on the practical side of improvement: helping
-              leaders communicate vision, support educators, use technology responsibly, and build
-              systems that move from strategy to execution.
+              Rob combines the energy and storytelling of a keynote with the credibility of a
+              leader who has made difficult decisions in real schools. Audiences leave with
+              language, frameworks, and questions they can use the next day.
             </p>
             <div className="button-row top-space-sm">
               <Link href="/speaking" className="button primary">
-                View Speaking
+                Explore Speaking Programs
               </Link>
               <Link href="/projects" className="button secondary">
                 View Projects
@@ -348,17 +386,15 @@ export default function HomePage() {
         <div className="container">
           <p className="eyebrow">Connect</p>
           <h2>
-            Looking for an educational leader who can connect vision, people, systems, and
-            execution?
+            Planning a conference for educators who need more than another generic keynote?
           </h2>
           <p>
-            I bring school leadership experience, instructional expertise, communication skill, and
-            practical innovation to organizations working to improve learning, leadership, and
-            performance.
+            Bring Dr. Rob Furman to your stage for a practical, provocative, deeply human
+            conversation about leadership and the future of education.
           </p>
           <div className="button-row center top-space-sm">
             <Link href="/contact" className="button primary">
-              Contact Me
+              Start a Speaking Conversation
             </Link>
             <Link href="/speaking" className="button secondary">
               View Speaking
