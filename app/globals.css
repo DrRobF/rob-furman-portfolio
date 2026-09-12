@@ -165,6 +165,30 @@ p {
   padding-top: 6.4rem;
 }
 
+.signature-ideas-section {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.signature-idea-card,
+.signature-keynote-card,
+.audience-outcomes-card {
+  height: 100%;
+}
+
+.signature-idea-card h3,
+.signature-keynote-card h3 {
+  color: var(--accent-strong);
+}
+
+.speaking-hero {
+  padding-top: 6rem;
+}
+
+.speaking-hero-grid {
+  align-items: center;
+}
+
 .hero-layout {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
