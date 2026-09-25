@@ -199,6 +199,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="section section-soft positioning-statement-section" aria-labelledby="positioning-statement">
+        <div className="container">
+          <div className="section-intro">
+            <p className="eyebrow">The work behind the work</p>
+            <h2 id="positioning-statement">The future of education needs more than new technology. It needs better human thinking.</h2>
+            <p>
+              Education is changing quickly.
+            </p>
+            <p>
+              My work connects school leadership, human-centered AI, future-ready learning, difficult
+              conversations, student thinking, and the practical realities educators face every day.
+            </p>
+            <p>
+              I help educators and school leaders use new ideas and new technology without losing
+              judgment, creativity, relationships, or the human purpose of education.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="section section-dark resource-cta-section" aria-labelledby="principal-ai-kit">
         <div className="container resource-cta-layout">
           <div>
