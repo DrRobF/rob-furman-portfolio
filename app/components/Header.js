@@ -6,6 +6,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 const navItems = [
   ['nav.home', '/'],
+  ['nav.ai', '/ai-in-education'],
   ['nav.projects', '/projects'],
   ['nav.speaking', '/speaking'],
   ['nav.publications', '/publications'],
