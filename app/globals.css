@@ -148,6 +148,38 @@ p {
   margin-top: 1rem;
 }
 
+.ai-reading-days {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.3rem;
+}
+
+.ai-reading-day {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0.9rem;
+  align-items: start;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.ai-reading-day > span {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  color: #fff;
+  background: #2455a8;
+  font-weight: 700;
+}
+
+.ai-reading-day p {
+  margin-top: 0.15rem;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.1em;
