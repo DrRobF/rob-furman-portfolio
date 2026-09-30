@@ -104,6 +104,32 @@ p {
   max-width: 72ch;
 }
 
+.ai-guide-reading {
+  max-width: 830px;
+}
+
+.ai-guide-reading > p + p,
+.ai-guide-reading > p + h3,
+.ai-guide-reading > h3 + p,
+.ai-guide-reading > ol + p {
+  margin-top: 1rem;
+}
+
+.ai-guide-reading a:not(.button) {
+  color: #2455a8;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.ai-guide-list {
+  display: grid;
+  gap: 0.7rem;
+  line-height: 1.65;
+  padding-left: 1.5rem;
+  color: var(--muted);
+  margin: 1.1rem 0 0;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.1em;
