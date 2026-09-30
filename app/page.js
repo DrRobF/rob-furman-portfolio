@@ -5,7 +5,7 @@ import HelpSuiteFeature from './components/HelpSuiteFeature';
 const VIC_URL = '/vic';
 const SCHOOL_LEADER_SIMULATION_URL = '/human-equation-suite/leadership-sim';
 const URBAN_STUDENT_SIMULATION_URL = '/human-equation-suite/urban-student-sim';
-const PRINCIPAL_AI_KIT_URL = 'https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile';
+const PRINCIPAL_AI_KIT_URL = '/resources/principal-ai-starter-kit';
 
 const proofCards = [
   {
@@ -171,14 +171,12 @@ export default function HomePage() {
               <Link href="/ai-in-education" className="button secondary">
                 AI in Education Guide
               </Link>
-              <a
-                href={PRINCIPAL_AI_KIT_URL}
-                className="button secondary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link href="/resources" className="button secondary">
+                Shop Educator Resources
+              </Link>
+              <Link href={PRINCIPAL_AI_KIT_URL} className="button secondary">
                 Get the AI Starter Kit
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -233,15 +231,10 @@ export default function HomePage() {
             </p>
           </div>
           <div className="resource-cta-actions">
-            <a
-              href={PRINCIPAL_AI_KIT_URL}
-              className="button primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link href={PRINCIPAL_AI_KIT_URL} className="button primary">
               Get the Starter Kit →
-            </a>
-            <span>Instant digital access through Gumroad</span>
+            </Link>
+            <Link href="/resources" className="text-link">Browse all educator resources →</Link>
           </div>
         </div>
       </section>

@@ -149,9 +149,9 @@ export default function AIInEducationPage() {
               The <Link href="/human-equation-suite">H.E.L.P. leadership suite</Link> gives
               educators ways to rehearse human decisions under pressure. If you want a practical
               starting resource, explore the{' '}
-              <a href="https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile" target="_blank" rel="noopener noreferrer">
+              <Link href="/resources/principal-ai-starter-kit">
                 Principal AI Starter Kit
-              </a>.
+              </Link>.
             </p>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function AIInEducationPage() {
           <div className="button-row center top-space-sm">
             <Link className="button primary" href="/vic">Explore VIC: Virtual Co-Teacher</Link>
             <Link className="button secondary" href="/speaking">Keynotes and workshops</Link>
-            <a className="button secondary" href="https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile" target="_blank" rel="noopener noreferrer">Principal AI Starter Kit</a>
+            <Link className="button secondary" href="/resources/principal-ai-starter-kit">Principal AI Starter Kit</Link>
           </div>
         </div>
       </section>
