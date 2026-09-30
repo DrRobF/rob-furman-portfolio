@@ -130,6 +130,24 @@ p {
   margin: 1.1rem 0 0;
 }
 
+.ai-guide-stack {
+  display: grid;
+  gap: 1rem;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.ai-guide-card .ai-prompt {
+  padding: 1rem 1.2rem;
+  border-left: 4px solid #2f63c9;
+  background: #f0f5ff;
+  white-space: pre-wrap;
+}
+
+.ai-guide-card > p + p {
+  margin-top: 1rem;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.1em;

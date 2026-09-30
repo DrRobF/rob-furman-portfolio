@@ -78,6 +78,21 @@ export default function AIInEducationPage() {
         </div>
       </section>
 
+      <section className="section section-soft" aria-labelledby="resource-heading">
+        <div className="container">
+          <div className="section-intro">
+            <p className="eyebrow">Free practical resources</p>
+            <h2 id="resource-heading">Choose the question you need to solve</h2>
+            <p>Start with a classroom example, a student lesson, or a school planning sequence. Each guide gives you something you can adapt without buying anything.</p>
+          </div>
+          <div className="card-grid three-up">
+            <article className="card"><h3>AI for teachers</h3><p>Four copyable planning and feedback prompts, plus a complete lesson example.</p><Link className="text-link" href="/ai-for-teachers">Use the teacher guide →</Link></article>
+            <article className="card"><h3>AI literacy for students</h3><p>A 40-minute source-checking lesson and an adaptable classroom agreement.</p><Link className="text-link" href="/ai-literacy-for-students">Teach the literacy lesson →</Link></article>
+            <article className="card"><h3>School AI guidance</h3><p>Six tool-review questions and a manageable 30-day plan for school leaders.</p><Link className="text-link" href="/school-ai-guidance">Plan your school’s next step →</Link></article>
+          </div>
+        </div>
+      </section>
+
       <section className="section section-soft" id="teachers" aria-labelledby="teacher-heading">
         <div className="container">
           <div className="section-intro">
