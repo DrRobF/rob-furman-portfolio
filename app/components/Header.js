@@ -31,11 +31,7 @@ export function Header() {
               </li>
             ))}
             <li>
-              <Link
-                href="https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link href="/resources">
                 Shop Resources
               </Link>
             </li>
