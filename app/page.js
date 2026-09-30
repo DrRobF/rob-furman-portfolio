@@ -168,6 +168,9 @@ export default function HomePage() {
               <Link href={VIC_URL} className="button secondary">
                 See AI That Helps
               </Link>
+              <Link href="/ai-in-education" className="button secondary">
+                AI in Education Guide
+              </Link>
               <a
                 href={PRINCIPAL_AI_KIT_URL}
                 className="button secondary"
