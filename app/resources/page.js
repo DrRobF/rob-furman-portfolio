@@ -5,7 +5,7 @@ import styles from './resources.module.css';
 
 export const metadata = {
   title: 'Educator Resources & Digital Toolkits | Dr. Rob Furman',
-  description: 'Shop Dr. Rob Furman’s digital resources for school leadership, practical AI, difficult conversations, and creative classrooms. Explore the details here, then check out securely on Gumroad.',
+  description: 'Explore Dr. Rob Furman’s educator store: digital downloads, the H.E.L.P. leadership suite, and Ask VIC, a virtual co-teacher for schools.',
   alternates: { canonical: 'https://www.drrobfurman.com/resources' },
 };
 
@@ -16,13 +16,13 @@ export default function ResourcesPage() {
         <div className="container">
           <p className={styles.eyebrow}>Dr. Rob Furman’s resource store</p>
           <h1>Tools for the real work of education.</h1>
-          <p className={styles.heroLead}>A decision to make. A conversation to prepare for. A lesson to teach. Find a resource you can put to work, then come back when the next challenge arrives.</p>
+          <p className={styles.heroLead}>A decision to make. A conversation to prepare for. A lesson to teach. Find downloads, leadership practice, and AI-supported learning tools you can put to work.</p>
           <div className={styles.heroActions}>
             <a className={styles.primaryButton} href="#shop">Explore the resources</a>
             <Link className={styles.outlineButton} href="#free-guides">Start with a free guide</Link>
           </div>
           <div className={styles.heroDetails} aria-label="Store details">
-            <span>Instant digital downloads</span><span>Editable tools</span><span>Created by a practicing school leader</span>
+            <span>Instant digital downloads</span><span>School tools and platforms</span><span>Created by a practicing school leader</span>
           </div>
         </div>
       </section>
@@ -52,6 +52,37 @@ export default function ResourcesPage() {
             ))}
           </div>
           <p className={styles.priceNote}>Prices shown in US dollars. Gumroad shows the final price, local currency, and any tax at checkout.</p>
+        </div>
+      </section>
+
+      <section className={styles.platformSection} id="platforms" aria-labelledby="platform-title">
+        <div className="container">
+          <div className={styles.sectionHeading}>
+            <div><p className={styles.eyebrow}>More ways to work together</p><h2 id="platform-title">Leadership and learning platforms</h2></div>
+            <p>Explore the experience and ask about access for your school or team. These offerings do not have a self-serve checkout here.</p>
+          </div>
+          <div className={styles.platformGrid}>
+            <article className={`${styles.platformCard} ${styles.helpCard}`}>
+              <p className={styles.platformKicker}>Leadership development · H.E.L.P.</p>
+              <h3>Human Equation Leadership Psychology</h3>
+              <p>Practice the human decisions school leaders face under pressure through a diagnostic, eight-factor course, simulations, and a reflection dashboard.</p>
+              <p className={styles.platformStatus}>Explore the suite · Ask about team use</p>
+              <div className={styles.platformActions}>
+                <Link href="/human-equation-suite" className={styles.platformPrimary}>Explore H.E.L.P. <span aria-hidden="true">→</span></Link>
+                <Link href="/contact" className={styles.platformSecondary}>Ask about team access</Link>
+              </div>
+            </article>
+            <article className={`${styles.platformCard} ${styles.vicCard}`}>
+              <p className={styles.platformKicker}>AI-supported instruction · Ask VIC</p>
+              <h3>VIC: Virtual Co-Teacher</h3>
+              <p>See how VIC guides students step by step and supports teachers with instruction, scaffolds, and useful learning information.</p>
+              <p className={styles.platformStatus}>Approved school accounts · Request access</p>
+              <div className={styles.platformActions}>
+                <Link href="/vic" className={styles.platformPrimary}>Explore VIC <span aria-hidden="true">→</span></Link>
+                <a href="https://askvic.ai" target="_blank" rel="noopener noreferrer" className={styles.platformSecondary}>Visit AskVic.ai <span aria-hidden="true">↗</span></a>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
