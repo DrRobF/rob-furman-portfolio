@@ -36,6 +36,7 @@ export const products = [
       'A quick-start guide, AI readiness audit, and prompt builder',
       '24 prompts for communication, meetings, instruction, operations, and leadership',
       'A staff meeting kit, 30-day implementation plan, communication templates, and scorecard',
+      'A worked first-pilot example with a filled prompt, principal review, corrected agenda, and seven-day check',
       'Print-ready PDF and editable DOCX files',
     ],
     usefulFor: ['Starting responsible AI use', 'Preparing a staff discussion', 'Testing one measurable leadership workflow'],

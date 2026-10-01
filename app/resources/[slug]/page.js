@@ -49,6 +49,20 @@ export default function ProductPage({ params }) {
         <div className="container"><div className={styles.detailColumns}>
           <div className={styles.detailStory}>
             <p className={styles.eyebrow}>The idea</p><h2>What this helps you do</h2><p>{product.intro}</p>
+            {product.slug === 'principal-ai-starter-kit' && (
+              <div className={styles.pilotFeature}>
+                <p className={styles.eyebrow}>See the first pilot before you run yours</p>
+                <h2>A complete example you can adapt</h2>
+                <p>The kit includes a worked first pilot for a 45-minute staff meeting. See the safe inputs, a filled prompt, an illustrative AI draft with mistakes, the principal’s corrections, and a seven-day go, revise, or stop check.</p>
+                <ul>
+                  <li>Choose a low-risk first task and keep confidential information out of the prompt.</li>
+                  <li>Catch invented assumptions and measure preparation time, including corrections.</li>
+                  <li>Stop the pilot when it adds more risk or work than value.</li>
+                </ul>
+                <p><strong>The tool supplies a draft. The principal supplies the judgment.</strong></p>
+                <a href={product.checkout} target="_blank" rel="noopener noreferrer" className={styles.featureLink}>Get the Principal AI Starter Kit — $29 <span aria-hidden="true">↗</span></a>
+              </div>
+            )}
             <h2>What is inside</h2><ul>{product.includes.map((line) => <li key={line}>{line}</li>)}</ul>
             <h2>When to use it</h2><ul>{product.usefulFor.map((line) => <li key={line}>{line}</li>)}</ul>
           </div>
