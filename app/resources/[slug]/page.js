@@ -63,6 +63,24 @@ export default function ProductPage({ params }) {
                 <a href={product.checkout} target="_blank" rel="noopener noreferrer" className={styles.featureLink}>Get the Principal AI Starter Kit — $29 <span aria-hidden="true">↗</span></a>
               </div>
             )}
+            {product.slug === 'what-would-you-do' && (
+              <div className={styles.pilotFeature}>
+                <p className={styles.eyebrow}>Try one decision</p>
+                <h2>Would you move the child—or build the plan?</h2>
+                <p>A teacher asks to move a third grader with significant behavior needs to another classroom. The move may help the current teacher and classmates, but no one can explain how it would help the child.</p>
+                <p>Before seeing my decision, ask yourself:</p>
+                <ul>
+                  <li>What problem would the classroom change actually solve?</li>
+                  <li>What would be different for the student after the move?</li>
+                  <li>What responsibility would transfer to the receiving teacher?</li>
+                  <li>What support plan would the child need either way?</li>
+                </ul>
+                <p><strong>A classroom move should solve a problem—not relocate it.</strong></p>
+                <p>Make your call first, then compare it with how I handled this case and eleven other school leadership decisions.</p>
+                <a href={product.checkout} target="_blank" rel="noopener noreferrer" className={styles.featureLink}>Practice all 12 scenarios — $19 <span aria-hidden="true">↗</span></a>
+                <p><Link href="/contact">Ask about a district or multi-school license</Link></p>
+              </div>
+            )}
             <h2>What is inside</h2><ul>{product.includes.map((line) => <li key={line}>{line}</li>)}</ul>
             <h2>When to use it</h2><ul>{product.usefulFor.map((line) => <li key={line}>{line}</li>)}</ul>
           </div>
