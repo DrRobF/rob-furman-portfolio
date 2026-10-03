@@ -10,6 +10,14 @@ export const metadata = {
 
 const articles = [
   {
+    title: 'AI Is Here. How Should Teaching Change?',
+    description: 'Give AI a useful job in the assignment. Teacher-directed prompts help students challenge an argument, examine evidence, and explain their own decisions.',
+    href: '/articles/ai-teaching-change',
+    date: 'October 3, 2026',
+    topic: 'AI in education',
+    image: '/images/articles/ai-teaching-change.webp',
+  },
+  {
     title: 'AI and Independent Reading: Start With What Kids Love',
     description: 'Find reading that connects with a child’s interests, make the page approachable, and protect the pleasure. A practical role for AI in building a reading life.',
     href: '/articles/ai-independent-reading',

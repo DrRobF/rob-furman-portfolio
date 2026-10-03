@@ -72,7 +72,7 @@ export default function AIForTeachersPage() {
     </div></section>
 
     <section className="section section-light"><div className="container ai-guide-reading">
-      <h2>Keep learning</h2><p>Help children build literacy and a reading life with <Link href="/ai-for-reading">AI for Reading</Link>. Teach students to question AI output with the <Link href="/ai-literacy-for-students">AI literacy lesson</Link>, or return to the <Link href="/ai-in-education">AI in Education guide</Link>. School leaders can use the <Link href="/school-ai-guidance">school AI guidance starter</Link> to set clear boundaries for staff and students.</p>
+      <h2>Keep learning</h2><p>Read <Link href="/articles/ai-teaching-change">AI Is Here. How Should Teaching Change?</Link> for three teacher-directed prompts and a way to make student thinking visible. Explore the companion <Link href="/resources/teacher-directed-ai-prompts">Teacher Directed AI Prompts Across Subjects</Link> for six templates and subject adaptations.</p><p>Help children build literacy and a reading life with <Link href="/ai-for-reading">AI for Reading</Link>. Teach students to question AI output with the <Link href="/ai-literacy-for-students">AI literacy lesson</Link>, or return to the <Link href="/ai-in-education">AI in Education guide</Link>. School leaders can use the <Link href="/school-ai-guidance">school AI guidance starter</Link> to set clear boundaries for staff and students.</p>
       <p>If your team wants to practice these decisions together, see <Link href="/speaking">keynotes and scheduled workshops</Link>.</p>
     </div></section>
   </>;
