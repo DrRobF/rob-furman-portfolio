@@ -1,6 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+export const metadata = {
+  title: 'AI in Education Keynote Speaker & Workshops | Dr. Rob Furman',
+  description: 'Invite Dr. Rob Furman for an AI in education keynote or school workshop on human judgment, student learning, and practical AI use for educators.',
+  alternates: { canonical: 'https://www.drrobfurman.com/speaking' },
+};
+
 const signatureKeynotes = [
   {
     title: 'The Human Test',
@@ -39,8 +45,10 @@ export default function SpeakingPage() {
             <p className="eyebrow">Keynotes for the human side of educational change</p>
             <h1>Put Your Audience Inside the Decisions That Shape Schools</h1>
             <p className="lead">
-              Dr. Rob Furman delivers provocative, practical keynotes about leadership under
-              pressure and AI that strengthens—not replaces—human judgment and learning.
+              Dr. Rob Furman delivers AI in education keynotes and practical workshops for
+              schools and conferences, grounded in real school leadership. Educators leave
+              with a way to judge whether a tool strengthens learning, teaching, and human
+              responsibility.
             </p>
             <div className="button-row">
               <a
@@ -86,6 +94,29 @@ export default function SpeakingPage() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="section section-light" aria-labelledby="ai-workshops-heading">
+        <div className="container ai-guide-reading">
+          <p className="eyebrow">Beyond the keynote</p>
+          <h2 id="ai-workshops-heading">AI in Education Workshops for Schools and Districts</h2>
+          <p>
+            A keynote can start the conversation. A scheduled workshop gives teachers and school
+            leaders time to test the ideas against their own work. We can focus on a practical
+            classroom task, a first school AI pilot, or the decisions leaders face when a tool
+            sounds promising but its effect on learning is unclear.
+          </p>
+          <ul className="ai-guide-list">
+            <li><strong>For teachers:</strong> Try a planning or feedback example, check the output, and keep student thinking visible.</li>
+            <li><strong>For leaders:</strong> Use the Human Test to examine privacy, teacher judgment, access, and evidence of learning.</li>
+            <li><strong>For teams:</strong> Leave with a small next step and a way to decide whether it helped.</li>
+          </ul>
+          <p>
+            Tell me about your audience and the question your school needs to solve. I can suggest
+            a keynote, workshop, or connected session that fits the event.
+          </p>
+          <Link className="button primary" href="/contact">Discuss an AI workshop or keynote</Link>
         </div>
       </section>
 
