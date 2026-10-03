@@ -63,7 +63,7 @@ export default function AIForReadingPage() {
       <p className="eyebrow">A free guide for educators and families</p>
       <h1>AI for Reading: Help Children Become Readers, Not Just Answerers</h1>
       <p className="lead">AI can help an adult discover books, prepare a question, or plan a conversation. The child still needs to hear stories, learn reading skills, read real text, and find the joy of choosing another book. Here is a practical way to use both.</p>
-      <div className="button-row"><Link className="button primary" href="#age-paths">Start by age</Link><Link className="button tertiary" href="#prompts">Use the prompts</Link><Link className="button tertiary" href="#seven-days">Try seven days</Link></div>
+      <div className="button-row"><Link className="button tertiary" href="/articles/ai-independent-reading">Read Dr. Rob’s perspective</Link><Link className="button primary" href="#age-paths">Start by age</Link><Link className="button tertiary" href="#prompts">Use the prompts</Link><Link className="button tertiary" href="#seven-days">Try seven days</Link></div>
     </div></section>
 
     <section className="section section-light"><div className="container ai-guide-reading">

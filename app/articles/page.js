@@ -10,6 +10,14 @@ export const metadata = {
 
 const articles = [
   {
+    title: 'AI and Independent Reading: Start With What Kids Love',
+    description: 'Find reading that connects with a child’s interests, make the page approachable, and protect the pleasure. A practical role for AI in building a reading life.',
+    href: '/articles/ai-independent-reading',
+    date: 'October 3, 2026',
+    topic: 'AI & literacy',
+    image: '/images/articles/ai-independent-reading.webp',
+  },
+  {
     title: 'Teachers Are Using AI. Why Haven’t Schools Told Them How?',
     description: 'A principal’s practical starting point for teacher AI use: save planning time, personalize practice, keep children and teaching at the center, and model it for staff.',
     href: '/articles/teachers-using-ai-school-guidance',
@@ -38,7 +46,7 @@ export default function ArticlesPage() {
             {articles.map((article) => (
               <article className={styles.card} key={article.href}>
                 <Link className={styles.coverLink} href={article.href} aria-label={`Read ${article.title}`}>
-                  <Image className={styles.coverImage} src={article.image} alt="Magazine-style cover: Teachers Are Using AI. Why Haven’t Schools Told Them How?" width={1734} height={907} sizes="(max-width: 768px) 100vw, 1140px" />
+                  <Image className={styles.coverImage} src={article.image} alt={`Magazine-style cover: ${article.title}`} width={1734} height={907} sizes="(max-width: 768px) 100vw, 560px" />
                 </Link>
                 <span className={styles.tag}>{article.topic}</span>
                 <h2><Link href={article.href}>{article.title}</Link></h2>
