@@ -3,6 +3,8 @@ const baseUrl = 'https://www.drrobfurman.com';
 const publicPages = [
   '/',
   '/ai-in-education',
+  '/articles',
+  '/articles/teachers-using-ai-school-guidance',
   '/ai-for-teachers',
   '/ai-for-reading',
   '/ai-literacy-for-students',
