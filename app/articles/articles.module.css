@@ -46,3 +46,7 @@
 .callout p { margin: 0; }
 .related { border-top: 1px solid #d6dfed; padding-top: 2rem; margin-top: 3rem; }
 .related h2 { margin-top: 0; }
+
+.coverImage { display: block; width: 100%; height: auto; border-radius: 12px; }
+.card .coverLink { display: block; margin-top: 0; }
+.coverWrap { margin-top: 2rem; }

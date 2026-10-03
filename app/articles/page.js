@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './articles.module.css';
 
 export const metadata = {
@@ -14,6 +15,7 @@ const articles = [
     href: '/articles/teachers-using-ai-school-guidance',
     date: 'October 3, 2026',
     topic: 'AI in education',
+    image: '/images/articles/teachers-ai-guidance.webp',
   },
 ];
 
@@ -35,6 +37,9 @@ export default function ArticlesPage() {
           <div className={styles.grid}>
             {articles.map((article) => (
               <article className={styles.card} key={article.href}>
+                <Link className={styles.coverLink} href={article.href} aria-label={`Read ${article.title}`}>
+                  <Image className={styles.coverImage} src={article.image} alt="Magazine-style cover: Teachers Are Using AI. Why Haven’t Schools Told Them How?" width={1734} height={907} sizes="(max-width: 768px) 100vw, 1140px" />
+                </Link>
                 <span className={styles.tag}>{article.topic}</span>
                 <h2><Link href={article.href}>{article.title}</Link></h2>
                 <p>{article.description}</p>
