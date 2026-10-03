@@ -51,6 +51,7 @@ export default function AIInEducationPage() {
             educator teach or a student think?”
           </p>
           <div className="button-row">
+            <Link className="button tertiary" href="/articles/teachers-using-ai-school-guidance">Read Dr. Rob’s perspective</Link>
             <Link className="button primary" href="#teachers">For teachers</Link>
             <Link className="button tertiary" href="#leaders">For school leaders</Link>
             <Link className="button tertiary" href="#human-test">Use the Human Test</Link>
