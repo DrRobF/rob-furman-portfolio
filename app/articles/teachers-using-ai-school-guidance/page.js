@@ -1,14 +1,17 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from '../articles.module.css';
 
 const title = 'Teachers Are Using AI. Why Haven’t Schools Told Them How?';
 const url = 'https://www.drrobfurman.com/articles/teachers-using-ai-school-guidance';
+const cover = 'https://www.drrobfurman.com/images/articles/teachers-ai-guidance.webp';
 
 export const metadata = {
   title: `${title} | Dr. Rob Furman`,
   description: 'A principal explains how teachers can use AI to save time and personalize practice while keeping human teaching, student engagement, and school leadership at the center.',
   alternates: { canonical: url },
-  openGraph: { type: 'article', title, url, publishedTime: '2026-10-03T00:00:00-04:00' },
+  openGraph: { type: 'article', title, url, publishedTime: '2026-10-03T00:00:00-04:00', images: [{ url: cover, width: 1734, height: 907, alt: title }] },
+  twitter: { card: 'summary_large_image', title, description: 'A principal’s guide to helping teachers use AI while keeping human teaching at the center.', images: [cover] },
 };
 
 export default function TeacherAIGuidanceArticle() {
@@ -20,6 +23,7 @@ export default function TeacherAIGuidanceArticle() {
     author: { '@type': 'Person', name: 'Dr. Rob Furman', url: 'https://www.drrobfurman.com/about' },
     publisher: { '@type': 'Person', name: 'Dr. Rob Furman' },
     datePublished: '2026-10-03',
+    image: cover,
     mainEntityOfPage: url,
   };
 
@@ -32,6 +36,9 @@ export default function TeacherAIGuidanceArticle() {
           <p className="eyebrow">AI in education · School leadership</p>
           <h1>{title}</h1>
           <p className={styles.meta}>By Dr. Rob Furman · October 3, 2026</p>
+          <div className={styles.coverWrap}>
+            <Image className={styles.coverImage} src="/images/articles/teachers-ai-guidance.webp" alt="Magazine-style cover showing a teacher leading a small group, with the article headline" width={1734} height={907} sizes="(max-width: 800px) 100vw, 800px" priority />
+          </div>
         </div>
       </header>
       <article className="section section-light">
