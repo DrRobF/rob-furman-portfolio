@@ -50,3 +50,4 @@
 .coverImage { display: block; width: 100%; height: auto; border-radius: 12px; }
 .card .coverLink { display: block; margin-top: 0; }
 .coverWrap { margin-top: 2rem; }
+.prompt { margin: 1.5rem 0; padding: 1.2rem 1.5rem; border-left: 4px solid #1f5ed8; background: #eef3fb; border-radius: 0 12px 12px 0; }
