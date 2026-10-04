@@ -55,13 +55,6 @@ export default function ResourcesPage() {
         </div>
       </section>
 
-      <section className={styles.freeSection} aria-labelledby="teacher-prompts-title">
-        <div className="container"><div className={styles.detailLayout}>
-          <Link href="/resources/teacher-directed-ai-prompts" aria-label="Explore Teacher Directed AI Prompts Across Subjects"><Image className={styles.detailImage} src="/products/teacher-prompts-cover.svg" alt="Teacher Directed AI Prompts Across Subjects cover" width={1280} height={720} /></Link>
-          <div><p className={styles.eyebrow}>New teacher resource · Preview and inquire</p><h2 id="teacher-prompts-title">Teacher Directed AI Prompts Across Subjects</h2><p>Six complete prompts and 36 subject adaptations for grades 6–12, with student handouts, a worked example, and a teacher review rubric.</p><p>Explore the contents and try a free sample. Online checkout is coming soon.</p><Link className={styles.featureLink} href="/resources/teacher-directed-ai-prompts">See the pack and free sample →</Link></div>
-        </div></div>
-      </section>
-
       <section className={styles.platformSection} id="platforms" aria-labelledby="platform-title">
         <div className="container">
           <div className={styles.sectionHeading}>
