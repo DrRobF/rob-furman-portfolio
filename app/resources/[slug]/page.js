@@ -5,7 +5,8 @@ import { getProduct, products } from '../products';
 import styles from '../resources.module.css';
 
 export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+  // The teacher prompt pack has a dedicated page with its free sample.
+  return products.filter((product) => product.slug !== 'teacher-directed-ai-prompts').map((product) => ({ slug: product.slug }));
 }
 
 export function generateMetadata({ params }) {

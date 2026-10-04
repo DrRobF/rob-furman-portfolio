@@ -1,5 +1,23 @@
 export const products = [
   {
+    slug: 'teacher-directed-ai-prompts',
+    name: 'Teacher Directed AI Prompts Across Subjects',
+    category: 'AI for teaching',
+    audience: 'Grades 6–12 teachers',
+    price: 12,
+    thumbnail: '/products/teacher-prompts-thumb.webp',
+    cover: '/products/teacher-prompts-cover.webp',
+    checkout: 'https://drrobfurman.gumroad.com/l/dwlxcx',
+    summary: 'Six prompts and 36 subject adaptations that help students question, explain, and revise their own thinking.',
+    intro: 'Begin with a student’s first attempt, give AI a specific questioning role, and review the decisions the student makes.',
+    includes: ['An 18-page printable PDF, editable Word master, and copyable text', 'Six complete prompts and 36 subject adaptations', 'Student assignment and reflection sheets, a worked example, and a teacher review rubric'],
+    usefulFor: ['Examining arguments and evidence', 'Comparing methods across subjects', 'Making student reasoning visible'],
+    note: 'Use school-approved tools and preview each activity before assigning it.',
+    license: 'Single-educator classroom use. Contact Dr. Rob for school or district licensing.',
+    related: '/articles/ai-teaching-change',
+    relatedLabel: 'Read the article and try three free prompts',
+  },
+  {
     slug: 'what-would-you-do',
     name: 'What Would You Do? 12 School Leadership Scenarios',
     category: 'School leadership',

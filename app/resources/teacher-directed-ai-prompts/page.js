@@ -8,7 +8,7 @@ export const metadata = {
   title: `${title} | Dr. Rob Furman`,
   description: 'Six teacher-directed AI prompts, 36 adaptations across six subjects, student handouts, and a review rubric for grades 6–12. Preview the pack and try a free sample.',
   alternates: { canonical: url },
-  openGraph: { title, url, images: [{ url: 'https://www.drrobfurman.com/products/teacher-prompts-cover.svg', width: 1280, height: 720, alt: title }] },
+  openGraph: { title, url, images: [{ url: 'https://www.drrobfurman.com/products/teacher-prompts-cover.webp', width: 1280, height: 720, alt: title }] },
 };
 const prompts = ['Challenge my argument', 'Question my evidence', 'Find the flaw', 'Compare approaches', 'Ask like an expert', 'Help me reflect'];
 const sample = 'I am a student in [grade and subject]. My assignment is [task], and my argument is [paste my own draft or explanation]. Help me examine it without rewriting it. Offer one reasonable counterargument and ask one question about my evidence. Wait for my response before continuing. Do not invent facts, sources, or quotations. If I disagree, ask me to explain why. After three exchanges, ask me to write my own decision about what I will keep or change.';
@@ -17,15 +17,15 @@ export default function TeacherPromptsPage() {
     <section className={styles.detailHero}><div className="container">
       <nav className={styles.breadcrumb} aria-label="Breadcrumb"><Link href="/resources">Resources</Link><span aria-hidden="true">/</span><span>Teacher directed AI prompts</span></nav>
       <div className={styles.detailLayout}>
-        <div className={styles.detailImageWrap}><Image src="/products/teacher-prompts-cover.svg" alt="Teacher Directed AI Prompts Across Subjects: six prompts and 36 subject adaptations" width={1280} height={720} className={styles.detailImage} priority /></div>
+        <div className={styles.detailImageWrap}><Image src="/products/teacher-prompts-cover.webp" alt="Teacher Directed AI Prompts Across Subjects: six prompts and 36 subject adaptations" width={1280} height={720} className={styles.detailImage} priority /></div>
         <div className={styles.detailInfo}>
           <p className={styles.eyebrow}>AI for teaching and student thinking</p><h1>{title}</h1>
           <p className={styles.detailLead}>Give AI a useful job in your assignment while students practice explaining, questioning, and revising their own thinking.</p>
           <p className={styles.audience}>Designed primarily for grades 6–12 · ELA, mathematics, science, social studies, music, and visual art</p>
           <div className={styles.purchaseBox}>
-            <div><span>Editable teaching resource</span></div>
-            <a className={styles.primaryButton} href="mailto:Rob@FurmanR.com?subject=Teacher%20Directed%20AI%20Prompts%20inquiry">Ask about the prompt pack</a>
-            <small>Online checkout is coming soon. Ask about individual classroom or school access, or try the free sample below.</small>
+            <div><span>Digital download</span><strong>$12</strong></div>
+            <a className={styles.primaryButton} href="https://drrobfurman.gumroad.com/l/dwlxcx" target="_blank" rel="noopener noreferrer">Buy on Gumroad</a>
+            <small>Secure checkout and digital delivery through Gumroad. Final tax and local currency appear at checkout.</small>
           </div>
         </div>
       </div>
