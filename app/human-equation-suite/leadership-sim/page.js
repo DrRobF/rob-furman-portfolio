@@ -3,6 +3,10 @@ import HumanEquationShell from '../../components/HumanEquationShell';
 import HelpSuiteShell from '../../components/help/HelpSuiteShell';
 import styles from './leadershipSim.module.css';
 
+export const metadata = {
+  alternates: { canonical: '/human-equation-suite/leadership-sim' },
+};
+
 export default function LeadershipSimulationSuitePage() {
   return (
     <HumanEquationShell activePath="Leadership Simulation">

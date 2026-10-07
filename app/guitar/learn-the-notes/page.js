@@ -4,6 +4,7 @@ import { NoteFinderGame } from '../NoteFinderGame';
 export const metadata = {
   title: 'Learn the Notes | Fretboard Freedom',
   description: 'Interactive fretboard note-learning games and exercises.',
+  alternates: { canonical: '/guitar/learn-the-notes' },
 };
 
 export default function LearnTheNotesPage() {

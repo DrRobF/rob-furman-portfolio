@@ -4,6 +4,7 @@ import { GuitarNav } from '../GuitarNav';
 export const metadata = {
   title: 'Simple Solos | Fretboard Freedom',
   description: 'Beginner-friendly blues, rock, country, and melodic solos with tablature and practice tools.',
+  robots: { index: false, follow: true },
 };
 
 export default function simplesolosPage() {

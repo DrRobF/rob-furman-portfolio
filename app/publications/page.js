@@ -1,5 +1,9 @@
 import Image from 'next/image';
 
+export const metadata = {
+  alternates: { canonical: '/publications' },
+};
+
 const PRINCIPAL_AI_KIT_URL = 'https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile';
 
 const featuredBooks = [

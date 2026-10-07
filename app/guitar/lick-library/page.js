@@ -4,6 +4,7 @@ import { LickLibrary } from '../LickLibrary';
 export const metadata = {
   title: 'Lick Library | Fretboard Freedom',
   description: 'A TV-friendly library of imported guitar licks with source and license attribution.',
+  alternates: { canonical: '/guitar/lick-library' },
 };
 
 export default function LickLibraryPage() {

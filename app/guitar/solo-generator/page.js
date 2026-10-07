@@ -4,6 +4,7 @@ import { GuitarNav } from '../GuitarNav';
 export const metadata = {
   title: 'Solo Generator Retired | Fretboard Freedom',
   description: 'Musical-content generation has been retired. Use the imported Lick Library instead.',
+  robots: { index: false, follow: true },
 };
 
 export default function SoloGeneratorPage() {

@@ -6,6 +6,7 @@ export const metadata = {
   title: 'Fretboard Freedom | Dr. Rob Furman',
   description:
     'Fretboard Freedom helps guitar players learn the neck, understand CAGED, connect chords to scales, and practice musical improvisation.',
+  alternates: { canonical: '/guitar' },
 };
 
 export default function GuitarPage() {

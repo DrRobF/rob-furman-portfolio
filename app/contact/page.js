@@ -1,3 +1,7 @@
+export const metadata = {
+  alternates: { canonical: '/contact' },
+};
+
 export default function ContactPage() {
   return (
     <section className="section section-light">

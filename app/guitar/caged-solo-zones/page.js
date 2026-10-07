@@ -4,6 +4,7 @@ import { GuitarNav } from '../GuitarNav';
 export const metadata = {
   title: 'CAGED Solo Zones | Fretboard Freedom',
   description: 'Learn how a CAGED chord shape becomes a practical soloing area on the guitar neck.',
+  alternates: { canonical: '/guitar/caged-solo-zones' },
 };
 
 export default function CagedSoloZonesPage() {

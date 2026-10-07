@@ -4,6 +4,7 @@ import { GuitarNav } from '../GuitarNav';
 export const metadata = {
   title: 'Practice Mode | Fretboard Freedom',
   description: 'Interactive exercises that teach targeting roots, thirds, fifths, and chord tones during chord changes.',
+  robots: { index: false, follow: true },
 };
 
 export default function practicemodePage() {

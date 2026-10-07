@@ -4,6 +4,7 @@ import { GuitarNav } from '../GuitarNav';
 export const metadata = {
   title: 'CAGED Shapes | Fretboard Freedom',
   description: 'Visual lessons showing how chord shapes connect across the neck and how scales fit around those shapes.',
+  robots: { index: false, follow: true },
 };
 
 export default function cagedshapesPage() {

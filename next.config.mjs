@@ -6,22 +6,37 @@ const nextConfig = {
       {
         source: '/human-equation-suite/learn',
         destination: '/human-equation-suite/course',
-        permanent: false,
+        permanent: true,
       },
       {
         source: '/human-equation',
         destination: '/human-equation-suite/parent-call',
-        permanent: false,
+        permanent: true,
       },
       {
         source: '/simulation-overview',
         destination: '/human-equation-suite/leadership-sim',
-        permanent: false,
+        permanent: true,
       },
       {
         source: '/simulations/urban-student',
         destination: '/human-equation-suite/urban-student-sim',
-        permanent: false,
+        permanent: true,
+      },
+      {
+        source: '/simulation',
+        destination: '/human-equation-suite/leadership-sim',
+        permanent: true,
+      },
+      {
+        source: '/simulations/principal',
+        destination: '/human-equation-suite/leadership-sim',
+        permanent: true,
+      },
+      {
+        source: '/simulations',
+        destination: '/human-equation-suite/leadership-sim',
+        permanent: true,
       },
     ];
   },

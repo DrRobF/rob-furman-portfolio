@@ -2,6 +2,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import HelpSuiteFeature from './components/HelpSuiteFeature';
 
+export const metadata = {
+  alternates: { canonical: '/' },
+};
+
 const VIC_URL = '/vic';
 const SCHOOL_LEADER_SIMULATION_URL = '/human-equation-suite/leadership-sim';
 const URBAN_STUDENT_SIMULATION_URL = '/human-equation-suite/urban-student-sim';
