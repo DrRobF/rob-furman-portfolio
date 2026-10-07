@@ -20,6 +20,7 @@ const publicPages = [
   '/speaking',
   '/projects',
   '/publications',
+  '/privacy-policy',
   '/about',
   '/contact',
   '/vic',

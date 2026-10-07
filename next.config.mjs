@@ -3,6 +3,42 @@ const nextConfig = {
   reactStrictMode: true,
   async redirects() {
     return [
+      // Squarespace-era URLs preserved for existing Google results and old links.
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/blog-2-1',
+        destination: '/articles',
+        permanent: true,
+      },
+      {
+        source: '/blog-2-1/:slug*',
+        destination: '/articles',
+        permanent: true,
+      },
+      {
+        source: '/digital-products-2-1',
+        destination: '/resources',
+        permanent: true,
+      },
+      {
+        source: '/video-library',
+        destination: '/speaking',
+        permanent: true,
+      },
+      {
+        source: '/video-library/:path*',
+        destination: '/speaking',
+        permanent: true,
+      },
+      {
+        source: '/vita',
+        destination: '/about',
+        permanent: true,
+      },
       {
         source: '/human-equation-suite/learn',
         destination: '/human-equation-suite/course',
