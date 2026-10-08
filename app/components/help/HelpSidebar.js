@@ -50,7 +50,10 @@ export default function HelpSidebar({ currentStep = 'growth', currentArea, growt
       <div className="help-sidebar-panel">
         <p className="eyebrow">H.E.L.P. Progression</p>
         <div className="help-sidebar-sections">
-          {sections.map((section) => (
+          {sections
+            // Hide sections whose items are all unreleased, unless the page supplies live actions.
+            .filter((section) => section.items.some((item) => !item.comingSoon) || (section.title === 'Growth Center' && growthActions.length))
+            .map((section) => (
             <section key={section.title} className="help-sidebar-section">
               <h3>{section.title}</h3>
               <div className="help-sidebar-links">
@@ -66,14 +69,7 @@ export default function HelpSidebar({ currentStep = 'growth', currentArea, growt
                   </button>
                 )) : section.items.map((item) => {
                   const active = isActive(item, activeArea);
-                  if (item.comingSoon) {
-                    return (
-                      <div key={item.key} className="help-sidebar-link muted" aria-disabled="true">
-                        <span>{item.label}</span>
-                        <small>Coming Soon</small>
-                      </div>
-                    );
-                  }
+                  if (item.comingSoon) return null;
                   return (
                     <Link key={item.key} href={item.href} className={`help-sidebar-link ${active ? 'active' : ''}`} aria-current={active ? 'page' : undefined}>
                       <span>{item.label}</span>

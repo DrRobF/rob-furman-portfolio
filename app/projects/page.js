@@ -1,9 +1,13 @@
+import { pageMeta } from '../lib/seo';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export const metadata = {
-  alternates: { canonical: '/projects' },
-};
+export const metadata = pageMeta({
+  title: 'Free Tools for Educators: VIC, H.E.L.P. & School Simulations | Dr. Rob Furman',
+  description: 'Free educator tools built by a working principal: an AI lesson planner and co-teacher, a leadership psychology suite, and day-in-the-life simulations for PD.',
+  path: '/projects',
+  image: '/images/og/home.png',
+});
 
 const projectSections = [
   {

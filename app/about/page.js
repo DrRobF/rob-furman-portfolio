@@ -1,9 +1,13 @@
+import { pageMeta } from '../lib/seo';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export const metadata = {
-  alternates: { canonical: '/about' },
-};
+export const metadata = pageMeta({
+  title: 'About Dr. Rob Furman | Principal, Author & TEDx Speaker',
+  description: 'Dr. Rob Furman is a principal at Saint Peter’s Academy, an ISTE-published author, two-time TEDx speaker, and builder of practical AI and simulation tools for educators.',
+  path: '/about',
+  image: '/images/og/home.png',
+});
 
 const leadershipPillars = [
   {

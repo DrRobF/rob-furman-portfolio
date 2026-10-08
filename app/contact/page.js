@@ -1,6 +1,10 @@
-export const metadata = {
-  alternates: { canonical: '/contact' },
-};
+import { pageMeta } from '../lib/seo';
+export const metadata = pageMeta({
+  title: 'Contact Dr. Rob Furman | Book a Keynote, Workshop, or School Partnership',
+  description: 'Invite Dr. Rob Furman to speak, lead a workshop, or bring VIC and H.E.L.P. to your school or district.',
+  path: '/contact',
+  image: '/images/og/home.png',
+});
 
 export default function ContactPage() {
   return (

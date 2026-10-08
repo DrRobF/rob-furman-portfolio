@@ -1,11 +1,15 @@
+import { pageMeta } from '../../lib/seo';
 import Link from 'next/link';
 import HumanEquationShell from '../../components/HumanEquationShell';
 import HelpSuiteShell from '../../components/help/HelpSuiteShell';
 import styles from './leadershipSim.module.css';
 
-export const metadata = {
-  alternates: { canonical: '/human-equation-suite/leadership-sim' },
-};
+export const metadata = pageMeta({
+  title: 'A Day in the Life of a School Principal | Free Leadership Simulation',
+  description: 'Step into the principal’s chair. Make real decisions about staff, students, families, and operations in a free school leadership simulation built by a working principal.',
+  path: '/human-equation-suite/leadership-sim',
+  image: '/images/og/leadership-sim.png',
+});
 
 export default function LeadershipSimulationSuitePage() {
   return (
