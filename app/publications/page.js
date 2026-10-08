@@ -1,8 +1,12 @@
+import { pageMeta } from '../lib/seo';
 import Image from 'next/image';
 
-export const metadata = {
-  alternates: { canonical: '/publications' },
-};
+export const metadata = pageMeta({
+  title: 'Books & Publications by Dr. Rob Furman | Literacy, Leadership & Ed Tech',
+  description: 'Books, articles, and presentations by Dr. Rob Furman on literacy, instructional leadership, technology integration, and future-ready schools.',
+  path: '/publications',
+  image: '/images/og/home.png',
+});
 
 const PRINCIPAL_AI_KIT_URL = 'https://drrobfurman.gumroad.com/l/principal_ai_kit?layout=profile';
 

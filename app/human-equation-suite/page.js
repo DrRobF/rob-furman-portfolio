@@ -1,9 +1,13 @@
+import { pageMeta } from '../lib/seo';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export const metadata = {
-  alternates: { canonical: '/human-equation-suite' },
-};
+export const metadata = pageMeta({
+  title: 'H.E.L.P. Leadership Psychology | Free Practice for School Leaders Under Pressure',
+  description: 'A free leadership practice system for principals and teachers: a pressure diagnostic, the 8 Factors course, parent-call rehearsal, and realistic school simulations.',
+  path: '/human-equation-suite',
+  image: '/images/og/help.png',
+});
 
 const pathwaySteps = [
   { title: '1. Diagnostic', detail: 'Establish your baseline pressure profile and identify your first growth edges.' },

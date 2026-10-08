@@ -1,10 +1,14 @@
+import { pageMeta } from './lib/seo';
 import Image from 'next/image';
 import Link from 'next/link';
 import HelpSuiteFeature from './components/HelpSuiteFeature';
 
-export const metadata = {
-  alternates: { canonical: '/' },
-};
+export const metadata = pageMeta({
+  title: 'Dr. Rob Furman | School Leadership Speaker, Principal & Human-Centered AI',
+  description: 'Principal, author, and TEDx speaker Dr. Rob Furman helps educators lead under pressure and use AI that strengthens teachers. Try his free tools: VIC, H.E.L.P., and school simulations.',
+  path: '/',
+  image: '/images/og/home.png',
+});
 
 const VIC_URL = '/vic';
 const SCHOOL_LEADER_SIMULATION_URL = '/human-equation-suite/leadership-sim';
@@ -16,7 +20,7 @@ const proofCards = [
     icon: '01',
     title: 'School Leadership',
     detail:
-      'Former principal and school administrator with deep experience leading instruction, culture, staffing, operations, and improvement work.',
+      'Principal at Saint Peter’s Academy, with 16+ years leading instruction, culture, staffing, operations, and school improvement.',
   },
   {
     icon: '02',
@@ -151,7 +155,7 @@ export default function HomePage() {
       <section className="hero section section-light leadership-hero">
         <div className="container hero-layout">
           <div className="hero-content">
-            <p className="eyebrow">NATIONAL EDUCATION SPEAKER · SCHOOL LEADER · HUMAN-CENTERED AI</p>
+            <p className="eyebrow">PRINCIPAL · TEDx SPEAKER · AUTHOR · HUMAN-CENTERED AI</p>
             <h1>Better Human Decisions for the Future of Education</h1>
             <p className="lead">
               Dr. Rob Furman helps educators lead under pressure and use AI to strengthen—not
@@ -163,23 +167,11 @@ export default function HomePage() {
               practical frameworks, and actions educators can use immediately.
             </p>
             <div className="button-row">
-              <Link href="/speaking" className="button primary">
+              <Link href="#free-tools" className="button primary">
+                Try the Free Educator Tools
+              </Link>
+              <Link href="/speaking" className="button secondary">
                 Bring Dr. Rob to Your Event
-              </Link>
-              <Link href="#signature-ideas" className="button secondary">
-                Explore the Big Ideas
-              </Link>
-              <Link href={VIC_URL} className="button secondary">
-                See AI That Helps
-              </Link>
-              <Link href="/ai-in-education" className="button secondary">
-                AI in Education Guide
-              </Link>
-              <Link href="/resources" className="button secondary">
-                Shop Educator Resources
-              </Link>
-              <Link href={PRINCIPAL_AI_KIT_URL} className="button secondary">
-                Get the AI Starter Kit
               </Link>
             </div>
           </div>
@@ -200,6 +192,65 @@ export default function HomePage() {
                 <span key={credential}>{credential}</span>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="free-tools" className="section section-soft" aria-labelledby="free-tools-title">
+        <div className="container">
+          <div className="section-intro">
+            <p className="eyebrow">Free for educators · Built by a working principal</p>
+            <h2 id="free-tools-title">Tools you can use with your staff this week</h2>
+            <p>
+              No sales pitch and no credit card. Use them yourself, run them in a staff meeting, or
+              send them to your team.
+            </p>
+          </div>
+          <div className="card-grid top-space">
+            <article className="card">
+              <p className="eyebrow">For teachers</p>
+              <h3>VIC: AI lesson planner &amp; co-teacher</h3>
+              <p>
+                Standards-aligned lessons with worksheets and answer keys, notes to parents, and guided
+                practice for students. Your evenings back.
+              </p>
+              <div className="button-row">
+                <Link href={VIC_URL} className="button primary">Plan a lesson free</Link>
+              </div>
+            </article>
+            <article className="card">
+              <p className="eyebrow">For staff PD</p>
+              <h3>A Day in the Life of an Urban Student</h3>
+              <p>
+                Walk one school day in a student’s shoes and see how every adult response changes what
+                happens next. A powerful opener for a faculty meeting.
+              </p>
+              <div className="button-row">
+                <Link href={URBAN_STUDENT_SIMULATION_URL} className="button primary">Start the simulation</Link>
+              </div>
+            </article>
+            <article className="card">
+              <p className="eyebrow">For school leaders</p>
+              <h3>A Day in the Life of a Principal</h3>
+              <p>
+                Make real decisions about staff, students, and families under pressure, then see what
+                your choices reveal about your leadership.
+              </p>
+              <div className="button-row">
+                <Link href={SCHOOL_LEADER_SIMULATION_URL} className="button primary">Take the principal’s chair</Link>
+              </div>
+            </article>
+            <article className="card">
+              <p className="eyebrow">For school leaders</p>
+              <h3>Leadership Pressure Diagnostic</h3>
+              <p>
+                Find out how pressure changes the way you lead, then build on it with the free 8 Factors
+                course and parent-call rehearsal.
+              </p>
+              <div className="button-row">
+                <Link href="/human-equation-suite/diagnostic" className="button primary">Take the diagnostic</Link>
+              </div>
+            </article>
           </div>
         </div>
       </section>
