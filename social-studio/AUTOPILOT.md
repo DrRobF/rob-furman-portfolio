@@ -17,8 +17,8 @@ Goal: become the education influencer everyone wants to hear from, and drive edu
    back into `social-studio/` and commit them to main along with the media, so next week's run sees them.
 
 ## What each run does
-1. Work out the target week: the Monday 9 days after the run (runs fire Saturday morning, so the target week starts
-   the Monday after next). Folder name = that Monday's date, e.g. `2026-10-26`.
+1. Work out the target week: the Monday 11 days after the run (runs fire Thursday morning, so Rob has the
+   weekend to review). Folder name = that Monday's date, e.g. `2026-10-26`.
 2. Check Metricool (brand blogId 6914479, timezone America/New_York) with getScheduledPosts for that week.
    If posts already exist there that this playbook created, stop and report (don't duplicate).
 3. Pick 7 topics, never repeating one used in a previous week (see `used_topics.md`, append to it):
