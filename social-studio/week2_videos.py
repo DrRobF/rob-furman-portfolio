@@ -60,14 +60,14 @@ if 'wed' in which:
 # ---------- FRI: What would you do? The Sick Note ----------
 if 'fri' in which:
     render(f'{OUT}/fri-sick-note.mp4', [
-        (2.4, [dict(text='Principals: what would you do?', size=96, y=720, hl={'what', 'would', 'you', 'do'})]),
-        (4.0, [dict(text='A mom sends a note: her daughter is sick.', size=80, y=640),
+        (3.0, [dict(text='Principals: what would you do?', size=96, y=720, hl={'what', 'would', 'you', 'do'})]),
+        (8.5, [dict(text='A mom sends a note: her daughter is sick.', size=80, y=640),
                dict(text='She isn’t. She was so scared of a doctor visit and a shot, Mom let her stay home.', size=56, weight='Medium', color=MUTED, y=900, at=1.0, lh=1.3)]),
-        (3.6, [dict(text='Later, Mom calls back and tells you the truth.', size=84, y=720)]),
-        (3.6, [dict(text='“I should have told the truth. I just don’t want her to get an unexcused mark because of me.”', size=66, weight='Bold', color=ACCENT, y=640, lh=1.25)]),
-        (3.4, [dict(text='Excused?', size=110, y=620), dict(text='Or unexcused?', size=110, y=800, at=0.6),
+        (4.5, [dict(text='Later, Mom calls back and tells you the truth.', size=84, y=720)]),
+        (7.0, [dict(text='“I should have told the truth. I just don’t want her to get an unexcused mark because of me.”', size=66, weight='Bold', color=ACCENT, y=640, lh=1.25)]),
+        (6.0, [dict(text='Excused?', size=110, y=620), dict(text='Or unexcused?', size=110, y=800, at=0.6),
                dict(text='Comment your call. What I did is in the first comment.', size=52, weight='Bold', color=ACCENT, y=1060, at=1.3, lh=1.3)]),
-        (4.0, end_card_beats('Practice calls like this before they’re real.', 'A Day in the Life of a Principal: a free leadership simulation.', 'drrobfurman.com')),
+        (6.0, end_card_beats('Practice calls like this before they’re real.', 'A Day in the Life of a Principal: a free leadership simulation.', 'drrobfurman.com')),
     ], navy_bg_fast)
 
 # ---------- SUN: followers are obsolete ----------

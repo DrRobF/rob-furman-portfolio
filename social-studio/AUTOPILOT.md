@@ -42,9 +42,10 @@ Goal: become the education influencer everyone wants to hear from, and drive edu
    install `fonts-inter` via apt or pip if missing):
    - `brand.py`, `icons.py` = brand system (navy #0f1b33, accent #6ea0ff, gold #f2b84b). Every graphic needs
      an illustration or one of his photos, never text only (Rob's explicit feedback).
-   - Copy the pattern in `week2_images.py` / `week2_videos.py`. Videos are 1080x1920, ~20s, text beats kept
+   - Copy the pattern in `week2_images.py` / `week2_videos.py`. Videos are 1080x1920, 20–35s. Pace for reading: each scene stays up about (words ÷ 2.5) + 1.5 seconds, never less than 3s (Rob said Friday's video moved too fast to read), text beats kept
      inside x 80–940 (clear of TikTok/Reels buttons), name bar at top. Check frames visually before publishing
      (no text overlapping text or his face).
+   - Mix music with `bash add_music.sh video.mp4 music.mp3 out.mp4`. Clips in music/ are ~26s; for longer videos loop with `-stream_loop -1` on the music input or use two clips.
    - Music: every video gets one of Rob's own songs from `music/` (two ~25s clips per song, `<Song>_1.mp3` / `_2.mp3`; artist "Rob Furman"). Songs: Saints in the Sunlight, One More Year of Light, Better Than I Was, This Is My Name, You're Safe Now, Already Won, One Beat I Decide, Better In The Quiet (pretty), Low Light (latin), Every Version of You (beautiful), Fire in the Rearview (country).
      Pick a mood match, don't reuse a song used the previous week. Mix:
      `ffmpeg -i v.mp4 -i music/X.mp3 -map 0:v -map 1:a -c:v copy -af "afade=t=in:d=0.6,afade=t=out:st=<dur-1.5>:d=1.5,volume=0.9" -c:a aac -b:a 160k -shortest v-m.mp4`

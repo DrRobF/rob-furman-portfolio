@@ -191,14 +191,14 @@ if 'wed' in which:
 # ---------- FRI: What would you do? (principal scenario) ----------
 if 'fri' in which:
     render(f'{OUT}/fri-wwyd.mp4', [
-        (2.4, [dict(text='Principals: what would you do?', size=96, y=720, hl={'what', 'would', 'you', 'do'})]),
-        (4.6, [dict(text='A teacher asks you to move a student with big behavior needs to the other 3rd grade class.', size=68, y=420)],
+        (3.0, [dict(text='Principals: what would you do?', size=96, y=720, hl={'what', 'would', 'you', 'do'})]),
+        (7.5, [dict(text='A teacher asks you to move a student with big behavior needs to the other 3rd grade class.', size=68, y=420)],
          pop_in(lambda lt: _doors, 90, 960, 0.5)),
-        (3.6, [dict(text='She may be right that it helps her and her other 20 students.', size=76, y=700)]),
-        (3.0, [dict(text='But she can’t explain how it helps him.', size=84, y=740, hl={'him'})]),
-        (3.4, [dict(text='Approve the move?', size=96, y=640), dict(text='Or say no?', size=96, y=900, at=0.6),
+        (5.0, [dict(text='She may be right that it helps her and her other 20 students.', size=76, y=700)]),
+        (4.0, [dict(text='But she can’t explain how it helps him.', size=84, y=740, hl={'him'})]),
+        (6.0, [dict(text='Approve the move?', size=96, y=640), dict(text='Or say no?', size=96, y=900, at=0.6),
                dict(text='Comment your call. My answer is in the first comment.', size=52, weight='Bold', color=ACCENT, y=1120, at=1.3, lh=1.3)]),
-        (4.0, end_card_beats('Practice calls like this before they’re real.', 'A Day in the Life of a Principal: a free leadership simulation.', 'drrobfurman.com')),
+        (6.0, end_card_beats('Practice calls like this before they’re real.', 'A Day in the Life of a Principal: a free leadership simulation.', 'drrobfurman.com')),
     ], navy_bg_fast)
 
 # ---------- SUN: TEDx quote ----------
