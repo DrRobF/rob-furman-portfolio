@@ -3,6 +3,11 @@ const nextConfig = {
   reactStrictMode: true,
   async redirects() {
     return [
+      {
+        source: '/askvic',
+        destination: '/vic',
+        permanent: true,
+      },
       // Squarespace-era URLs preserved for existing Google results and old links.
       {
         source: '/home',
