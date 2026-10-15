@@ -65,7 +65,7 @@ teaching or leading, then a callout to that community. Recipe:
 
 Topic bank (all real, verify before using, never invent a biography):
 - High school band director (USED 2026-10-13, do not repeat)
-- Gigging musician and songwriter who still performs; releases music as "Rob Furman" → #songwriter #musicianlife #gigging
+- Gigging musician: drummer snare-rip story (USED, extra post Sun 2026-11-01, drummer-snare carousel; Rob’s five lessons: project-based band, celebrate wins, shared language, love the work, never grade practice as performance). Other angles still open: songwriting, guitar → #songwriter #musicianlife #gigging
 - His father was also a principal (he references this himself in WWYD Scenario 05) → #principalsofinstagram #schoolleaders
 - Two-time TEDx speaker → #tedx #publicspeaking #speaker
 - Guitar player and teacher (see the guitar pages on drrobfurman.com) → #guitarist #guitarlessons #guitarteacher

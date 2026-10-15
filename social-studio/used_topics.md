@@ -47,3 +47,6 @@
 ## Photos used
 IMG_1370.JPG (reading cover, twice), TED4.jpg, Furman_9028_(2).jpg, DSC_1291.jpg (horse), Furman_6399.jpg (Sun 10-26 wk). Unused:
 DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JPG (with another adult).
+
+## Extra post (2026-10-15)
+- Sun 2026-11-01 8:22 PM draft: "Before I was a principal, I was a musician" drummer-snare carousel (IG/TikTok/FB). Media in public/social/2026-11-02/. Do not repeat the snare story or its five lessons.
