@@ -40,6 +40,47 @@ Rules for every week:
    go to Instagram, TikTok, Facebook and YouTube. Never more than two LinkedIn posts in a day.
 5. No two posts on the same network within an hour. Check his existing posts for the week before picking times.
 
+## The Tuesday "Where I Learned It" carousel (added 2026-10-15, built on real results)
+
+On 2026-10-13 the band-director carousel did 2,938 views, 220 likes and 26 shares on TikTok. His median TikTok post
+in that period was about 115 views with 0 or 1 like. That is roughly 25x the reach and 10x the like rate of anything
+else he has posted. The same carousel got 15 views on Instagram, so this is a TikTok effect, not a format effect.
+
+What made it work, in order of importance:
+1. **Niche identity hashtags, not education-generic ones.** #bandkid #banddirector #musiceducation reached a community
+   that self-identifies and shares. #teachersoftiktok alone reliably returns 80-200 views.
+2. **A personal origin story.** "Before I was a principal, I was a high school band director." Rob's past life, not advice.
+3. **One vivid concrete image** in the first two lines ("100 teenagers, each holding a noise maker").
+4. **A tribe callout at the end** ("Former band kids: which one did your director nail?"). It drove 26 shares,
+   the only post of his with meaningful shares. Shares are what moved it on TikTok.
+5. **Carousel, so people swipe.** Dwell time on a TikTok photo post.
+
+So Tuesday's carousel is now a standing format: a real piece of Rob's life, then 5 things it taught him about
+teaching or leading, then a callout to that community. Recipe:
+- Slide 1: "Before I was a principal, I was a ___" (or the equivalent real detail), with a photo or illustration.
+- Slides 2-6: five lessons, each a specific practice a teacher can use tomorrow.
+- Slide 7: the usual close plus the week's call to action.
+- Caption: the origin line, the vivid image, "swipe for 5", then the tribe question.
+- Hashtags: **3 niche community tags first, then 3 education tags.** Never six generic education tags.
+
+Topic bank (all real, verify before using, never invent a biography):
+- High school band director (USED 2026-10-13, do not repeat)
+- Gigging musician and songwriter who still performs; releases music as "Rob Furman" → #songwriter #musicianlife #gigging
+- His father was also a principal (he references this himself in WWYD Scenario 05) → #principalsofinstagram #schoolleaders
+- Two-time TEDx speaker → #tedx #publicspeaking #speaker
+- Guitar player and teacher (see the guitar pages on drrobfurman.com) → #guitarist #guitarlessons #guitarteacher
+- Sixteen years as an elementary principal → #principallife #elementaryschool
+Note: his own posts say both "16 years" and "20 years" as an elementary principal. Use 16, which is what his own
+recent LinkedIn post says, until Rob confirms which is right.
+
+## Read the numbers before building (added 2026-10-15)
+Every run, before picking topics, pull the last 30 days of TikTok post analytics
+(getAnalyticsDataByMetrics, metrics TKPO02, TKPO05, TKPO07, TKPO08, TKPO10, TKPO22) and the Instagram equivalent
+(IGPO01, IGPO03, IGPO07, IGPO28, IGPO13, IGPO27). Find the top post. If something beat the median by 3x or more,
+work out why and build one post that week using the same lever. Put the finding at the top of the review page so
+Rob sees what is working. Known as of 2026-10-15: Instagram is returning roughly 10-40 views per post regardless of
+content, so judge what works by TikTok until Instagram distribution improves.
+
 ## What each run does
 1. Work out the target week: the Monday 11 days after the run (runs fire Thursday morning, so Rob has the
    weekend to review). Folder name = that Monday's date, e.g. `2026-10-26`.
@@ -47,7 +88,7 @@ Rules for every week:
    If posts already exist there that this playbook created, stop and report (don't duplicate).
 3. Pick 7 topics, never repeating one used in a previous week (see `used_topics.md`, append to it):
    - Mon: video → askvic.ai (VIC: lesson planner, parent messages, co-teacher)
-   - Tue: 7-slide carousel for teachers/leaders (follows, saves)
+   - Tue: 7-slide "Where I Learned It" origin-story carousel (see that section; the proven format)
    - Wed: video → a free tool (alternate VIC parent messages / urban student sim / H.E.L.P. parent-call rehearsal)
    - Thu: quote card from his books (debate)
    - Fri: video "Principals: What would you do?" from the private WWYD Google Doc (next scenario in its order; answer in first comment)

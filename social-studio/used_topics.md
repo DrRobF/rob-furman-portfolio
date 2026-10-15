@@ -36,6 +36,14 @@
   (IG+TikTok 2:45 PM, FB+YouTube 12:15 PM, LinkedIn removed). Six duplicates left as drafts for Rob to delete.
   Lesson Designer captions are now spent; don't rebuild that topic.
 
+## Best performers so far (check before building; see AUTOPILOT.md)
+- 2026-10-13 band-director carousel, TikTok: 2,938 views / 220 likes / 26 shares, vs a ~115-view median.
+  Origin story + niche community hashtags (#bandkid #banddirector #musiceducation). Same post on Instagram: 15 views.
+- Next best on TikTok: 856 views (AI strengthens human capability, 9/14), 616 (urban sim, 10/14), 601 (reluctant
+  reader, 10/5). Everything else sits between 80 and 200.
+- Origin stories used: band director. Not yet used: gigging musician, his father the principal, TEDx, guitar,
+  16 years as an elementary principal.
+
 ## Photos used
 IMG_1370.JPG (reading cover, twice), TED4.jpg, Furman_9028_(2).jpg, DSC_1291.jpg (horse), Furman_6399.jpg (Sun 10-26 wk). Unused:
 DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JPG (with another adult).
