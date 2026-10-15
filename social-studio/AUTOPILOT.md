@@ -69,9 +69,7 @@ Topic bank (all real, verify before using, never invent a biography):
 - His father was also a principal (he references this himself in WWYD Scenario 05) → #principalsofinstagram #schoolleaders
 - Two-time TEDx speaker → #tedx #publicspeaking #speaker
 - Guitar player and teacher (see the guitar pages on drrobfurman.com) → #guitarist #guitarlessons #guitarteacher
-- Sixteen years as an elementary principal → #principallife #elementaryschool
-Note: his own posts say both "16 years" and "20 years" as an elementary principal. Use 16, which is what his own
-recent LinkedIn post says, until Rob confirms which is right.
+- Twenty years in administration as a principal → #principallife #elementaryschool
 
 ## Read the numbers before building (added 2026-10-15)
 Every run, before picking topics, pull the last 30 days of TikTok post analytics
@@ -134,6 +132,8 @@ content, so judge what works by TikTok until Instagram distribution improves.
 Warm, plain, principal-to-teacher. Short sentences. One clear call to action per post. Captions: IG/TikTok
 end with 5–6 hashtags; LinkedIn 3–4 hashtags. Say "link in bio" on IG/TikTok. No em dashes.
 Formal name in bylines: Dr. Rob Furman (never "Ed.D.").
+Experience, confirmed by Rob 2026-10-15: **20 years total in administration as a principal.** Say "20 years as a
+principal" or "20 years in school administration". Do not write "16 years"; that figure in an older post is wrong.
 
 ## If something blocks the run
 Do as much as possible, then message Rob plainly with what's missing. Never schedule posts live without his "go".
