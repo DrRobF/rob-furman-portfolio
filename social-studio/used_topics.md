@@ -30,6 +30,11 @@
 - Sun video: First graders will be in 11th grade in ten years + "But what if?" (Furman_6399 portrait)
 - Songs: Every Version of You, Low Light, Fire in the Rearview, One More Year of Light
 - Also taken this week by Rob's own LinkedIn posts (not autopilot): teachers networking outside their school; mile wide/inch deep + cursive poll. Avoid these.
+- Scheduled live 2026-10-15 on Rob's go, with CTA coverage added: Tue free guides, Thu speaking, Fri the paid What Would
+  You Do? deck (sim link moved to the first comment), Sat and Sun the books.
+- Rob's Ask VIC Lesson Designer run (3 captions x 4 repeats) was deduped: one of each kept live Mon/Tue/Wed
+  (IG+TikTok 2:45 PM, FB+YouTube 12:15 PM, LinkedIn removed). Six duplicates left as drafts for Rob to delete.
+  Lesson Designer captions are now spent; don't rebuild that topic.
 
 ## Photos used
 IMG_1370.JPG (reading cover, twice), TED4.jpg, Furman_9028_(2).jpg, DSC_1291.jpg (horse), Furman_6399.jpg (Sun 10-26 wk). Unused:

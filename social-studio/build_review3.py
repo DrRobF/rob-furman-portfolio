@@ -127,19 +127,20 @@ nav.week a:hover, nav.week a:focus-visible {{ border-color:var(--accent); color:
 </style>
 <div class="wrap">
   <h1>Week of October 26</h1>
-  <p class="lede">Week three, built from The Future Ready Challenge, Motivating the Reluctant Reader, your What Would You Do? scenarios, VIC, and the H.E.L.P. suite. Every video has one of your songs. These are saved as drafts in Metricool and won't post until you say go.</p>
+  <p class="lede">Week three, built from The Future Ready Challenge, Motivating the Reluctant Reader, your What Would You Do? scenarios, VIC, and the H.E.L.P. suite. Every video has one of your songs. All of it is scheduled live in Metricool. Every post carries one call to action, and across the week they cover VIC, the H.E.L.P. suite, the What Would You Do? deck, the books, the free guides, and speaking.</p>
   <ul class="facts">
     <li><strong>7</strong> days</li><li><strong>4</strong> videos, <strong>2</strong> carousels, <strong>1</strong> quote card</li>
-    <li>Videos and photos at about <strong>6 PM</strong></li><li>LinkedIn weekdays: <strong>10:52 AM</strong> (Tue and Thu at <strong>8:52 AM</strong>)</li>
+    <li>Videos and photos at about <strong>6 PM</strong></li><li>LinkedIn weekdays: <strong>10:52 AM</strong> (Tue and Thu at <strong>8:52 AM</strong>)</li><li><strong>20</strong> posts live, counting your Ask VIC Lesson Designer run</li>
   </ul>
   <nav class="week" aria-label="Jump to a day">{''.join(f'<a href="#d{i}">{d["day"][:3]}</a>' for i, d in enumerate(p["days"]))}</nav>
   {days}
-    <section class="next"><h2>To approve</h2><ol>
-    <li><strong>Reply "go"</strong> and I'll switch all of these from drafts to scheduled. Or tell me what to change: a caption, a song, a photo, a whole day.</li>
-    <li><strong>Turn the sound on</strong> when you watch. Each video uses part of one of your songs (named next to the day).</li>
-    <li><strong>Friday's answer</strong> comes from your What Would You Do? deck, Scenario 4 (The Birthday Cookies). Check that you're comfortable sharing it.</li>
-    <li><strong>Heads up on a busy LinkedIn week.</strong> You already have your own LinkedIn posts at 11:00 AM on Tue and Thu (teacher networking and the curriculum poll), plus your Lesson Designer videos every day at 5:15 PM. I moved my Tue and Thu LinkedIn posts to 8:52 AM so they don't land on top of yours. If three LinkedIn posts in a day feels like too much, tell me and I'll drop mine on those days.</li>
-    <li><strong>Topics I steered around</strong> because they're already in your calendar that week: lesson planning (your Lesson Designer series), teacher networking, and mile wide, inch deep. Monday's VIC video features the co-teacher instead.</li>
+    <section class="next"><h2>What changed when you said go</h2><ol>
+    <li><strong>Everything here is scheduled live.</strong> Nothing is sitting in drafts. The first post goes out Monday Oct 26 at 10:52 AM.</li>
+    <li><strong>Your Lesson Designer run was three captions repeated four times each, 12 posts in one week.</strong> I kept one of each on Mon, Tue and Wed (Instagram and TikTok at 2:45 PM, Facebook and YouTube at 12:15 PM) and scheduled those live. The six duplicates are still drafts in Metricool. The API can't delete, so delete those six when you get a minute.</li>
+    <li><strong>I pulled LinkedIn off the Lesson Designer promos.</strong> LinkedIn is where your own thinking lands. The promo reels run on Instagram, TikTok, Facebook and YouTube instead.</li>
+    <li><strong>Every post now sells something specific.</strong> Mon VIC co-teacher, Tue free guides, Wed Parent Call Rehearsal, Thu speaking, Fri the What Would You Do? deck, Sat and Sun the books. Friday was pointing at the free simulation only, which gave away the thing the paid deck is built on. Now the caption sells the deck and the simulation link sits in the first comment.</li>
+    <li><strong>Friday's answer</strong> comes from Scenario 4 of your deck (The Birthday Cookies). It publishes as the first comment.</li>
+    <li><strong>Still yours to do:</strong> make sure your Instagram and TikTok bio link reaches the deck, the books and the free tools, not just one of them. Half the week says "link in bio."</li>
   </ol></section>
 </div>
 <script>

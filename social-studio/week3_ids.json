@@ -1,7 +1,105 @@
-{"note":"Week of 2026-10-26, created as drafts 2026-10-15 by the Thursday autopilot. Tue/Thu LinkedIn moved to 8:52 AM because Rob already has his own LinkedIn posts at 11:00 AM those days.","posts":[
-{"id":396826898,"uuid":"-5709159403141446029","day":"Mon short"},{"id":396827154,"uuid":"8916306836454985488","day":"Mon linkedin"},
-{"id":396827234,"uuid":"2822164989582787939","day":"Tue short"},{"id":396827324,"uuid":"-4125005351697300231","day":"Tue linkedin"},
-{"id":396827396,"uuid":"-8367257774495217815","day":"Wed short"},{"id":396827442,"uuid":"-8164589082650262844","day":"Wed linkedin"},
-{"id":396827490,"uuid":"2385665768825439285","day":"Thu short"},{"id":396827586,"uuid":"4042433919490608942","day":"Thu linkedin"},
-{"id":396827658,"uuid":"6845814345408004434","day":"Fri short"},{"id":396827721,"uuid":"4219036979375525348","day":"Fri linkedin"},
-{"id":396827790,"uuid":"-7861124480972601924","day":"Sat short"},{"id":396827847,"uuid":"4959858257133456830","day":"Sun short"}]}
+{
+ "note": "Week of 2026-10-26. All SCHEDULED LIVE on 2026-10-15 after Rob's go. Ids below are post-update ids; uuids are stable.",
+ "posts": [
+  [
+   "Mon short",
+   397018069,
+   "-5709159403141446029"
+  ],
+  [
+   "Mon linkedin",
+   397018134,
+   "8916306836454985488"
+  ],
+  [
+   "Tue short",
+   397018228,
+   "2822164989582787939"
+  ],
+  [
+   "Tue linkedin",
+   397018334,
+   "-4125005351697300231"
+  ],
+  [
+   "Wed short",
+   397018390,
+   "-8367257774495217815"
+  ],
+  [
+   "Wed linkedin",
+   397018444,
+   "-8164589082650262844"
+  ],
+  [
+   "Thu short",
+   397018769,
+   "2385665768825439285"
+  ],
+  [
+   "Thu linkedin",
+   397018837,
+   "4042433919490608942"
+  ],
+  [
+   "Fri short",
+   397018926,
+   "6845814345408004434"
+  ],
+  [
+   "Fri linkedin",
+   397019021,
+   "4219036979375525348"
+  ],
+  [
+   "Sat short",
+   397019115,
+   "-7861124480972601924"
+  ],
+  [
+   "Sun short",
+   397019186,
+   "4959858257133456830"
+  ]
+ ],
+ "lesson_designer_kept_live": [
+  [
+   "Mon IG/TikTok",
+   397017656,
+   "9203603387440907965"
+  ],
+  [
+   "Tue IG/TikTok",
+   397017676,
+   "831817932290935605"
+  ],
+  [
+   "Wed IG/TikTok",
+   397017730,
+   "-2908973341282253768"
+  ],
+  [
+   "Mon FB/YouTube 12:15",
+   397017778,
+   "2669765400918903837"
+  ],
+  [
+   "Tue FB/YouTube 12:15",
+   397017834,
+   "9204234115455864100"
+  ],
+  [
+   "Wed FB/YouTube 12:15",
+   397017894,
+   "2115900097836237523"
+  ]
+ ],
+ "lesson_designer_duplicates_left_as_drafts_for_rob_to_delete": [
+  391460456,
+  391460502,
+  391460592,
+  391460421,
+  391460548,
+  391460618
+ ]
+}

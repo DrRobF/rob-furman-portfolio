@@ -16,6 +16,30 @@ Goal: become the education influencer everyone wants to hear from, and drive edu
 5. At the end of a run, copy the updated `used_topics.md`, new `weekN_*.py`/`weekN_posts.json`/`weekN_ids.json`
    back into `social-studio/` and commit them to main along with the media, so next week's run sees them.
 
+## Advertise the whole business, every week (added 2026-10-15 on Rob's instruction)
+The goal is not just reach, it is reach that sells something. Rob's properties:
+- **Free tools (top of funnel):** askvic.ai (lesson planner, parent messages, co-teacher, Lesson Designer at
+  askvic.ai/lessonplan); drrobfurman.com/human-equation-suite (leadership-sim, urban-student-sim, parent-call, course, diagnostic).
+- **Paid digital products (Gumroad, listed at /resources):** What Would You Do? 12 School Leadership Scenarios;
+  Teacher Directed AI Prompts Across Subjects; Principal AI Starter Kit; Difficult Conversations Prep Kit;
+  Music + AI Creativity Bundle. Each has a page at drrobfurman.com/resources/<slug>. Link the site page, not Gumroad.
+- **Books:** drrobfurman.com/publications (The Future Ready Challenge, Motivating the Reluctant Reader,
+  Engaging Young Readers, Reading/Technology/Digital Literacy).
+- **Speaking (highest value):** drrobfurman.com/speaking, keynotes and school workshops.
+- **Free guides:** drrobfurman.com/resources.
+
+Rules for every week:
+1. One clear call to action per post, and across the seven days the week must hit **all five**: a VIC tool, a H.E.L.P. tool,
+   a paid product, the books, and speaking. Rotate which day carries which; never let a week be all free tools.
+2. When a post's content comes from a paid product, the caption sells the product and the free tool goes in the
+   first comment. Friday's What Would You Do? videos come straight out of the paid deck: always name the deck.
+3. Audit the whole target week in Metricool before building, not just for autopilot duplicates. If Rob or anyone else
+   has queued a block of near-identical captions, keep one of each unique caption per channel group, schedule those,
+   and tell Rob which ones to delete (the API cannot delete posts, only update them).
+4. Keep LinkedIn for Rob's own thinking: long-form posts, carousels as PDF documents, and polls. Product promo reels
+   go to Instagram, TikTok, Facebook and YouTube. Never more than two LinkedIn posts in a day.
+5. No two posts on the same network within an hour. Check his existing posts for the week before picking times.
+
 ## What each run does
 1. Work out the target week: the Monday 11 days after the run (runs fire Thursday morning, so Rob has the
    weekend to review). Folder name = that Monday's date, e.g. `2026-10-26`.
@@ -60,7 +84,9 @@ Goal: become the education influencer everyone wants to hear from, and drive edu
    with title; LinkedIn carousel = publishImagesAsPDF true + documentTitle. Don't set Instagram audioConfiguration.
 8. Build a review page (pattern: `build_review2.py`) and publish it as an artifact titled
    "Week of <Month D> Social Plan". Then message Rob: a short summary and that he can reply "go" to schedule.
-9. When Rob says go: updateScheduledPost each draft with draft:false (full info JSON required; ids change after
+9. Before handing the week over, check CTA coverage against the five buckets above and fix any gaps in the captions
+   rather than by adding more posts. Volume is not the problem; coverage is.
+10. When Rob says go: updateScheduledPost each draft with draft:false (full info JSON required; ids change after
    each update, uuids stay the same).
 
 ## Voice
