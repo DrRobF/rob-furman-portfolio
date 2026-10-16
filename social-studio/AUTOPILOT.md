@@ -153,3 +153,7 @@ Numbers behind the strategy (Sep 10 - Oct 16 2026):
 - X (@drfurman, via Buffer, Buffer org My Organization): 16.6K followers, 14.8K following, reach 100-300 per post (about 1%). Best: Rob's own real-moment post (1,204). Link posts and video promos are weakest. Buffer free plan: 3 channels (X, LinkedIn, YouTube), 10 queued posts, 280 char limit. Queue X one week at a time, 1-2 text-only posts a day at 8-10 AM ET, no link in the post, #edchat. Do not post LinkedIn or YouTube through Buffer (Metricool owns those).
 - Metricool brand 6914479 has no X. X is posted through Buffer (create_post with customScheduled).
 - Every week: fill all open TikTok weekday 10 AM and 6 PM slots with story/opinion posts; tie a tool to a story, never lead with the product.
+
+## Rob story bank (his own words, unused)
+- Piggyback songs: his mom (an educator) writes songs over famous melodies (Twinkle Twinkle = ABCs). Playing a gig ~6 PM at a local dinner place, a current student came in with family; Rob played a piggyback song for him. Student loved it, rest of audience thought he was crazy. USE for Wed music post (TikTok + LinkedIn).
+- Still to ask: guitar/songwriting story; parent-quote question.

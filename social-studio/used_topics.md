@@ -50,3 +50,4 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 
 ## Extra post (2026-10-15)
 - Sun 2026-11-01 8:22 PM draft: "Before I was a principal, I was a musician" drummer-snare carousel (IG/TikTok/FB). Media in public/social/2026-11-02/. Do not repeat the snare story or its five lessons.
+- 2026-10-19/20: 2 AM school alarm + elevator story (Rob's own). Reel Mon 10:00 (IG/TT/YT/FB), LinkedIn text Tue 8:30, X Tue 11:13.
