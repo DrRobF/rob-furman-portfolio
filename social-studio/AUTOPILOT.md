@@ -137,3 +137,19 @@ principal" or "20 years in school administration". Do not write "16 years"; that
 
 ## If something blocks the run
 Do as much as possible, then message Rob plainly with what's missing. Never schedule posts live without his "go".
+
+## Operating mandate and network strategy (2026-10-16, from Rob)
+Rob gave full authority to act as his SEO and social media manager: delete or replace whatever is not working, add or fix
+whatever is needed. Goals: followers, become the top education influencer in the country, and sell everything from
+Ask VIC to the Gumroad products. Content is made by asking Rob a question, then building from his real answers only.
+Tell Rob when graphics or video are needed from him (he is setting up a talking-head studio; wants a better background).
+
+Numbers behind the strategy (Sep 10 - Oct 16 2026):
+- Winners everywhere are story, emotion or opinion posts. Product announcements get about 85-120 TikTok views and 0 likes.
+- TikTok: 131 followers and rising. Best: band carousel 3.6K, "2:07 AM" student-day video 873, AI hot take 856. Peak times weekdays 10 AM and 6 PM (Wed/Thu best); weekends about half.
+- LinkedIn: 10.3K followers but scheduled posts reach 15-50. Rob's own text post reached 1,251. Text-only, own voice, link in first comment; max 4 posts a week; carousels at most 1 a week.
+- YouTube Shorts: leadership-under-pressure dilemmas did best (1,065 and 234 views).
+- Instagram: 87 followers, flat; 5-150 views. Mirror TikTok winners only. Facebook: reach 0-3; auto-post only.
+- X (@drfurman, via Buffer, Buffer org My Organization): 16.6K followers, 14.8K following, reach 100-300 per post (about 1%). Best: Rob's own real-moment post (1,204). Link posts and video promos are weakest. Buffer free plan: 3 channels (X, LinkedIn, YouTube), 10 queued posts, 280 char limit. Queue X one week at a time, 1-2 text-only posts a day at 8-10 AM ET, no link in the post, #edchat. Do not post LinkedIn or YouTube through Buffer (Metricool owns those).
+- Metricool brand 6914479 has no X. X is posted through Buffer (create_post with customScheduled).
+- Every week: fill all open TikTok weekday 10 AM and 6 PM slots with story/opinion posts; tie a tool to a story, never lead with the product.
