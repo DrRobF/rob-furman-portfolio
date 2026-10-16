@@ -22,3 +22,32 @@ def snare(w=760, h=560):
     for dx in (-50, 0, 50):
         d.line(S(w/2+210+dx*0.2, 120+abs(dx)*0.3, w/2+250+dx*0.2, 110+abs(dx)*0.3), fill=ACCENT, width=6*SS)
     return _done(im, w, h)
+
+
+def elevator(w=760, h=860, open_=0.0, alarm=False, floor='1'):
+    """Elevator in a dark hallway. open_ 0..1 door gap; alarm=True shows a red flashing light."""
+    from brand import font, WHITE, MUTED
+    im, d = _canvas(w, h)
+    d.rounded_rectangle(S(60, 120, w-60, h-40), radius=18*SS, fill=(34, 52, 88))
+    d.rounded_rectangle(S(100, 170, w-100, h-40), radius=8*SS, fill=(12, 20, 38))
+    # interior light when open
+    gap = int((w-200) * 0.5 * open_)
+    cx = w/2
+    if open_ > 0:
+        d.rectangle(S(cx-gap, 170, cx+gap, h-40), fill=(246, 240, 214))
+    # doors
+    half = (w-200)/2
+    d.rectangle(S(100, 170, 100+half-gap, h-40), fill=(150, 168, 200))
+    d.rectangle(S(cx+gap, 170, w-100, h-40), fill=(150, 168, 200))
+    d.line(S(cx-gap, 170, cx-gap, h-40), fill=(70, 88, 126), width=5*SS)
+    d.line(S(cx+gap, 170, cx+gap, h-40), fill=(70, 88, 126), width=5*SS)
+    # floor display
+    d.rounded_rectangle(S(cx-70, 50, cx+70, 110), radius=10*SS, fill=(8, 12, 24))
+    d.text(S(cx-18, 56), floor, font=font('Black', 46*SS), fill=GOLD)
+    # alarm light
+    col = (255, 70, 60) if alarm else (96, 52, 52)
+    d.ellipse(S(w-150, 20, w-90, 80), fill=col)
+    if alarm:
+        for r in (46, 70):
+            d.arc(S(w-120-r, 50-r, w-120+r, 50+r), 200, 340, fill=(255, 110, 100), width=6*SS)
+    return _done(im, w, h)
