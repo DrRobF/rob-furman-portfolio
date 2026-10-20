@@ -54,3 +54,6 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - 2026-10-21: band director = mini principal carousel (Rob's own). TT/IG/FB Wed 10:00, LinkedIn text Thu 8:30.
 - 2026-10-20: grades 'An A doesn't prove mastery' carousel, TT/IG/FB Tue 10:00.
 - 2026-10-23: piggyback song story carousel (Rob's own), Fri 18:00; sick-note reel moved to Fri 10:00.
+- 2026-10-22: WWYD Scenario 07 'The Stupid Form' carousel (TT/IG/FB 10:00). Update 'Used' line in WWYD Google Doc.
+- 2026-10-21: parent-email carousel replaces VIC reel at 17:52; band director v2 photo cover. 2026-10-23: piggyback v3 photo cover.
+- /start link page live on main (utm_source=<network> recognized by site analytics; start_view event).
