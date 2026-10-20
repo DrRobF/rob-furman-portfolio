@@ -157,3 +157,13 @@ Numbers behind the strategy (Sep 10 - Oct 16 2026):
 ## Rob story bank (his own words, unused)
 - Piggyback songs: his mom (an educator) writes songs over famous melodies (Twinkle Twinkle = ABCs). Playing a gig ~6 PM at a local dinner place, a current student came in with family; Rob played a piggyback song for him. Student loved it, rest of audience thought he was crazy. USE for Wed music post (TikTok + LinkedIn).
 - Still to ask: guitar/songwriting story; parent-quote question.
+
+## Analytics snapshot 2026-10-20 (Oct 12-20)
+- TikTok views: band-director carousel 4,140 (341 likes, 33 shares); urban-student sim video 889; what-would-you-do video 829; grades carousel 711; reluctant-readers carousel 469; drum carousel 406. Promo/story VIDEOS mostly 98-127 (factory 98, elevator 119, WRDR 127, fiction 124). Carousels beat animated videos ~10x.
+- LinkedIn: scheduled posts with video/doc get 27-57 impressions; the personal-news text post got 1,523 impressions (22 reactions). Text-only personal posts win.
+- X (Buffer): 7 posts, 2,496 impressions (~350/post), 0 link clicks. Best: pointed ask with @tags (1,226).
+- IG: band carousel 239 views / 172 reach / 3 follows; everything else under ~110 views.
+- YouTube Shorts: 4-191 views (urban student 191).
+- No clicks measurable anywhere. No Gumroad connector, so sales are invisible from here.
+- Products (Gumroad, drrobfurman.gumroad.com): Teacher Directed AI Prompts $12, What Would You Do? 12 Scenarios $19, Principal AI Starter Kit $29, Difficult Conversations Prep Kit $12, Music + AI Creativity Bundle $19.
+- Rob's new assets in Drive folder "Claude" (Oct 18-19): real drum-room photos (IMG_1995/1996), beach sunrise photos (IMG_1984/1985), ~14 MOV clips (IMG_1970-1999, not yet reviewed), AI school scene images.
