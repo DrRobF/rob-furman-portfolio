@@ -10,6 +10,26 @@ export const metadata = {
 
 const articles = [
   {
+    "title": "How to Use AI for Differentiated Instruction Without Losing the Learning Goal",
+    "description": "Use AI to adapt a lesson with different supports while preserving the learning goal. Includes a fraction example and a copyable teacher prompt.",
+    "href": "/articles/ai-differentiated-instruction",
+    "date": "October 21, 2026",
+    "width": 1729,
+    "height": 910,
+    "topic": "AI & differentiated instruction",
+    "image": "/images/articles/ai-differentiated-instruction.webp"
+},
+  {
+    "title": "How to Turn an Existing Lesson Into Inquiry Learning With AI",
+    "description": "Refresh an existing lesson with AI while keeping its standard and objectives. Build a question, student investigation, discussion, and meaningful check.",
+    "href": "/articles/ai-inquiry-lesson-makeover",
+    "date": "October 21, 2026",
+    "width": 1729,
+    "height": 910,
+    "topic": "AI & inquiry learning",
+    "image": "/images/articles/ai-inquiry-lesson-makeover.webp"
+},
+  {
     title: 'AI Is Here. How Should Teaching Change?',
     description: 'Give AI a useful job in the assignment. Teacher-directed prompts help students challenge an argument, examine evidence, and explain their own decisions.',
     href: '/articles/ai-teaching-change',
@@ -54,7 +74,7 @@ export default function ArticlesPage() {
             {articles.map((article) => (
               <article className={styles.card} key={article.href}>
                 <Link className={styles.coverLink} href={article.href} aria-label={`Read ${article.title}`}>
-                  <Image className={styles.coverImage} src={article.image} alt={`Magazine-style cover: ${article.title}`} width={1734} height={907} sizes="(max-width: 768px) 100vw, 560px" />
+                  <Image className={styles.coverImage} src={article.image} alt={`Magazine-style cover: ${article.title}`} width={article.width || 1734} height={article.height || 907} sizes="(max-width: 768px) 100vw, 560px" />
                 </Link>
                 <span className={styles.tag}>{article.topic}</span>
                 <h2><Link href={article.href}>{article.title}</Link></h2>
