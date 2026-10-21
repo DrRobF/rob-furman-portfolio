@@ -4,6 +4,8 @@ const publicPages = [
   '/',
   '/ai-in-education',
   '/articles',
+  '/articles/ai-differentiated-instruction',
+  '/articles/ai-inquiry-lesson-makeover',
   '/articles/ai-teaching-change',
   '/articles/ai-independent-reading',
   '/articles/teachers-using-ai-school-guidance',
