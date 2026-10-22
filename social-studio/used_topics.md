@@ -69,6 +69,7 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
   join their journeys, conversation after the book
 - Sun video: "Disagreeing without going for the jugular" (tedx-umd.jpg photo)
 - Songs: One Beat I Decide, You're Safe Now, Better In The Quiet, Better Than I Was
+- Scheduled live 2026-10-22 on Rob's go (all 10 posts).
 - LinkedIn: Mon, Tue, Fri autopilot + Rob's own Thu 11:00 Principal AI Starter Kit post = 4 for the week.
 - Photos used: public/images/tedx-umd.jpg (Sun). Unused still: tedx-prime.jpg, conference.jpg (has another adult).
 - Analytics 2026-10-22: band-director "mini principal" carousel (Oct 21) 2,921 TikTok views / 116 likes / 21 shares,
