@@ -57,3 +57,19 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - 2026-10-22: WWYD Scenario 07 'The Stupid Form' carousel (TT/IG/FB 10:00). Update 'Used' line in WWYD Google Doc.
 - 2026-10-21: parent-email carousel replaces VIC reel at 17:52; band director v2 photo cover. 2026-10-23: piggyback v3 photo cover.
 - /start link page live on main (utm_source=<network> recognized by site analytics; start_view event).
+
+## Week of 2026-11-02 (files: week5_*; week4_videos.py was an extra 10-19 render)
+- Mon video: Project-based learning "learn it as they create" -> VIC lesson planner (rebuild a lesson as a project)
+- Tue carousel: TOOHAK! the backwards Kahoot (students write the review) -> speaking. Niche tags #kahoot #reviewgames #gamebasedlearning.
+  Not an origin story: no unused origin story could be verified (guitar/TEDx/father need Rob's own answers).
+- Wed video: Urban student sim, "the teacher who left" (cool-teacher scene, "check your manners", "All the great teachers leave")
+- Thu quote: "The best way to allow our students to be creative is not to give them a process!"
+- Fri WWYD: Scenario 11, The Noise During Reading (paid deck in caption; answer + leadership sim in first comment)
+- Sat parents: "If a book captures a child's attention, let them explore it" + too-hard books, people who read more read better,
+  join their journeys, conversation after the book
+- Sun video: "Disagreeing without going for the jugular" (tedx-umd.jpg photo)
+- Songs: One Beat I Decide, You're Safe Now, Better In The Quiet, Better Than I Was
+- LinkedIn: Mon, Tue, Fri autopilot + Rob's own Thu 11:00 Principal AI Starter Kit post = 4 for the week.
+- Photos used: public/images/tedx-umd.jpg (Sun). Unused still: tedx-prime.jpg, conference.jpg (has another adult).
+- Analytics 2026-10-22: band-director "mini principal" carousel (Oct 21) 2,921 TikTok views / 116 likes / 21 shares,
+  second band-community hit in 10 days. Median TikTok post still ~120. Animated videos 100-180.

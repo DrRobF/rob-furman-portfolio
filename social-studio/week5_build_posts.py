@@ -1,0 +1,51 @@
+import json
+base = 'https://www.drrobfurman.com/social/2026-11-02/'
+SIM = 'https://www.drrobfurman.com/human-equation-suite/leadership-sim'
+WWYD_ANSWER = ("What I did: I told the parents the rule made sense, but we also saw a concern that this child might not be able to control what was happening. "
+               "We talked about testing, self-advocacy, and helping the class respect differences. Then I worked with the teacher privately. "
+               "We were not going to punish a child for a possible medical or neurological issue. Her rule could stay, but she needed a different response, "
+               "and I asked her to use the moment to teach tolerance.\n\nA rule should guide a classroom, not erase a child's humanity.")
+days = [
+ dict(day='Mon Nov 2', date='2026-11-02', label='Learn it by building it', goal='VIC lesson planner (askvic.ai)', cta='VIC tool', song='One Beat I Decide',
+      media=['mon-build-it-m.mp4'], cover='mon-build-it-cover.jpg',
+      short=dict(time='17:52', networks=['instagram','tiktok','youtube','facebook'], title='Learn It by Building It',
+        text="What if your students learned it by building it? 🔨\n\nIn The Future Ready Challenge I wrote: \"Project-based learning experiences allow your students to learn the information as they create something.\"\n\nThe hard part is the planning. VIC's free lesson planner can rebuild one of your lessons as a project, around the same standard. You review it, you change it, and it's still your lesson.\n\nTry it free: askvic.ai (link in bio)\n\n#teachersoftiktok #teachertok #projectbasedlearning #pbl #teachersofinstagram #edtech"),
+      linkedin=dict(time='10:52', first_comment='VIC is free for teachers: https://askvic.ai',
+        text="\"Project-based learning experiences allow your students to learn the information as they create something.\"\n\nI wrote that in The Future Ready Challenge, and 20 years as a principal only made me more sure of it. Students don't learn the information first and then make something. They learn it while they make it.\n\nMost teachers I know agree. What stops them is time. Redesigning a solid lesson as a project takes hours nobody has in November.\n\nThat's one reason I built VIC. Its lesson planner can take a lesson you already teach and rebuild it as a project around the same standard. You review it and change whatever you want. It stays your lesson.\n\nWhat's one unit you'd turn into a project if planning time weren't the problem?\n\n#Education #ProjectBasedLearning #Teachers #EdTech")),
+ dict(day='Tue Nov 3', date='2026-11-03', label='TOOHAK: let students write the quiz (carousel)', goal='Speaking (keynotes and workshops)', cta='Speaking',
+      media=[f'tue-toohak-{i}.jpg' for i in range(1,8)],
+      short=dict(time='17:52', networks=['instagram','tiktok','facebook'], title='Flip the Kahoot: TOOHAK!',
+        text="Your students love Kahoot? Flip it. 🎮\n\nIn The Future Ready Challenge I called it TOOHAK! The backwards version of Kahoot! Instead of you writing the review questions, your students do.\n\nSwipe for the 4 steps.\n\nTeachers who live on Kahoot: would your class rise to this? Tell me below 👇\n\nI bring ideas like this to schools in keynotes and staff workshops. Link in bio.\n\n#kahoot #reviewgames #gamebasedlearning #teachersoftiktok #teachertok #teachersofinstagram"),
+      linkedin=dict(time='10:52', first_comment='Keynotes and school workshops: https://www.drrobfurman.com/speaking',
+        text="In The Future Ready Challenge I wrote about something I called TOOHAK! The backwards version of Kahoot!\n\nThe idea is simple. Instead of the teacher writing the review questions, the students write them.\n\nTo write a good question, you have to know what matters in the unit. To write three believable wrong answers, you have to understand the material well enough to know how people get it wrong. And when you read what students chose to ask, you learn more about their understanding than a score will tell you.\n\nWhen students build the review, they own the learning.\n\nIf your school wants PD built on ideas teachers can use the next morning, that's what my keynotes and staff workshops are about. I'd love to talk.\n\n#Education #Teaching #ProfessionalDevelopment #StudentVoice")),
+ dict(day='Wed Nov 4', date='2026-11-04', label='The teacher who left (urban student sim)', goal='H.E.L.P. urban student simulation', cta='H.E.L.P. tool', song="You're Safe Now",
+      media=['wed-teacher-left-m.mp4'], cover='wed-teacher-left-cover.jpg',
+      short=dict(time='17:52', networks=['instagram','tiktok','youtube','facebook'], title='The Teacher Who Left',
+        text="Adam's morning has already gone wrong. So he goes looking for the one teacher the kids actually trust.\n\nThe door opens. It's a different teacher. \"The previous teacher took a better job away from the city. You need to check your manners.\"\n\nAll the great teachers leave. That's what Adam hears.\n\nThis moment is from A Day in the Life of an Urban Student, a free simulation in my H.E.L.P. suite. Teachers walk one student's whole day and see how every adult response changes what happens next. Made for staff meetings and PD.\n\nTry it free: drrobfurman.com (link in bio)\n\n#teachersoftiktok #teachertok #urbaneducation #traumainformed #studentsfirst #teachersofinstagram")),
+ dict(day='Thu Nov 5', date='2026-11-05', label="Creativity: don't give them a process (quote)", goal='Books (The Future Ready Challenge)', cta='Books',
+      media=['thu-no-process-quote.jpg'],
+      short=dict(time='17:52', networks=['instagram','tiktok','facebook'], title='Creativity Without a Process',
+        text="\"The best way to allow our students to be creative is not to give them a process!\" 🎨\n\nI wrote that in The Future Ready Challenge. Does it make you nervous, or excited?\n\nAgree or disagree? Tell me why in the comments 👇\n\nMy books, including The Future Ready Challenge, are linked in my bio.\n\n#teachersofinstagram #teachertok #creativity #artteacher #education #futureready"),
+      note="Rob's own LinkedIn post (Principal AI Starter Kit) is already scheduled Thu 11:00, so no autopilot LinkedIn post today."),
+ dict(day='Fri Nov 6', date='2026-11-06', label='What would you do? The Noise During Reading (Scenario 11)', goal='Paid deck: What Would You Do? (sim in first comment)', cta='Paid product', song='Better In The Quiet',
+      media=['fri-noise-reading-m.mp4'], cover='fri-noise-reading-cover.jpg',
+      short=dict(time='17:52', networks=['instagram','tiktok','youtube','facebook'], title='Principals: What Would You Do?',
+        first_comment=WWYD_ANSWER + "\n\nPractice decisions like this free: " + SIM,
+        text="Principals and teachers: what would you do? 🤔\n\nA teacher's rule is complete silence during independent reading. A second grader keeps making sounds while he reads. He doesn't seem to notice, and it keeps happening even when he's corrected. Consequences. A raised voice, in front of the class. No diagnosis yet. When his parents raise it, the teacher says, \"My rules are my rules.\"\n\nBack the rule, or step in? Comment your call. What I did is in the first comment.\n\nThis is one of 12 real situations in my What Would You Do? School Leadership Scenarios deck, each with what I actually chose. Link in bio.\n\n#principal #principallife #schoolleadership #teachertok #teachersofinstagram #specialeducation"),
+      linkedin=dict(time='10:52', first_comment=WWYD_ANSWER + "\n\nThe full deck, 12 scenarios with what I chose: https://www.drrobfurman.com/resources/what-would-you-do",
+        text="Principals: what would you do?\n\nA teacher's rule is complete silence during independent reading. Reasonable rule.\n\nA second grader begins making frequent sounds while he reads. He doesn't seem to notice, and it continues even when he's corrected. The teacher keeps giving consequences and sometimes raises her voice in front of the class. There's no diagnosis yet. When the family raises the concern, the teacher says, \"My rules are my rules.\"\n\nHow do you support a teacher's reasonable rule without letting the rule harm the child?\n\nI put what I did in the first comment. It's one of 12 real situations in my What Would You Do? School Leadership Scenarios deck.\n\n#SchoolLeadership #Principals #Education #Inclusion")),
+ dict(day='Sat Nov 7', date='2026-11-07', label='Hooked on a book? Let them keep going (parents)', goal='Books (Motivating the Reluctant Reader)', cta='Books',
+      media=[f'sat-hooked-{i}.jpg' for i in range(1,8)],
+      short=dict(time='10:22', networks=['instagram','tiktok','facebook'], title='Hooked on a Book? Let Them Keep Going.',
+        text="Your child finally found a book they can't put down? Let them keep going. 📚\n\nIn Motivating the Reluctant Reader I wrote: \"If a book captures a child's attention, let them explore it.\" Even if it's the same series again. Even if it looks too easy.\n\nSwipe for 4 ways to protect that spark. Save this, and share it with a parent who needs it today. ❤️\n\nMy books for parents and teachers are linked in my bio.\n\n#parentingtips #reluctantreaders #readingwithkids #momsofinstagram #literacy #booksforkids")),
+ dict(day='Sun Nov 8', date='2026-11-08', label='Disagreeing without going for the jugular (TEDxUMD photo)', goal='Books (The Future Ready Challenge)', cta='Books', song='Better Than I Was',
+      media=['sun-jugular-m.mp4'], cover='sun-jugular-cover.jpg',
+      short=dict(time='17:52', networks=['instagram','tiktok','youtube','facebook'], title='Disagree Without Going for the Jugular',
+        text="\"The adults in our society seem to have difficulty disagreeing with each other without attacking one another and going for the jugular.\"\n\nI wrote that in The Future Ready Challenge. Our kids are watching how we argue.\n\nWhere should they practice disagreeing well? Tell me below 👇\n\nMy books: drrobfurman.com/publications (link in bio)\n\n#education #teachersofinstagram #teachertok #civildiscourse #debate #futureready")),
+]
+for d in days:
+    for k in ('short', 'linkedin'):
+        if k in d:
+            assert '—' not in d[k]['text'], (d['day'], k)
+json.dump(dict(base=base, days=days), open('/home/claude/social/week5_posts.json', 'w'), indent=1, ensure_ascii=False)
+print('ok', len(days))
