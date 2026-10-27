@@ -4,6 +4,8 @@ const publicPages = [
   '/',
   '/ai-in-education',
   '/articles',
+  '/articles/how-to-evaluate-ai-lesson-plan',
+  '/articles/ai-prompts-parent-communication',
   '/articles/ai-differentiated-instruction',
   '/articles/ai-inquiry-lesson-makeover',
   '/articles/ai-teaching-change',
@@ -40,5 +42,5 @@ const publicPages = [
 ];
 
 export default function sitemap() {
-  return publicPages.map((path) => ({ url: `${baseUrl}${path}` }));
+  return publicPages.map((path) => ({ url: `${baseUrl}${path}`, ...(["/articles/how-to-evaluate-ai-lesson-plan", "/articles/ai-prompts-parent-communication"].includes(path) ? { lastModified: '2026-10-27' } : {}) }));
 }

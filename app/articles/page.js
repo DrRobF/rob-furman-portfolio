@@ -9,6 +9,28 @@ export const metadata = {
 };
 
 const articles = [
+{
+  "title": "How to Evaluate an AI-Generated Lesson Plan: Look Beyond the Paper",
+  "description": "Dr. Rob Furman shares how to evaluate an AI-generated lesson plan for realistic activities, aligned objectives, and meaningful student engagement.",
+  "href": "/articles/how-to-evaluate-ai-lesson-plan",
+  "date": "October 27, 2026",
+  "width": 1672,
+  "height": 941,
+  "topic": "AI lesson planning & student engagement",
+  "image": "/images/articles/how-to-evaluate-ai-lesson-plan.webp",
+  "alt": "A teacher listens as students collaborate on a hands-on project in a sunlit futuristic classroom with glowing digital learning displays."
+},
+{
+  "title": "AI Prompts for Parent Communication: Keep Your Voice and Protect the Facts",
+  "description": "Use AI prompts for parent communication while protecting your voice and facts. Dr. Rob Furman shares his approach to drafts, revisions, and final review.",
+  "href": "/articles/ai-prompts-parent-communication",
+  "date": "October 27, 2026",
+  "width": 1672,
+  "height": 941,
+  "topic": "AI & parent communication",
+  "image": "/images/articles/ai-prompts-parent-communication.webp",
+  "alt": "An educator reviews an illuminated letter at a modern school desk while a parent and teacher converse in the background."
+},
   {
     "title": "How to Use AI for Differentiated Instruction Without Losing the Learning Goal",
     "description": "Use AI to adapt a lesson with different supports while preserving the learning goal. Includes a fraction example and a copyable teacher prompt.",
@@ -74,7 +96,7 @@ export default function ArticlesPage() {
             {articles.map((article) => (
               <article className={styles.card} key={article.href}>
                 <Link className={styles.coverLink} href={article.href} aria-label={`Read ${article.title}`}>
-                  <Image className={styles.coverImage} src={article.image} alt={`Magazine-style cover: ${article.title}`} width={article.width || 1734} height={article.height || 907} sizes="(max-width: 768px) 100vw, 560px" />
+                  <Image className={styles.coverImage} src={article.image} alt={article.alt || `Magazine-style cover: ${article.title}`} width={article.width || 1734} height={article.height || 907} sizes="(max-width: 768px) 100vw, 560px" />
                 </Link>
                 <span className={styles.tag}>{article.topic}</span>
                 <h2><Link href={article.href}>{article.title}</Link></h2>

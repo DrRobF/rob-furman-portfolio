@@ -66,7 +66,7 @@ export default function ArticlePage() {
         <p>For a separate student-thinking activity, my <Link href="/resources/teacher-directed-ai-prompts">Teacher Directed AI Prompts Across Subjects</Link> helps students challenge ideas, examine evidence, and explain their decisions. <a href="https://drrobfurman.gumroad.com/l/dwlxcx?utm_source=drrobfurman&utm_medium=article&utm_campaign=lesson_makeover&utm_content=ai-inquiry-lesson-makeover" target="_blank" rel="noopener noreferrer">View the prompt pack on Gumroad</a>.</p>
       </div>
       <div className={styles.related}>
-        <h2>Keep exploring</h2>
+        <h2>Keep exploring</h2><p>Before teaching your revised lesson, use <Link href="/articles/how-to-evaluate-ai-lesson-plan">these five checks for an AI-generated lesson plan</Link>.</p>
         <p>Read <Link href="/articles/ai-differentiated-instruction">How to Use AI for Differentiated Instruction Without Losing the Learning Goal</Link>, use the <Link href="/ai-for-teachers">free AI for Teachers guide</Link>, or return to the <Link href="/ai-in-education">AI in Education hub</Link>.</p>
         <p>To practice these approaches with your staff, explore <Link href="/speaking">keynotes and scheduled workshops</Link>.</p>
       </div>
