@@ -59,7 +59,18 @@ export default function ConversationMastery(){
  const persona=personae[(day-1)%7];
  const rounds=messages.filter(m=>m.role==='user').length;
  const finishDay=()=>{if(done.includes(day)){setDone(x=>x.filter(d=>d!==day));return;}setDone(x=>[...x,day]);const score=scores[day];if(!Number.isFinite(score))return;const delta=Math.max(-0.5,Math.min(0.5,(score-75)/50));const impact=['humanAwareness','trustConstruction','realityAnchoring'].map(id=>addFactorImpact(id,delta,0.3,delta<0?'risk':'positive','Simulated conversation coaching'));saveEvidenceEvent(createEvidenceEvent({sourceType:'conversation_mastery',sourceId:'day-'+day,sourceLabel:'Conversation Mastery Day '+day,factorImpacts:impact,evidenceType:'ai_practice_heuristic',weight:0.2,summary:'Low-confidence conversation practice score '+score+'/100'}));};
- const startDay=(n)=>{setDay(n);setMessages([]);setErr('');setDraft('');setDebrief(null);};
+ const startDay=(n)=>{setDay(n);setMessages([]);setDebrief(null);setErr('');setDraft('');setDebrief(null);};
+ const finishConversation=async()=>{
+  if(busy||rounds<3||debrief)return;
+  setBusy(true);setErr('');
+  try {
+   const res=await fetch('/api/human-equation/conversation-coach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'debrief',day,title:lesson.title,principle,scenario,persona,messages:messages.slice(-22)})});
+   const data=await res.json();
+   if(!res.ok)throw new Error(data.error||'Unable to generate debrief');
+   setDebrief(data);
+   if(Number.isFinite(data.score))setScores(s=>({...s,[day]:data.score}));
+  }catch(e){setErr(e.message||'Please retry.');}finally{setBusy(false);}
+ };
  const send=async()=>{
   if(!draft.trim()||busy)return;
   const next=[...messages,{role:'user',content:draft.trim()}];setMessages(next);setDraft('');setBusy(true);setErr('');
@@ -84,13 +95,13 @@ export default function ConversationMastery(){
  </section>
  <section className="card help-suite-panel" style={{padding:26}}>
  <p className="eyebrow">DAY {day} / 30</p><h2>{lesson.title}</h2>
- <h3>Today's core lesson</h3><p>{principle}</p>
+ <h3>Part 1: Understand the principle</h3><p style={{fontSize:'1.1rem'}}>{principle}</p><p><strong>Why this matters:</strong> The difference between a skilled conversation and an interrogation is the quality of listening, respect for choice, and ability to notice what has not yet been understood. Do not assume the first explanation is the only explanation.</p><h3>Three moves to practice</h3><ol><li>Notice the other person's exact words, context, and possible feelings without treating guesses as facts.</li><li>Reflect a plausible meaning tentatively. Allow corrections and disagreement.</li><li>Follow up naturally, or answer directly when someone asks you a question. Do not rush to fix the situation.</li></ol>
  <div style={{padding:16,borderLeft:'4px solid #42bfae',background:'rgba(95,160,170,.10)',borderRadius:8}}><p><strong>{example[0]}</strong></p><p>{example[1]}</p></div>
- <h3 style={{marginTop:22}}>Your practice objective</h3><p>Hold a real conversation rather than an interrogation. Try a natural opening, notice the response, and adapt. The character may disagree, remain reserved, or set a boundary. Each turn is coached for rapport, question neutrality, listening, conversational balance, and respect for autonomy.</p>
- <h3>Interactive role-play</h3><p><strong>Scenario:</strong> {scenario}</p>
+ <h3>Part 2: Compare the language</h3><p>Read the two examples above. The improved version avoids implying the answer and makes it safer to disagree. But no script is universally correct: pay attention to context, tone and relationship.</p><h3>Part 3: Guided conversation</h3><p>This is a full conversation, not a one-question quiz. Try six to eight exchanges. Your conversation partner remembers the discussion, can challenge you, and will not automatically reveal their underlying concern. Coaching after each response explains what you did well and where you could improve.</p><h3 style={{marginTop:22}}>Your practice objective</h3><p>Hold a real conversation rather than an interrogation. Try a natural opening, notice the response, and adapt. The character may disagree, remain reserved, or set a boundary. Each turn is coached for rapport, question neutrality, listening, conversational balance, and respect for autonomy.</p>
+ <h3>Interactive role-play · Round {rounds+1}</h3><p><strong>Scenario:</strong> {scenario}</p>
  <div aria-live="polite" style={{display:'grid',gap:12,margin:'16px 0'}}>
- {messages.length===0?<div style={{padding:16,borderRadius:10,background:'rgba(95,160,170,.10)'}}><strong>Conversation partner:</strong> “I’m not entirely sure what to make of all this yet.”<p>Your move. What would you say naturally?</p></div>:null}
- {messages.map((m,i)=><article key={i} style={{padding:15,borderRadius:10,background:m.role==='user'?'rgba(72,172,164,.14)':'rgba(112,133,178,.13)'}}><strong>{m.role==='user'?'You':'Conversation partner'}</strong><p style={{whiteSpace:'pre-wrap'}}>{m.content}</p>{m.feedback?<div style={{borderTop:'1px solid #8293a344',paddingTop:12}}><strong>Coach feedback {Number.isFinite(m.score)?'• '+m.score+'/100':''}</strong><p style={{whiteSpace:'pre-wrap'}}>{m.feedback}</p></div>:null}</article>)}
+ {messages.length===0?<div style={{padding:16,borderRadius:10,background:'rgba(95,160,170,.10)'}}><strong>Conversation partner:</strong> “{day===1?'Every week there seems to be another initiative and more paperwork.':day===2?'There are so many conference sessions to choose from.':'I’m not entirely sure what to make of all this yet.'}”<p>Your move. What would you say naturally?</p></div>:null}
+ {messages.map((m,i)=><article key={i} style={{padding:15,borderRadius:10,background:m.role==='user'?'rgba(72,172,164,.14)':'rgba(112,133,178,.13)'}}><strong>{m.role==='user'?'You':'Conversation partner'}</strong><p style={{whiteSpace:'pre-wrap'}}>{m.content}</p>{m.feedback?<div style={{borderTop:'1px solid #8293a344',paddingTop:12}}><strong>Coach feedback {Number.isFinite(m.score)?'• '+m.score+'/100':''}</strong><p style={{whiteSpace:'pre-wrap'}}>{m.feedback}</p>{m.breakdown?<p style={{fontSize:13}}>Rapport {m.breakdown.rapport}/20 · Cues {m.breakdown.cueRecognition}/20 · Questions {m.breakdown.questioning}/20 · Listening {m.breakdown.listening}/20 · Autonomy {m.breakdown.autonomy}/20</p>:null}</div>:null}</article>)}
  </div>
  <label htmlFor="conversation-reply" style={{display:'block',fontWeight:700}}>Your response</label>
  <textarea id="conversation-reply" value={draft} onChange={e=>setDraft(e.target.value)} rows={4} maxLength={1800} placeholder="Write what you would really say..." style={{width:'100%',padding:14,borderRadius:10,margin:'8px 0 12px',color:'inherit',background:'transparent',border:'1px solid #8293a388'}}/>
@@ -99,8 +110,10 @@ export default function ConversationMastery(){
  <button type="button" className="button primary" onClick={send} disabled={busy||!draft.trim()}>{busy?'Coaching...':'Respond & get feedback'}</button>
  <button type="button" className="button secondary" onClick={()=>{setMessages([]);setErr('');}}>Restart scenario</button>
  <button type="button" className="button secondary" onClick={finishDay}>{done.includes(day)?'Mark incomplete':'Mark lesson complete'}</button>
+ <button type="button" className="button secondary" disabled={busy||rounds<3||!!debrief} onClick={finishConversation}>Finish and get detailed debrief</button>
  {day<30?<button type="button" className="button secondary" onClick={()=>startDay(day+1)}>Next day →</button>:null}
  </div>
+ {debrief?<article style={{padding:20,marginTop:20,border:'1px solid #42bfae',borderRadius:12}}><h3>Part 4: Full conversation assessment</h3><p style={{whiteSpace:'pre-wrap'}}>{debrief.feedback}</p><p><strong>Overall performance:</strong> {debrief.score}/100</p><p>This is formative practice feedback, not a professional credential.</p></article>:null}
  {scores[day]!==undefined?<p>Latest coaching score for this lesson: <strong>{scores[day]}/100</strong></p>:null}
  <p style={{fontSize:13,opacity:.78,marginTop:15}}>Practice using fictional situations. Do not enter identifiable student, family or staff details. AI-generated characters and feedback can be imperfect. The transcript remains on this page during your session; lesson completion and latest scores are stored locally in your browser.</p>
  </section>
