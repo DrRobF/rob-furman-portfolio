@@ -5396,3 +5396,28 @@ p {
  .help-dashboard-polished .hes-factor-grid.compact,
  .help-dashboard-polished .hes-hero-shell {grid-template-columns:minmax(0,1fr);}
 }
+
+/* Radar panel contrast: explicit surface + text for the nested right column */
+.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-hero-right {
+  background: #f0f7fd !important;
+  color: #102b43 !important;
+  border: 1px solid #a6c3d9;
+  border-radius: 18px;
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-hero-right .hes-mini-radar,
+.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-hero-right .hes-hero-metrics {
+  background: transparent !important;
+  color: #102b43 !important;
+}
+.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-hero-right :is(p,strong,small,span,h2,h3) {
+  color: #102b43 !important;
+  opacity: 1 !important;
+}
+.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-hero-right .hes-mini-radar svg text {
+  fill: #17364e !important;
+  opacity: 1 !important;
+}
+.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-hero-right .hes-mini-radar svg circle {
+  stroke: #8ba9bf !important;
+}
