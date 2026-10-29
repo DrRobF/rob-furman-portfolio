@@ -11,6 +11,15 @@ const weeks = [
   ['Mastery in Action',['Leadership and Staff Conversations','Parent and Family Conversations','Business and Sales Discovery','Social Conversations and Connection','Ethical Persuasion and Influence','Interviewing and Fact-Finding','Multiple-Technique Simulation','Final Practical Examination','Personal Mastery Plan']]
 ];
 const lessons=weeks.flatMap(([week,days],w)=>days.map((title,i)=>({day:weeks.slice(0,w).reduce((n,x)=>n+x[1].length,0)+i+1,title,week})));
+const personae=[
+ 'Ms. Carter is a dedicated teacher who supports some initiatives, but feels her instructional decisions are mistrusted following a critical lesson-plan email. She initially complains about paperwork. Reveal the email gradually, if rapport develops.',
+ 'Daniel has taught for twenty years. At a conference he is polite and reserved, disillusioned with shallow professional development, and privately considering mentoring or curriculum work. He still loves students and fears losing his teacher identity.',
+ 'Morgan is a skeptical colleague who values sincere rapport over flattery.',
+ 'Alex is a teacher who feels unheard in meetings, but has not yet explained why.',
+ 'Sam is a parent worried about contradictory school communication.',
+ 'Jordan is reserved and weighing a personal decision; disclosure is optional.',
+ 'Taylor is an experienced staff leader who respects transparency and may disagree.'
+];
 const contexts=[
   'A teacher says the latest initiative feels like another box to check. They are unsure whether you understand their classroom.',
   'At a conference, a reserved educator gives polite but short answers and is uncertain whether to discuss their changing professional goals.',
@@ -40,22 +49,24 @@ const examples=[
 ];
 const storageKey='help-conversation-mastery-v1';
 export default function ConversationMastery(){
- const [day,setDay]=useState(1),[done,setDone]=useState([]),[messages,setMessages]=useState([]),[draft,setDraft]=useState(''),[busy,setBusy]=useState(false),[err,setErr]=useState(''),[scores,setScores]=useState({});
+ const [day,setDay]=useState(1),[done,setDone]=useState([]),[messages,setMessages]=useState([]),[draft,setDraft]=useState(''),[busy,setBusy]=useState(false),[err,setErr]=useState(''),[scores,setScores]=useState({}),[debrief,setDebrief]=useState(null);
  useEffect(()=>{try{const v=JSON.parse(localStorage.getItem(storageKey)||'{}');setDone(Array.isArray(v.done)?v.done:[]);setDay(Number(v.day)||1);setScores(v.scores||{});}catch{}},[]);
  useEffect(()=>{try{localStorage.setItem(storageKey,JSON.stringify({day,done,scores}));}catch{}},[day,done,scores]);
  const lesson=lessons.find(x=>x.day===day)||lessons[0];
  const principle=principles[(day-1)%7];
  const example=examples[(day-1)%7];
  const scenario=contexts[(day-1)%7];
+ const persona=personae[(day-1)%7];
+ const rounds=messages.filter(m=>m.role==='user').length;
  const finishDay=()=>{if(done.includes(day)){setDone(x=>x.filter(d=>d!==day));return;}setDone(x=>[...x,day]);const score=scores[day];if(!Number.isFinite(score))return;const delta=Math.max(-0.5,Math.min(0.5,(score-75)/50));const impact=['humanAwareness','trustConstruction','realityAnchoring'].map(id=>addFactorImpact(id,delta,0.3,delta<0?'risk':'positive','Simulated conversation coaching'));saveEvidenceEvent(createEvidenceEvent({sourceType:'conversation_mastery',sourceId:'day-'+day,sourceLabel:'Conversation Mastery Day '+day,factorImpacts:impact,evidenceType:'ai_practice_heuristic',weight:0.2,summary:'Low-confidence conversation practice score '+score+'/100'}));};
- const startDay=(n)=>{setDay(n);setMessages([]);setErr('');setDraft('');};
+ const startDay=(n)=>{setDay(n);setMessages([]);setErr('');setDraft('');setDebrief(null);};
  const send=async()=>{
   if(!draft.trim()||busy)return;
   const next=[...messages,{role:'user',content:draft.trim()}];setMessages(next);setDraft('');setBusy(true);setErr('');
   try{
-   const res=await fetch('/api/human-equation/conversation-coach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({day,title:lesson.title,principle,scenario,messages:next.slice(-14)})});
+   const res=await fetch('/api/human-equation/conversation-coach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({day,title:lesson.title,principle,scenario,persona,messages:next.slice(-22)})});
    const data=await res.json(); if(!res.ok)throw new Error(data.error||'Coaching is temporarily unavailable.');
-   setMessages([...next,{role:'assistant',content:data.character||'',feedback:data.feedback||'',score:data.score}]);
+   setMessages([...next,{role:'assistant',content:data.character||'',feedback:data.feedback||'',score:data.score,breakdown:data.scores}]);
    if(Number.isFinite(data.score))setScores(s=>({...s,[day]:data.score}));
   }catch(e){setErr(e.message||'Please try again.');}finally{setBusy(false);}
  };
