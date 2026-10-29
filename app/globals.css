@@ -5337,93 +5337,62 @@ p {
 }
 
 
-/* H.E.L.P. dashboard — scoped accessibility and visual hierarchy */
-.help-dashboard-polished {
-  --dash-ink: #14283f;
-  --dash-muted: #43566c;
-  --dash-border: #d6e1eb;
-  --dash-panel: #ffffff;
-  --dash-accent: #0b6d79;
-}
-.help-dashboard-polished .hes-main-content {
-  gap: clamp(1rem, 1.8vw, 1.5rem);
-}
+
+/* Dashboard: single paired surface/text contract, isolated from dark H.E.L.P. theme */
+.help-dashboard-polished .hes-main-content { color: #edf5ff; gap: 1.3rem; }
 .help-dashboard-polished .hes-main-content .card,
-.help-dashboard-polished .hes-factor-panel,
-.help-dashboard-polished .hes-insight-card,
-.help-dashboard-polished .hes-report-card,
-.help-dashboard-polished .hes-exec-grid article {
-  background: var(--dash-panel);
-  color: var(--dash-ink);
-  border: 1px solid var(--dash-border);
-  border-radius: 17px;
-  box-shadow: 0 9px 26px rgba(3, 16, 35, .12);
+.help-dashboard-polished .hes-main-content .hes-factor-panel,
+.help-dashboard-polished .hes-main-content .hes-insight-card,
+.help-dashboard-polished .hes-main-content .hes-exec-grid article {
+  background: #f8fbff !important;
+  border: 1px solid #c8d9e8 !important;
+  color: #162d43 !important;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(0,15,32,.13);
 }
-.help-dashboard-polished .hes-main-content .card:not(.hes-hero-profile) :is(h1,h2,h3,h4,h5,p,li,dt,dd,strong,small,summary,label),
-.help-dashboard-polished .hes-factor-panel :is(h2,h3,h4,p,li,strong,summary),
-.help-dashboard-polished .hes-insight-card :is(h2,h3,h4,p,strong),
-.help-dashboard-polished .hes-snapshot-shell > h2 {
-  color: var(--dash-ink);
+.help-dashboard-polished .hes-main-content .card :is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,label,summary,strong,em,small),
+.help-dashboard-polished .hes-main-content .hes-factor-panel :is(h2,h3,h4,p,li,summary,strong),
+.help-dashboard-polished .hes-main-content .hes-insight-card :is(h2,h3,h4,p,strong),
+.help-dashboard-polished .hes-main-content .hes-exec-grid article :is(h2,h3,h4,p,strong) {
+  color: #162d43 !important;
 }
-.help-dashboard-polished .hes-main-content .card:not(.hes-hero-profile) :is(small, .hes-factor-signal, .hes-confidence-meta) { color: var(--dash-muted); }
-.help-dashboard-polished .hes-main-content .card:not(.hes-hero-profile) a:not(.button) { color: #075b93; text-decoration-color: #075b93; }
-.help-dashboard-polished .hes-main-content .card:not(.hes-hero-profile) .button.primary {
-  background: #0d6376;
-  border-color: #0d6376;
-  color: #ffffff;
+.help-dashboard-polished .hes-main-content .card a:not(.button) { color:#07577c !important; text-decoration:underline; }
+.help-dashboard-polished .hes-main-content .card .button.primary { color:#fff !important; background:#075a70 !important; border-color:#075a70 !important; }
+.help-dashboard-polished .hes-main-content .card .button.secondary { color:#084f60 !important; background:#e5f3f6 !important; border:1px solid #8abac6 !important; }
+.help-dashboard-polished .hes-main-content .card .badge,
+.help-dashboard-polished .hes-main-content .card .hes-score-pill,
+.help-dashboard-polished .hes-main-content .card .status-badge { font-weight:750; }
+.help-dashboard-polished .hes-main-content .card .badge-gray { color:#2a4259 !important; background:#e6edf5 !important; }
+.help-dashboard-polished .hes-main-content .card .badge-blue { color:#154c87 !important; background:#e3f0ff !important; }
+.help-dashboard-polished .hes-main-content .card .badge-green { color:#115c38 !important; background:#dbf6e8 !important; }
+.help-dashboard-polished .hes-main-content .card .badge-amber { color:#79490b !important; background:#fff0cf !important; }
+.help-dashboard-polished .hes-main-content .card .hes-score-pill { background:#103850 !important; color:#fff !important; }
+.help-dashboard-polished .hes-main-content .hes-insight-card h3 { font-size:.8rem; letter-spacing:.04em; }
+.help-dashboard-polished .hes-main-content .hes-insight-card h4 { font-size:1.07rem; }
+.help-dashboard-polished .hes-main-content .hes-insight-card p { font-size:.93rem; line-height:1.5; }
+.help-dashboard-polished .hes-main-content .hes-insight-card.stabilizer { background:#eaf5ff !important; }
+.help-dashboard-polished .hes-main-content .hes-insight-card.distortion { background:#fff5e9 !important; }
+.help-dashboard-polished .hes-main-content .hes-insight-card.tension { background:#f1efff !important; }
+.help-dashboard-polished .hes-main-content .hes-insight-card.recovery { background:#eafaf5 !important; }
+.help-dashboard-polished .hes-main-content .hes-factor-panel { border-top:3px solid var(--factor-accent,#0c7782) !important; padding:1rem; }
+.help-dashboard-polished .hes-main-content .hes-exec-grid article { box-shadow:none; }
+.help-dashboard-polished .hes-main-content .hes-ladder p { background:#eaf2f8; color:#163449 !important; }
+.help-dashboard-polished .hes-main-content .hes-timeline article { background:#eaf2f8; color:#163449; }
+.help-dashboard-polished .hes-main-content .hes-timeline article :is(p,h4,strong) { color:#163449 !important; }
+.help-dashboard-polished .hes-main-content .hes-evidence-table :is(th,td) { color:#163449 !important; }
+.help-dashboard-polished .hes-main-content .hes-evidence-table th { background:#e4f0f8; }
+.help-dashboard-polished .hes-main-content .hes-snapshot-shell > h2 { color:#fff !important; }
+.help-dashboard-polished .hes-main-content .help-dashboard-utility-row p { color:#e7f3ff !important; }
+.help-dashboard-polished .hes-main-content .card.hes-hero-profile { background:linear-gradient(135deg,#dceff9,#cce4f2) !important; }
+.help-dashboard-polished .hes-main-content .card.hes-hero-profile :is(h1,h2,h3,p,strong,small) { color:#132c44 !important; }
+.help-dashboard-polished .hes-main-content .card.hes-hero-profile .hes-mini-radar circle { stroke:#7694aa; }
+.help-dashboard-polished :is(a,button,summary):focus-visible { outline:3px solid #13c4b4; outline-offset:3px; }
+@media(max-width:900px) {
+ .help-dashboard-polished .hes-insights-row,
+ .help-dashboard-polished .hes-factor-grid.compact {grid-template-columns:repeat(2,minmax(0,1fr));}
 }
-.help-dashboard-polished .hes-main-content .card:not(.hes-hero-profile) .button.secondary {
-  background: #e9f5f7;
-  border: 1px solid #8fc2cd;
-  color: #084b5d;
-}
-.help-dashboard-polished .hes-main-content .card:not(.hes-hero-profile) .button:hover { filter: brightness(.94); }
-.help-dashboard-polished .hes-factor-panel.compact {
-  padding: 1.05rem;
-  border-top: 3px solid var(--factor-accent, #0d8a93);
-}
-.help-dashboard-polished .hes-factor-panel.compact p { font-size: .9rem; line-height: 1.5; }
-.help-dashboard-polished .hes-insight-card { padding: 1.15rem; }
-.help-dashboard-polished .hes-insight-card h3 { color: #334b60; font-size: .78rem; }
-.help-dashboard-polished .hes-insight-card h4 { color: #112b41; font-size: 1.08rem; }
-.help-dashboard-polished .hes-insight-card p { color: #354a5c; font-size: .93rem; line-height: 1.52; }
-.help-dashboard-polished .hes-insight-card.stabilizer { background: #edf7ff; }
-.help-dashboard-polished .hes-insight-card.distortion { background: #fff5ea; }
-.help-dashboard-polished .hes-insight-card.tension { background: #f4f1ff; }
-.help-dashboard-polished .hes-insight-card.recovery { background: #ebfaf6; }
-.help-dashboard-polished .hes-main-content .hes-hero-profile,
-.help-dashboard-polished .hes-main-content .hes-hero-profile * {
-  color: #102741;
-}
-.help-dashboard-polished .hes-main-content .hes-hero-profile {
-  background: linear-gradient(125deg,#e1f1fa,#cfe4f1 56%,#d8e7f8);
-  border: 1px solid #95b7d3;
-}
-.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-mini-radar circle { stroke: #7894ac; }
-.help-dashboard-polished .hes-main-content .hes-hero-profile .hes-mini-radar polygon { fill: rgba(13,99,118,.17); stroke: #0b6878; }
-.help-dashboard-polished .hes-score-pill { color: #ffffff !important; background:#123650; }
-.help-dashboard-polished .hes-meter-block label,
-.help-dashboard-polished .hes-mini-bars small { color: #50657a !important; }
-.help-dashboard-polished .badge { font-weight: 700; }
-.help-dashboard-polished .badge-gray { background: #e9eff5; color: #243e56; }
-.help-dashboard-polished .badge-blue { background: #e5f1ff; color: #154c8b; }
-.help-dashboard-polished .badge-green { background: #dff8e9; color: #145b39; }
-.help-dashboard-polished .badge-amber { background: #fff0d5; color: #84510b; }
-.help-dashboard-polished .hes-exec-grid article { box-shadow:none; background:#f5f9fd; padding:1rem; }
-.help-dashboard-polished .hes-ladder p { background:#f1f6fa; color:#1b3449; }
-.help-dashboard-polished .hes-timeline article { background:#f3f8fc; color:#173249; }
-.help-dashboard-polished .hes-evidence-table th { background:#e9f2f8; color:#163449; }
-.help-dashboard-polished .hes-evidence-table td { color:#243d53; }
-.help-dashboard-polished .help-dashboard-utility-row p { color:#e4f0fb; }
-.help-dashboard-polished .hes-snapshot-shell > h2 { color:#f5f9ff; }
-.help-dashboard-polished :is(button,a,summary):focus-visible { outline:3px solid #21c9b3; outline-offset:3px; }
-@media (max-width: 900px) {
- .help-dashboard-polished .hes-insights-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
- .help-dashboard-polished .hes-factor-grid.compact { grid-template-columns: repeat(2,minmax(0,1fr)); }
-}
-@media (max-width: 580px) {
+@media(max-width:570px) {
  .help-dashboard-polished .hes-insights-row,
  .help-dashboard-polished .hes-factor-grid.compact,
- .help-dashboard-polished .hes-hero-shell { grid-template-columns: minmax(0,1fr); }
- .help-dashboard-polished .hes-main-content .card { padding:1rem; }
+ .help-dashboard-polished .hes-hero-shell {grid-template-columns:minmax(0,1fr);}
 }
