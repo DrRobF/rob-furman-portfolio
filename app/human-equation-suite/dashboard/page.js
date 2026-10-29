@@ -8,7 +8,7 @@ import { dimensionDefinitions, factorPsychologyDefinitions } from './profileData
 import { EVIDENCE_EVENTS_STORAGE_KEY, LEADERSHIP_EVIDENCE_UPDATED_AT_KEY, calculateFactorProfile, getEvidenceTimeline, getNextRecommendedSimulation, resetLeadershipProfile } from './evidenceModel';
 import { readCourseEvidence } from '../course/courseModel';
 
-const title = (sourceType) => ({ diagnostic: 'Diagnostic', course_reflection: 'Course', urban_sim: 'Urban Sim', parent_call: 'Parent Call', leadership_sim: 'Leadership Sim', observation_lab: 'Observation', written_artifact: 'Written Artifact', artifact: 'Artifact' }[sourceType] || sourceType);
+const title = (sourceType) => ({ conversation_mastery: 'Conversation Mastery', diagnostic: 'Diagnostic', course_reflection: 'Course', urban_sim: 'Urban Sim', parent_call: 'Parent Call', leadership_sim: 'Leadership Sim', observation_lab: 'Observation', written_artifact: 'Written Artifact', artifact: 'Artifact' }[sourceType] || sourceType);
 const timelineTitle = (event) => {
   if (event.sourceType === 'parent_call') return 'Parent Call Rehearsal completed';
   if (event.sourceType === 'leadership_sim') return 'School Leadership Simulation completed';
@@ -51,6 +51,7 @@ export default function HumanEquationDashboardPage() {
   const [events, setEvents] = useState([]);
   const [activeReport, setActiveReport] = useState(null);
   const [courseEvidence, setCourseEvidence] = useState(null);
+  const [conversationProgress, setConversationProgress] = useState({done:[],scores:{}});
   const [showMatrixModal, setShowMatrixModal] = useState(false);
 
   useEffect(() => {
@@ -66,6 +67,7 @@ export default function HumanEquationDashboardPage() {
     };
     refreshEvents();
     setCourseEvidence(readCourseEvidence());
+    try {const progress=JSON.parse(window.localStorage.getItem('help-conversation-mastery-v1')||'{}');setConversationProgress({done:progress.done||[],scores:progress.scores||{}});}catch{}
     const onStorage = (event) => {
       if (event.key === EVIDENCE_EVENTS_STORAGE_KEY || event.key === LEADERSHIP_EVIDENCE_UPDATED_AT_KEY) refreshEvents();
       if (event.key === 'humanEquationCourseEvidence') setCourseEvidence(readCourseEvidence());
@@ -108,6 +110,7 @@ export default function HumanEquationDashboardPage() {
     { sourceType: 'diagnostic', label: 'Diagnostic', status: sourceTypesPresent.has('diagnostic') ? 'Completed' : 'Not started' },
     { sourceType: 'course_reflection', label: 'Course', status: courseEvidence?.completedFactors === 8 ? 'Completed' : courseEvidence?.completedFactors ? 'In progress' : 'Not started' },
     { sourceType: 'urban_sim', label: 'Urban Sim', status: sourceTypesPresent.has('urban_sim') ? 'Completed' : 'Not started' },
+    { sourceType: 'conversation_mastery', label: 'Conversation Mastery', status: sourceTypesPresent.has('conversation_mastery') ? 'Practice evidence added' : 'Not started' },
     { sourceType: 'parent_call', label: 'Parent Call', status: sourceTypesPresent.has('parent_call') ? 'Completed' : 'Not started' },
     { sourceType: 'leadership_sim', label: 'Leadership Sim', status: sourceTypesPresent.has('leadership_sim') ? 'Completed' : 'Not started' },
   ], [courseEvidence, sourceTypesPresent]);
@@ -155,6 +158,7 @@ export default function HumanEquationDashboardPage() {
       
       {focusTab === 'diagnostic' ? <article className="card help-suite-panel hes-dashboard-focus"><p className="eyebrow">Diagnostic results area</p><h2>Leadership Diagnostic evidence is now connected.</h2><p>Your diagnostic baseline is reflected in the factor cards, source labels, and evidence timeline below. Continue reviewing this dashboard to compare self-perception with future simulation evidence.</p></article> : null}
       <article className="card hes-hero-profile"><div className="hes-hero-shell"><div className="hes-hero-left"><p className="eyebrow">Executive Leadership Intelligence</p><h1>Your pattern is not just what you do — it is what others feel while you do it.</h1><p>This dashboard tracks how pressure changes interpretation, pacing, trust language, and recovery behavior across real evidence moments.</p><p className="hes-confidence-meta">Evidence maturity: {profileStatus}</p></div><div className="hes-hero-right"><div className="hes-mini-radar"><svg viewBox="0 0 160 160" aria-label="Leadership radar"><circle cx="80" cy="80" r="62" /><circle cx="80" cy="80" r="48" /><circle cx="80" cy="80" r="34" /><circle cx="80" cy="80" r="20" /><polygon points={radarPoints} />{scoredFactors.slice(0,8).map((f, i) => { const angle = (Math.PI * 2 * i) / 8 - Math.PI / 2; const value = ((f.score || 2.2) / 5) * 62; const x = 80 + Math.cos(angle) * value; const y = 80 + Math.sin(angle) * value; const lx = 80 + Math.cos(angle) * 72; const ly = 80 + Math.sin(angle) * 72; return <g key={f.key}><circle cx={x} cy={y} r="2.5" className="hes-radar-marker" /><text x={lx} y={ly} className="hes-radar-label">{factorAbbreviations[f.key]}</text></g>;})}<text x="83" y="24" className="hes-radar-scale">5</text><text x="83" y="38" className="hes-radar-scale">4</text><text x="83" y="52" className="hes-radar-scale">3</text><text x="83" y="66" className="hes-radar-scale">2</text><text x="83" y="80" className="hes-radar-scale">1</text></svg><small>8-factor signal map with 1–5 scale and score markers</small></div><div className="hes-hero-metrics"><p><strong>Strongest factor:</strong> {strongest ? strongest.label : 'Emerging signal'}</p><p><strong>Fragile factor:</strong> {weakest ? weakest.label : 'Pending evidence'}</p><p><strong>Drift alert:</strong> {activeDistortion ? activeDistortion.label : 'Urgency narrowing under load'}</p><p><strong>Evidence maturity:</strong> {confidence}</p></div></div></div></article>
+      <article className="card help-suite-panel"><h2>Conversation Mastery — Leadership Communication</h2><p>Coached practice adds low-confidence signals to Human Awareness, Trust Construction and Reality Anchoring. Simulation feedback is not a validated assessment.</p><p><strong>Completed lessons:</strong> {conversationProgress.done.length}/30 · <strong>Latest practice score:</strong> {Object.keys(conversationProgress.scores).length ? conversationProgress.scores[Object.keys(conversationProgress.scores).sort((a,b)=>Number(b)-Number(a))[0]]+'/100' : 'Not yet scored'}</p><Link href="/human-equation-suite/conversation-mastery" className="button secondary">Open Conversation Mastery Lab</Link></article>
       <section className="hes-snapshot-shell"><h2>Leadership Signal Snapshot</h2><div className="hes-insights-row">
         <article className="hes-insight-card stabilizer"><h3>Strongest Capacity</h3><h4>{strongest ? strongest.label : 'Emerging signal'}</h4><p>Reads emotional context before reacting.</p></article>
         <article className="hes-insight-card distortion"><h3>Most Fragile Capacity</h3><h4>{weakest ? weakest.label : 'Pending evidence'}</h4><p>Urgency may outpace collaborative explanation.</p></article>
