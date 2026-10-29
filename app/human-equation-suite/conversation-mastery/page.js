@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import HelpSuiteShell from '../../components/help/HelpSuiteShell';
+import {createEvidenceEvent,saveEvidenceEvent,addFactorImpact} from '../dashboard/evidenceModel';
 
 const weeks = [
   ['Foundations of Connection',['What Elicitation Really Is','The Psychology of Disclosure','Rapport Without Being Fake','Active Listening and Reflecting','Open, Closed and Probing Questions','Silence, Pauses and Pacing','Assessment: Build a Conversation']],
@@ -46,6 +47,7 @@ export default function ConversationMastery(){
  const principle=principles[(day-1)%7];
  const example=examples[(day-1)%7];
  const scenario=contexts[(day-1)%7];
+ const finishDay=()=>{if(done.includes(day)){setDone(x=>x.filter(d=>d!==day));return;}setDone(x=>[...x,day]);const score=scores[day];if(!Number.isFinite(score))return;const delta=Math.max(-0.5,Math.min(0.5,(score-75)/50));const impact=['humanAwareness','trustConstruction','realityAnchoring'].map(id=>addFactorImpact(id,delta,0.3,delta<0?'risk':'positive','Simulated conversation coaching'));saveEvidenceEvent(createEvidenceEvent({sourceType:'conversation_mastery',sourceId:'day-'+day,sourceLabel:'Conversation Mastery Day '+day,factorImpacts:impact,evidenceType:'ai_practice_heuristic',weight:0.2,summary:'Low-confidence conversation practice score '+score+'/100'}));};
  const startDay=(n)=>{setDay(n);setMessages([]);setErr('');setDraft('');};
  const send=async()=>{
   if(!draft.trim()||busy)return;
@@ -85,7 +87,7 @@ export default function ConversationMastery(){
  <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
  <button type="button" className="button primary" onClick={send} disabled={busy||!draft.trim()}>{busy?'Coaching...':'Respond & get feedback'}</button>
  <button type="button" className="button secondary" onClick={()=>{setMessages([]);setErr('');}}>Restart scenario</button>
- <button type="button" className="button secondary" onClick={()=>setDone(s=>s.includes(day)?s.filter(x=>x!==day):[...s,day])}>{done.includes(day)?'Mark incomplete':'Mark lesson complete'}</button>
+ <button type="button" className="button secondary" onClick={finishDay}>{done.includes(day)?'Mark incomplete':'Mark lesson complete'}</button>
  {day<30?<button type="button" className="button secondary" onClick={()=>startDay(day+1)}>Next day →</button>:null}
  </div>
  {scores[day]!==undefined?<p>Latest coaching score for this lesson: <strong>{scores[day]}/100</strong></p>:null}
