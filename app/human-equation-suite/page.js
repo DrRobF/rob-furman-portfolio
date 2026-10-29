@@ -86,6 +86,8 @@ export default function HumanEquationSuitePage() {
           <div className="top-space-sm"><Link href="/human-equation-suite/diagnostic" className="button primary">Begin Diagnostic</Link></div>
         </section>
 
+        <section className="help-section"><div className="card" style={{padding:28,background:'linear-gradient(125deg,#123149,#174952)',color:'white'}}><p className="eyebrow">NEW • 30-DAY INTERACTIVE TRAINING</p><h3>The Art of Conversation: H.E.L.P. Conversation Mastery Lab</h3><p>Practice ethical elicitation, rapport, strategic questions, reflective listening, and difficult conversations. Follow daily lessons, talk with simulated characters, receive candid AI coaching, and track your progress.</p><div className="top-space-sm"><Link href="/human-equation-suite/conversation-mastery" className="button primary">Start the 30-Day Masterclass</Link></div></div></section>
+
         <section className="help-section help-compact">
           <h3>What H.E.L.P. Means</h3>
           <div className="help-image-panel top-space-sm"><Image src="/images/help-definition.png" alt="H.E.L.P. definition: Human, Equation, Leadership, Psychology" width={1400} height={900} className="help-story-image" /></div>
