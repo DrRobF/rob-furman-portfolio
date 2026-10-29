@@ -21,6 +21,7 @@ const sections = [
   {
     title: 'Practice Labs',
     items: [
+      { key: 'conversation-mastery', label: 'Conversation Mastery Lab', href: '/human-equation-suite/conversation-mastery', areas: ['conversation-mastery'] },
       { key: 'parent-call', label: 'Parent Call Rehearsal', href: '/human-equation-suite/parent-call', areas: ['parent-call', 'practice'] },
       { key: 'urban-student', label: 'Urban Student Simulation', href: '/human-equation-suite/urban-student-sim', areas: ['urban-student'] },
       { key: 'leadership-sim', label: 'Leadership Simulation', href: '/human-equation-suite/leadership-sim', areas: ['leadership-sim', 'simulation'] },
