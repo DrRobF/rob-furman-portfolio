@@ -7,6 +7,7 @@ const areaTitles = {
   course: 'The 8 Factors Course',
   learn: 'The 8 Factors Course',
   diagnostic: 'Leadership Pressure Diagnostic',
+  'conversation-mastery': 'Conversation Mastery Lab',
   'parent-call': 'Parent Call Rehearsal',
   practice: 'Parent Call Rehearsal',
   'urban-student': 'Urban Student Simulation',
