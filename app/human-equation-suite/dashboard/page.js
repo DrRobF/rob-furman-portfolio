@@ -147,7 +147,7 @@ export default function HumanEquationDashboardPage() {
     onClick: () => setActiveReport(tab.key),
   }));
 
-  return <section className="section help-suite-page help-suite-internal help-page-dark"><div className="container"><div className='help-suite-nav-wrap'><HumanEquationNav /></div>
+  return <section className="section help-suite-page help-suite-internal help-page-dark help-dashboard-polished"><div className="container"><div className='help-suite-nav-wrap'><HumanEquationNav /></div>
     <HelpSuiteShell currentArea="dashboard" growthActions={growthActions}>
     <main className="hes-main-content top-space-sm">
       <div className="help-dashboard-utility-row"><button className="button secondary" onClick={() => {
