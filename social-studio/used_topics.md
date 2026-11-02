@@ -88,3 +88,13 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Photos used: public/images/tedx-prime.jpg (Sun).
 - LinkedIn: no autopilot LinkedIn posts this week; 5 LinkedIn posts were already queued Nov 9-13 at 12:30 (moved there 10-26).
   Dad-story LinkedIn text kept in week6_posts.json as an optional draft.
+
+## Schedule edits made 2026-11-02 on Rob's request (analysis of what was scheduled)
+- Data: Rob's own stories win. LinkedIn: 2 AM alarm 61,860 impressions; cruise/school board 6,496; WWYD cookies 1,480. Book quotes, promos and anything with video/doc attached: ~25-70.
+  TikTok: band-director carousels 4.6K/4.5K; WWYD carousel 2,001 vs WWYD video 673.
+- Fri 11-06 WWYD Scenario 11: video moved to YouTube only; new carousel (noise-1..7) for TikTok/IG/FB 17:52, live.
+- Wed 11-04 LinkedIn: lesson-plan video post moved to YouTube only; LinkedIn slot now the piggyback-song story (text only, Rob's own words). USED on LinkedIn.
+- Mon 11-09 LinkedIn: video moved to YouTube only; LinkedIn is text only.
+- Thu 11-12 LinkedIn: TOOHAK repeat replaced by the dad-the-principal story. Fri 11-13 LinkedIn: quote replaced by WWYD Scenario 06 (deck seller).
+- LinkedIn weekly cap (4): Nov 5 AI-pilot post and Nov 11 PBL quote moved back to DRAFT (API can't delete). Rob can delete or re-enable.
+- New drafts: Wed 11-04 10:00 trombone-collision carousel; Thu 11-05 10:00 cruise/school-board carousel (TikTok/IG/FB, tags #banddirector #bandkid #musiceducation). Files: week6_extra_images.py.
