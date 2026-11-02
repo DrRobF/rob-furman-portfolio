@@ -74,3 +74,17 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Photos used: public/images/tedx-umd.jpg (Sun). Unused still: tedx-prime.jpg, conference.jpg (has another adult).
 - Analytics 2026-10-22: band-director "mini principal" carousel (Oct 21) 2,921 TikTok views / 116 likes / 21 shares,
   second band-community hit in 10 days. Median TikTok post still ~120. Animated videos 100-180.
+
+## Week of 2026-11-09 (files: week6_*; icons7.py)
+- Mon video: "Possessing the information and being able to connect the dots" -> VIC co-teacher (asks questions, not answers)
+- Tue carousel (5 slides): Where I Learned It, my dad the principal: power of pizza, kiss your ducks, plow line (look ahead) -> speaking.
+  Tags #principalskid #teacherskid #schoolleaders. All three dad lessons now USED.
+- Wed video: H.E.L.P. Leadership Pressure Diagnostic, "Leaders sometimes need to sound certain before they feel certain" (agree/disagree)
+- Thu quote: "It takes 28 days to create a pattern, but 90 days to create a habit."
+- Fri WWYD: Scenario 06, The Edited Field-Trip Form. Carousel on TT/IG/FB (WWYD carousel lever), video on YouTube only.
+- Sat parents: "Your child doesn't want to read alone" (MRR quotes: relevant/connected/group; not the only ones who feel; family bonds through shared stories; inspiration)
+- Sun video: "We must teach them how to help one another, not tear each other down." (tedx-prime.jpg)
+- Songs: Saints in the Sunlight, Already Won, Low Light, One More Year of Light
+- Photos used: public/images/tedx-prime.jpg (Sun).
+- LinkedIn: no autopilot LinkedIn posts this week; 5 LinkedIn posts were already queued Nov 9-13 at 12:30 (moved there 10-26).
+  Dad-story LinkedIn text kept in week6_posts.json as an optional draft.

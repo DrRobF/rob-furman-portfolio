@@ -154,9 +154,17 @@ Numbers behind the strategy (Sep 10 - Oct 16 2026):
 - Metricool brand 6914479 has no X. X is posted through Buffer (create_post with customScheduled).
 - Every week: fill all open TikTok weekday 10 AM and 6 PM slots with story/opinion posts; tie a tool to a story, never lead with the product.
 
+## Gumroad is connected (2026-11-02)
+- Use the Gumroad connector (list_sales, get_analytics with breakdown=referrer) every run and put sales at the top of the review page.
+- First tracked sales: Sat 2026-10-31 9:16 AM ET, one buyer from a school-leadership organization bought What Would You Do? ($19)
+  and the Difficult Conversations Prep Kit ($12) together. It came before that day's posts went out, so the likely source is Fri 10-30
+  "Birthday Cookies" WWYD (LinkedIn 12:30 PM: 1,261 impressions / 875 reach; TikTok 1,033 views). WWYD posts sell the deck; keep them weekly.
+- Mention the Difficult Conversations Prep Kit beside the WWYD deck now and then (same buyer bought both).
+- Put utm_source/utm_campaign on every link Claude posts so sources show up.
+
 ## Rob story bank (his own words, unused)
 - Piggyback songs: his mom (an educator) writes songs over famous melodies (Twinkle Twinkle = ABCs). Playing a gig ~6 PM at a local dinner place, a current student came in with family; Rob played a piggyback song for him. Student loved it, rest of audience thought he was crazy. USE for Wed music post (TikTok + LinkedIn).
-- His dad the principal (Rob's own words, 2026-10-22), UNUSED, slotted for Tue 2026-11-10 "Where I Learned It" carousel:
+- His dad the principal (Rob's own words, 2026-10-22), USED Tue 2026-11-10 (all three lessons) "Where I Learned It" carousel:
   1. "The power of pizza": his dad bribed Rob's friends with lunch to help at his school. Rob didn't know it was a management tactic. For the price of lunch he got a lot of work out of them.
   2. "Kiss your ducks in the morning, your day is bound to get better": don't let the rough or ugly things hang; get them done and behind you. Wording confirmed by Rob. He may have said "ugly ducks" but isn't sure, so quote it without "ugly".
   3. Plowing the garden (his dad was a farmer's kid): if you watch your feet the plow line is super crooked; look way out to where you're aiming and the line is straight. About goals: look ahead, not straight down.
