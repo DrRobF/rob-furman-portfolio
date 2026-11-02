@@ -190,6 +190,45 @@ def two_readers(w=760, h=560):
     return _done(im, w, h)
 
 
+def trombone(w=760, h=420, color=GOLD):
+    """A slide trombone, side view."""
+    im, d = _canvas(w, h)
+    y1, y2 = 150, 250
+    # slide (two long tubes joined by a U at the right)
+    d.line(S(140, y1, w - 90, y1), fill=color, width=14 * SS)
+    d.line(S(140, y2, w - 90, y2), fill=color, width=14 * SS)
+    d.arc(S(w - 140, y1, w - 40, y2), 270, 90, fill=color, width=14 * SS)
+    # brace + mouthpiece
+    d.line(S(300, y1, 300, y2), fill=color, width=10 * SS)
+    d.rectangle(S(90, y1 - 10, 140, y1 + 10), fill=INK)
+    d.ellipse(S(60, y1 - 22, 100, y1 + 22), fill=INK)
+    # bell section
+    d.line(S(220, y2, 220, 340), fill=color, width=14 * SS)
+    d.line(S(220, 340, 470, 340), fill=color, width=14 * SS)
+    d.polygon(S(460, 330, 600, 270, 600, 410, 460, 350), fill=color)
+    d.ellipse(S(580, 262, 630, 418), fill=(255, 214, 120))
+    return _done(im, w, h)
+
+
+def cruise_ship(w=760, h=480):
+    """A cruise ship on the water with a big red X stamped over it."""
+    im, d = _canvas(w, h)
+    d.rectangle(S(0, h - 90, w, h), fill=SOFT)
+    d.polygon(S(70, 250, w - 60, 250, w - 130, h - 90, 140, h - 90), fill=INK)
+    d.rectangle(S(160, 170, w - 180, 250), fill=PAPER)
+    d.rectangle(S(230, 110, w - 260, 170), fill=PAPER)
+    for i in range(8):
+        x = 180 + i * 50
+        d.ellipse(S(x, 195, x + 26, 221), fill=ACCENT)
+    d.rectangle(S(w - 330, 50, w - 280, 110), fill=RED)
+    for k in range(4):
+        x = 170 + k * 120
+        d.arc(S(x, h - 80, x + 80, h - 40), 200, 340, fill=WHITE, width=5 * SS)
+    d.line(S(140, 40, w - 140, h - 60), fill=RED, width=22 * SS)
+    d.line(S(w - 140, 40, 140, h - 60), fill=RED, width=22 * SS)
+    return _done(im, w, h)
+
+
 if __name__ == '__main__':
     import sys
     out = sys.argv[1]
