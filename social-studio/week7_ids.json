@@ -1,77 +1,13 @@
-{
- "week": "2026-11-16",
- "drafts": [
-  {
-   "day": "Mon",
-   "kind": "short",
-   "id": 423135390,
-   "uuid": "1711800459268606332"
-  },
-  {
-   "day": "Tue",
-   "kind": "short",
-   "id": 423135413,
-   "uuid": "-8111789096189344809"
-  },
-  {
-   "day": "Wed",
-   "kind": "youtube",
-   "id": 423140581,
-   "uuid": "-626931056851202499"
-  },
-  {
-   "day": "Thu",
-   "kind": "short",
-   "id": 423135829,
-   "uuid": "-7220401216244593682"
-  },
-  {
-   "day": "Fri",
-   "kind": "short",
-   "id": 423135870,
-   "uuid": "-7527610740113978266"
-  },
-  {
-   "day": "Fri",
-   "kind": "youtube",
-   "id": 423101134,
-   "uuid": "-2782239146359895500"
-  },
-  {
-   "day": "Fri",
-   "kind": "linkedin",
-   "id": 423136411,
-   "uuid": "-680924476671835904"
-  },
-  {
-   "day": "Sat",
-   "kind": "short",
-   "id": 423136207,
-   "uuid": "-1971766646481534704"
-  },
-  {
-   "day": "Sun",
-   "kind": "short",
-   "id": 423136323,
-   "uuid": "-5692000847331701606"
-  },
-  {
-   "day": "Wed",
-   "kind": "short",
-   "id": 423143573,
-   "uuid": "4254035565486427151"
-  },
-  {
-   "day": "Thu",
-   "kind": "short-10am",
-   "id": 423156575,
-   "uuid": "4953498455726966383"
-  },
-  {
-   "day": "Thu",
-   "kind": "linkedin",
-   "id": 423156587,
-   "uuid": "7622722101085487792"
-  }
- ]
-}
+{"week": "2026-11-16", "status": "scheduled live 2026-11-10 on Rob's go", "posts": [
+ {"day": "Mon", "kind": "video IG/TT/YT 17:52", "id": 423165990, "uuid": "1711800459268606332"},
+ {"day": "Tue", "kind": "secretary carousel IG/TT 17:52", "id": 423166020, "uuid": "-8111789096189344809"},
+ {"day": "Wed", "kind": "H.E.L.P. video YT 17:52", "id": 423166052, "uuid": "-626931056851202499"},
+ {"day": "Wed", "kind": "peanut carousel IG/TT 17:52", "id": 423166069, "uuid": "4254035565486427151"},
+ {"day": "Thu", "kind": "happy spray carousel IG/TT 10:00", "id": 423166546, "uuid": "4953498455726966383"},
+ {"day": "Thu", "kind": "happy spray LinkedIn 12:30", "id": 423166563, "uuid": "7622722101085487792"},
+ {"day": "Thu", "kind": "citizenship quote IG/TT 17:52", "id": 423166588, "uuid": "-7220401216244593682"},
+ {"day": "Fri", "kind": "WWYD LinkedIn 12:30", "id": 423166602, "uuid": "-680924476671835904"},
+ {"day": "Fri", "kind": "WWYD carousel IG/TT 17:52", "id": 423167093, "uuid": "-7527610740113978266"},
+ {"day": "Fri", "kind": "WWYD video YT 17:52", "id": 423167113, "uuid": "-2782239146359895500"},
+ {"day": "Sat", "kind": "parents carousel IG/TT 10:22", "id": 423167143, "uuid": "-1971766646481534704"},
+ {"day": "Sun", "kind": "video IG/TT/YT 17:52", "id": 423167182, "uuid": "-5692000847331701606"}]}
