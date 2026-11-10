@@ -21,9 +21,12 @@ Rob approved this in his "Social media analysis and content plan" conversation. 
 1. **Facebook: free cross-post only (Rob, 2026-11-10).** Rob first dropped Facebook, then chose to keep it on as a
    zero-effort cross-post in case something breaks out. Add `facebook` to every Instagram/TikTok post
    (carousels/images = POST, videos = REEL with title). Never build anything Facebook-specific.
-   **Pinterest and Threads:** Rob is setting both up (2026-11-10). Check getBrandSettings each run; once connected,
-   pin every carousel cover and quote card to Pinterest with a pinLink to the matching drrobfurman.com page (with UTM),
-   and cross-post Rob's text stories to Threads.
+   **Pinterest, Threads, Bluesky: connected in Metricool 2026-11-10** (pinterestData drrobfurman, threadsData drrobf8106,
+   blueskyData drrobfurman.bsky.social). Each week, as separate posts (their limits differ from IG/TikTok):
+   - Pinterest: pin every carousel cover and quote card (pinTitle, pinLink to the matching drrobfurman.com page with
+     utm_source=pinterest). Needs a boardId or exact board name: list Rob's boards first or ask him.
+   - Threads (500 chars, images allowed): Rob's stories, short version with the carousel images; no hashtag walls.
+   - Bluesky (300 chars hard limit): one story hook a day plus a question; educators there use #EduSky.
 2. **LinkedIn: one post every weekday at 12:30 PM ET** (Mon-Fri, five a week, never two in a day). Before building, check
    which 12:30 slots in the target week are already taken (Rob and other sessions queue LinkedIn posts there) and fill
    only the open ones. LinkedIn posts are text only, in Rob's own voice.
