@@ -55,6 +55,17 @@ The calls-to-action rule (all five buckets each week) still applies.
   dance choir, kids stayed an hour or two after school, they toured local universities and won the Charles Gray Award for
   Specialty Achievement in Arts Education. Do NOT use the book's details about student suicides, murders or pregnancy in
   social posts. All six have Buy on Amazon buttons on /publications since 2026-11-10.
+- Manuscripts in Rob's Google Drive (read with read_file_content; never copy into this repo):
+  interview book docx id 1CwnvHcnqFGRo7ydBJ-60KOkwzZ6nVHMJ ("So, You Think You Want to Teach-Rev8 (3).docx");
+  City Streets Google Doc id 1ZCbkuhyIPOZInYP1uytuefkuyv_D4MYJIsOT_hX4v3g.
+- NEXT RUN (week of 2026-11-23), Rob approved 2026-11-10:
+  1. Tuesday origin-story carousel from the City Streets intro: "Before I was a principal, I was the music teacher they said
+     wouldn't last." (2000, Pittsburgh city middle school, drums, stomp group, dance choir, Charles Gray Award). Tags
+     #musiceducation #urbaneducation #teachersoftiktok. CTA: the book; free urban sim in first comment.
+  2. Start "Interview Files": one of Rob's interview stories from the book (late candidate, tech setup, buzz-word list,
+     word vomit, his own transcript grilling set up by his dad, the SMART answer) plus one tip. CTA: Professional
+     Interview Secrets. The happy spray story is already used (Thu 2026-11-19).
+  3. Add Pinterest pins, Threads and Bluesky posts for the week (see rule 1).
 - Interview book = CTA for the weekly "Interview Files" series (Rob's interview stories + one tip). The manuscript is a
   paid product: never commit it to this public repo. Rob was asked to put the PDF in his Drive "Claude" folder.
 
