@@ -57,8 +57,9 @@ const featuredBooks = [
   },
   {
     title: 'From City Streets to The Classroom: A Tale of Urban Education',
-    audience: 'For educators in urban schools',
-    description: 'A tale of urban education, from the city streets to the classroom.',
+    audience: 'For teachers and leaders in urban schools',
+    description:
+      'One seventh grader, Adam, through one school day, built from true stories students shared with Dr. Furman while he taught music in a Pittsburgh city middle school. Every chapter ends with discussion questions for staff meetings and professional development.',
     amazon: 'https://www.amazon.com/dp/B0CHQTKDGZ',
   },
 ];

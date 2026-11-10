@@ -47,8 +47,14 @@ The calls-to-action rule (all five buckets each week) still applies.
 - Amazon: Future Ready Challenge 1564843858; Technology, Reading & Digital Literacy 1564843580; Personalized Reading
   1564846873; Engaging Young Readers B0FR9RN3S3; interview book B0CHPP7W5T "Professional Interview Secrets: The
   Insider's Guide to Acing Your Job Interview" (manuscript title was "So, You Think You Want to Teach?"); urban education
-  book B0CHQTKDGZ "From City Streets to The Classroom: A Tale of Urban Education" (CTA for urban-student-sim posts; ask Rob
-  for its manuscript before quoting it). All six have Buy on Amazon buttons on /publications since 2026-11-10.
+  book B0CHQTKDGZ "From City Streets to The Classroom: A Tale of Urban Education" (Rob shared the manuscript 2026-11-10; keep it
+  out of this repo). It is the source of the free urban-student simulation: Adam, seventh grade, one school day, 10
+  chapters, each ending with discussion questions. Urban-sim posts now sell the book in the caption and put the free sim in
+  the first comment. Rob's own story in its intro (usable, his words): in 2000 he took a job as the music teacher in a
+  Pittsburgh city middle school; kids told him "You'll never last"; the drums were his way in; he built a stomp group and a
+  dance choir, kids stayed an hour or two after school, they toured local universities and won the Charles Gray Award for
+  Specialty Achievement in Arts Education. Do NOT use the book's details about student suicides, murders or pregnancy in
+  social posts. All six have Buy on Amazon buttons on /publications since 2026-11-10.
 - Interview book = CTA for the weekly "Interview Files" series (Rob's interview stories + one tip). The manuscript is a
   paid product: never commit it to this public repo. Rob was asked to put the PDF in his Drive "Claude" folder.
 
