@@ -117,3 +117,4 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - 2026-11-10: Rob's "happy spray" interview story (told 11-10; ~800 resumes one summer). Thu 11-19 10:00 TT/IG carousel + LinkedIn 12:30. USED. Rob may record it as a talking-head video (script given in chat).
 - Scheduled live 2026-11-10 on Rob's go (all 12 posts). Rob may record the happy-spray story as a talking-head video for the following week.
 - 2026-11-10: Facebook added back to all Nov 16-22 IG/TT posts on Rob's say-so (free cross-post). Rob is creating Pinterest and Threads accounts.
+- 2026-11-10 LAUNCH of Pinterest/Threads/Bluesky on Rob's ask (scheduled live): 14 Threads+Bluesky posts (one per day Nov 10-22, 2 today; intro 11:30 Nov 10, stories at 6:30 PM) and 30 Pinterest pins (6 today, then 9:15 AM and 8:15 PM daily through Nov 22). Script: launch_new_networks.py. Free Teacher Tools board has only 1 pin so far.
