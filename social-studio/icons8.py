@@ -196,6 +196,35 @@ def peanut_free(w=760, h=600):
     return _done(im, w, h)
 
 
+def spray_bottle(w=760, h=600):
+    """A spray bottle mid-spritz with droplets and a sparkle: the 'happy spray'."""
+    im, d = _canvas(w, h)
+    # bottle body
+    d.rounded_rectangle(S(80, 250, 300, 570), radius=40 * SS, fill=(120, 200, 230))
+    d.rounded_rectangle(S(110, 330, 270, 460), radius=14 * SS, fill=PAPER)
+    d.text(S(128, 350), 'HAPPY', font=font('Black', 40 * SS), fill=NAVY)
+    d.text(S(128, 400), 'SPRAY', font=font('Black', 40 * SS), fill=ACCENT)
+    # neck and trigger head
+    d.rectangle(S(150, 200, 230, 252), fill=INK)
+    d.rounded_rectangle(S(110, 130, 330, 210), radius=18 * SS, fill=GOLD)
+    d.polygon(S(330, 150, 370, 160, 370, 185, 330, 192), fill=GOLD)
+    d.polygon(S(150, 210, 200, 210, 170, 300, 140, 300), fill=(225, 170, 60))
+    # spray cone of droplets
+    import random
+    rnd = random.Random(3)
+    for k in range(46):
+        t = rnd.random()
+        x = 390 + t * 330
+        spread = 20 + t * 150
+        y = 172 + (rnd.random() - 0.5) * spread * 2
+        r = 6 + rnd.random() * 10
+        d.ellipse(S(x - r, y - r, x + r, y + r), fill=(150, 210, 255))
+    # sparkle
+    cx, cy = 640, 470
+    d.polygon(S(cx, cy - 70, cx + 18, cy - 18, cx + 70, cy, cx + 18, cy + 18, cx, cy + 70, cx - 18, cy + 18, cx - 70, cy, cx - 18, cy - 18), fill=GOLD)
+    return _done(im, w, h)
+
+
 if __name__ == '__main__':
     from brand import gradient_bg
     tiles = [front_desk(), rule_exception(), two_worlds(), calc_book(), scholar(), policy_scale()]
