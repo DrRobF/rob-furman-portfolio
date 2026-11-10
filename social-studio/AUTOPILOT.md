@@ -66,6 +66,13 @@ The calls-to-action rule (all five buckets each week) still applies.
      word vomit, his own transcript grilling set up by his dad, the SMART answer) plus one tip. CTA: Professional
      Interview Secrets. The happy spray story is already used (Thu 2026-11-19).
   3. Add Pinterest pins, Threads and Bluesky posts for the week (see rule 1).
+  4. Music + AI Creativity Bundle (Rob flagged it 2026-11-10; $19, grades 6-8 songwriting unit, students stay the
+     authors, AI optional; page drrobfurman.com/resources/music-ai-creativity-bundle). It has never had a post of its own.
+     Sell it to the music community that made the band-director posts hit: a carousel for music teachers ("A songwriting
+     unit where students stay the authors"), tags #musicteacher #musiceducation #middleschoolmusic, plus a Pinterest pin
+     on Classroom Ideas (convert the webp cover to jpg; Pinterest wants jpg/png). Tie-ins that are Rob's own: band director,
+     piggyback songs (his mom writes new lyrics over tunes kids know), his own songs as "Rob Furman". Don't claim Rob
+     used AI for his own songs unless he says so.
 - Interview book = CTA for the weekly "Interview Files" series (Rob's interview stories + one tip). The manuscript is a
   paid product: never commit it to this public repo. Rob was asked to put the PDF in his Drive "Claude" folder.
 
