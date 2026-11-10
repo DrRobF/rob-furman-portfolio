@@ -98,3 +98,16 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Thu 11-12 LinkedIn: TOOHAK repeat replaced by the dad-the-principal story. Fri 11-13 LinkedIn: quote replaced by WWYD Scenario 06 (deck seller).
 - LinkedIn weekly cap (4): Nov 5 AI-pilot post and Nov 11 PBL quote moved back to DRAFT (API can't delete). Rob can delete or re-enable.
 - New drafts: Wed 11-04 10:00 trombone-collision carousel; Thu 11-05 10:00 cruise/school-board carousel (TikTok/IG/FB, tags #banddirector #bandkid #musiceducation). Files: week6_extra_images.py.
+
+## Week of 2026-11-16 (files: week7_*; icons8.py). Built 2026-11-10, 9 drafts in Metricool.
+- Mon video: "Student scholars are allowed to dictate their instruction based on their needs, their interests, and their passions." -> VIC lesson planner
+- Tue carousel: the secretary I didn't pick (Rob's own story, mirrors his LinkedIn post Tue 11-17 12:30) -> speaking. Tags #schoolsecretary #frontoffice #schoolstaff. Story now USED.
+- Wed video: H.E.L.P. 8 Factors course, Trust Construction ("You keep talking policy instead of my child"; "People trust what they can predict under pressure")
+- Thu quote: "Digital citizenship has become as commonplace as physical citizenship." (home or school debate) -> books
+- Fri WWYD: Scenario 10, Just This Once. Carousel TT/IG/FB, video YouTube only, LinkedIn text Fri 10:52 (deck in first comment). Next in order: 03.
+  WWYD Google Doc "Used:" line NOT updated (connector can't edit doc text); used so far: 12, 01, 04, 07, 11, 06, 10.
+- Sat parents: "Great at math. Won't touch a book." (MRR rows 179, 181, 187, 201, 203)
+- Sun video: "Creativity is the ability to use all of the building blocks to create new." (TED4.jpg reused) -> speaking
+- Songs: Better Than I Was, You're Safe Now, This Is My Name, Every Version of You
+- LinkedIn week: Mon fire-hydrant carousel, Tue secretary, Wed peanut-allergy story (all queued earlier) + Fri WWYD = 4.
+- Photos: every usable photo of Rob is now used at least once; ask Rob for new ones.
