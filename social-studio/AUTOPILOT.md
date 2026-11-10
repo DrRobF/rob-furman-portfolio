@@ -29,6 +29,9 @@ Rob approved this in his "Social media analysis and content plan" conversation. 
    ask him for one when the story bank is empty instead of filling the week with quote cards.
 4. **Links never go in the post body.** The link goes in the first comment, with utm_source/utm_campaign.
 The calls-to-action rule (all five buckets each week) still applies.
+5. **Biggest hit so far (2026-11-05):** the cruise/school-board band-director carousel passed 50,000 TikTok views, about
+   400x his median. Shape: Rob's real story, a parent who went over his head to the school board, band-community tags.
+   Every week should carry at least one carousel built this way when Rob has a story for it.
 
 ## Advertise the whole business, every week (added 2026-10-15 on Rob's instruction)
 The goal is not just reach, it is reach that sells something. Rob's properties:

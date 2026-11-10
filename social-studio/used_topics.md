@@ -111,3 +111,6 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Songs: Better Than I Was, You're Safe Now, This Is My Name, Every Version of You
 - LinkedIn week: Mon fire-hydrant carousel, Tue secretary, Wed peanut-allergy story (all queued earlier) + Fri WWYD = 4.
 - Photos: every usable photo of Rob is now used at least once; ask Rob for new ones.
+- 2026-11-10 changes on Rob's request: Facebook removed from every draft (Rob approved dropping Facebook). Fri LinkedIn moved to 12:30.
+  Wed TT/IG now the peanut-free table carousel (Rob's own story, also his LinkedIn post Wed 11-18 12:30; story USED); H.E.L.P. trust video is YouTube only.
+- BIGGEST HIT EVER: Thu 2026-11-05 cruise/school-board band-director carousel, TikTok 50K views (Rob got TikTok's 50K email 11-10). Lever: Rob's real story + a parent antagonist + #banddirector #bandkid #musiceducation.

@@ -79,19 +79,19 @@ a{{color:var(--accent)}} a:focus-visible{{outline:2px solid var(--accent);outlin
 </style>
 <div class="wrap">
 <div><div class="dname">Dr. Rob Furman · Social autopilot</div><h1>Week of November 16</h1>
-<p class="lede">Nine drafts are waiting in Metricool for Mon Nov 16 to Sun Nov 22. Nothing goes live until you say go.</p></div>
-<div class="finding"><b>What's working (TikTok, Oct 6 to Nov 5)</b>
-<p>Your two band-director carousels are still the top posts (4,991 and 4,914 views, against a typical post of about 130). Next: the "Stupid Form" What Would You Do? carousel (2,003), the TOOHAK carousel (1,401), the Birthday Cookies scenario (1,131) and the trombone-collision story (1,104). Tool-promo videos sit at 50 to 130.</p>
+<p class="lede">Ten drafts are waiting in Metricool for Mon Nov 16 to Sun Nov 22. Nothing goes live until you say go.</p></div>
+<div class="finding"><b>What's working</b>
+<p>Your Nov 5 cruise/school-board carousel is your first 50,000-view post on TikTok (TikTok's count; Metricool showed 10,083 this morning and is catching up). It's the band-director story lever again: a real story, a villain parent, and #banddirector #bandkid. Wednesday's new peanut-table carousel uses the same shape: a parent who took it to the school board. Before that, your two band-director carousels were the top posts (4,991 and 4,914 views, against a typical post of about 130). Next: the "Stupid Form" What Would You Do? carousel (2,003), the TOOHAK carousel (1,401), the Birthday Cookies scenario (1,131) and the trombone-collision story (1,104). Tool-promo videos sit at 50 to 130.</p>
 <p>The common thread is a real story or dilemma, told as a carousel, aimed at a group that sees itself in it. TOOHAK proved niche tags work even without a band story (#kahoot #reviewgames). So Tuesday is your secretary story as a carousel tagged for the front office (#schoolsecretary #frontoffice #schoolstaff), and Friday's scenario is a carousel again, with the video on YouTube Shorts.</p>
 <p><b>Sales:</b> no new Gumroad sales since the two on Oct 31 ($31). Product pages had 99 views in the last 30 days, almost all "direct", so the new UTM tags on every link this week should show which posts send people.</p></div>
 <div class="go"><b>The week at a glance</b>
-<ul><li>All five calls to action are covered: VIC (Mon), speaking (Tue and Sun), H.E.L.P. 8 Factors course (Wed), the books (Thu and Sat) and the paid What Would You Do? deck (Fri).</li>
+<ul><li>All five calls to action are covered: VIC (Mon), speaking (Tue and Sun), H.E.L.P. 8 Factors course (Wed on YouTube), the Difficult Conversations Prep Kit (Wed peanut story), the books (Thu and Sat) and the paid What Would You Do? deck (Fri).</li>
 <li>Instagram and TikTok at 5:52 PM (YouTube Shorts too on video days); Saturday at 10:22 AM. Facebook is off, per the plan you approved.</li>
 <li>LinkedIn: three posts were already queued at 12:30 PM (Mon fire-hydrant carousel, Tue secretary story, Wed peanut-allergy story). I added Fri 12:30 PM, the "Just This Once" scenario. Thursday 12:30 is still open for one of your stories.</li>
 <li>Heads-up: Monday's queued LinkedIn carousel repeats the fire-hydrant topic you posted Oct 27. It's yours to keep, but your text-only stories reach far more people on LinkedIn than carousels do.</li>
 <li>Sunday reuses your TEDx stage photo (TED4, last used Oct 18). I've used every other good photo of you. A few new ones, especially from the talking-head studio, would help.</li>
 <li>One thing I couldn\'t do: the Google Drive connector can read your private What Would You Do? doc but not edit it, so its "Used:" line still lists only 12 and 01. Scenarios 04, 07, 11, 06 and now 10 are used; next up is 03, The Garage Door.</li>
-<li>Reply "go" to schedule all nine, or tell me what to change.</li></ul></div>
+<li>Reply "go" to schedule all ten, or tell me what to change.</li></ul></div>
 {"".join(cards)}
 </div>'''
 open('/home/claude/social/review/week-of-nov-16.html', 'w').write(page)
