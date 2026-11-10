@@ -166,6 +166,36 @@ def policy_scale(w=760, h=600, tilt=0.0):
     return _done(im, w, h)
 
 
+def peanut_free(w=760, h=600):
+    """A cafeteria table with a 'PEANUT-FREE' sign, a lunch tray, and a peanut inside a red no-symbol."""
+    im, d = _canvas(w, h)
+    # table
+    d.rounded_rectangle(S(40, 380, w - 40, 430), radius=14 * SS, fill=INK)
+    for x in (110, w - 140):
+        d.rectangle(S(x, 430, x + 30, h - 20), fill=SOFT)
+    # sign on a stand
+    d.rectangle(S(150, 200, 162, 380), fill=SOFT)
+    d.rounded_rectangle(S(40, 110, 360, 220), radius=14 * SS, fill=GREEN)
+    d.text(S(66, 128), 'PEANUT-', font=font('Black', 40 * SS), fill=WHITE)
+    d.text(S(66, 170), 'FREE TABLE', font=font('Black', 32 * SS), fill=WHITE)
+    # lunch tray with apple and sandwich
+    d.rounded_rectangle(S(380, 320, 640, 384), radius=12 * SS, fill=ACCENT)
+    d.ellipse(S(410, 270, 470, 330), fill=RED)
+    d.rectangle(S(436, 256, 444, 276), fill=WOOD)
+    d.polygon(S(500, 330, 610, 330, 555, 270), fill=(240, 196, 80))
+    d.polygon(S(512, 322, 598, 322, 555, 284), fill=PAPER)
+    # peanut in a no-symbol
+    cx, cy, r = 600, 140, 95
+    d.ellipse(S(cx - r, cy - r, cx + r, cy + r), fill=PAPER)
+    d.ellipse(S(cx - 34, cy - 70, cx + 30, cy - 4), fill=(205, 160, 100))
+    d.ellipse(S(cx - 30, cy - 10, cx + 34, cy + 64), fill=(205, 160, 100))
+    d.rectangle(S(cx - 22, cy - 20, cx + 24, cy + 10), fill=(205, 160, 100))
+    d.ellipse(S(cx - r, cy - r, cx + r, cy + r), outline=RED, width=18 * SS)
+    a = math.radians(45)
+    d.line(S(cx - math.cos(a) * (r - 8), cy - math.sin(a) * (r - 8), cx + math.cos(a) * (r - 8), cy + math.sin(a) * (r - 8)), fill=RED, width=18 * SS)
+    return _done(im, w, h)
+
+
 if __name__ == '__main__':
     from brand import gradient_bg
     tiles = [front_desk(), rule_exception(), two_worlds(), calc_book(), scholar(), policy_scale()]
