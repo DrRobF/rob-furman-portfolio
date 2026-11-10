@@ -528,6 +528,30 @@ p {
   display: inline-block;
 }
 
+.publication-title-panel {
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(160deg, #0f1b33, #1748a7);
+  color: #ffffff;
+  text-align: center;
+}
+
+.publication-title-panel span {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.publication-title-panel small {
+  color: #c3cde0;
+  letter-spacing: 0.04em;
+}
+
 .publication-note {
   font-style: italic;
   color: #4a5872;

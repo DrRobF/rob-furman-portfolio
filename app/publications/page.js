@@ -48,6 +48,19 @@ const featuredBooks = [
     alt: 'Engaging Young Readers book cover',
     amazon: 'https://www.amazon.com/dp/B0FR9RN3S3',
   },
+  {
+    title: 'Professional Interview Secrets: The Insider’s Guide to Acing Your Job Interview',
+    audience: 'For teachers looking for their next job',
+    description:
+      'Interview advice from the other side of the table, from a principal who has read more than a thousand résumés in a single year: how to prepare, how to stand out, and how to answer the questions every district asks.',
+    amazon: 'https://www.amazon.com/dp/B0CHPP7W5T',
+  },
+  {
+    title: 'From City Streets to The Classroom: A Tale of Urban Education',
+    audience: 'For educators in urban schools',
+    description: 'A tale of urban education, from the city streets to the classroom.',
+    amazon: 'https://www.amazon.com/dp/B0CHQTKDGZ',
+  },
 ];
 
 const selectedArticles = [
@@ -139,13 +152,20 @@ export default function PublicationsPage() {
           {featuredBooks.map((book) => (
             <article key={book.title} className="publication-card">
               <div className="publication-image-wrap">
-                <Image
-                  src={book.image}
-                  alt={book.alt}
-                  width={540}
-                  height={760}
-                  className="publication-image"
-                />
+                {book.image ? (
+                  <Image
+                    src={book.image}
+                    alt={book.alt}
+                    width={540}
+                    height={760}
+                    className="publication-image"
+                  />
+                ) : (
+                  <div className="publication-title-panel" aria-hidden="true">
+                    <span>{book.title}</span>
+                    <small>Dr. L. Robert Furman</small>
+                  </div>
+                )}
               </div>
               <div className="publication-content">
                 <p className="eyebrow">{book.audience}</p>

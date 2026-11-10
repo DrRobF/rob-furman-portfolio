@@ -45,10 +45,10 @@ The calls-to-action rule (all five buckets each week) still applies.
   rows marked Motivating the Reluctant Reader come from it. In captions, name the published title so people can find it:
   "my book Technology, Reading & Digital Literacy". Never send parents to a book title they can't buy.
 - Amazon: Future Ready Challenge 1564843858; Technology, Reading & Digital Literacy 1564843580; Personalized Reading
-  1564846873; Engaging Young Readers B0FR9RN3S3; interview book B0CHPP7W5T (manuscript title "So, You Think You Want to
-  Teach?", Amazon slug "Professional Interview Secrets: Insider's Guide"; confirm title with Rob); urban education book
-  B0CHQTKDGZ (slug "City Streets ... Classroom ... Urban Education"; confirm exact title). /publications has Buy on Amazon
-  buttons for the first four since 2026-11-10.
+  1564846873; Engaging Young Readers B0FR9RN3S3; interview book B0CHPP7W5T "Professional Interview Secrets: The
+  Insider's Guide to Acing Your Job Interview" (manuscript title was "So, You Think You Want to Teach?"); urban education
+  book B0CHQTKDGZ "From City Streets to The Classroom: A Tale of Urban Education" (CTA for urban-student-sim posts; ask Rob
+  for its manuscript before quoting it). All six have Buy on Amazon buttons on /publications since 2026-11-10.
 - Interview book = CTA for the weekly "Interview Files" series (Rob's interview stories + one tip). The manuscript is a
   paid product: never commit it to this public repo. Rob was asked to put the PDF in his Drive "Claude" folder.
 
