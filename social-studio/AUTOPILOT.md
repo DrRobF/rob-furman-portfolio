@@ -71,8 +71,11 @@ The calls-to-action rule (all five buckets each week) still applies.
      Sell it to the music community that made the band-director posts hit: a carousel for music teachers ("A songwriting
      unit where students stay the authors"), tags #musicteacher #musiceducation #middleschoolmusic, plus a Pinterest pin
      on Classroom Ideas (convert the webp cover to jpg; Pinterest wants jpg/png). Tie-ins that are Rob's own: band director,
-     piggyback songs (his mom writes new lyrics over tunes kids know), his own songs as "Rob Furman". Don't claim Rob
-     used AI for his own songs unless he says so.
+     piggyback songs (his mom writes new lyrics over tunes kids know), his own songs as "Rob Furman". Rob's own AI songwriting process (his words,
+     2026-11-10): he absolutely uses AI in songwriting; it helps him clean up rhymes, does syllable passes for
+     singability, and sometimes offers an opinion on quality. Lead the bundle post with that ("I'm a principal who writes
+     songs. Here's how I use AI without letting it write for me"), then the unit for students. Don't add steps he didn't
+     name.
 - Interview book = CTA for the weekly "Interview Files" series (Rob's interview stories + one tip). The manuscript is a
   paid product: never commit it to this public repo. Rob was asked to put the PDF in his Drive "Claude" folder.
 
