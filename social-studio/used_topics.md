@@ -114,3 +114,4 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - 2026-11-10 changes on Rob's request: Facebook removed from every draft (Rob approved dropping Facebook). Fri LinkedIn moved to 12:30.
   Wed TT/IG now the peanut-free table carousel (Rob's own story, also his LinkedIn post Wed 11-18 12:30; story USED); H.E.L.P. trust video is YouTube only.
 - BIGGEST HIT EVER: Thu 2026-11-05 cruise/school-board band-director carousel, TikTok 50K views (Rob got TikTok's 50K email 11-10). Lever: Rob's real story + a parent antagonist + #banddirector #bandkid #musiceducation.
+- 2026-11-10: Rob's "happy spray" interview story (told 11-10; ~800 resumes one summer). Thu 11-19 10:00 TT/IG carousel + LinkedIn 12:30. USED. Rob may record it as a talking-head video (script given in chat).
