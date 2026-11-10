@@ -524,6 +524,16 @@ p {
   padding: 1.1rem 1.2rem 1.35rem;
 }
 
+.publication-content .button {
+  display: inline-block;
+}
+
+.publication-note {
+  font-style: italic;
+  color: #4a5872;
+  margin-top: -0.25rem;
+}
+
 .cta {
   text-align: center;
   border-top: 1px solid var(--line);

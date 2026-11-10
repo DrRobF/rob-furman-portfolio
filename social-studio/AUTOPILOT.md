@@ -40,6 +40,18 @@ The calls-to-action rule (all five buckets each week) still applies.
    400x his median. Shape: Rob's real story, a parent who went over his head to the school board, band-community tags.
    Every week should carry at least one carousel built this way when Rob has a story for it.
 
+## Book titles and Amazon links (from Rob, 2026-11-10)
+- "Motivating the Reluctant Reader" IS "Technology, Reading & Digital Literacy" (ISTE changed the title). The content_db
+  rows marked Motivating the Reluctant Reader come from it. In captions, name the published title so people can find it:
+  "my book Technology, Reading & Digital Literacy". Never send parents to a book title they can't buy.
+- Amazon: Future Ready Challenge 1564843858; Technology, Reading & Digital Literacy 1564843580; Personalized Reading
+  1564846873; Engaging Young Readers B0FR9RN3S3; interview book B0CHPP7W5T (manuscript title "So, You Think You Want to
+  Teach?", Amazon slug "Professional Interview Secrets: Insider's Guide"; confirm title with Rob); urban education book
+  B0CHQTKDGZ (slug "City Streets ... Classroom ... Urban Education"; confirm exact title). /publications has Buy on Amazon
+  buttons for the first four since 2026-11-10.
+- Interview book = CTA for the weekly "Interview Files" series (Rob's interview stories + one tip). The manuscript is a
+  paid product: never commit it to this public repo. Rob was asked to put the PDF in his Drive "Claude" folder.
+
 ## Advertise the whole business, every week (added 2026-10-15 on Rob's instruction)
 The goal is not just reach, it is reach that sells something. Rob's properties:
 - **Free tools (top of funnel):** askvic.ai (lesson planner, parent messages, co-teacher, Lesson Designer at

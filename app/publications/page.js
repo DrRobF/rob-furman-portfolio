@@ -13,31 +13,40 @@ const PRINCIPAL_AI_KIT_URL = 'https://drrobfurman.gumroad.com/l/principal_ai_kit
 const featuredBooks = [
   {
     title: 'The Future Ready Challenge',
+    audience: 'For teachers and school leaders',
     description:
       'A practical framework for helping schools and organizations adapt to change, improve decision-making, and prepare for evolving learning environments.',
     image: '/images/book-future-ready.jpg',
     alt: 'The Future Ready Challenge book cover',
+    amazon: 'https://www.amazon.com/dp/1564843858',
   },
   {
     title: 'Technology, Reading & Digital Literacy',
+    audience: 'For parents and teachers of reluctant readers',
+    note: 'First written as Motivating the Reluctant Reader.',
     description:
       'A guide to integrating digital tools into literacy instruction while maintaining strong pedagogy, instructional clarity, and student engagement.',
     image: '/images/book-reading.jpg',
     alt: 'Technology, Reading & Digital Literacy book cover',
+    amazon: 'https://www.amazon.com/dp/1564843580',
   },
   {
     title: 'Personalized Reading',
+    audience: 'For reading teachers and literacy leaders',
     description:
       'Strategies for improving reading outcomes through personalization, instructional design, and systems that meet learners where they are.',
     image: '/images/personalized-reading.jpeg',
     alt: 'Personalized Reading book cover',
+    amazon: 'https://www.amazon.com/dp/1564846873',
   },
   {
     title: 'Engaging Young Readers',
+    audience: 'For elementary teachers and parents',
     description:
       'Approaches for increasing student engagement, ownership, and motivation in reading through practical classroom strategies.',
     image: '/images/engaging-young-readers.jpeg',
     alt: 'Engaging Young Readers book cover',
+    amazon: 'https://www.amazon.com/dp/B0FR9RN3S3',
   },
 ];
 
@@ -139,8 +148,21 @@ export default function PublicationsPage() {
                 />
               </div>
               <div className="publication-content">
+                <p className="eyebrow">{book.audience}</p>
                 <h3>{book.title}</h3>
+                {book.note && <p className="publication-note">{book.note}</p>}
                 <p>{book.description}</p>
+                {book.amazon && (
+                  <a
+                    href={book.amazon}
+                    className="button primary top-space-sm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Buy ${book.title} on Amazon`}
+                  >
+                    Buy on Amazon →
+                  </a>
+                )}
               </div>
             </article>
           ))}
