@@ -116,3 +116,4 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - BIGGEST HIT EVER: Thu 2026-11-05 cruise/school-board band-director carousel, TikTok 50K views (Rob got TikTok's 50K email 11-10). Lever: Rob's real story + a parent antagonist + #banddirector #bandkid #musiceducation.
 - 2026-11-10: Rob's "happy spray" interview story (told 11-10; ~800 resumes one summer). Thu 11-19 10:00 TT/IG carousel + LinkedIn 12:30. USED. Rob may record it as a talking-head video (script given in chat).
 - Scheduled live 2026-11-10 on Rob's go (all 12 posts). Rob may record the happy-spray story as a talking-head video for the following week.
+- 2026-11-10: Facebook added back to all Nov 16-22 IG/TT posts on Rob's say-so (free cross-post). Rob is creating Pinterest and Threads accounts.

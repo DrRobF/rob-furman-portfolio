@@ -18,8 +18,12 @@ Goal: become the education influencer everyone wants to hear from, and drive edu
 
 ## Current content approach (approved by Rob; overrides anything below that conflicts) — updated 2026-11-10
 Rob approved this in his "Social media analysis and content plan" conversation. Every run follows it:
-1. **No Facebook.** Facebook is a dead account (reach 0-3). Never add `facebook` as a provider. Networks are
-   Instagram, TikTok, YouTube Shorts (video days) and LinkedIn; X goes through Buffer.
+1. **Facebook: free cross-post only (Rob, 2026-11-10).** Rob first dropped Facebook, then chose to keep it on as a
+   zero-effort cross-post in case something breaks out. Add `facebook` to every Instagram/TikTok post
+   (carousels/images = POST, videos = REEL with title). Never build anything Facebook-specific.
+   **Pinterest and Threads:** Rob is setting both up (2026-11-10). Check getBrandSettings each run; once connected,
+   pin every carousel cover and quote card to Pinterest with a pinLink to the matching drrobfurman.com page (with UTM),
+   and cross-post Rob's text stories to Threads.
 2. **LinkedIn: one post every weekday at 12:30 PM ET** (Mon-Fri, five a week, never two in a day). Before building, check
    which 12:30 slots in the target week are already taken (Rob and other sessions queue LinkedIn posts there) and fill
    only the open ones. LinkedIn posts are text only, in Rob's own voice.
@@ -54,7 +58,7 @@ Rules for every week:
    has queued a block of near-identical captions, keep one of each unique caption per channel group, schedule those,
    and tell Rob which ones to delete (the API cannot delete posts, only update them).
 4. Keep LinkedIn for Rob's own thinking: long-form posts, carousels as PDF documents, and polls. Product promo reels
-   go to Instagram, TikTok and YouTube (no Facebook). One LinkedIn post per weekday at 12:30 PM.
+   go to Instagram, TikTok, YouTube and Facebook (Facebook as a free cross-post). One LinkedIn post per weekday at 12:30 PM.
 5. No two posts on the same network within an hour. Check his existing posts for the week before picking times.
 
 ## The Tuesday "Where I Learned It" carousel (added 2026-10-15, built on real results)
@@ -110,7 +114,7 @@ content, so judge what works by TikTok until Instagram distribution improves.
      → leadership sim https://www.drrobfurman.com/human-equation-suite/leadership-sim
    - Sat 10:22 AM: 7-slide parent carousel (reluctant readers, reading at home)
    - Sun: video quote from his books with one of his photos
-   LinkedIn text posts in any open Mon–Fri 12:30 PM slot. IG/TikTok (and YouTube Shorts on video days) at 5:52 PM. No Facebook.
+   LinkedIn text posts in any open Mon–Fri 12:30 PM slot. IG/TikTok/Facebook (and YouTube Shorts on video days) at 5:52 PM.
 4. Content sources (only use real material; never invent experiences, stats, or quotes):
    - `src/content_db.csv` rows from "Future Ready Challenge" and the first ~40 "Motivating the Reluctant Reader" rows
      (rows after ~#208 in the file are AI paraphrases; avoid quoting them as his words).
@@ -136,7 +140,7 @@ content, so judge what works by TikTok until Instagram distribution improves.
    commit status (Vercel context) to confirm the deploy instead.
 7. Create every post in Metricool with `draft: true` (never schedule live without Rob's approval).
    Rules learned: Instagram video = type REEL; carousels = POST; TikTok `autoAddMusic: true` only on image posts
-   (on video it returns 400); YouTube = type short, madeForKids false, category EDUCATION; (Facebook no longer used); LinkedIn carousel = publishImagesAsPDF true + documentTitle. Don't set Instagram audioConfiguration.
+   (on video it returns 400); YouTube = type short, madeForKids false, category EDUCATION; Facebook video = REEL with title; LinkedIn carousel = publishImagesAsPDF true + documentTitle. Don't set Instagram audioConfiguration.
 8. Build a review page (pattern: `build_review2.py`) and publish it as an artifact titled
    "Week of <Month D> Social Plan". Then message Rob: a short summary and that he can reply "go" to schedule.
 9. Before handing the week over, check CTA coverage against the five buckets above and fix any gaps in the captions
@@ -165,7 +169,7 @@ Numbers behind the strategy (Sep 10 - Oct 16 2026):
 - TikTok: 131 followers and rising. Best: band carousel 3.6K, "2:07 AM" student-day video 873, AI hot take 856. Peak times weekdays 10 AM and 6 PM (Wed/Thu best); weekends about half.
 - LinkedIn: 10.3K followers but scheduled posts reach 15-50. Rob's own text post reached 1,251. Text-only, own voice, link in first comment; one post per weekday at 12:30 (superseded the old 4-a-week cap on 2026-11-10); carousels at most 1 a week.
 - YouTube Shorts: leadership-under-pressure dilemmas did best (1,065 and 234 views).
-- Instagram: 87 followers, flat; 5-150 views. Mirror TikTok winners only. Facebook: reach 0-3; dropped (do not post).
+- Instagram: 87 followers, flat; 5-150 views. Mirror TikTok winners only. Facebook: reach 0-3; kept as a free auto cross-post only.
 - X (@drfurman, via Buffer, Buffer org My Organization): 16.6K followers, 14.8K following, reach 100-300 per post (about 1%). Best: Rob's own real-moment post (1,204). Link posts and video promos are weakest. Buffer free plan: 3 channels (X, LinkedIn, YouTube), 10 queued posts, 280 char limit. Queue X one week at a time, 1-2 text-only posts a day at 8-10 AM ET, no link in the post, #edchat. Do not post LinkedIn or YouTube through Buffer (Metricool owns those).
 - Metricool brand 6914479 has no X. X is posted through Buffer (create_post with customScheduled).
 - Every week: fill all open TikTok weekday 10 AM and 6 PM slots with story/opinion posts; tie a tool to a story, never lead with the product.
