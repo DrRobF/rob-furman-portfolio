@@ -86,8 +86,8 @@ a{{color:var(--accent)}} a:focus-visible{{outline:2px solid var(--accent);outlin
 <p><b>Sales:</b> no new Gumroad sales since the two on Oct 31 ($31). Product pages had 99 views in the last 30 days, almost all "direct", so the new UTM tags on every link this week should show which posts send people.</p></div>
 <div class="go"><b>The week at a glance</b>
 <ul><li>All five calls to action are covered: VIC (Mon), speaking (Tue and Sun), H.E.L.P. 8 Factors course (Wed), the books (Thu and Sat) and the paid What Would You Do? deck (Fri).</li>
-<li>Instagram, TikTok and Facebook at 5:52 PM (YouTube Shorts too on video days); Saturday at 10:22 AM.</li>
-<li>LinkedIn: three posts were already queued at 12:30 PM (Mon fire-hydrant carousel, Tue secretary story, Wed peanut-allergy story). I added one: Fri 10:52 AM, the "Just This Once" scenario, which keeps you at four.</li>
+<li>Instagram and TikTok at 5:52 PM (YouTube Shorts too on video days); Saturday at 10:22 AM. Facebook is off, per the plan you approved.</li>
+<li>LinkedIn: three posts were already queued at 12:30 PM (Mon fire-hydrant carousel, Tue secretary story, Wed peanut-allergy story). I added Fri 12:30 PM, the "Just This Once" scenario. Thursday 12:30 is still open for one of your stories.</li>
 <li>Heads-up: Monday's queued LinkedIn carousel repeats the fire-hydrant topic you posted Oct 27. It's yours to keep, but your text-only stories reach far more people on LinkedIn than carousels do.</li>
 <li>Sunday reuses your TEDx stage photo (TED4, last used Oct 18). I've used every other good photo of you. A few new ones, especially from the talking-head studio, would help.</li>
 <li>One thing I couldn\'t do: the Google Drive connector can read your private What Would You Do? doc but not edit it, so its "Used:" line still lists only 12 and 01. Scenarios 04, 07, 11, 06 and now 10 are used; next up is 03, The Garage Door.</li>
