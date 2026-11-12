@@ -118,3 +118,18 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Scheduled live 2026-11-10 on Rob's go (all 12 posts). Rob may record the happy-spray story as a talking-head video for the following week.
 - 2026-11-10: Facebook added back to all Nov 16-22 IG/TT posts on Rob's say-so (free cross-post). Rob is creating Pinterest and Threads accounts.
 - 2026-11-10 LAUNCH of Pinterest/Threads/Bluesky on Rob's ask (scheduled live): 14 Threads+Bluesky posts (one per day Nov 10-22, 2 today; intro 11:30 Nov 10, stories at 6:30 PM) and 30 Pinterest pins (6 today, then 9:15 AM and 8:15 PM daily through Nov 22). Script: launch_new_networks.py. Free Teacher Tools board has only 1 pin so far.
+
+## Week of 2026-11-23 (files: week8_*; icons9.py). Built 2026-11-12, 30 drafts in Metricool (see week8_ids.json).
+- Mon 10:00 carousel: Interview Files #1, the buzz-word list (Professional Interview Secrets). USED. Other book stories still open: late candidate ("I'd love to hear your questions for practice"), over-prepared tech setup, word vomit, Rob's own transcript grilling, the SMART answer.
+- Mon video: "Don't be afraid to take a risk! If it sounds like a crazy, weird lesson..." -> VIC lesson planner
+- Tue carousel: Where I Learned It, the music teacher they said wouldn't last (City Streets intro: 2000, drums, stomp group, dance choir, Charles Gray Award). USED. Tags #musiceducation #urbaneducation #musicteacher.
+- Wed 10:00 carousel: Music + AI Creativity Bundle, Rob's AI songwriting process (rhymes, syllable passes, opinion on quality). USED.
+- Wed video: H.E.L.P. Parent Call Rehearsal, three heat levels (Moderate / High / Full Blaze) + 4 parent languages
+- Thu quote: "Technology allows us to be in two places at once." (Thanksgiving phones-at-the-table debate)
+- Fri WWYD: Scenario 03, The Garage Door. Carousel TT/IG/FB, video YouTube only. Next in order: 05, then 08. Used so far: 12, 01, 04, 07, 11, 06, 10, 03.
+- Sat parents: find their "aha" book over the break (TRDL rows 207, 194, 192, 172)
+- Sun video: "Student-centered learning means putting the student at the center of every decision we make." (Furman_9028 portrait, 2nd use)
+- LinkedIn Mon-Fri 12:30: buzz words; music-teacher origin; AI songwriting; Thu City Streets principal who kept kids safe (USED); Fri WWYD garage door.
+- Threads+Bluesky: 7 drafts (one a day). Pinterest: 8 drafts incl. Music + AI cover pin on Classroom Ideas.
+- Songs: One Beat I Decide, Already Won, Better In The Quiet, One More Year of Light
+- Analytics at build (TikTok, Oct 13-Nov 12): cruise/school-board carousel 10,251 views; band mini-principal 5,292; TOOHAK 1,604 (11 shares); trombone 1,407; WWYD noise carousel 1,094. Videos 100-180. Carousels keep winning.

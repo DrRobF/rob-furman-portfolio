@@ -1,0 +1,21 @@
+{"week": "2026-11-23", "status": "30 drafts created 2026-11-12, waiting on Rob's go", "posts": [
+ {"day": "Mon", "kind": "Interview Files buzz-word carousel IG/TT/FB 10:00", "id": 425732783, "uuid": "-7786833399673041905"},
+ {"day": "Mon", "kind": "LinkedIn 12:30 buzz words", "id": 425734980, "uuid": "8126018232485694018"},
+ {"day": "Mon", "kind": "VIC weird-lesson video IG/TT/YT/FB 17:52", "id": 425733419, "uuid": "3188590288375857966"},
+ {"day": "Tue", "kind": "LinkedIn 12:30 music teacher origin", "id": 425734997, "uuid": "4755620874940073187"},
+ {"day": "Tue", "kind": "City Streets origin carousel IG/TT/FB 17:52", "id": 425733442, "uuid": "-5210026196670264361"},
+ {"day": "Wed", "kind": "Music+AI carousel IG/TT/FB 10:00", "id": 425733471, "uuid": "-8730896578851487506"},
+ {"day": "Wed", "kind": "LinkedIn 12:30 AI songwriting", "id": 425735013, "uuid": "1393317554906351342"},
+ {"day": "Wed", "kind": "Parent Call heat video IG/TT/YT/FB 17:52", "id": 425733506, "uuid": "-8262370681238306150"},
+ {"day": "Thu", "kind": "LinkedIn 12:30 the principal who kept kids safe", "id": 425735031, "uuid": "-6043307632013393121"},
+ {"day": "Thu", "kind": "two-places quote IG/TT/FB 17:52", "id": 425734186, "uuid": "6790454538560753587"},
+ {"day": "Fri", "kind": "LinkedIn 12:30 WWYD garage door", "id": 425735047, "uuid": "-1391199672965313018"},
+ {"day": "Fri", "kind": "WWYD garage carousel IG/TT/FB 17:52", "id": 425734226, "uuid": "-2131264879528095891"},
+ {"day": "Fri", "kind": "WWYD garage video YT 17:52", "id": 425734288, "uuid": "-7301310503404287249"},
+ {"day": "Sat", "kind": "aha-book parents carousel IG/TT/FB 10:22", "id": 425734333, "uuid": "4057947693191088029"},
+ {"day": "Sun", "kind": "student-centered video IG/TT/YT/FB 17:52", "id": 425734387, "uuid": "3800793373420832939"},
+ {"day": "Mon-Sun", "kind": "Threads+Bluesky 18:30 (Sat 11:30)", "ids": [425735563, 425735582, 425735608, 425735622, 425735640, 425735657, 425735677],
+  "uuids": ["-7206695667325581609", "-2409024830932172690", "2454588727396680733", "7023695049064729575", "-5408699962158133650", "3831011265471399628", "7154790243544023509"]},
+ {"day": "Mon-Sun", "kind": "Pinterest 9:15 (+Wed 20:15)", "ids": [425736171, 425736211, 425736241, 425736294, 425736319, 425736371, 425736398, 425736424],
+  "uuids": ["-6923934086461372634", "8928864344899470727", "5107394347916478199", "-4368294436882067943", "1855287121690837065", "-4335061571986240400", "1029215889108582478", "1649373918489562078"]}
+]}

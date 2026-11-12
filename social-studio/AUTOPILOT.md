@@ -58,7 +58,8 @@ The calls-to-action rule (all five buckets each week) still applies.
 - Manuscripts in Rob's Google Drive (read with read_file_content; never copy into this repo):
   interview book docx id 1CwnvHcnqFGRo7ydBJ-60KOkwzZ6nVHMJ ("So, You Think You Want to Teach-Rev8 (3).docx");
   City Streets Google Doc id 1ZCbkuhyIPOZInYP1uytuefkuyv_D4MYJIsOT_hX4v3g.
-- NEXT RUN (week of 2026-11-23), Rob approved 2026-11-10:
+- DONE in the 2026-11-12 run (week of 2026-11-23): items 1-4 below were built as drafts. Next Interview Files story: the late candidate.
+- Plan approved 2026-11-10 for week of 2026-11-23:
   1. Tuesday origin-story carousel from the City Streets intro: "Before I was a principal, I was the music teacher they said
      wouldn't last." (2000, Pittsburgh city middle school, drums, stomp group, dance choir, Charles Gray Award). Tags
      #musiceducation #urbaneducation #teachersoftiktok. CTA: the book; free urban sim in first comment.
