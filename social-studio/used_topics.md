@@ -133,3 +133,5 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Threads+Bluesky: 7 drafts (one a day). Pinterest: 8 drafts incl. Music + AI cover pin on Classroom Ideas.
 - Songs: One Beat I Decide, Already Won, Better In The Quiet, One More Year of Light
 - Analytics at build (TikTok, Oct 13-Nov 12): cruise/school-board carousel 10,251 views; band mini-principal 5,292; TOOHAK 1,604 (11 shares); trombone 1,407; WWYD noise carousel 1,094. Videos 100-180. Carousels keep winning.
+
+- 2026-11-13: TikTok photo_pull_failed on Thu 11-12 habit quote and Fri 11-13 field-trip carousel (IG/FB fine). On Rob's yes, re-posted TikTok-only live: habit quote Tue 11-17 10:00 (id 427602532), field-trip carousel Fri 11-20 10:00 (id 427602546). Suggested Rob reconnect TikTok in Metricool.
