@@ -4,6 +4,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/songwriting',
+        destination: '/resources/write-record-release',
+        permanent: false,
+      },
+      {
         source: '/askvic',
         destination: '/vic',
         permanent: true,

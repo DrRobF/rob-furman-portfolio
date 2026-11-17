@@ -152,6 +152,15 @@ const featuredProjects = [
 export default function HomePage() {
   return (
     <>
+      <div className="launch-banner" role="region" aria-label="New course">
+        <div className="container launch-banner-inner">
+          <span className="launch-banner-tag">New</span>
+          <span className="launch-banner-text">
+            <strong>Write, Record, Release</strong>: a 16-week AI songwriting course for music teachers.
+          </span>
+          <Link href="/resources/write-record-release" className="launch-banner-link">See the course →</Link>
+        </div>
+      </div>
       <section className="hero section section-light leadership-hero">
         <div className="container hero-layout">
           <div className="hero-content">

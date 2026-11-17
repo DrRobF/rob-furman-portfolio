@@ -5455,3 +5455,11 @@ p {
 .help-dashboard-polished .hes-main-content .hes-hero-profile .hes-hero-right .hes-mini-radar svg circle {
   stroke: #8ba9bf !important;
 }
+
+/* Launch banner for the newest product */
+.launch-banner { background: #15143a; color: #fbf6ec; font-size: 0.95rem; }
+.launch-banner-inner { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; padding-top: 0.7rem; padding-bottom: 0.7rem; }
+.launch-banner-tag { background: #ff5e3a; color: #fff; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 999px; padding: 0.2rem 0.6rem; }
+.launch-banner-text { flex: 1 1 auto; }
+.launch-banner-link { color: #ffb238; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.launch-banner-link:hover, .launch-banner-link:focus-visible { color: #fff; }

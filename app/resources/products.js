@@ -1,5 +1,29 @@
 export const products = [
   {
+    slug: 'write-record-release',
+    name: 'Write, Record, Release: A 16-Week AI Songwriting Course',
+    category: 'Full course · Music',
+    audience: 'Grades 6–8 music and elective teachers',
+    price: 79,
+    thumbnail: '/products/write-record-release-thumb.webp',
+    cover: '/products/write-record-release-cover.webp',
+    checkout: 'https://drrobfurman.gumroad.com/l/evirg',
+    summary: 'A full semester, done for you: every student writes, produces and releases an original song. Students write every word. AI builds the music.',
+    intro: 'Sixteen weeks that move from listening to topic to lyric to the syllable pass, then to directing an AI music tool and a real release with an audience. No instrument, music reading or audition required.',
+    includes: [
+      'A course guide with six units, the AI rules, assessment, and an NCAS and IB MYP crosswalk',
+      '80 scripted 40-minute daily lesson plans',
+      '60 student worksheets, each opening with a creative Spark',
+      '5 AI coaching worksheets with Part 1 done by hand, plus the AI use log and a family letter',
+      '6 unit playlists and editable Word files',
+    ],
+    usefulFor: ['A semester songwriting elective', 'General music with real student authorship', 'Teaching responsible AI use with clear rules'],
+    note: 'All AI music generation happens on one teacher account. Students never need their own accounts.',
+    license: 'One teacher, unlimited copies for their own students. Contact Dr. Rob for school or district licensing.',
+    related: '/resources/music-ai-creativity-bundle',
+    relatedLabel: 'Want a shorter unit? See the Music + AI Creativity Bundle',
+  },
+  {
     slug: 'teacher-directed-ai-prompts',
     name: 'Teacher Directed AI Prompts Across Subjects',
     category: 'AI for teaching',
@@ -106,8 +130,8 @@ export const products = [
     usefulFor: ['Songwriting units', 'Creative choice and revision', 'Discussing responsible AI in music'],
     note: 'Students remain the authors. The bundle includes a non-AI alternative, and any AI use stays teacher controlled.',
     license: 'One purchaser may print and use the materials in one school or professional practice. A school purchaser may share files with employees at that school; district distribution needs written permission.',
-    related: '/ai-literacy-for-students',
-    relatedLabel: 'Read the free AI literacy lesson',
+    related: '/resources/write-record-release',
+    relatedLabel: 'Ready for a full semester? See Write, Record, Release',
   },
 ];
 
