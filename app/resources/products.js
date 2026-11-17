@@ -9,6 +9,7 @@ export const products = [
     cover: '/products/write-record-release-cover.webp',
     checkout: 'https://drrobfurman.gumroad.com/l/evirg',
     summary: 'A full semester, done for you: every student writes, produces and releases an original song. Students write every word. AI builds the music.',
+    story: 'Last school year, three 8th graders kept skipping class to stand outside my music room door. They weren’t my students, and the school called them the “bad kids.” When I invited them in, they told me they wrote rap lyrics but had nothing written down. So we got their words on paper and recorded their song, then two more on beats they built themselves. All three made it to high school, and one signed up for music composition. This course is that process, built so any teacher can run it with every kid.',
     intro: 'Sixteen weeks that move from listening to topic to lyric to the syllable pass, then to directing an AI music tool and a real release with an audience. No instrument, music reading or audition required.',
     includes: [
       'A course guide with six units, the AI rules, assessment, and an NCAS and IB MYP crosswalk',

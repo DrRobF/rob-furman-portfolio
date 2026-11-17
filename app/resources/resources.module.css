@@ -124,3 +124,6 @@
   .heroActions { align-items: stretch; flex-direction: column; }
   .cardImage { max-height: 400px; }
 }
+
+.storyBlock { border-left: 4px solid #ff5e3a; padding: 0.25rem 0 0.25rem 1.1rem; margin: 0 0 2rem; }
+.storyText { font-size: 1.12rem; line-height: 1.6; }

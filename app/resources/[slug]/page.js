@@ -49,6 +49,12 @@ export default function ProductPage({ params }) {
       <section className={styles.detailContent}>
         <div className="container"><div className={styles.detailColumns}>
           <div className={styles.detailStory}>
+            {product.story && (
+              <div className={styles.storyBlock}>
+                <p className={styles.eyebrow}>Why I built this</p>
+                <p className={styles.storyText}>{product.story}</p>
+              </div>
+            )}
             <p className={styles.eyebrow}>The idea</p><h2>What this helps you do</h2><p>{product.intro}</p>
             {product.slug === 'principal-ai-starter-kit' && (
               <div className={styles.pilotFeature}>
