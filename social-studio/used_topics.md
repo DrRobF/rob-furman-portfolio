@@ -135,3 +135,19 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Analytics at build (TikTok, Oct 13-Nov 12): cruise/school-board carousel 10,251 views; band mini-principal 5,292; TOOHAK 1,604 (11 shares); trombone 1,407; WWYD noise carousel 1,094. Videos 100-180. Carousels keep winning.
 
 - 2026-11-13: TikTok photo_pull_failed on Thu 11-12 habit quote and Fri 11-13 field-trip carousel (IG/FB fine). On Rob's yes, re-posted TikTok-only live: habit quote Tue 11-17 10:00 (id 427602532), field-trip carousel Fri 11-20 10:00 (id 427602546). Suggested Rob reconnect TikTok in Metricool.
+
+## Week of 2026-11-30 (files: week9_*; icons10.py). Built 2026-11-19, 28 drafts in Metricool (see week9_ids.json).
+- Mon 10:00 carousel: Interview Files #2, the late candidate ("I'd love to hear your interview questions for practice"; arrive 30 min early). USED. Still open from the book: word vomit, SMART answer, perfume, tech setup.
+- Mon video: "Rural West Virginia students haven't seen a manatee, so a textbook just wasn't going to reach them." -> VIC lesson planner
+- Tue carousel: Where I Learned It, the interview my dad set up (transcript grilling on a poor grade, music job). USED. Tags #teacherskid #musicteacher #teacherinterview. CTA speaking.
+- Wed video: H.E.L.P. course, Gray Area Leadership (plagiarism + sick sibling, 4 options; "The hardest decisions hold more than one truth at once"). LinkedIn Wed = poll on same dilemma.
+- Thu quote: "Just as students shouldn't rely solely on teachers, we shouldn't rely solely on school-based PD." -> books
+- Fri WWYD: Scenario 05, Permission to Say "Shut Up". Carousel TT/IG/FB, video YouTube only. Next in order: 08 (last). Used so far: 12, 01, 04, 07, 11, 06, 10, 03, 05.
+- Sat parents: "Stop quizzing, ask for their review" (TRDL rows 204, 197, 202 by file line: evaluate reading, ownership, send ideas back into the world)
+- Sun video: "We need to implement educational reform that allows our children to be the creative, innovative collaborators and communicators we know they are!" (Furman_6399 portrait, 2nd use) -> speaking
+- LinkedIn Mon-Fri 12:30: late candidate; dad transcript grilling; Gray Area poll; City Streets Adam "second period, not one adult asked what's wrong" (USED); WWYD 05.
+- Threads+Bluesky: 7 drafts. Pinterest: 7 drafts (Free Teacher Tools board id 271482752476917458).
+- Songs: Saints in the Sunlight, Every Version of You, Low Light, Better Than I Was
+- Photos: headshot-blue.jpg (public/images) first big use on Tue cover.
+- Rob's own posts Nov 17-21 already used the three 8th graders / music room door story and the radio-edit story (Write, Record, Release launch). Do not repeat.
+- Analytics at build (TikTok Oct 20-Nov 19): cruise/school-board 10,905; band mini-principal 5,579; WWYD stupid form 2,008; TOOHAK 1,688; trombone 1,566; WWYD noise carousel 1,099; peanut-free table 1,029 (day 1). Videos 85-180.
