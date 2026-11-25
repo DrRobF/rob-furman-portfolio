@@ -1,0 +1,116 @@
+import Link from 'next/link';
+import s from './btf.module.css';
+import { pageMeta } from '../lib/seo';
+import { CATEGORIES, MAX_TOTAL, bandFor, fetchScores } from '../../lib/btf';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata = pageMeta({
+  title: 'Beyond the Food Review | Dr. Rob Furman',
+  description:
+    'A restaurant review series that ignores the food. Seven categories of service and upkeep, scored out of 70, from the salt shaker to the check. See the running leaderboard.',
+  path: '/beyondthefoodreview',
+});
+
+const SCALE = [
+  ['9 – 10', 'Somebody is genuinely paying attention.'],
+  ['7 – 8', 'Well run. A small thing slipped.'],
+  ['5 – 6', 'Nobody checked today.'],
+  ['3 – 4', 'Nobody has checked in a while.'],
+  ['1 – 2', 'This is a choice they are making.'],
+];
+
+export default async function BeyondTheFoodReviewPage() {
+  let rows = [];
+  let unavailable = false;
+  try {
+    rows = await fetchScores();
+  } catch {
+    unavailable = true;
+  }
+
+  return (
+    <div className={s.wrap}>
+      <div className={s.inner}>
+        <p className={s.eyebrow}>Beyond the Food Review</p>
+        <h1 className={s.h1}>Nobody reviews the salt shaker.</h1>
+        <p className={s.lede}>
+          Everybody reviews the food. This series reviews everything else: whether the shaker pours, whether
+          the table was wiped, how long you sat before a human said hello.{' '}
+          <strong>Seven categories, ten points each, seventy possible.</strong> No opinions about anybody&apos;s
+          cooking — just whether the place is paying attention.
+        </p>
+
+        <h2 className={s.h2}>The leaderboard</h2>
+        <div className={s.board}>
+          <div className={s.rowHead}>
+            <span>#</span>
+            <span>Restaurant</span>
+            <span>Verdict</span>
+            <span style={{ textAlign: 'right' }}>Score</span>
+          </div>
+          {rows.length === 0 ? (
+            <p className={s.empty}>
+              {unavailable
+                ? 'The leaderboard is taking a breather. Check back shortly.'
+                : 'First reviews are being scored now. Check back shortly.'}
+            </p>
+          ) : (
+            rows.map((r, i) => (
+              <div className={s.row} key={r.id}>
+                <span className={s.rank}>{i + 1}</span>
+                <span>
+                  <span className={s.name}>{r.restaurant}</span>
+                  <span className={s.meta}>
+                    {[r.city, r.is_host ? 'Reviewed by Rob' : `Scout: ${r.scout_name}`]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </span>
+                </span>
+                <span className={s.band}>{bandFor(r.total)}</span>
+                <span className={s.score}>
+                  {r.total}
+                  <span className={s.scoreOut}>/{MAX_TOTAL}</span>
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+
+        <h2 className={s.h2}>What gets scored</h2>
+        <div className={s.cats}>
+          {CATEGORIES.map((c, i) => (
+            <div className={s.cat} key={c.key}>
+              <span className={s.catNum}>0{i + 1}</span>
+              <p className={s.catName}>{c.label}</p>
+              <p className={s.catBlurb}>{c.blurb}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 className={s.h2}>How the ten points work</h2>
+        <div className={s.scale}>
+          {SCALE.map(([n, what]) => (
+            <div className={s.scaleRow} key={n}>
+              <span className={s.scaleNum}>{n}</span>
+              <span className={s.scaleWhat}>{what}</span>
+            </div>
+          ))}
+        </div>
+        <p className={s.note}>
+          Every category is something you can see from your own seat, which means you can argue with the score
+          but not with the evidence. Food is subjective. A crusted shaker is not.
+        </p>
+
+        <h2 className={s.h2}>Scoring somewhere yourself?</h2>
+        <p className={s.lede}>
+          Scouts in other cities keep this board honest. If you have the code, the cards live{' '}
+          <Link href="/beyondthefoodreview/cards" style={{ color: '#f0b429' }}>
+            here
+          </Link>
+          .
+        </p>
+      </div>
+    </div>
+  );
+}
