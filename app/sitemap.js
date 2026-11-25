@@ -35,6 +35,7 @@ const publicPages = [
   '/human-equation-suite/diagnostic',
   '/human-equation-suite/parent-call',
   ...['regulation-under-pressure','human-awareness','trust-construction','reality-anchoring','gray-area-leadership','team-systems-leadership','instructional-academic-leadership','vision-change-leadership'].map((slug) => `/human-equation-suite/course/${slug}`),
+  '/beyondthefoodreview',
   '/guitar',
   '/guitar/learn-the-notes',
   '/guitar/caged-solo-zones',
