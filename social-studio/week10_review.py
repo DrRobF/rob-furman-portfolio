@@ -12,6 +12,7 @@ def tm(t):
     h, m = map(int, t.split(':')); return f"{(h-1)%12+1}:{m:02d} {'AM' if h<12 else 'PM'}"
 cards = []
 LI = {l['date']: l for l in P['linkedin']}
+_seen = set()
 for d in P['days']:
     video = d['media'][0].endswith('.mp4')
     if video:
@@ -30,8 +31,8 @@ for d in P['days']:
     if d.get('extra'):
         x = d['extra']
         blocks.insert(0, f'<div class="post"><div class="when">{tm(x["time"])} · {", ".join(NET[n] for n in x["networks"])} (story carousel)</div><div class="strip">' + ''.join(f'<img src="{uri(m, 360)}" alt="Slide {i+1}">' for i, m in enumerate(x['media'])) + f'</div><p class="cap">{E(x["text"])}</p><div class="fc"><b>First comment</b><p>{E(x["first_comment"])}</p></div></div>')
-    if d['date'] in LI:
-        l = LI[d['date']]
+    if d['date'] in LI and d['date'] not in _seen:
+        _seen.add(d['date']); l = LI[d['date']]
         blocks.append(f'<div class="post li"><div class="when">12:30 PM · LinkedIn ({"poll, " if l.get("poll") else ""}text only)</div><p class="cap">{E(l["text"])}</p>' + (('<div class="fc"><b>Poll: ' + E(l['poll']['question']) + '</b><p>' + ' · '.join(E(o) for o in l['poll']['options']) + '</p></div>') if l.get('poll') else '') +
                       (f'<div class="fc"><b>First comment</b><p>{E(l["first_comment"])}</p></div>' if l.get('first_comment') else '') + '</div>')
     if d.get('note'):
@@ -90,21 +91,21 @@ a{{color:var(--accent)}} a:focus-visible{{outline:2px solid var(--accent);outlin
 </style>
 <div class="wrap">
 <div><div class="dname">Dr. Rob Furman · Social autopilot</div><h1>Week of December 7</h1>
-<p class="lede">28 drafts are waiting in Metricool for Mon Dec 7 to Sun Dec 13. Nothing goes live until you say go.</p></div>
+<p class="lede">29 drafts are waiting in Metricool for Mon Dec 7 to Sun Dec 13. Nothing goes live until you say go.</p></div>
 <div class="finding"><b>What's working</b>
 <p>Last 30 days on TikTok (Metricool's counts): the cruise/school-board carousel keeps climbing (11,611). Behind it: the "happy spray" interview carousel (1,862), TOOHAK (1,690), the trombone collision (1,634), the peanut-free table (1,346) and the field-trip What Would You Do? carousel (1,049). A typical post sits around 150 to 200, and animated videos stay at 85 to 230.</p>
-<p>The lever this month is your hiring stories. "Happy spray" beat its neighbours about 10 to 1. So Monday is Interview Files #3 (the candidate who talked until you zoned out), and Tuesday is a hot take from the same book: 40 of your last 60 candidates bragged about having a smartboard.</p>
+<p>The lever this month is your hiring stories. "Happy spray" beat its neighbours about 10 to 1. So Monday is Interview Files #3 (the candidate who talked until you zoned out), and Wednesday morning adds a hot take from the same book: 40 of your last 60 candidates bragged about having a smartboard. Tuesday is your band-director travel story with #bandkid #banddirector #musiceducation, the same tags behind the 11K cruise carousel.</p>
 <p><b>Sales:</b> no Gumroad sales in November. Product pages had 106 views in the last 30 days, mostly direct. The last sales were the two on Oct 31 ($31).</p></div>
 <div class="go"><b>The week at a glance</b>
-<ul><li>All five calls to action are covered: VIC (Mon video), the books (Mon Interview Files, Thu quote, Sat parents, Thu LinkedIn), speaking (Tue and Sun), H.E.L.P. (Wed Regulation Under Pressure module, plus a LinkedIn poll) and the paid What Would You Do? deck (Fri, Scenario 08, with the Difficult Conversations Prep Kit in the first comment).</li>
+<ul><li>All five calls to action are covered: VIC (Mon video), the books (Mon Interview Files, Thu quote, Sat parents, Thu LinkedIn), speaking (Wed smartboard and Sun), the paid Write, Record, Release course (Tue band story), H.E.L.P. (Wed Regulation Under Pressure module, plus a LinkedIn poll) and the paid What Would You Do? deck (Fri, Scenario 08, with the Difficult Conversations Prep Kit in the first comment).</li>
 <li>Instagram, TikTok and Facebook at 5:52 PM (YouTube Shorts too on video days); Monday's Interview Files at 10:00 AM; Saturday at 10:22 AM.</li>
 <li>LinkedIn has a text post every weekday at 12:30 PM: the word-vomit candidate, the smartboard take, a hallway de-escalation poll, the "second choice" stereotype from From City Streets to The Classroom, and the vendor table.</li>
 <li>Threads and Bluesky get one story hook a day. Pinterest gets one pin a day across your boards.</li>
 <li>Videos run 22 to 45 seconds. That's longer than usual, because I kept your reading-pace rule for every screen.</li>
 <li>Sunday uses your TEDx stage photo (TED4, second use). Everything else uses illustrations. New photos would help a lot.</li>
-<li><b>I need two things from you.</b> (1) Tuesday is normally a "Where I Learned It" origin story, and that bank is empty, so this week runs the smartboard take instead. A story or two from your guitar and songwriting life, or from the TEDx stage, would fix that. (2) The Vendor Table is the last What Would You Do? scenario in the social order. For Fridays after this, should I re-run the best performers (Stupid Form, Birthday Cookies, Noise During Reading), or do you have new scenarios?</li>
+<li><b>Tuesday is now your band story</b> (Eiffel Tower, behind the Berlin Wall, Shakespeare's and Mozart's houses, Lucerne, the Saint Bernard Pass), told in your words and ending with "Join band!" The course is in the first comment. The smartboard carousel moved to Wednesday at 10 AM. <b>Still open:</b> The Vendor Table is the last What Would You Do? scenario in the social order. For later Fridays, should I re-run the best performers, or do you have new scenarios?</li>
 <li>The Drive connector can read your private What Would You Do? doc but can't edit it, so its "Used:" line is out of date. Used so far: 12, 01, 04, 07, 11, 06, 10, 03, 05 and now 08.</li>
-<li>Reply "go" to schedule all 28, or tell me what to change.</li></ul></div>
+<li>Reply "go" to schedule all 29, or tell me what to change.</li></ul></div>
 {"".join(cards)}{tb_html()}{pin_html()}
 </div>'''
 open('/home/claude/social/review/week-of-dec-7.html', 'w').write(page)

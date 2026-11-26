@@ -17,8 +17,8 @@
  },
  {
   "k": 2,
-  "label": "Tue Dec 8 17:52 Hot take from the interview table: the smartboard (carousel)",
-  "id": 443174666,
+  "label": "Tue Dec 8 17:52 Where I Learned It: band travels (carousel)",
+  "id": 443247847,
   "uuid": "9183592016642195751",
   "date": "2026-12-08T17:52",
   "status": "ok"
@@ -122,7 +122,7 @@
  {
   "k": 15,
   "label": "2026-12-08T18:30 Threads+Bluesky",
-  "id": 443176790,
+  "id": 443247899,
   "uuid": "-8235140954150319059",
   "date": "2026-12-08T18:30",
   "status": "ok"
@@ -221,6 +221,14 @@
   "id": 443177388,
   "uuid": "-4095473813926558429",
   "date": "2026-12-13T09:15",
+  "status": "ok"
+ },
+ {
+  "k": 28,
+  "label": "Wed Dec 9 10:00 Smartboard hot take (carousel)",
+  "id": 443247874,
+  "uuid": "6375488775465356105",
+  "date": "2026-12-09T10:00",
   "status": "ok"
  }
 ]
