@@ -151,3 +151,18 @@ DSC_0071/0121/1281 (include other adults; crop to Rob only if used), IMG_7843.JP
 - Photos: headshot-blue.jpg (public/images) first big use on Tue cover.
 - Rob's own posts Nov 17-21 already used the three 8th graders / music room door story and the radio-edit story (Write, Record, Release launch). Do not repeat.
 - Analytics at build (TikTok Oct 20-Nov 19): cruise/school-board 10,905; band mini-principal 5,579; WWYD stupid form 2,008; TOOHAK 1,688; trombone 1,566; WWYD noise carousel 1,099; peanut-free table 1,029 (day 1). Videos 85-180.
+
+## Week of 2026-12-07 (files: week10_*; icons11.py). Built 2026-11-26, 28 drafts in Metricool (see week10_ids.json).
+- Mon 10:00 carousel: Interview Files #3, word vomit (candidate talked until Rob zoned out; colleague prompted next question). USED. Still open from the book: SMART answer, perfume, over-prepared tech setup (15 of 20 min), candidate who researched Rob, follow-up email with a better answer.
+- Mon video: "Don't teach your students the way you were taught; teach them the way they need to learn!" -> VIC lesson planner
+- Tue carousel: smartboard hot take from the interview book ("40 of my last 60 candidates said 'We have a smartboard'"; glorified chalkboard; videos = film strips). USED. CTA speaking. Tags #smartboard #edtech #edtechcoach.
+  Not a "Where I Learned It" origin story: the origin bank is empty. Asked Rob for new stories (guitar/songwriting, TEDx).
+- Wed video: H.E.L.P. course, Regulation Under Pressure (hallway yelling, phones out, A-D; "Pressure changes your pace before it changes your words"). LinkedIn Wed = poll on same.
+- Thu quote: "Even tomorrow's middle class will be entrepreneurs." (entrepreneurship debate) -> books
+- Fri WWYD: Scenario 08, The Vendor Table. Carousel TT/IG/FB, video YouTube only. This was the LAST scenario in the planned order. Used: 12, 01, 04, 07, 11, 06, 10, 03, 05, 08. Never use 02 or 09. Next Friday needs a new plan (ask Rob: repeat best performers, or new scenarios).
+- Sat parents: holiday "who's marketing the books?" (MRR/TRDL rows 198, 193, 186)
+- Sun video: "I trust the process and communicate to my students that I believe they can take responsibility for their learning." (TED4.jpg stage photo, 2nd use) -> speaking
+- LinkedIn Mon-Fri 12:30: word vomit; smartboard 40 of 60; Regulation poll; Thu City Streets ch.4 "second choice" stereotype of city teaching jobs (USED); Fri WWYD 08.
+- Threads+Bluesky: 7 drafts. Pinterest: 7 drafts.
+- Songs: One Beat I Decide, You're Safe Now, Fire in the Rearview, One More Year of Light
+- Analytics at build (TikTok Oct 27-Nov 22): cruise/school-board 11,611; happy spray 1,862; TOOHAK 1,690; trombone 1,634; peanut-free table 1,346; WWYD field trip 1,049. Videos 85-230. Rob's own interview/parent stories as carousels keep winning. Gumroad: 0 sales in November (106 product views in 30 days, mostly direct).
