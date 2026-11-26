@@ -34,7 +34,10 @@ Rob approved this in his "Social media analysis and content plan" conversation. 
    ~5K TikTok views; 2 AM alarm 61K LinkedIn impressions). Tool promo videos sit at 50-130 views. Lead with a real story
    or real dilemma most days and tie the tool/product to it; never lead with the product. Stories must be Rob's own words:
    ask him for one when the story bank is empty instead of filling the week with quote cards.
-4. **Links never go in the post body.** The link goes in the first comment, with utm_source/utm_campaign.
+4. **Write, Record, Release in music and AI posts (Rob, 2026-11-26).** Every music-related or AI-related post mentions
+   Rob's course Write, Record, Release (16-week middle school songwriting course, $79, page
+   drrobfurman.com/resources/write-record-release; link the site page, not Gumroad). Caption names it; link goes in the first comment.
+5. **Links never go in the post body.** The link goes in the first comment, with utm_source/utm_campaign.
 The calls-to-action rule (all five buckets each week) still applies.
 5. **Biggest hit so far (2026-11-05):** the cruise/school-board band-director carousel passed 50,000 TikTok views, about
    400x his median. Shape: Rob's real story, a parent who went over his head to the school board, band-community tags.
@@ -232,7 +235,8 @@ Numbers behind the strategy (Sep 10 - Oct 16 2026):
   2. "Kiss your ducks in the morning, your day is bound to get better": don't let the rough or ugly things hang; get them done and behind you. Wording confirmed by Rob. He may have said "ugly ducks" but isn't sure, so quote it without "ugly".
   3. Plowing the garden (his dad was a farmer's kid): if you watch your feet the plow line is super crooked; look way out to where you're aiming and the line is straight. About goals: look ahead, not straight down.
   Only three lessons so far; use a 3-lesson carousel or ask Rob for two more. Tribe: principals' kids / teachers' kids (#principalskid #teacherskid #schoolleaders).
-- Still to ask: guitar/songwriting story; parent-quote question.
+- Band-director travels (Rob's words, 2026-11-26), USED Tue 2026-12-08: performed under the Eiffel Tower, behind the Berlin Wall, in Lucerne; at the houses of Shakespeare and Mozart; traveled over the Saint Bernard Pass ("which has since closed": unclear, ask before using); "Join band!" He was the band director on these trips.
+- Still to ask: guitar/songwriting story; TEDx story; parent-quote question; Friday plan after WWYD 08 (re-run best performers or new scenarios).
 
 ## Analytics snapshot 2026-10-20 (Oct 12-20)
 - TikTok views: band-director carousel 4,140 (341 likes, 33 shares); urban-student sim video 889; what-would-you-do video 829; grades carousel 711; reluctant-readers carousel 469; drum carousel 406. Promo/story VIDEOS mostly 98-127 (factory 98, elevator 119, WRDR 127, fiction 124). Carousels beat animated videos ~10x.
