@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import s from './btf.module.css';
 import { pageMeta } from '../lib/seo';
-import { CATEGORIES, MAX_TOTAL, bandFor, fetchScores } from '../../lib/btf';
+import { CATEGORIES, MAX_TOTAL, bandFor, fetchScores, groupByRestaurant } from '../../lib/btf';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,10 +21,10 @@ const SCALE = [
 ];
 
 export default async function BeyondTheFoodReviewPage() {
-  let rows = [];
+  let groups = [];
   let unavailable = false;
   try {
-    rows = await fetchScores();
+    groups = groupByRestaurant(await fetchScores());
   } catch {
     unavailable = true;
   }
@@ -49,30 +49,37 @@ export default async function BeyondTheFoodReviewPage() {
             <span>Verdict</span>
             <span style={{ textAlign: 'right' }}>Score</span>
           </div>
-          {rows.length === 0 ? (
+          {groups.length === 0 ? (
             <p className={s.empty}>
               {unavailable
                 ? 'The leaderboard is taking a breather. Check back shortly.'
                 : 'First reviews are being scored now. Check back shortly.'}
             </p>
           ) : (
-            rows.map((r, i) => (
-              <div className={s.row} key={r.id}>
+            groups.map((g, i) => (
+              <Link className={s.row} key={g.key} href={`/beyondthefoodreview/r/${g.key}`}>
                 <span className={s.rank}>{i + 1}</span>
                 <span>
-                  <span className={s.name}>{r.restaurant}</span>
+                  <span className={s.name}>{g.restaurant}</span>
                   <span className={s.meta}>
-                    {[r.city, r.is_host ? 'Reviewed by Rob' : `Scout: ${r.scout_name}`]
+                    {[
+                      g.city,
+                      g.cards.length === 1
+                        ? g.cards[0].is_host
+                          ? 'Reviewed by Rob'
+                          : `Scout: ${g.cards[0].scout_name}`
+                        : `${g.cards.length} reviews${g.spread >= 10 ? ` · they disagreed by ${g.spread}` : ''}`,
+                    ]
                       .filter(Boolean)
                       .join(' · ')}
                   </span>
                 </span>
-                <span className={s.band}>{bandFor(r.total)}</span>
+                <span className={s.band}>{bandFor(g.average)}</span>
                 <span className={s.score}>
-                  {r.total}
+                  {g.average}
                   <span className={s.scoreOut}>/{MAX_TOTAL}</span>
                 </span>
-              </div>
+              </Link>
             ))
           )}
         </div>

@@ -28,24 +28,20 @@ const SHOTS = [
 ];
 
 export function CardSwitch() {
-  const [tab, setTab] = useState('host');
+  const [tab, setTab] = useState('card');
 
   return (
     <>
       <div className={s.tabs}>
-        <button type="button" className={`${s.tab} ${tab === 'host' ? s.tabOn : ''}`} onClick={() => setTab('host')}>
-          My card
-        </button>
-        <button type="button" className={`${s.tab} ${tab === 'scout' ? s.tabOn : ''}`} onClick={() => setTab('scout')}>
-          Scout card
+        <button type="button" className={`${s.tab} ${tab === 'card' ? s.tabOn : ''}`} onClick={() => setTab('card')}>
+          Scorecard
         </button>
         <button type="button" className={`${s.tab} ${tab === 'shots' ? s.tabOn : ''}`} onClick={() => setTab('shots')}>
           Shot list
         </button>
       </div>
 
-      {tab === 'host' ? <Card isHost key="host" /> : null}
-      {tab === 'scout' ? <Card isHost={false} key="scout" /> : null}
+      {tab === 'card' ? <Card /> : null}
 
       {tab === 'shots' ? (
         <div>
