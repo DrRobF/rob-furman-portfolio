@@ -9,9 +9,11 @@ const SHOTS = [
     ['Approach', '5s of you walking up. Sign in frame.'],
     ['The door push', 'POV through the door. Greeting timer starts now.'],
   ]],
-  ['Inside — seven photos, nothing else', [
+  ['Inside — eight photos and two clocks', [
     ['Shaker held to the light', 'Window light behind it. Take three, keep one.'],
     ['Table surface', 'Phone flat, shoot across it. Raking light finds the crumbs.'],
+    ['The napkin', 'Hold one up to the light. Thin ones go see-through — that is the shot.'],
+    ['Start two clocks', 'Note the time you sat, when the order was taken, and when food landed. Phone timer or just the clock.'],
     ['The pour test', 'Shake onto a dark napkin. Photo of what lands.'],
     ['Menu corner', 'Peeling laminate or the sticky patch.'],
     ['Water glass', 'Same angle twice — early, then after you have waited.'],
