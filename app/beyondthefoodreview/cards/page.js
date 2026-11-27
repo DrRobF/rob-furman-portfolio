@@ -28,8 +28,9 @@ export default function CardsPage() {
         {authed ? (
           <>
             <p className={s.lede}>
-              Seven categories, ten points each. Fill it in at the table, post it when you are done — it lands
-              on the public leaderboard straight away.
+              Ten categories, ten points each. Put your name in &ldquo;Scored by&rdquo; so the card is credited
+              to you — it is remembered on this phone after the first time. Post it when you are done and it
+              lands on the public leaderboard straight away.
             </p>
             <div style={{ marginTop: 28 }}>
               <CardSwitch />
