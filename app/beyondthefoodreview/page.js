@@ -37,7 +37,7 @@ export default async function BeyondTheFoodReviewPage() {
         <p className={s.lede}>
           Everybody reviews the food. This series reviews everything else: whether the shaker pours, whether
           the table was wiped, how long you sat before a human said hello.{' '}
-          <strong>Seven categories, ten points each, seventy possible.</strong> No opinions about anybody&apos;s
+          <strong>Ten categories, ten points each, one hundred possible.</strong> No opinions about anybody&apos;s
           cooking — just whether the place is paying attention.
         </p>
 
@@ -81,7 +81,7 @@ export default async function BeyondTheFoodReviewPage() {
         <div className={s.cats}>
           {CATEGORIES.map((c, i) => (
             <div className={s.cat} key={c.key}>
-              <span className={s.catNum}>0{i + 1}</span>
+              <span className={s.catNum}>{String(i + 1).padStart(2, '0')}</span>
               <p className={s.catName}>{c.label}</p>
               <p className={s.catBlurb}>{c.blurb}</p>
             </div>

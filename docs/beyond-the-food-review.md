@@ -1,7 +1,7 @@
 # Beyond the Food Review
 
 A restaurant review series that scores service and upkeep instead of food.
-Seven categories, ten points each, seventy possible.
+Ten categories, ten points each, one hundred possible.
 
 ## Routes
 
@@ -35,7 +35,10 @@ stops working immediately, which is how you remove a scout.
 
 Table `public.btf_scores` in the `DrRobF's Project` Supabase project.
 
-- `total` is a generated column — the sum of the seven categories, never set by hand.
+- `total` is a generated column — the sum of the ten categories, never set by hand.
+  The three categories added in November (`napkin`, `order_wait`, `food_wait`) are
+  nullable at the database level so older rows did not break; the submit route
+  requires all ten, so anything new always scores out of 100.
 - `approved` defaults to `true`; flip a row to `false` in the Supabase table
   editor to pull it off the public leaderboard without deleting it.
 - `is_host` marks Rob's own reviews so the leaderboard can credit them differently.

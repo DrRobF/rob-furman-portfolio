@@ -6,7 +6,10 @@ import s from '../btf.module.css';
 const CATEGORIES = [
   { key: 'shaker', label: 'The Shaker Test', hint: 'Flow, crust, ground pepper or dust. Shake onto a dark napkin.' },
   { key: 'table_condition', label: 'Table Condition', hint: 'Sticky laminate, crumbs in the seam, wobble, condiment lids.' },
+  { key: 'napkin', label: 'Napkin Quality', hint: 'Does it survive one wipe, or did you need three?' },
   { key: 'greeting', label: 'Greeting Clock', hint: 'Seconds from door to acknowledgment. Time it.' },
+  { key: 'order_wait', label: 'Sit-to-Order', hint: 'Sat down to order taken. Start the clock when you sit.' },
+  { key: 'food_wait', label: 'Order-to-Food', hint: 'Order taken to food on the table. Allow for how busy they were.' },
   { key: 'water', label: 'Water Refill Latency', hint: 'How low the glass gets before anybody notices.' },
   { key: 'menu', label: 'Menu Integrity', hint: 'Peeling laminate, fingerprints, mystery stickiness.' },
   { key: 'bathroom', label: 'The Bathroom', hint: 'Soap, hook on the door, dryer vs. sad paper towels. Score from memory.' },
@@ -17,10 +20,10 @@ const MAX = CATEGORIES.length * 10;
 
 function band(total, count) {
   if (count < CATEGORIES.length) return `${CATEGORIES.length - count} to go`;
-  if (total >= 63) return 'Immaculate — rare air';
-  if (total >= 49) return 'Solid. They care.';
-  if (total >= 35) return 'Mixed bag — usable video';
-  if (total >= 21) return 'Rough. Good content.';
+  if (total >= 90) return 'Immaculate — rare air';
+  if (total >= 70) return 'Solid. They care.';
+  if (total >= 50) return 'Mixed bag — usable video';
+  if (total >= 30) return 'Rough. Good content.';
   return 'Call the health department';
 }
 
@@ -111,7 +114,7 @@ export function Card({ isHost }) {
       {CATEGORIES.map((c, i) => (
         <div className={s.catBlock} key={c.key}>
           <div className={s.catHead}>
-            <span className={s.catNum}>0{i + 1}</span>
+            <span className={s.catNum}>{String(i + 1).padStart(2, '0')}</span>
             <span className={s.catTitle}>{c.label}</span>
           </div>
           <p className={s.catBlurb}>{c.hint}</p>
