@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import s from '../btf.module.css';
 
 const CATEGORIES = [
@@ -27,12 +27,34 @@ function band(total, count) {
   return 'Call the health department';
 }
 
-export function Card({ isHost }) {
+export function Card() {
   const [scores, setScores] = useState({});
   const [restaurant, setRestaurant] = useState('');
   const [city, setCity] = useState('');
   const [visitedOn, setVisitedOn] = useState('');
-  const [scoutName, setScoutName] = useState(isHost ? 'Dr. Rob Furman' : '');
+  const [scoutName, setScoutName] = useState('');
+
+  // Whoever used this phone last stays filled in, so nobody has to remember
+  // which card is "theirs".
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('btf_scored_by');
+      if (saved) setScoutName(saved);
+    } catch {
+      /* private browsing, no harm */
+    }
+  }, []);
+
+  function rememberName(value) {
+    setScoutName(value);
+    try {
+      localStorage.setItem('btf_scored_by', value);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const isHost = /rob\s*furman/i.test(scoutName);
   const [notes, setNotes] = useState('');
   const [state, setState] = useState({ kind: 'idle', msg: '' });
 
@@ -56,11 +78,13 @@ export function Card({ isHost }) {
     setCity('');
     setVisitedOn('');
     setNotes('');
+    // scoutName deliberately survives a reset — same person, next restaurant.
     setState({ kind: 'idle', msg: '' });
   }
 
   async function submit() {
     if (!restaurant.trim()) return setState({ kind: 'err', msg: 'Restaurant name first.' });
+    if (!scoutName.trim()) return setState({ kind: 'err', msg: 'Put your name in "Scored by" so the card gets credited.' });
     if (count < CATEGORIES.length) return setState({ kind: 'err', msg: 'All seven categories need a score.' });
 
     setState({ kind: 'busy', msg: 'Posting to the leaderboard…' });
@@ -102,13 +126,11 @@ export function Card({ isHost }) {
           <input id="btf-date" className={s.input} type="date" value={visitedOn}
             onChange={(e) => setVisitedOn(e.target.value)} />
         </div>
-        {!isHost ? (
-          <div>
-            <label className={s.label} htmlFor="btf-scout">Your name</label>
-            <input id="btf-scout" className={s.input} value={scoutName}
-              onChange={(e) => setScoutName(e.target.value)} placeholder="How you want to be credited" />
-          </div>
-        ) : null}
+        <div>
+          <label className={s.label} htmlFor="btf-scout">Scored by</label>
+          <input id="btf-scout" className={s.input} value={scoutName}
+            onChange={(e) => rememberName(e.target.value)} placeholder="Your name" />
+        </div>
       </div>
 
       {CATEGORIES.map((c, i) => (

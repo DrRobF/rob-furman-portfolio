@@ -7,7 +7,8 @@ Ten categories, ten points each, one hundred possible.
 
 | Route | Who sees it | What it does |
 |---|---|---|
-| `/beyondthefoodreview` | Public | Combined leaderboard (Rob + scouts), category explainer, scoring scale |
+| `/beyondthefoodreview` | Public | Leaderboard grouped by restaurant, category explainer, scoring scale |
+| `/beyondthefoodreview/r/[key]` | Public | One restaurant: the screenshot card, and where the scouts disagreed |
 | `/beyondthefoodreview/cards` | Passcode | Rob's card, the scout card, and the shot list |
 | `/api/btf/scores` | Public | Read-only JSON of approved scores |
 | `/api/btf/gate` | Public | Checks the passcode, sets an httpOnly cookie |
@@ -42,6 +43,17 @@ Table `public.btf_scores` in the `DrRobF's Project` Supabase project.
 - `approved` defaults to `true`; flip a row to `false` in the Supabase table
   editor to pull it off the public leaderboard without deleting it.
 - `is_host` marks Rob's own reviews so the leaderboard can credit them differently.
+  The card sets it automatically when the "Scored by" name looks like Rob's.
+- `restaurant_key` is generated from the name plus the city, so capitalisation and
+  punctuation do not split one restaurant into two leaderboard rows. It is also the
+  URL of the restaurant page.
+
+## Several cards for one restaurant
+
+Every card is stored as its own row and is never merged. The leaderboard ranks a
+restaurant by the **average** of its cards, and the restaurant page shows each
+card individually with a per-category gap column — so two scouts disagreeing is
+visible rather than averaged away. That disagreement is the interesting part.
 
 ## Adding or renaming a category
 
